@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>위트 콘텐츠연구소 | 프로젝트 의뢰하기</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --gold:#C5A85D;
+    --charcoal:#262626;
+    --bg:#FBFBF9;
+    --beige:#F4F1EA;
+  }
+  html,body{
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;
+    background-color:var(--bg);
+    color:var(--charcoal);
+    word-break:keep-all;
+    -webkit-tap-highlight-color:transparent;
+  }
+  body{font-size:14px;line-height:1.6;}
+  .lh-150{line-height:1.5;}
+  .gold{color:var(--gold);}
+  .bg-gold{background-color:var(--gold);}
+  .bg-charcoal{background-color:var(--charcoal);}
+  .border-gold{border-color:var(--gold);}
+  /* sticky CTA bar safe-area for mobile app shells */
+  .safe-bottom{padding-bottom:env(safe-area-inset-bottom);}
+  .chip{transition:all .15s ease;}
+  .chip.active{background-color:var(--charcoal);color:#fff;border-color:var(--charcoal);}
+  .db-tab{color:#78716c;white-space:nowrap;}
+  .db-tab.active{background-color:var(--charcoal);color:#fff;}
+  /* Safety net: guarantee toggle classes work even if the Tailwind CDN script
+     is blocked or slow to inject its stylesheet (e.g. restricted app webviews). */
+  .hidden{display:none !important;}
+  button, a{cursor:pointer;}
+  .step-dot{width:8px;height:8px;border-radius:50%;background:#E5E0D3;transition:all .2s ease;}
+  .step-dot.active{background:var(--gold);width:22px;border-radius:6px;}
+  .fade-in{animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .card-hover{transition:transform .2s ease, box-shadow .2s ease;}
+  .card-hover:hover{transform:translateY(-4px);box-shadow:0 10px 24px -8px rgba(0,0,0,.12);}
+  .modal-bg{background:rgba(20,18,14,.72);}
+  ::-webkit-scrollbar{height:6px;width:6px;}
+  ::-webkit-scrollbar-thumb{background:#D9D2C2;border-radius:3px;}
+  .scroll-x{scrollbar-width:thin;}
+</style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- ===== Header / Nav ===== -->
+<header class="sticky top-0 z-40 bg-[#FBFBF9]/90 backdrop-blur border-b border-stone-200">
+  <div class="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2 flex-shrink-0">
+      <img src="logo.png" alt="위트 콘텐츠연구소" class="h-7 md:h-8 w-auto">
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-[13.5px] font-medium text-stone-600">
+      <a href="#top" class="hover:text-[var(--charcoal)] transition-colors">연구소 소개</a>
+      <a href="#capabilities" class="hover:text-[var(--charcoal)] transition-colors">핵심역량</a>
+      <a href="#portfolio" class="hover:text-[var(--charcoal)] transition-colors">포트폴리오</a>
+      <a href="#request" class="hover:text-[var(--charcoal)] transition-colors">프로젝트 의뢰하기</a>
+    </nav>
+    <a href="#request" class="bg-charcoal text-white text-xs font-bold px-4 py-2.5 rounded-full hover:bg-gold transition-colors flex-shrink-0">프로젝트 의뢰하기</a>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section id="top" class="max-w-6xl mx-auto px-4 md:px-8 pt-12 pb-16 md:pt-20 md:pb-24 text-center">
+  <div class="inline-flex items-center gap-1.5 bg-[var(--beige)] text-stone-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+    <span>🌾 지역기획 · AI미디어교육 · 컨설팅</span>
+  </div>
+  <h1 class="lh-150 text-2xl md:text-4xl font-extrabold tracking-tight mb-5">
+    마을의 이야기를 기술로 잇고<br class="hidden md:block">
+    경험의 가치를 콘텐츠로 다듬습니다.
+  </h1>
+  <p class="text-stone-600 text-[13.5px] md:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+    위트 콘텐츠연구소는 지역 공동체와 함께 기획하고, AI 기술로 교육하며, 깊이 있는 컨설팅으로 동행합니다.
+  </p>
+  <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <a href="#request" class="bg-gold text-white font-bold px-7 py-3.5 rounded-xl shadow-md hover:opacity-90 transition">프로젝트 의뢰하기</a>
+    <a href="#portfolio" class="bg-white border border-stone-300 font-bold px-7 py-3.5 rounded-xl hover:border-charcoal transition">포트폴리오 보기</a>
+  </div>
+</section>
+
+<!-- ===== About / Profile ===== -->
+<section id="about" class="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
+
+    <!-- Academic Background -->
+    <div>
+      <p class="text-[11px] font-bold gold tracking-widest mb-2">ACADEMIC BACKGROUND</p>
+      <h2 class="text-xl md:text-2xl font-extrabold mb-3">디지털과 인문 기술의 융합</h2>
+      <p class="text-stone-600 text-[13.5px] leading-relaxed mb-6">
+        스페인어학과에서 쌓아 올린 풍부한 인문학적 소양을 바탕으로, 현재 전남대학교 대학원 디지털미래융합서비스 학업에 전념하여 지역 활성화를 위한 실무 공공 디지털 모델을 연구하고 있습니다.
+      </p>
+
+      <h3 class="font-bold text-sm mb-3 flex items-center gap-1.5">📖 Education (학력사항)</h3>
+      <div class="space-y-3 mb-6">
+        <div class="bg-white border border-stone-200 rounded-xl px-5 py-4 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-sm mb-0.5">전남대학교 대학원</p>
+            <p class="text-stone-500 text-xs mb-1">디지털미래융합서비스협동과정</p>
+            <p class="text-stone-400 text-xs">2023.09 - 현재</p>
+          </div>
+          <span class="bg-[var(--beige)] text-stone-600 text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">재학</span>
+        </div>
+        <div class="bg-white border border-stone-200 rounded-xl px-5 py-4 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-sm mb-0.5">조선대학교</p>
+            <p class="text-stone-500 text-xs mb-1">스페인어학과</p>
+            <p class="text-stone-400 text-xs">2011.03 - 2016.02</p>
+          </div>
+          <span class="bg-charcoal text-white text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">졸업</span>
+        </div>
+      </div>
+
+      <div class="bg-charcoal rounded-2xl p-6 text-white">
+        <p class="text-[11px] font-bold gold tracking-widest mb-3 flex items-center gap-1.5">🏅 CORE COMPETENCY</p>
+        <p class="font-bold text-base mb-2 leading-snug">수많은 민관 프로젝트를 이끌며 검증받은 든든한 실행 파트너</p>
+        <p class="text-stone-300 text-[13px] leading-relaxed">
+          광주광역시 표창 및 정부 지자체 도시재생 아이디어 대상 등의 입증된 공헌을 자랑하며, 다채로운 영역에서 지속가능한 로컬 마스터 플랜을 실행합니다.
+        </p>
+      </div>
+    </div>
+
+    <!-- Work Journey -->
+    <div>
+      <p class="text-[11px] font-bold gold tracking-widest mb-2">WORK JOURNEY</p>
+      <h2 class="text-xl md:text-2xl font-extrabold mb-3">실무 연혁 (경력사항)</h2>
+      <p class="text-stone-600 text-[13.5px] leading-relaxed mb-6">
+        방송 미디어 기획부터 마을 리빙랩, 공공 정책 플랫폼 운영까지 다양한 현장을 아우르는 실무 경험입니다.
+      </p>
+
+      <div class="relative pl-6 border-l-2 border-stone-200 space-y-7">
+        <div class="relative">
+          <span class="absolute -left-[26px] top-0.5 w-3 h-3 rounded-full bg-gold"></span>
+          <p class="text-stone-400 text-xs font-bold mb-1">2022.05 - 현재</p>
+          <p class="font-bold text-sm mb-1">위트 콘텐츠연구소 <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">대표</span></p>
+          <p class="text-stone-500 text-[13px] leading-relaxed">미디어 콘텐츠 창작, AI 교육 프로그램 기획 및 지자체 소셜 임팩트 컨설팅 총괄</p>
+        </div>
+        <div class="relative">
+          <span class="absolute -left-[26px] top-0.5 w-3 h-3 rounded-full bg-stone-300"></span>
+          <p class="text-stone-400 text-xs font-bold mb-1">2018.04 - 2022.04</p>
+          <p class="font-bold text-sm mb-1">광주광역시도시재생공동체센터 <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">주임</span></p>
+          <p class="text-stone-500 text-[13px] leading-relaxed">온·오프라인 주민참여 플랫폼 '마을e척척' 기획·운영, 광주공동체한마당 총괄(4회) 및 로컬 자원 분석 아카이빙</p>
+        </div>
+        <div class="relative">
+          <span class="absolute -left-[26px] top-0.5 w-3 h-3 rounded-full bg-stone-300"></span>
+          <p class="text-stone-400 text-xs font-bold mb-1">2016.02 - 2017.09</p>
+          <p class="font-bold text-sm mb-1">주식회사 레미행 <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">기획실장</span></p>
+          <p class="text-stone-500 text-[13px] leading-relaxed">달밤웨딩 등 기발한 야외 웨딩 콘텐츠 총괄 기획 및 마을 공동체 연계 문화 한마당 총괄</p>
+        </div>
+        <div class="relative">
+          <span class="absolute -left-[26px] top-0.5 w-3 h-3 rounded-full bg-stone-300"></span>
+          <p class="text-stone-400 text-xs font-bold mb-1">2016.02 - 2016.12</p>
+          <p class="font-bold text-sm mb-1">광주광역시 동구청 <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">마을코디</span></p>
+          <p class="text-stone-500 text-[13px] leading-relaxed">골목 자생 공동체 신규 발굴 및 자율적 마을 리빙랩 활성화를 위한 매개적 행정 지원</p>
+        </div>
+        <div class="relative">
+          <span class="absolute -left-[26px] top-0.5 w-3 h-3 rounded-full bg-stone-300"></span>
+          <p class="text-stone-400 text-xs font-bold mb-1">2006.11 - 2008.09</p>
+          <p class="font-bold text-sm mb-1">KBS 보도국 사회팀 <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">AD (조연출)</span></p>
+          <p class="text-stone-500 text-[13px] leading-relaxed">이슈 리서치, 취재 보도자료 분석 지원 및 현장 밀착 조율을 통해 탄탄한 기획 기초 확보</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== Capabilities ===== -->
+<section id="capabilities" class="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
+  <h2 class="text-xl md:text-2xl font-extrabold text-center mb-2">핵심 사업 및 전문 영역</h2>
+  <p class="text-center text-stone-500 text-sm mb-3">위트 콘텐츠연구소가 지향하고 실행하는 3가지 실천 방향입니다.</p>
+  <div class="w-10 h-[3px] bg-gold mx-auto mb-10 rounded-full"></div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="card-hover bg-[var(--beige)] border border-stone-200 rounded-2xl p-6">
+      <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-xl mb-4 shadow-sm">🧭</div>
+      <h3 class="font-bold text-base mb-1.5">기획 (Planning)</h3>
+      <p class="text-stone-600 text-[13px] leading-relaxed mb-4">주민이 즐겁게 동참하는 맞춤형 공간과 콘텐츠를 만듭니다.</p>
+      <ul class="space-y-2 text-[13px] text-stone-700">
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>참여형 워크숍 설계</li>
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>리빙랩(Living Lab) 운영</li>
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>행사 및 테마 콘텐츠 기획</li>
+      </ul>
+    </div>
+    <div class="card-hover bg-[var(--beige)] border border-stone-200 rounded-2xl p-6">
+      <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-xl mb-4 shadow-sm">🎬</div>
+      <h3 class="font-bold text-base mb-1.5">미디어 (Media &amp; Tech)</h3>
+      <p class="text-stone-600 text-[13px] leading-relaxed mb-4">쉬운 디지털 도구를 결합하여 특별한 기록을 남깁니다.</p>
+      <ul class="space-y-2 text-[13px] text-stone-700">
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>AI 활용 콘텐츠 교육 (자서전, 영상)</li>
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>커뮤니티 맵핑 (디지털 지도)</li>
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>지역 다큐멘터리 &amp; 홍보 영상 제작</li>
+      </ul>
+    </div>
+    <div class="card-hover bg-[var(--beige)] border border-stone-200 rounded-2xl p-6">
+      <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-xl mb-4 shadow-sm">🤝</div>
+      <h3 class="font-bold text-base mb-1.5">컨설팅 (Consulting)</h3>
+      <p class="text-stone-600 text-[13px] leading-relaxed mb-4">공동체의 자생을 위한 실전형 노하우를 나눕니다.</p>
+      <ul class="space-y-2 text-[13px] text-stone-700">
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>마을 공동체 활성화 자문</li>
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>대상별 맞춤 밀착 코칭</li>
+        <li class="flex items-start gap-2"><span class="text-green-600 mt-0.5">✓</span>디지털 전환 및 협업 시스템 구축</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Lecture & Research Database ===== -->
+<section id="database" class="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24 text-center">
+  <p class="text-[11px] font-bold gold tracking-widest mb-2">COMPREHENSIVE DATABASE</p>
+  <h2 class="text-xl md:text-2xl font-extrabold mb-3">강의 및 연구 기록 관리</h2>
+  <p class="text-stone-500 text-sm mb-8 max-w-xl mx-auto">지자체 출강, 학회 자문 및 연구 저술 아카이브 등 위서영 디렉터의 지식 콘텐츠 활동 데이터베이스입니다.</p>
+
+  <div id="dbTabs" class="inline-flex flex-wrap justify-center gap-2 border border-stone-200 rounded-full p-1.5 bg-white mb-8">
+    <button type="button" class="db-tab active text-xs font-bold px-4 py-2 rounded-full transition-colors" data-tab="ai">⚡ 최신 AI 활동 (2025-2026)</button>
+    <button type="button" class="db-tab text-xs font-bold px-4 py-2 rounded-full transition-colors" data-tab="pub">📄 저술 및 출판</button>
+    <button type="button" class="db-tab text-xs font-bold px-4 py-2 rounded-full transition-colors" data-tab="cert">🏅 보유 자격증</button>
+    <button type="button" class="db-tab text-xs font-bold px-4 py-2 rounded-full transition-colors" data-tab="award">✨ 주요 수상실적</button>
+  </div>
+
+  <div class="bg-white border border-stone-200 rounded-2xl p-5 md:p-8 text-left">
+    <div class="db-panel" data-panel="ai">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="font-bold text-base">최근 AI 기획 공론장 및 강의 지표</h3>
+        <span class="bg-[var(--beige)] text-stone-600 text-xs font-bold px-3 py-1 rounded-full">2025 - 2026</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="border border-stone-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">평생학습</span>
+            <span class="text-stone-400 text-xs font-semibold">2025.06 - 12</span>
+          </div>
+          <p class="font-bold text-sm mb-1.5">북평 꽃대어른학교 - 어른 AI 크리에이터 양성</p>
+          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">어르신들이 실생활에서 활용할 수 있는 친숙한 생성형 AI 툴 실습 및 크리에이티브 미디어 제작 교육</p>
+          <p class="text-stone-400 text-xs">광주북구청</p>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">특강</span>
+            <span class="text-stone-400 text-xs font-semibold">2025.09.08, 15</span>
+          </div>
+          <p class="font-bold text-sm mb-1.5">AI 활용 홍보 및 모니터링, 정책 제안서 작성법</p>
+          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">시민참여단을 대상으로 정책 모니터링 수집 효율화 및 생성형 AI 기반의 설득력 있는 제안서 작성법 특강</p>
+          <p class="text-stone-400 text-xs">광주북구평생학습관</p>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">강의</span>
+            <span class="text-stone-400 text-xs font-semibold">2025.10.27 - 12.19 (5회차)</span>
+          </div>
+          <p class="font-bold text-sm mb-1.5">AI 활용한 유튜버 양성교육</p>
+          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">지역 신활력 플러스 사업단을 대상으로 생성형 AI를 활용한 유튜브 기획 및 제작 역량 강화</p>
+          <p class="text-stone-400 text-xs">장흥군신활력플러스사회적협동조합</p>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-charcoal text-white text-[11px] font-bold px-2.5 py-1 rounded-full">오픈강좌</span>
+            <span class="text-stone-400 text-xs font-semibold">2026.03.06 - 27</span>
+          </div>
+          <p class="font-bold text-sm mb-1.5">스마트폰을 활용한 AI 기술 활용 교육</p>
+          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">누구나 스마트폰으로 생성형 AI를 일상에 적용할 수 있도록 안내하는 위트 콘텐츠연구소 자체 오픈강좌</p>
+          <p class="text-stone-400 text-xs">위트콘텐츠연구소</p>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">특강</span>
+            <span class="text-stone-400 text-xs font-semibold">2026.05.08</span>
+          </div>
+          <p class="font-bold text-sm mb-1.5">AI X 바이브코딩 실전 워크숍</p>
+          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">생성형 AI와 바이브코딩을 결합해 아이디어를 실제 결과물로 빠르게 구현해보는 실전형 워크숍</p>
+          <p class="text-stone-400 text-xs">장흥군신활력플러스사회적협동조합</p>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">워크숍</span>
+            <span class="text-stone-400 text-xs font-semibold">2026.05.14, 21</span>
+          </div>
+          <p class="font-bold text-sm mb-1.5">AI를 활용한 마을의제 도출 워크숍</p>
+          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">주민들이 AI 도구를 활용해 마을의 문제를 발굴하고 해결 의제를 도출하는 참여형 워크숍</p>
+          <p class="text-stone-400 text-xs">화정3동 주민자치회</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="db-panel hidden" data-panel="pub">
+      <h3 class="font-bold text-base mb-5">저술 및 출판</h3>
+      <div class="space-y-3">
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2014~15</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">양림사이다 (마을잡지)</p>
+          <p class="text-stone-500 text-[13px] flex-1">양림동 마을 이야기 · 기자단</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2014</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">광주지역 마을미디어 실태조사</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을미디어 실태조사집 · 광주시청자미디어재단</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2015</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">광주마을미디어 연구 및 정책문</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을미디어 연구 및 정책문 · 광주전남민언련</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2019</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">마을계획과 실천 따라하기</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을계획실천 매뉴얼북 · 광주광역시도시재생공동체센터</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2019</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">살맛나는 우리동네 우.동.</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을공동체 활동가 인터뷰 모음집 · 광주광역시도시재생공동체센터</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2020</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">마을e척척 마을의제실현 가이드</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을문제 해결을 위한 가이드 · 광주광역시도시재생공동체센터</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2021</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">마을e척척 의제탐험 가이드</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을리빙랩을 활용한 마을문제해결 · 광주광역시도시재생공동체센터</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2021</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">도시기록충 - 운암3단지</p>
+          <p class="text-stone-500 text-[13px] flex-1">재개발 전 운암3단지 기록 · 포토그래퍼</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2022</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">광주마을공동체 운영 가이드북</p>
+          <p class="text-stone-500 text-[13px] flex-1">마을의제 실행하기(마을리빙랩) · 광주광역시도시재생공동체센터</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-20 flex-shrink-0">2024</span>
+          <p class="font-semibold text-sm flex-shrink-0 md:w-48">고쳐볼 지도</p>
+          <p class="text-stone-500 text-[13px] flex-1">광주동구권역 수리수선 공간 안내 · 한걸음가게, 유어스텝</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="db-panel hidden" data-panel="cert">
+      <h3 class="font-bold text-base mb-5">보유 자격증</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="border border-stone-200 rounded-xl p-4 flex items-center justify-between">
+          <div><p class="font-semibold text-sm mb-1">MOS MASTER</p><p class="text-stone-400 text-xs">마이크로소프트사 · 2008.01</p></div>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4 flex items-center justify-between">
+          <div><p class="font-semibold text-sm mb-1">미디어교육지도사</p><p class="text-stone-400 text-xs">광주시청자미디어재단 · 2014.02.03</p></div>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4 flex items-center justify-between">
+          <div><p class="font-semibold text-sm mb-1">레크리에이션 1급</p><p class="text-stone-400 text-xs">대한레저스포츠이벤트협회 · 2016.12.30</p></div>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4 flex items-center justify-between">
+          <div><p class="font-semibold text-sm mb-1">미디어교육사 1급</p><p class="text-stone-400 text-xs">한국언론진흥재단 · 2022.12</p></div>
+        </div>
+        <div class="border border-stone-200 rounded-xl p-4 flex items-center justify-between">
+          <div><p class="font-semibold text-sm mb-1">모바일 디지털튜터 1급</p><p class="text-stone-400 text-xs">㈜비저너리글로벌 · 2023.02.15</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="db-panel hidden" data-panel="award">
+      <h3 class="font-bold text-base mb-5">주요 수상실적</h3>
+      <div class="space-y-3">
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-28 flex-shrink-0">2013.08.23</span>
+          <p class="font-semibold text-sm flex-1">우수상 - 울산관광스토리텔링 블로거</p>
+          <p class="text-stone-400 text-xs flex-shrink-0">울산광역시</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-28 flex-shrink-0">2013.08.31</span>
+          <p class="font-semibold text-sm flex-1">장려상 - 사람 사는 세상 사진공모전</p>
+          <p class="text-stone-400 text-xs flex-shrink-0">노무현재단</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-28 flex-shrink-0">2020.11.30</span>
+          <p class="font-semibold text-sm flex-1">표창패 - 2020년 마을공동체 활성화 유공자 표창</p>
+          <p class="text-stone-400 text-xs flex-shrink-0">광주광역시</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-28 flex-shrink-0">2021.06.04</span>
+          <p class="font-semibold text-sm flex-1">대상 - 2021 도시재생 아이디어 공모</p>
+          <p class="text-stone-400 text-xs flex-shrink-0">광주광역시</p>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border border-stone-200 rounded-xl p-4">
+          <span class="text-stone-400 text-xs font-bold w-28 flex-shrink-0">2021.11.04</span>
+          <p class="font-semibold text-sm flex-1">입선 - 2021 지역혁신 홍보 영상 공모전</p>
+          <p class="text-stone-400 text-xs flex-shrink-0">행정안전부</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Featured Projects ===== -->
+<section id="portfolio" class="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div>
+      <p class="text-[11px] font-bold gold tracking-widest mb-2">CREATIVE WORKS</p>
+      <h2 class="text-xl md:text-2xl font-extrabold">Featured Projects</h2>
+    </div>
+    <div id="projectTabs" class="flex gap-2 overflow-x-auto scroll-x pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+      <!-- filled by JS -->
+    </div>
+  </div>
+  <div id="projectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- filled by JS -->
+  </div>
+</section>
+
+<!-- ===== Video Portfolio ===== -->
+<section id="video-portfolio" class="max-w-6xl mx-auto px-4 md:px-8 pb-16 md:pb-24 text-center">
+  <p class="text-[11px] font-bold gold tracking-widest mb-2">VIDEO PORTFOLIO</p>
+  <h2 class="text-xl md:text-2xl font-extrabold mb-3">미디어 포트폴리오</h2>
+  <p class="text-stone-500 text-sm mb-8 max-w-xl mx-auto">다큐멘터리 제작, 마을 축제 뮤직비디오, 홍보영상 등 위서영 디렉터가 직접 참여하여 촬영·연출 및 기획한 유튜브 아카이브입니다.</p>
+
+  <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+    <!-- filled by JS -->
+  </div>
+</section>
+
+<!-- ===== Video Modal ===== -->
+<div id="videoModal" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
+  <div class="bg-black w-full max-w-3xl rounded-xl overflow-hidden relative">
+    <button id="closeModal" class="absolute top-2 right-2 z-10 text-white bg-black/50 w-8 h-8 rounded-full flex items-center justify-center text-lg">✕</button>
+    <div class="aspect-video w-full">
+      <iframe id="modalFrame" class="w-full h-full" src="" title="portfolio video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 5-Step Request Form ===== -->
+<section id="request" class="max-w-3xl mx-auto px-4 md:px-8 pb-20 md:pb-28">
+  <h2 class="text-xl md:text-2xl font-extrabold text-center mb-2">프로젝트 의뢰하기</h2>
+  <p class="text-center text-stone-500 text-sm mb-8">몇 단계의 선택만으로 위트 콘텐츠연구소 맞춤 제안서를 설계하기 위한 사전 설문입니다.</p>
+
+  <form id="requestForm" class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
+
+    <div class="bg-charcoal text-white px-5 md:px-8 py-4 flex items-center justify-between gap-4">
+      <span class="text-xs text-stone-400 font-medium flex-shrink-0">의뢰 진행도</span>
+      <div class="flex items-center gap-2 flex-1 justify-center max-w-xs">
+        <div class="step-dot active" data-dot="1"></div>
+        <div class="step-dot" data-dot="2"></div>
+        <div class="step-dot" data-dot="3"></div>
+        <div class="step-dot" data-dot="4"></div>
+        <div class="step-dot" data-dot="5"></div>
+      </div>
+      <span id="stepIndicator" class="text-xs font-bold gold flex-shrink-0">Step 1 of 5</span>
+    </div>
+
+    <div class="p-5 md:p-8">
+
+    <!-- Step 1 -->
+    <div class="step fade-in" data-step="1">
+      <h3 class="font-bold text-base md:text-lg mb-1">1. 어떤 서비스를 의뢰하고자 하십니까?</h3>
+      <p class="text-stone-500 text-[13px] mb-4">다양한 항목을 중복으로 선택할 수 있습니다.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="step1options">
+        <label class="opt-check flex items-start justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span>
+            <span class="font-semibold block mb-0.5">강의 (AI 교육 / 미디어 제작 등)</span>
+            <span class="text-stone-500 text-xs block">시니어 생성형 AI, 주민 블로그기자단 교육 등</span>
+          </span>
+          <input type="checkbox" name="service" value="강의" class="accent-[#C5A85D] mt-1">
+        </label>
+        <label class="opt-check flex items-start justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span>
+            <span class="font-semibold block mb-0.5">워크숍 / 디지털 리빙랩</span>
+            <span class="text-stone-500 text-xs block">마을의제 발굴, 주민참여 자원조사, 해커톤</span>
+          </span>
+          <input type="checkbox" name="service" value="워크숍/리빙랩" class="accent-[#C5A85D] mt-1">
+        </label>
+        <label class="opt-check flex items-start justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span>
+            <span class="font-semibold block mb-0.5">전문 자문 및 컨설팅</span>
+            <span class="text-stone-500 text-xs block">사업계획서 대행 코칭, 로컬 마케팅 구조 설계</span>
+          </span>
+          <input type="checkbox" name="service" value="컨설팅" class="accent-[#C5A85D] mt-1">
+        </label>
+        <label class="opt-check flex items-start justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span>
+            <span class="font-semibold block mb-0.5">콘텐츠 기획 및 제작</span>
+            <span class="text-stone-500 text-xs block">다큐멘터리 제작, 아카이브, 숏폼/웹자보 디자인</span>
+          </span>
+          <input type="checkbox" name="service" value="콘텐츠 제작" class="accent-[#C5A85D] mt-1">
+        </label>
+      </div>
+      <p class="text-xs text-red-500 mt-2 hidden" data-error="1">하나 이상 선택해 주세요.</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step hidden" data-step="2">
+      <h3 class="font-bold text-base md:text-lg mb-1">2. 주요 교육 및 워크숍 대상군은 누구입니까?</h3>
+      <p class="text-stone-500 text-[13px] mb-4">가장 핵심이 되는 대상 1곳을 선택해 주세요.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <label class="opt-radio flex items-center justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span class="font-semibold">시니어</span>
+          <input type="radio" name="target" value="시니어" class="accent-[#C5A85D]">
+        </label>
+        <label class="opt-radio flex items-center justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span class="font-semibold">주민자치회 / 활동가</span>
+          <input type="radio" name="target" value="주민자치회/활동가" class="accent-[#C5A85D]">
+        </label>
+        <label class="opt-radio flex items-center justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span class="font-semibold">청년</span>
+          <input type="radio" name="target" value="청년" class="accent-[#C5A85D]">
+        </label>
+        <label class="opt-radio flex items-center justify-between gap-2 border border-stone-300 rounded-xl px-4 py-3.5 cursor-pointer text-sm">
+          <span class="font-semibold">공무원</span>
+          <input type="radio" name="target" value="공무원" class="accent-[#C5A85D]">
+        </label>
+      </div>
+      <p class="text-xs text-red-500 mt-2 hidden" data-error="2">대상군을 선택해 주세요.</p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step hidden" data-step="3">
+      <h3 class="font-bold text-base md:text-lg mb-1">3. 일정과 예산 규모를 설정해 주세요.</h3>
+      <p class="text-stone-500 text-[13px] mb-4">정확한 견적 산출을 위한 기준 정보입니다.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1.5">희망 진행 일정</label>
+          <input type="date" name="schedule" class="w-full border border-stone-300 rounded-xl px-4 py-3 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1.5">예산 범위</label>
+          <select name="budget" class="w-full border border-stone-300 rounded-xl px-4 py-3 text-sm bg-white">
+            <option value="">선택해 주세요</option>
+            <option value="100만원 이하">100만원 이하</option>
+            <option value="100~300만원">100~300만원</option>
+            <option value="300~500만원">300~500만원</option>
+            <option value="500만원 이상">500만원 이상</option>
+            <option value="협의 후 결정">협의 후 결정</option>
+          </select>
+        </div>
+      </div>
+      <p class="text-xs text-red-500 mt-2 hidden" data-error="3">일정과 예산을 모두 입력해 주세요.</p>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step hidden" data-step="4">
+      <h3 class="font-bold text-base md:text-lg mb-1">4. 상세 요구 조건 및 핵심 키워드</h3>
+      <p class="text-stone-500 text-[13px] mb-4">관련 키워드를 선택하고, 세부 요청사항을 자유롭게 작성해 주세요.</p>
+      <div class="flex flex-wrap gap-2 mb-4" id="keywordChips">
+        <button type="button" class="chip border border-stone-300 rounded-full px-3.5 py-1.5 text-xs font-medium">지역소멸 대응</button>
+        <button type="button" class="chip border border-stone-300 rounded-full px-3.5 py-1.5 text-xs font-medium">AI 활용</button>
+        <button type="button" class="chip border border-stone-300 rounded-full px-3.5 py-1.5 text-xs font-medium">세대통합</button>
+        <button type="button" class="chip border border-stone-300 rounded-full px-3.5 py-1.5 text-xs font-medium">콘텐츠 제작</button>
+        <button type="button" class="chip border border-stone-300 rounded-full px-3.5 py-1.5 text-xs font-medium">공론장 운영</button>
+        <button type="button" class="chip border border-stone-300 rounded-full px-3.5 py-1.5 text-xs font-medium">주민참여</button>
+      </div>
+      <textarea name="detail" rows="4" placeholder="세부 요청사항을 자유롭게 작성해 주세요." class="w-full border border-stone-300 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step hidden" data-step="5">
+      <h3 class="font-bold text-base md:text-lg mb-1">5. 회신받으실 정보를 알려주세요.</h3>
+      <p class="text-stone-500 text-[13px] mb-4">제출하신 정보는 의뢰 검토 및 회신 목적으로만 사용됩니다.</p>
+      <div class="space-y-3">
+        <input type="text" name="org" placeholder="기관명 / 성함" class="w-full border border-stone-300 rounded-xl px-4 py-3 text-sm" required>
+        <input type="tel" name="phone" placeholder="연락처 (예: 010-0000-0000)" class="w-full border border-stone-300 rounded-xl px-4 py-3 text-sm" required>
+        <input type="email" name="email" placeholder="회신 이메일" class="w-full border border-stone-300 rounded-xl px-4 py-3 text-sm" required>
+      </div>
+      <label class="flex items-start gap-2 mt-4 text-xs text-stone-500">
+        <input type="checkbox" name="agree" class="mt-0.5 accent-[#C5A85D]" required>
+        <span>개인정보 수집 및 이용에 동의합니다. (수집목적: 의뢰 상담, 보유기간: 처리 완료 후 1년)</span>
+      </label>
+      <p class="text-xs text-red-500 mt-2 hidden" data-error="5">필수 정보와 동의 여부를 확인해 주세요.</p>
+    </div>
+
+    <!-- success state -->
+    <div class="step hidden text-center py-10" data-step="done">
+      <div class="text-4xl mb-4">✅</div>
+      <h3 class="font-bold text-lg mb-2">의뢰가 접수되었습니다.</h3>
+      <p class="text-stone-500 text-sm">담당자가 확인 후 영업일 기준 2일 이내로 회신드립니다.</p>
+    </div>
+
+    <!-- nav buttons -->
+    <div class="flex justify-between items-center mt-8 pt-5 border-t border-stone-200" id="formNav">
+      <button type="button" id="prevBtn" class="text-sm font-bold text-stone-500 px-4 py-2.5 invisible">이전</button>
+      <button type="button" id="nextBtn" class="bg-charcoal text-white font-bold px-6 py-2.5 rounded-xl hover:bg-gold transition-colors text-sm">다음 단계 ›</button>
+    </div>
+    </div>
+  </form>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="bg-charcoal text-stone-300">
+  <div class="max-w-6xl mx-auto px-4 md:px-8 py-10 text-xs leading-relaxed space-y-2">
+    <p class="font-bold text-white text-sm mb-1">위트 콘텐츠연구소</p>
+    <p>대표: 위서영 &nbsp;|&nbsp; 사업자등록번호: 258-10-02377</p>
+    <p>이메일: witconlab@naver.com</p>
+    <p class="text-stone-500 pt-2">
+      개인정보 수집·이용 고지: 본 사이트에서 수집하는 개인정보(기관명, 연락처, 이메일)는 프로젝트 의뢰 상담 목적으로만 사용되며, 처리 완료 후 1년간 보관 후 파기됩니다.
+    </p>
+    <p class="text-stone-500 pt-4">© 2026 WIT CONTENT LAB. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- sticky mobile CTA -->
+<div class="no-print fixed bottom-0 left-0 right-0 z-30 md:hidden bg-white/95 backdrop-blur border-t border-stone-200 safe-bottom">
+  <div class="px-4 py-3">
+    <a href="#request" class="block text-center bg-gold text-white font-bold py-3 rounded-xl shadow-md">프로젝트 의뢰하기</a>
+  </div>
+</div>
+<div class="h-16 md:hidden"></div>
+
+<script>
+/* ===== Database tabs ===== */
+document.querySelectorAll('.db-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.db-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.db-panel').forEach(p=>p.classList.add('hidden'));
+    document.querySelector(`.db-panel[data-panel="${tab.dataset.tab}"]`).classList.remove('hidden');
+  });
+});
+
+/* ===== Featured Projects ===== */
+const projectData = [
+  {cat:"로컬 리빙랩", date:"2023.11", badge:"리빙랩", title:"종이팩을 구하는 우리학교", desc:"기존 쓰레기로 분류되던 학교 내 종이팩을 주민들과 함께 효율적으로 구출하고 순환시키는 리사이클 시스템 구축", tags:["#자원순환","#리빙랩"]},
+  {cat:"콘텐츠 기획", date:"2023.10", badge:"콘텐츠", title:"나는 단골이다, 시장상인 콘텐츠", desc:"전통시장 여성 상인들의 삶과 따뜻한 비즈니스 스토리를 발굴하여 감성적인 인문 전시 및 SNS 콘텐츠 연계", tags:["#스토리텔링","#전통시장"]},
+  {cat:"로컬 리빙랩", date:"2023.06", badge:"리빙랩", title:"북구 탄소중립 기본계획 수립 협업", desc:"주민 주도의 탄소 저감 방안 도출을 위한 기후위기 소셜 디자인 워크숍 가이드북 공동 기획 및 진행", tags:["#탄소중립","#ESG"]},
+  {cat:"기관 및 청년 협업", date:"2023.03", badge:"협업", title:"일단해보자GO! 프로젝트 기획", desc:"청년들의 진로 모색과 자율적 비즈니스 실험을 돕기 위해 단계적 기획 실행을 실천하는 커뮤니티 프로젝트", tags:["#청년네트워킹","#기획실습"]}
+];
+const projectCats = ["전체보기","콘텐츠 기획","로컬 리빙랩","기관 및 청년 협업"];
+const projectTabsEl = document.getElementById('projectTabs');
+const projectGridEl = document.getElementById('projectGrid');
+
+projectCats.forEach((c,i)=>{
+  const btn = document.createElement('button');
+  btn.textContent = c;
+  btn.className = "chip flex-shrink-0 border border-stone-300 rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap" + (i===0?" active":"");
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#projectTabs .chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProjects(c);
+  });
+  projectTabsEl.appendChild(btn);
+});
+
+function renderProjects(filter){
+  projectGridEl.innerHTML = "";
+  const items = projectData.filter(p=>filter==="전체보기" || p.cat===filter);
+  items.forEach(item=>{
+    const card = document.createElement('div');
+    card.className = "card-hover bg-white border border-stone-200 rounded-xl p-5 flex flex-col";
+    card.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-stone-400 text-xs font-semibold">${item.date}</span>
+        <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">${item.badge}</span>
+      </div>
+      <h3 class="font-bold text-sm mb-2 leading-snug">${item.title}</h3>
+      <p class="text-stone-500 text-[12.5px] leading-relaxed mb-4 flex-1">${item.desc}</p>
+      <div class="flex flex-wrap gap-1.5 mb-3">
+        ${item.tags.map(t=>`<span class="text-[11px] text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full">${t}</span>`).join('')}
+      </div>
+      <span class="text-xs font-bold gold">자세히 보기 →</span>`;
+    projectGridEl.appendChild(card);
+  });
+}
+renderProjects("전체보기");
+
+/* ===== Video Portfolio ===== */
+const videoData = [
+  {title:"다큐멘터리 '아로새긴 금수장'", desc:"광주 동구의 랜드마크인 옛 금수장호텔의 역사와 주민들의 기록을 아카이빙한 감동적 기획 다큐멘터리", id:"dQw4w9WgXcQ"},
+  {title:"광주여성 역사길 '두홉길' 홍보영상", desc:"광주 양림동을 중심으로 잊혀져 가는 여성 개척자들의 발자취와 역사길 투어를 감성적으로 안내하는 영상", id:"dQw4w9WgXcQ"},
+  {title:"광주공동체한마당 축제 뮤직비디오", desc:"전 세대 주민들이 직접 참여하고 화합한 광주공동체한마당의 열띤 현장을 한데 녹인 뮤직비디오 콘텐츠", id:"dQw4w9WgXcQ"}
+];
+const videoGridEl = document.getElementById('videoGrid');
+videoData.forEach(v=>{
+  const card = document.createElement('div');
+  card.className = "card-hover bg-white border border-stone-200 rounded-xl overflow-hidden cursor-pointer";
+  card.innerHTML = `
+    <div class="aspect-video bg-stone-200 relative overflow-hidden">
+      <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" class="w-full h-full object-cover" loading="lazy" alt="${v.title}">
+      <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center text-charcoal">▶</div>
+      </div>
+    </div>
+    <div class="p-4">
+      <p class="font-bold text-sm mb-1.5 leading-snug">${v.title}</p>
+      <p class="text-stone-500 text-[12.5px] leading-relaxed mb-2">${v.desc}</p>
+      <span class="text-xs font-bold gold">유튜브에서 시청하기 ↗</span>
+    </div>`;
+  card.addEventListener('click', ()=>openModal(v.id));
+  videoGridEl.appendChild(card);
+});
+
+const videoModal = document.getElementById('videoModal');
+const modalFrame = document.getElementById('modalFrame');
+function openModal(id){
+  modalFrame.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+  videoModal.classList.remove('hidden');
+}
+function closeModalFn(){
+  videoModal.classList.add('hidden');
+  modalFrame.src = "";
+}
+document.getElementById('closeModal').addEventListener('click', closeModalFn);
+videoModal.addEventListener('click', (e)=>{ if(e.target===videoModal) closeModalFn(); });
+
+/* ===== Form interactivity ===== */
+document.querySelectorAll('.opt-check, .opt-radio').forEach(label=>{
+  const input = label.querySelector('input');
+  const sync = ()=> label.classList.toggle('bg-charcoal', input.checked) || label.classList.toggle('text-white', input.checked) || label.classList.toggle('border-charcoal', input.checked);
+  input.addEventListener('change', ()=>{
+    if(input.type==='radio'){
+      document.querySelectorAll(`input[name="${input.name}"]`).forEach(r=>{
+        r.closest('label').classList.remove('bg-charcoal','text-white','border-charcoal');
+      });
+    }
+    sync();
+  });
+});
+
+document.querySelectorAll('#keywordChips .chip').forEach(chip=>{
+  chip.addEventListener('click', ()=> chip.classList.toggle('active'));
+});
+
+let currentStep = 1;
+const totalSteps = 5;
+const form = document.getElementById('requestForm');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+function showStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
+  const target = document.querySelector(`.step[data-step="${n}"]`);
+  target.classList.remove('hidden');
+  target.classList.add('fade-in');
+  document.querySelectorAll('.step-dot').forEach(d=>{
+    d.classList.toggle('active', Number(d.dataset.dot)===n);
+  });
+  document.getElementById('stepIndicator').textContent = `Step ${n} of ${totalSteps}`;
+  prevBtn.classList.toggle('invisible', n===1);
+  nextBtn.textContent = n===totalSteps ? "제출하기" : "다음 단계 ›";
+}
+
+function validateStep(n){
+  const err = document.querySelector(`[data-error="${n}"]`);
+  let ok = true;
+  if(n===1){
+    ok = document.querySelectorAll('input[name="service"]:checked').length > 0;
+  } else if(n===2){
+    ok = document.querySelectorAll('input[name="target"]:checked').length > 0;
+  } else if(n===3){
+    ok = form.schedule.value !== "" && form.budget.value !== "";
+  } else if(n===5){
+    ok = form.org.value.trim() !== "" && form.phone.value.trim() !== "" && form.email.value.trim() !== "" && form.agree.checked;
+  }
+  if(err) err.classList.toggle('hidden', ok);
+  return ok;
+}
+
+nextBtn.addEventListener('click', ()=>{
+  if(!validateStep(currentStep)) return;
+  if(currentStep === totalSteps){
+    document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
+    document.querySelector('.step[data-step="done"]').classList.remove('hidden');
+    document.getElementById('formNav').classList.add('hidden');
+    return;
+  }
+  currentStep++;
+  showStep(currentStep);
+});
+
+prevBtn.addEventListener('click', ()=>{
+  if(currentStep===1) return;
+  currentStep--;
+  showStep(currentStep);
+});
+
+showStep(1);
+</script>
+
+</body>
+</html>
