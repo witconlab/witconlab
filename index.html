@@ -228,61 +228,8 @@
         <h3 class="font-bold text-base">최근 AI 기획 공론장 및 강의 지표</h3>
         <span class="bg-[var(--beige)] text-stone-600 text-xs font-bold px-3 py-1 rounded-full">2025 - 2026</span>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="border border-stone-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">평생학습</span>
-            <span class="text-stone-400 text-xs font-semibold">2025.06 - 12</span>
-          </div>
-          <p class="font-bold text-sm mb-1.5">북평 꽃대어른학교 - 어른 AI 크리에이터 양성</p>
-          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">어르신들이 실생활에서 활용할 수 있는 친숙한 생성형 AI 툴 실습 및 크리에이티브 미디어 제작 교육</p>
-          <p class="text-stone-400 text-xs">광주북구청</p>
-        </div>
-        <div class="border border-stone-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">특강</span>
-            <span class="text-stone-400 text-xs font-semibold">2025.09.08, 15</span>
-          </div>
-          <p class="font-bold text-sm mb-1.5">AI 활용 홍보 및 모니터링, 정책 제안서 작성법</p>
-          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">시민참여단을 대상으로 정책 모니터링 수집 효율화 및 생성형 AI 기반의 설득력 있는 제안서 작성법 특강</p>
-          <p class="text-stone-400 text-xs">광주북구평생학습관</p>
-        </div>
-        <div class="border border-stone-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">강의</span>
-            <span class="text-stone-400 text-xs font-semibold">2025.10.27 - 12.19 (5회차)</span>
-          </div>
-          <p class="font-bold text-sm mb-1.5">AI 활용한 유튜버 양성교육</p>
-          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">지역 신활력 플러스 사업단을 대상으로 생성형 AI를 활용한 유튜브 기획 및 제작 역량 강화</p>
-          <p class="text-stone-400 text-xs">장흥군신활력플러스사회적협동조합</p>
-        </div>
-        <div class="border border-stone-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="bg-charcoal text-white text-[11px] font-bold px-2.5 py-1 rounded-full">오픈강좌</span>
-            <span class="text-stone-400 text-xs font-semibold">2026.03.06 - 27</span>
-          </div>
-          <p class="font-bold text-sm mb-1.5">스마트폰을 활용한 AI 기술 활용 교육</p>
-          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">누구나 스마트폰으로 생성형 AI를 일상에 적용할 수 있도록 안내하는 위트 콘텐츠연구소 자체 오픈강좌</p>
-          <p class="text-stone-400 text-xs">위트콘텐츠연구소</p>
-        </div>
-        <div class="border border-stone-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">특강</span>
-            <span class="text-stone-400 text-xs font-semibold">2026.05.08</span>
-          </div>
-          <p class="font-bold text-sm mb-1.5">AI X 바이브코딩 실전 워크숍</p>
-          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">생성형 AI와 바이브코딩을 결합해 아이디어를 실제 결과물로 빠르게 구현해보는 실전형 워크숍</p>
-          <p class="text-stone-400 text-xs">장흥군신활력플러스사회적협동조합</p>
-        </div>
-        <div class="border border-stone-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="bg-[var(--beige)] text-stone-600 text-[11px] font-bold px-2.5 py-1 rounded-full">워크숍</span>
-            <span class="text-stone-400 text-xs font-semibold">2026.05.14, 21</span>
-          </div>
-          <p class="font-bold text-sm mb-1.5">AI를 활용한 마을의제 도출 워크숍</p>
-          <p class="text-stone-500 text-[13px] leading-relaxed mb-2">주민들이 AI 도구를 활용해 마을의 문제를 발굴하고 해결 의제를 도출하는 참여형 워크숍</p>
-          <p class="text-stone-400 text-xs">화정3동 주민자치회</p>
-        </div>
+      <div id="aiGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- filled by JS -->
       </div>
     </div>
 
@@ -430,6 +377,14 @@
     <div class="aspect-video w-full">
       <iframe id="modalFrame" class="w-full h-full" src="" title="portfolio video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
+  </div>
+</div>
+
+<!-- ===== Detail Modal (AI activity 자세히보기) ===== -->
+<div id="detailModal" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-2xl overflow-hidden relative p-6 md:p-7">
+    <button id="closeDetailModal" class="absolute top-3 right-3 text-stone-400 hover:text-charcoal w-8 h-8 rounded-full flex items-center justify-center text-lg">✕</button>
+    <div id="detailModalBody"></div>
   </div>
 </div>
 
@@ -619,12 +574,65 @@ document.querySelectorAll('.db-tab').forEach(tab=>{
   });
 });
 
+/* ===== AI Activity (최신 AI 활동) ===== */
+const aiData = [
+  {badge:"공론장PM", badgeStyle:"dark", date:"2026.06.12", title:"전남광주 통합특별시 시민주권 정책 공론장", desc:"AI를 활용한 공론장으로써 AI 챗봇으로 학습하고 논의 결과는 AI로 시각화해 직접 구현하는 실시간 정책 제안 의견 수렴 공론장", org:"전남광주통합특별시 시민주권 정책공론장 추진위원회", link:"", image:""},
+  {badge:"평생학습", date:"2025.06 - 12", title:"북평 꽃대어른학교 - 어른 AI 크리에이터 양성", desc:"어르신들이 실생활에서 활용할 수 있는 친숙한 생성형 AI 툴 실습 및 크리에이티브 미디어 제작 교육", org:"광주북구청", link:"", image:""},
+  {badge:"특강", date:"2025.09.08, 15", title:"AI 활용 홍보 및 모니터링, 정책 제안서 작성법", desc:"시민참여단을 대상으로 정책 모니터링 수집 효율화 및 생성형 AI 기반의 설득력 있는 제안서 작성법 특강", org:"광주북구평생학습관", link:"", image:""},
+  {badge:"강의", date:"2025.10.27 - 12.19 (5회차)", title:"AI 활용한 유튜버 양성교육", desc:"지역 신활력 플러스 사업단을 대상으로 생성형 AI를 활용한 유튜브 기획 및 제작 역량 강화", org:"장흥군신활력플러스사회적협동조합", link:"", image:""},
+  {badge:"오픈강좌", badgeStyle:"dark", date:"2026.03.06 - 27", title:"스마트폰을 활용한 AI 기술 활용 교육", desc:"누구나 스마트폰으로 생성형 AI를 일상에 적용할 수 있도록 안내하는 위트 콘텐츠연구소 자체 오픈강좌", org:"위트콘텐츠연구소", link:"https://witconlabai.my.canva.site/", image:""},
+  {badge:"특강", date:"2026.05.08", title:"AI X 바이브코딩 실전 워크숍", desc:"생성형 AI와 바이브코딩을 결합해 아이디어를 실제 결과물로 빠르게 구현해보는 실전형 워크숍", org:"장흥군신활력플러스사회적협동조합", link:"", image:""},
+  {badge:"워크숍", date:"2026.05.14, 21", title:"AI를 활용한 마을의제 도출 워크숍", desc:"주민들이 AI 도구를 활용해 마을의 문제를 발굴하고 해결 의제를 도출하는 참여형 워크숍", org:"화정3동 주민자치회", link:"", image:""}
+];
+const aiGridEl = document.getElementById('aiGrid');
+aiData.forEach((item,i)=>{
+  const card = document.createElement('div');
+  card.className = "border border-stone-200 rounded-xl p-4";
+  card.innerHTML = `
+    <div class="flex items-center justify-between mb-2">
+      <span class="${item.badgeStyle==='dark' ? 'bg-charcoal text-white' : 'bg-[var(--beige)] text-stone-600'} text-[11px] font-bold px-2.5 py-1 rounded-full">${item.badge}</span>
+      <span class="text-stone-400 text-xs font-semibold">${item.date}</span>
+    </div>
+    <p class="font-bold text-sm mb-1.5">${item.title}</p>
+    <p class="text-stone-500 text-[13px] leading-relaxed mb-2">${item.desc}</p>
+    <div class="flex items-center justify-between">
+      <p class="text-stone-400 text-xs">${item.org}</p>
+      <button type="button" class="ai-detail-btn text-xs font-bold gold flex-shrink-0" data-idx="${i}">자세히 보기 →</button>
+    </div>`;
+  aiGridEl.appendChild(card);
+});
+
+const detailModal = document.getElementById('detailModal');
+const detailModalBody = document.getElementById('detailModalBody');
+document.querySelectorAll('.ai-detail-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const item = aiData[btn.dataset.idx];
+    detailModalBody.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <span class="${item.badgeStyle==='dark' ? 'bg-charcoal text-white' : 'bg-[var(--beige)] text-stone-600'} text-[11px] font-bold px-2.5 py-1 rounded-full">${item.badge}</span>
+        <span class="text-stone-400 text-xs font-semibold">${item.date}</span>
+      </div>
+      ${item.image ? `<img src="${item.image}" class="w-full rounded-xl mb-4 object-cover max-h-56" alt="${item.title}">` : ''}
+      <h3 class="font-bold text-lg mb-2">${item.title}</h3>
+      <p class="text-stone-600 text-[13.5px] leading-relaxed mb-3">${item.desc}</p>
+      <p class="text-stone-400 text-xs mb-4">${item.org}</p>
+      ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener" class="inline-block bg-charcoal text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-gold transition-colors">관련 자료 보러가기 ↗</a>` : `<p class="text-stone-400 text-xs italic">관련 자료 링크는 준비 중입니다.</p>`}`;
+    detailModal.classList.remove('hidden');
+  });
+});
+document.getElementById('closeDetailModal').addEventListener('click', ()=>detailModal.classList.add('hidden'));
+detailModal.addEventListener('click', (e)=>{ if(e.target===detailModal) detailModal.classList.add('hidden'); });
+
 /* ===== Featured Projects ===== */
 const projectData = [
   {cat:"로컬 리빙랩", date:"2023.11", badge:"리빙랩", title:"종이팩을 구하는 우리학교", desc:"기존 쓰레기로 분류되던 학교 내 종이팩을 주민들과 함께 효율적으로 구출하고 순환시키는 리사이클 시스템 구축", tags:["#자원순환","#리빙랩"]},
   {cat:"콘텐츠 기획", date:"2023.10", badge:"콘텐츠", title:"나는 단골이다, 시장상인 콘텐츠", desc:"전통시장 여성 상인들의 삶과 따뜻한 비즈니스 스토리를 발굴하여 감성적인 인문 전시 및 SNS 콘텐츠 연계", tags:["#스토리텔링","#전통시장"]},
   {cat:"로컬 리빙랩", date:"2023.06", badge:"리빙랩", title:"북구 탄소중립 기본계획 수립 협업", desc:"주민 주도의 탄소 저감 방안 도출을 위한 기후위기 소셜 디자인 워크숍 가이드북 공동 기획 및 진행", tags:["#탄소중립","#ESG"]},
-  {cat:"기관 및 청년 협업", date:"2023.03", badge:"협업", title:"일단해보자GO! 프로젝트 기획", desc:"청년들의 진로 모색과 자율적 비즈니스 실험을 돕기 위해 단계적 기획 실행을 실천하는 커뮤니티 프로젝트", tags:["#청년네트워킹","#기획실습"]}
+  {cat:"기관 및 청년 협업", date:"2023.03", badge:"협업", title:"일단해보자GO! 프로젝트 기획", desc:"청년들의 진로 모색과 자율적 비즈니스 실험을 돕기 위해 단계적 기획 실행을 실천하는 커뮤니티 프로젝트", tags:["#청년네트워킹","#기획실습"]},
+  {cat:"콘텐츠 기획", date:"2022.08-11", badge:"콘텐츠", title:"광주여성역사길 '두홉길' 조성", desc:"양림동 여성 개척자들의 발자취를 따라가는 역사 투어길 코스를 개발하고 홍보물 제작 및 운영까지 총괄", tags:["#역사투어","#콘텐츠기획"]},
+  {cat:"기관 및 청년 협업", date:"2022.09-2023.12", badge:"협업", title:"장흥군 미디어 기록활동가 양성교육", desc:"장흥군 주민을 대상으로 유튜버 등 미디어 기록활동가를 양성하는 장기 교육과정 기획 및 운영", tags:["#미디어교육","#유튜버양성"]},
+  {cat:"로컬 리빙랩", date:"2017.12-2020.12", badge:"리빙랩", title:"광주공동체한마당 (총 4회)", desc:"전 세대 주민이 함께하는 지역 축제 광주공동체한마당의 기획, 섭외, 홍보 등 운영 전반을 4회에 걸쳐 총괄", tags:["#지역축제","#커뮤니티"]},
+  {cat:"로컬 리빙랩", date:"2022.07-09", badge:"리빙랩", title:"장흥군 마실 리빙랩 교육", desc:"장흥군 역량강화사업(농림부) 일환으로 마실 리빙랩 교육 기획 및 운영, 배움여행 진행", tags:["#리빙랩","#역량강화"]}
 ];
 const projectCats = ["전체보기","콘텐츠 기획","로컬 리빙랩","기관 및 청년 협업"];
 const projectTabsEl = document.getElementById('projectTabs');
@@ -666,9 +674,12 @@ renderProjects("전체보기");
 
 /* ===== Video Portfolio ===== */
 const videoData = [
-  {title:"다큐멘터리 '아로새긴 금수장'", desc:"광주 동구의 랜드마크인 옛 금수장호텔의 역사와 주민들의 기록을 아카이빙한 감동적 기획 다큐멘터리", id:"dQw4w9WgXcQ"},
-  {title:"광주여성 역사길 '두홉길' 홍보영상", desc:"광주 양림동을 중심으로 잊혀져 가는 여성 개척자들의 발자취와 역사길 투어를 감성적으로 안내하는 영상", id:"dQw4w9WgXcQ"},
-  {title:"광주공동체한마당 축제 뮤직비디오", desc:"전 세대 주민들이 직접 참여하고 화합한 광주공동체한마당의 열띤 현장을 한데 녹인 뮤직비디오 콘텐츠", id:"dQw4w9WgXcQ"}
+  {title:"다큐멘터리 '아로새긴 금수장'", desc:"광주 동구의 랜드마크인 옛 금수장호텔의 역사와 주민들의 기록을 아카이빙한 감동적 기획 다큐멘터리", id:"_SnmKrngUDM"},
+  {title:"광주여성 역사길 '두홉길' 홍보영상", desc:"광주 양림동을 중심으로 잊혀져 가는 여성 개척자들의 발자취와 역사길 투어를 감성적으로 안내하는 영상", id:"3rSPb1FnhW4"},
+  {title:"광주공동체한마당 축제 뮤직비디오", desc:"전 세대 주민들이 직접 참여하고 화합한 광주공동체한마당의 열띤 현장을 한데 녹인 뮤직비디오 콘텐츠", id:"Zp7mNwcSFqs"},
+  {title:"광주공동체한마당 소개뉴스", desc:"전 세대 주민이 함께하는 광주공동체한마당 행사를 소개하는 뉴스 형식의 홍보 영상", id:"RqW_nfvrN7U"},
+  {title:"공유광주 '사람책을 빌려드립니다'", desc:"다양한 삶의 경험을 가진 사람을 책처럼 빌려 만나는 휴먼라이브러리 프로젝트 기록 영상", id:"i0xViPRjAVs"},
+  {title:"김봉호 가옥 홍보영상", desc:"지역의 역사적 건축 자산인 김봉호 가옥을 소개하는 홍보 콘텐츠", id:"JzEuekrcm14"}
 ];
 const videoGridEl = document.getElementById('videoGrid');
 videoData.forEach(v=>{
