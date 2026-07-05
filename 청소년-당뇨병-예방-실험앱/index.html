@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>우리 모둠의 혈당 변화 · 2형 당뇨병 예방 실험</title>
+<meta name="description" content="모둠원 4명이 각자 공복·식후 30분 혈당을 입력하면 모둠 평균이 자동 계산되어 다른 모둠과 실시간으로 비교되는 2형 당뇨병 생활습관 관리 탐구 웹앱">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf8f2;
+  --paper-2:#f0ebe0;
+  --ink:#1c1a17;
+  --ink-soft:#686253;
+  --line:#ddd4bf;
+  --line-soft:#e9e2d2;
+  --accent:#b0492f;
+  --accent-soft:#f2e1da;
+  --good:#3d6b4c;
+  --good-soft:#e2ecdf;
+  --purple:#5b4a8f;
+  --purple-soft:#e6e1f2;
+  --shadow:0 6px 20px rgba(28,26,23,.07);
+  --radius:16px;
+  --radius-sm:10px;
+  --font-display:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --font-serif:'Source Serif 4','Noto Serif KR',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--font-display);-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;}
+button,input{font-family:var(--font-display);}
+h1,h2,h3,p{margin:0;}
+a{color:inherit;}
+.hidden{display:none !important;}
+.serif{font-family:var(--font-serif);}
+.mono{font-family:var(--font-mono);}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:1.5px solid var(--ink);border-radius:999px;padding:12px 20px;
+  font-weight:600;font-size:14px;background:var(--paper);color:var(--ink);
+  transition:transform .12s ease, background .15s ease;white-space:nowrap;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--ink);color:var(--paper);}
+.btn-primary:hover{background:#000;}
+.btn-ghost{border-color:var(--line);}
+.btn-good{border-color:var(--good);color:var(--good);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-sm{padding:8px 14px;font-size:12.5px;}
+.btn-block{width:100%;}
+
+.card{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+
+/* ---- layout ---- */
+.wrap{max-width:900px;margin:0 auto;padding:28px 18px 90px;}
+
+/* ---- setup screen ---- */
+.hero{padding:10px 6px 26px;}
+.eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;color:var(--ink-soft);}
+.hero h1{font-family:var(--font-serif);font-size:26px;font-weight:700;margin-top:10px;line-height:1.4;}
+.hero p{margin-top:10px;font-size:13.5px;color:var(--ink-soft);line-height:1.7;max-width:560px;}
+.notice{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:var(--radius-sm);padding:14px 16px;font-size:12.5px;line-height:1.8;color:#6b241a;margin:20px 0;}
+.notice b{color:var(--accent);}
+.section-label{font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:.03em;color:var(--ink-soft);margin:26px 0 10px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--line-soft);}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:520px){.grid-3{grid-template-columns:1fr;}}
+.pick-btn{
+  border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:18px 8px;
+  background:#fff;font-weight:600;font-size:15px;text-align:center;
+}
+.pick-btn.active{border-color:var(--ink);background:var(--ink);color:var(--paper);}
+.start-row{margin-top:30px;}
+
+/* ---- dashboard: hero header ---- */
+.dash-hero{padding:6px 0 18px;border-bottom:1.5px solid var(--ink);margin-bottom:20px;}
+.class-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap;}
+.badge{font-family:var(--font-mono);font-size:13px;font-weight:600;border:1.5px solid var(--ink);border-radius:999px;padding:6px 16px;white-space:nowrap;}
+.status-line{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.status-dot{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);font-family:var(--font-mono);}
+.status-dot i{width:8px;height:8px;border-radius:50%;background:var(--good);display:inline-block;flex-shrink:0;}
+.status-dot.offline i{background:var(--accent);}
+
+/* ---- summary cards ---- */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px;}
+@media(max-width:640px){.summary-grid{grid-template-columns:1fr;}}
+.summary-card{padding:16px 14px;}
+.summary-card .lbl{font-size:11.5px;color:var(--ink-soft);font-weight:600;}
+.summary-card .val{font-family:var(--font-mono);font-size:22px;font-weight:700;margin-top:8px;line-height:1.3;}
+.summary-card .val.small{font-size:15px;font-family:var(--font-display);font-weight:700;}
+.summary-card .sub{font-size:11px;color:var(--ink-soft);margin-top:4px;}
+
+/* ---- overview chart ---- */
+.overview-card{padding:20px 18px 18px;margin-top:26px;}
+.overview-card h3{font-family:var(--font-serif);font-size:16px;font-weight:700;}
+.overview-card .sub-line{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+.overview-chart{position:relative;height:220px;margin-top:22px;display:flex;align-items:flex-end;gap:8px;padding-bottom:2px;}
+.overview-grid-lines{position:absolute;left:0;right:0;top:0;bottom:26px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;}
+.overview-grid-lines div{border-top:1px dashed var(--line-soft);}
+.ov-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;z-index:1;min-width:0;}
+.ov-value{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+.ov-bar-track{width:100%;max-width:34px;flex:1;display:flex;align-items:flex-end;}
+.ov-bar-fill{width:100%;background:var(--ink);border-radius:5px 5px 0 0;min-height:2px;transition:height .4s ease;}
+.ov-label{font-size:10.5px;line-height:1.35;text-align:center;margin-top:8px;color:var(--ink);font-weight:600;min-height:28px;}
+.ov-count{font-family:var(--font-mono);font-size:10px;color:var(--ink-soft);margin-top:2px;}
+.overview-footnote{font-size:12px;color:var(--ink-soft);line-height:1.7;margin-top:20px;padding-top:16px;border-top:1px dashed var(--line-soft);}
+.overview-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;}
+
+/* ---- pair cards ---- */
+.pair-card{padding:20px 20px 22px;margin-top:18px;border-left-width:5px;border-left-style:solid;}
+.pair-card.accent-red{border-left-color:var(--accent);}
+.pair-card.accent-green{border-left-color:var(--good);}
+.pair-card.accent-purple{border-left-color:var(--purple);}
+.pair-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.pair-head h3{font-family:var(--font-serif);font-size:17px;font-weight:700;}
+.pair-question{font-size:12px;font-style:italic;color:var(--ink-soft);}
+.pair-chart{background:var(--paper-2);border-radius:var(--radius-sm);margin-top:16px;padding:18px;min-height:104px;display:flex;flex-direction:column;justify-content:center;gap:10px;}
+.pair-chart .placeholder{text-align:center;font-size:12.5px;color:var(--ink-soft);line-height:1.8;}
+.pc-bar-row{display:grid;grid-template-columns:120px 1fr 56px;align-items:center;gap:10px;}
+.pc-bar-label{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc-bar-track{height:12px;background:#fff;border-radius:6px;overflow:hidden;}
+.pc-bar-fill{height:100%;border-radius:6px;transition:width .4s ease;}
+.pc-bar-num{font-family:var(--font-mono);font-size:11.5px;font-weight:700;text-align:right;}
+
+.pair-groups{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
+@media(max-width:640px){.pair-groups{grid-template-columns:1fr;}}
+.pg-head{display:flex;align-items:center;gap:8px;}
+.pg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pg-title{font-weight:700;font-size:13.5px;}
+.pg-status{font-size:11.5px;color:var(--ink-soft);margin-top:6px;margin-bottom:12px;}
+.student-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px;}
+.student-num{font-size:11px;color:var(--ink-soft);font-weight:600;}
+.student-row input{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px 6px;font-family:var(--font-mono);font-size:13px;text-align:center;}
+.student-row input:focus{outline:none;border-color:var(--ink);}
+.field-hdr-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;margin-bottom:6px;}
+.field-hdr-row span{font-size:10px;color:var(--ink-soft);font-weight:600;text-align:center;}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:12.5px;font-weight:600;box-shadow:var(--shadow);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;max-width:86vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+<script>
+/* ==================================================================
+   설정 (CONFIG)
+   Google Apps Script 웹앱 배포 후 발급되는 URL을 아래에 붙여넣으세요.
+   예: 'https://script.google.com/macros/s/AKfycb.../exec'
+   비워두면 서버 연동 없이 이 브라우저(기기)에서만 동작하는
+   로컬 모드로 자동 전환됩니다. (apps-script/Code.gs 및 README 참고)
+   ================================================================== */
+const CONFIG = {
+  GAS_URL: '',
+  SYNC_INTERVAL_MS: 8000,
+  WRITE_DEBOUNCE_MS: 700,
+  FETCH_TIMEOUT_MS: 6000
+};
+
+const CLASSES = ['아이키커반', '진격반', '햇님반'];
+const STUDENTS_PER_GROUP = 4;
+const GROUPS = [1,2,3,4,5,6];
+const GROUP_FOOD = {
+  1:'콜라', 2:'제로콜라', 3:'흰 식빵', 4:'통밀빵', 5:'초코파이 단독', 6:'초코파이+견과류'
+};
+const PAIRS = [
+  { groups:[1,2], title:'콜라 vs 제로콜라', question:'액상 당분, 혈당을 얼마나 빨리 올릴까?', accent:'red', accentVar:'--accent' },
+  { groups:[3,4], title:'흰 식빵 vs 통밀빵', question:'같은 탄수화물, 가공 정도가 다르면 어떻게 다를까?', accent:'green', accentVar:'--good' },
+  { groups:[5,6], title:'초코파이 vs 초코파이+견과류', question:'같이 먹는 음식으로 혈당 반응을 조절할 수 있을까?', accent:'purple', accentVar:'--purple' }
+];
+const CONTROL_NOTE = '실험 1시간 전 금식, 측정 전 손 세척, 측정 중 안정 상태 유지';
+
+/* ==================================================================
+   저장소 / 상태
+   store[class][group][student] = { before:'', after:'' }
+   ================================================================== */
+const LS_CLASS = 'db2_class_v1';
+const LS_STORE = 'db2_store_v1';
+
+function makeEmptyStore(){
+  const store = {};
+  CLASSES.forEach(c=>{
+    store[c] = {};
+    GROUPS.forEach(g=>{
+      store[c][g] = {};
+      for(let s=1;s<=STUDENTS_PER_GROUP;s++) store[c][g][s] = {before:'', after:''};
+    });
+  });
+  return store;
+}
+function loadStore(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LS_STORE));
+    if(!raw) return makeEmptyStore();
+    const store = makeEmptyStore();
+    CLASSES.forEach(c=>{
+      if(!raw[c]) return;
+      GROUPS.forEach(g=>{
+        if(!raw[c][g]) return;
+        for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+          if(raw[c][g][s]) store[c][g][s] = { before: String(raw[c][g][s].before||''), after: String(raw[c][g][s].after||'') };
+        }
+      });
+    });
+    return store;
+  }catch(e){ return makeEmptyStore(); }
+}
+function saveStore(){
+  try{ localStorage.setItem(LS_STORE, JSON.stringify(store)); }catch(e){}
+}
+function loadSavedClass(){
+  try{ return localStorage.getItem(LS_CLASS) || null; }catch(e){ return null; }
+}
+function saveSavedClass(c){
+  try{ localStorage.setItem(LS_CLASS, c); }catch(e){}
+}
+
+const store = loadStore();
+const state = {
+  screen: 'setup',
+  cls: null,
+  online: false,
+  syncing: false
+};
+
+/* ==================================================================
+   DOM 헬퍼
+   ================================================================== */
+function el(tag, attrs, ...children){
+  const node = document.createElement(tag);
+  attrs = attrs || {};
+  for(const k in attrs){
+    const v = attrs[k];
+    if(k === 'class') node.className = v;
+    else if(k.indexOf('on') === 0 && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+    else if(v === true) node.setAttribute(k, '');
+    else if(v === false || v == null) {}
+    else node.setAttribute(k, v);
+  }
+  children.flat(Infinity).forEach(c=>{
+    if(c == null || c === false) return;
+    node.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+  });
+  return node;
+}
+function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+function fmt1(n){ return (Math.round(n*10)/10).toFixed(1); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._h);
+  showToast._h = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ==================================================================
+   API 연동 (Google Apps Script, action=read / write / clear)
+   CORS 우회를 위해 항상 GET 쿼리스트링만 사용
+   ================================================================== */
+function gasConfigured(){
+  return !!(CONFIG.GAS_URL && /^https?:\/\//.test(CONFIG.GAS_URL));
+}
+function fetchWithTimeout(url, ms){
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), ms);
+  return fetch(url, {method:'GET', signal:ctrl.signal}).finally(()=>clearTimeout(timer));
+}
+async function apiRead(){
+  if(!gasConfigured()) throw new Error('GAS_URL not configured');
+  const res = await fetchWithTimeout(CONFIG.GAS_URL + '?action=read', CONFIG.FETCH_TIMEOUT_MS);
+  const json = await res.json();
+  if(!json || json.ok === false) throw new Error((json && json.error) || 'read failed');
+  return json.rows || [];
+}
+async function apiWrite(item){
+  if(!gasConfigured()) throw new Error('GAS_URL not configured');
+  const url = CONFIG.GAS_URL + '?action=write&data=' + encodeURIComponent(JSON.stringify(item));
+  const res = await fetchWithTimeout(url, CONFIG.FETCH_TIMEOUT_MS);
+  const json = await res.json();
+  if(!json || json.ok === false) throw new Error((json && json.error) || 'write failed');
+  return json;
+}
+async function apiClear(cls){
+  if(!gasConfigured()) throw new Error('GAS_URL not configured');
+  const url = CONFIG.GAS_URL + '?action=clear&class=' + encodeURIComponent(cls);
+  const res = await fetchWithTimeout(url, CONFIG.FETCH_TIMEOUT_MS);
+  const json = await res.json();
+  if(!json || json.ok === false) throw new Error((json && json.error) || 'clear failed');
+  return json;
+}
+
+/* 서버에서 읽은 행을 store에 병합. 현재 포커스 중인 입력칸은 덮어쓰지 않음 */
+function mergeRows(rows){
+  rows.forEach(r=>{
+    const cls = r.class, group = Number(r.group), student = Number(r.student);
+    if(!store[cls] || !store[cls][group] || !store[cls][group][student]) return;
+    const focusedInfo = getFocusedFieldInfo();
+    const isFocusedHere = focusedInfo && focusedInfo.cls === cls && focusedInfo.group === group && focusedInfo.student === student;
+    const target = store[cls][group][student];
+    if(!isFocusedHere || focusedInfo.field !== 'before') target.before = r.before === '' || r.before == null ? '' : String(r.before);
+    if(!isFocusedHere || focusedInfo.field !== 'after') target.after = r.after === '' || r.after == null ? '' : String(r.after);
+  });
+  saveStore();
+}
+
+let focusedRef = null; // {cls, group, student, field}
+function getFocusedFieldInfo(){ return focusedRef; }
+
+async function syncRead(){
+  state.syncing = true;
+  try{
+    const rows = await apiRead();
+    mergeRows(rows);
+    state.online = true;
+  }catch(e){
+    state.online = false;
+  }finally{
+    state.syncing = false;
+  }
+}
+
+const writeTimers = {};
+function scheduleWrite(cls, group, student){
+  const key = cls + '_' + group + '_' + student;
+  clearTimeout(writeTimers[key]);
+  writeTimers[key] = setTimeout(async ()=>{
+    if(!gasConfigured()){ state.online = false; return; }
+    const entry = store[cls][group][student];
+    try{
+      await apiWrite({ class:cls, group:group, student:student, before:entry.before, after:entry.after });
+      state.online = true;
+    }catch(e){
+      state.online = false;
+    }
+  }, CONFIG.WRITE_DEBOUNCE_MS);
+}
+
+/* ==================================================================
+   라우터
+   ================================================================== */
+function boot(){
+  const saved = loadSavedClass();
+  if(saved && CLASSES.includes(saved)){
+    state.cls = saved;
+    state.screen = 'dashboard';
+  }
+  render();
+}
+
+function render(){
+  const root = document.getElementById('app');
+  clear(root);
+  if(state.screen === 'dashboard' && state.cls){
+    mountDashboard(root);
+  }else{
+    mountSetup(root);
+  }
+}
+
+/* ==================================================================
+   화면 1: 설정 스크린 (학급 선택)
+   ================================================================== */
+function mountSetup(root){
+  let picked = state.cls;
+  const wrap = el('div', {class:'wrap'});
+
+  wrap.appendChild(el('div', {class:'hero'},
+    el('div', {class:'eyebrow'}, '2형 당뇨병 생활습관 관리 탐구 · 식후 혈당 변화 실험'),
+    el('h1', {}, '우리 모둠의 혈당 변화'),
+    el('p', {}, '모둠원 4명이 각자 공복(0분)과 식후 30분 혈당을 입력하면, 모둠 평균으로 자동 계산되어 다른 모둠과 비교돼요.')
+  ));
+
+  wrap.appendChild(el('div', {class:'notice'}, el('b', {}, '실험 통제 조건  '), CONTROL_NOTE));
+
+  wrap.appendChild(el('div', {class:'section-label'}, '학급 선택'));
+  const clsGrid = el('div', {class:'grid-3'});
+  CLASSES.forEach(c=>{
+    const btn = el('button', {class:'pick-btn' + (picked === c ? ' active' : ''), onclick:()=>{
+      picked = c;
+      Array.from(clsGrid.children).forEach((b,i)=>{ b.className = 'pick-btn' + (picked === CLASSES[i] ? ' active' : ''); });
+      startBtn.disabled = !picked;
+    }}, c);
+    clsGrid.appendChild(btn);
+  });
+  wrap.appendChild(clsGrid);
+
+  const startBtn = el('button', {class:'btn btn-primary btn-block', onclick:()=>{
+    if(!picked) return;
+    state.cls = picked;
+    state.screen = 'dashboard';
+    saveSavedClass(picked);
+    render();
+  }}, '입장하기 →');
+  startBtn.disabled = !picked;
+  wrap.appendChild(el('div', {class:'start-row'}, startBtn));
+
+  root.appendChild(wrap);
+}
+
+/* ==================================================================
+   화면 2: 메인 대시보드
+   ================================================================== */
+function mountDashboard(root){
+  const cls = state.cls;
+  const refs = { ov:{}, pair:[], input:{}, status:{} };
+
+  const wrap = el('div', {class:'wrap'});
+  const heroBox = el('div', {class:'dash-hero'});
+  const summaryGrid = el('div', {class:'summary-grid'});
+  const overviewCard = el('div', {class:'card overview-card'});
+  const pairsBox = el('div', {});
+  wrap.appendChild(heroBox);
+  wrap.appendChild(summaryGrid);
+  wrap.appendChild(overviewCard);
+  wrap.appendChild(pairsBox);
+  root.appendChild(wrap);
+
+  /* ---------- 헤더 ---------- */
+  function renderHero(){
+    clear(heroBox);
+    heroBox.appendChild(el('div', {class:'eyebrow'}, '2형 당뇨병 생활습관 관리 탐구 · 식후 혈당 변화 실험'));
+    heroBox.appendChild(el('h1', {}, '우리 모둠의 혈당 변화'));
+    heroBox.appendChild(el('p', {}, '모둠원 4명이 각자 공복(0분)과 식후 30분 혈당을 입력하면, 모둠 평균으로 자동 계산되어 다른 모둠과 비교돼요.'));
+    const row = el('div', {class:'class-row'},
+      el('span', {class:'badge'}, '📍 ' + cls),
+      el('button', {class:'btn btn-sm btn-ghost', onclick:()=>{
+        state.screen = 'setup';
+        render();
+      }}, '다른 반으로 전환')
+    );
+    heroBox.appendChild(row);
+    const statusRow = el('div', {class:'status-line'});
+    refs.statusDot = el('span', {class:'status-dot' + (state.online ? '' : ' offline')},
+      el('i'),
+      state.online ? '서버와 실시간 연동 중' : (gasConfigured() ? '오프라인 · 이 기기에 저장 중' : '로컬 계산 모드 (Apps Script 미설정)')
+    );
+    statusRow.appendChild(refs.statusDot);
+    heroBox.appendChild(statusRow);
+  }
+
+  /* ---------- 요약 카드 ---------- */
+  function computeGroupStats(){
+    const stats = {};
+    GROUPS.forEach(g=>{
+      const deltas = [];
+      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+        const e = store[cls][g][s];
+        const b = parseFloat(e.before), a = parseFloat(e.after);
+        if(!isNaN(b) && !isNaN(a)) deltas.push(a-b);
+      }
+      stats[g] = { count: deltas.length, avg: deltas.length ? deltas.reduce((s,v)=>s+v,0)/deltas.length : null };
+    });
+    return stats;
+  }
+
+  function renderSummary(stats){
+    clear(summaryGrid);
+    const totalStudents = GROUPS.length * STUDENTS_PER_GROUP;
+    const filled = GROUPS.reduce((s,g)=>s+stats[g].count, 0);
+    const completedPairs = PAIRS.filter(p => p.groups.every(g=>stats[g].count > 0)).length;
+    let topGroup = null, topAvg = -Infinity;
+    GROUPS.forEach(g=>{
+      if(stats[g].count > 0 && stats[g].avg > topAvg){ topAvg = stats[g].avg; topGroup = g; }
+    });
+
+    summaryGrid.appendChild(el('div', {class:'card summary-card'},
+      el('div', {class:'lbl'}, '입력 완료 인원'),
+      el('div', {class:'val'}, filled + '/' + totalStudents + '명')
+    ));
+    summaryGrid.appendChild(el('div', {class:'card summary-card'},
+      el('div', {class:'lbl'}, '완성된 비교쌍'),
+      el('div', {class:'val'}, completedPairs + '/' + PAIRS.length)
+    ));
+    summaryGrid.appendChild(el('div', {class:'card summary-card'},
+      el('div', {class:'lbl'}, '평균 가장 많이 오른 모둠'),
+      el('div', {class:'val small'}, topGroup ? (GROUP_FOOD[topGroup] + ' (' + topGroup + '모둠)') : '—'),
+      topGroup ? el('div', {class:'sub'}, '평균 +' + fmt1(topAvg) + ' mg/dL') : null
+    ));
+  }
+
+  /* ---------- 전체 비교 차트 ---------- */
+  function buildOverviewChart(){
+    clear(overviewCard);
+    overviewCard.appendChild(el('h3', {}, '한눈에 보는 6가지 비교'));
+    overviewCard.appendChild(el('div', {class:'sub-line'}, '모둠 평균 혈당 변화량(Δ, mg/dL) — 막대가 높을수록 혈당이 더 많이 올랐어요'));
+
+    const chart = el('div', {class:'overview-chart'});
+    const gridLines = el('div', {class:'overview-grid-lines'});
+    for(let i=0;i<5;i++) gridLines.appendChild(el('div'));
+    chart.appendChild(gridLines);
+
+    GROUPS.forEach(g=>{
+      const valueEl = el('div', {class:'ov-value'}, '—');
+      const fillEl = el('div', {class:'ov-bar-fill'});
+      const countEl = el('div', {class:'ov-count'}, '0/' + STUDENTS_PER_GROUP + '명');
+      const col = el('div', {class:'ov-col'},
+        valueEl,
+        el('div', {class:'ov-bar-track'}, fillEl),
+        el('div', {class:'ov-label'}, GROUP_FOOD[g]),
+        countEl
+      );
+      refs.ov[g] = { valueEl, fillEl, countEl };
+      chart.appendChild(col);
+    });
+    overviewCard.appendChild(chart);
+
+    overviewCard.appendChild(el('div', {class:'overview-footnote'},
+      '데이터는 같은 반 모든 모둠 화면에 자동으로 공유돼요. 같은 모둠 학생 4명 모두 자기 번호 칸에 입력해 주세요.'
+    ));
+    const actions = el('div', {class:'overview-actions'},
+      el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)'),
+      el('button', {class:'btn btn-sm btn-ghost', onclick: onClearClass}, '이 반의 모든 입력값 지우기')
+    );
+    overviewCard.appendChild(actions);
+  }
+
+  function refreshOverviewChart(stats){
+    const maxAbs = Math.max(1, ...GROUPS.map(g=>Math.abs(stats[g].avg || 0)));
+    GROUPS.forEach(g=>{
+      const r = refs.ov[g];
+      const st = stats[g];
+      const pct = st.avg == null ? 0 : Math.max(2, Math.abs(st.avg) / maxAbs * 100);
+      r.fillEl.style.height = pct + '%';
+      r.fillEl.style.background = st.avg == null ? 'var(--line)' : (st.avg >= 0 ? 'var(--accent)' : 'var(--good)');
+      r.valueEl.textContent = st.avg == null ? '—' : (st.avg > 0 ? '+' : '') + fmt1(st.avg);
+      r.countEl.textContent = st.count + '/' + STUDENTS_PER_GROUP + '명';
+    });
+  }
+
+  /* ---------- 비교쌍 카드 ---------- */
+  function buildPairCards(){
+    clear(pairsBox);
+    refs.pair = [];
+    PAIRS.forEach((pair, idx)=>{
+      const pr = { chartBox:null, groupCols:{} };
+      const chartBox = el('div', {class:'pair-chart'});
+      pr.chartBox = chartBox;
+
+      const groupsRow = el('div', {class:'pair-groups'});
+      pair.groups.forEach(g=>{
+        const dot = el('span', {class:'pg-dot', style:'background:var(' + pair.accentVar + ');'});
+        const statusEl = el('div', {class:'pg-status'}, '아직 입력된 값이 없어요 (0/' + STUDENTS_PER_GROUP + '명)');
+        const studentGrid = el('div', {});
+        studentGrid.appendChild(el('div', {class:'field-hdr-row'},
+          el('span', {}, ''), el('span', {}, '0분(mg/dL)'), el('span', {}, '30분(mg/dL)')
+        ));
+        for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+          const beforeInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'0분', value: store[cls][g][s].before});
+          const afterInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'30분', value: store[cls][g][s].after});
+          bindStudentInput(beforeInput, cls, g, s, 'before');
+          bindStudentInput(afterInput, cls, g, s, 'after');
+          refs.input[cls+'_'+g+'_'+s+'_before'] = beforeInput;
+          refs.input[cls+'_'+g+'_'+s+'_after'] = afterInput;
+          studentGrid.appendChild(el('div', {class:'student-row'},
+            el('div', {class:'student-num'}, '학생 ' + s),
+            beforeInput, afterInput
+          ));
+        }
+        pr.groupCols[g] = { statusEl };
+        groupsRow.appendChild(el('div', {class:'pair-group-col'},
+          el('div', {class:'pg-head'}, dot, el('span', {class:'pg-title'}, g + '모둠 · ' + GROUP_FOOD[g])),
+          statusEl,
+          studentGrid
+        ));
+      });
+
+      const card = el('div', {class:'card pair-card accent-' + pair.accent},
+        el('div', {class:'pair-head'},
+          el('h3', {}, pair.title),
+          el('span', {class:'pair-question'}, pair.question)
+        ),
+        chartBox,
+        groupsRow
+      );
+      pairsBox.appendChild(card);
+      refs.pair.push(pr);
+    });
+  }
+
+  function refreshPairCards(stats){
+    PAIRS.forEach((pair, idx)=>{
+      const pr = refs.pair[idx];
+      pair.groups.forEach(g=>{
+        const st = stats[g];
+        const label = st.count > 0
+          ? '평균 Δ ' + (st.avg > 0 ? '+' : '') + fmt1(st.avg) + ' mg/dL (' + st.count + '/' + STUDENTS_PER_GROUP + '명)'
+          : '아직 입력된 값이 없어요 (0/' + STUDENTS_PER_GROUP + '명)';
+        pr.groupCols[g].statusEl.textContent = label;
+      });
+
+      clear(pr.chartBox);
+      const [gA, gB] = pair.groups;
+      const anyData = stats[gA].count > 0 || stats[gB].count > 0;
+      if(!anyData){
+        pr.chartBox.appendChild(el('div', {class:'placeholder'},
+          '모둠원들이 0분, 30분 값을 입력하면', el('br'), '모둠 평균 변화 폭이 여기에 그려져요'
+        ));
+        return;
+      }
+      const maxAbs = Math.max(1, Math.abs(stats[gA].avg || 0), Math.abs(stats[gB].avg || 0));
+      [gA, gB].forEach(g=>{
+        const st = stats[g];
+        const pct = st.avg == null ? 0 : Math.abs(st.avg) / maxAbs * 100;
+        pr.chartBox.appendChild(el('div', {class:'pc-bar-row'},
+          el('div', {class:'pc-bar-label'}, g + '모둠 · ' + GROUP_FOOD[g]),
+          el('div', {class:'pc-bar-track'}, el('div', {class:'pc-bar-fill', style:'width:' + pct + '%;background:var(' + pair.accentVar + ');'})),
+          el('div', {class:'pc-bar-num'}, st.avg == null ? '—' : (st.avg > 0 ? '+' : '') + fmt1(st.avg))
+        ));
+      });
+    });
+  }
+
+  function bindStudentInput(inputEl, cls, group, student, field){
+    inputEl.addEventListener('focus', ()=>{ focusedRef = {cls, group, student, field}; });
+    inputEl.addEventListener('blur', ()=>{ if(focusedRef && focusedRef.cls===cls && focusedRef.group===group && focusedRef.student===student && focusedRef.field===field) focusedRef = null; });
+    inputEl.addEventListener('input', ()=>{
+      store[cls][group][student][field] = inputEl.value;
+      saveStore();
+      scheduleWrite(cls, group, student);
+      refreshAll();
+    });
+  }
+
+  /* ---------- 결과 복사 / 초기화 ---------- */
+  function onCopyResults(){
+    const lines = ['반\t모둠\t음식\t학생\t공복(0분)\t30분후\tΔ혈당'];
+    GROUPS.forEach(g=>{
+      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+        const e = store[cls][g][s];
+        const b = parseFloat(e.before), a = parseFloat(e.after);
+        if(isNaN(b) || isNaN(a)) continue;
+        lines.push([cls, g, GROUP_FOOD[g], s, b, a, fmt1(a-b)].join('\t'));
+      }
+    });
+    if(lines.length === 1){
+      showToast('아직 복사할 데이터가 없어요');
+      return;
+    }
+    const text = lines.join('\n');
+    copyToClipboard(text).then(()=>showToast('복사되었습니다 · 구글 시트에 붙여넣기 하세요')).catch(()=>showToast('복사에 실패했어요. 브라우저 권한을 확인해 주세요'));
+  }
+  function copyToClipboard(text){
+    if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+    return new Promise((resolve, reject)=>{
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok ? resolve() : reject();
+      }catch(e){ reject(e); }
+    });
+  }
+
+  async function onClearClass(){
+    if(!confirm('"' + cls + '" 반의 모든 입력값을 지울까요? 되돌릴 수 없어요.')) return;
+    GROUPS.forEach(g=>{
+      for(let s=1;s<=STUDENTS_PER_GROUP;s++) store[cls][g][s] = {before:'', after:''};
+    });
+    saveStore();
+    renderInputsFromStore();
+    refreshAll();
+    if(gasConfigured()){
+      try{ await apiClear(cls); state.online = true; }catch(e){ state.online = false; }
+    }
+    showToast('이 반의 입력값을 모두 지웠습니다');
+  }
+
+  function renderInputsFromStore(){
+    GROUPS.forEach(g=>{
+      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+        const beforeEl = refs.input[cls+'_'+g+'_'+s+'_before'];
+        const afterEl = refs.input[cls+'_'+g+'_'+s+'_after'];
+        if(beforeEl && document.activeElement !== beforeEl) beforeEl.value = store[cls][g][s].before;
+        if(afterEl && document.activeElement !== afterEl) afterEl.value = store[cls][g][s].after;
+      }
+    });
+  }
+
+  /* ---------- 갱신 루프 ---------- */
+  function refreshAll(){
+    const stats = computeGroupStats();
+    renderSummary(stats);
+    refreshOverviewChart(stats);
+    refreshPairCards(stats);
+    if(refs.statusDot){
+      refs.statusDot.className = 'status-dot' + (state.online ? '' : ' offline');
+      clear(refs.statusDot);
+      refs.statusDot.appendChild(el('i'));
+      refs.statusDot.appendChild(document.createTextNode(
+        state.online ? '서버와 실시간 연동 중' : (gasConfigured() ? '오프라인 · 이 기기에 저장 중' : '로컬 계산 모드 (Apps Script 미설정)')
+      ));
+    }
+  }
+
+  async function doSync(){
+    await syncRead();
+    renderInputsFromStore();
+    refreshAll();
+  }
+
+  renderHero();
+  buildOverviewChart();
+  buildPairCards();
+  refreshAll();
+  doSync();
+
+  if(mountDashboard._timer) clearInterval(mountDashboard._timer);
+  mountDashboard._timer = setInterval(()=>{
+    if(state.screen === 'dashboard') doSync();
+  }, CONFIG.SYNC_INTERVAL_MS);
+}
+
+boot();
+</script>
+</body>
+</html>
