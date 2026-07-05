@@ -133,10 +133,15 @@ a{color:inherit;}
 .pg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .pg-title{font-weight:700;font-size:13.5px;}
 .pg-status{font-size:11.5px;color:var(--ink-soft);margin-top:6px;margin-bottom:12px;}
-.student-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px;}
+.student-block{margin-bottom:12px;}
+.student-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;align-items:center;}
 .student-num{font-size:11px;color:var(--ink-soft);font-weight:600;}
 .student-row input{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px 6px;font-family:var(--font-mono);font-size:13px;text-align:center;}
 .student-row input:focus{outline:none;border-color:var(--ink);}
+.student-delta-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;margin-top:4px;}
+.student-delta-row .val{grid-column:2 / span 2;font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--ink-soft);}
+.student-delta-row .val.up{color:var(--accent);}
+.student-delta-row .val.down{color:var(--good);}
 .field-hdr-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;margin-bottom:6px;}
 .field-hdr-row span{font-size:10px;color:var(--ink-soft);font-weight:600;text-align:center;}
 
@@ -416,8 +421,8 @@ function mountDashboard(root){
   const pairsBox = el('div', {});
   wrap.appendChild(heroBox);
   wrap.appendChild(summaryGrid);
-  wrap.appendChild(overviewCard);
   wrap.appendChild(pairsBox);
+  wrap.appendChild(overviewCard);
   root.appendChild(wrap);
 
   /* ---------- 헤더 ---------- */
@@ -537,7 +542,7 @@ function mountDashboard(root){
     clear(pairsBox);
     refs.pair = [];
     PAIRS.forEach((pair, idx)=>{
-      const pr = { chartBox:null, groupCols:{} };
+      const pr = { chartBox:null, groupCols:{}, studentDelta:{} };
       const chartBox = el('div', {class:'pair-chart'});
       pr.chartBox = chartBox;
 
@@ -556,9 +561,16 @@ function mountDashboard(root){
           bindStudentInput(afterInput, cls, g, s, 'after');
           refs.input[cls+'_'+g+'_'+s+'_before'] = beforeInput;
           refs.input[cls+'_'+g+'_'+s+'_after'] = afterInput;
-          studentGrid.appendChild(el('div', {class:'student-row'},
-            el('div', {class:'student-num'}, '학생 ' + s),
-            beforeInput, afterInput
+          const deltaVal = el('span', {class:'val na'}, '—');
+          pr.studentDelta[g+'_'+s] = deltaVal;
+          studentGrid.appendChild(el('div', {class:'student-block'},
+            el('div', {class:'student-row'},
+              el('div', {class:'student-num'}, '학생 ' + s),
+              beforeInput, afterInput
+            ),
+            el('div', {class:'student-delta-row'},
+              el('span', {}, ''), deltaVal
+            )
           ));
         }
         pr.groupCols[g] = { statusEl };
@@ -611,6 +623,27 @@ function mountDashboard(root){
           el('div', {class:'pc-bar-track'}, el('div', {class:'pc-bar-fill', style:'width:' + pct + '%;background:var(' + pair.accentVar + ');'})),
           el('div', {class:'pc-bar-num'}, st.avg == null ? '—' : (st.avg > 0 ? '+' : '') + fmt1(st.avg))
         ));
+      });
+    });
+  }
+
+  function refreshStudentDeltas(){
+    PAIRS.forEach((pair, idx)=>{
+      const pr = refs.pair[idx];
+      pair.groups.forEach(g=>{
+        for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+          const e = store[cls][g][s];
+          const b = parseFloat(e.before), a = parseFloat(e.after);
+          const deltaVal = pr.studentDelta[g+'_'+s];
+          if(isNaN(b) || isNaN(a)){
+            deltaVal.textContent = '—';
+            deltaVal.className = 'val na';
+          }else{
+            const d = a - b;
+            deltaVal.textContent = '개인 Δ ' + (d > 0 ? '+' : '') + fmt1(d) + ' mg/dL';
+            deltaVal.className = 'val ' + (d > 0 ? 'up' : (d < 0 ? 'down' : 'na'));
+          }
+        }
       });
     });
   }
@@ -692,6 +725,7 @@ function mountDashboard(root){
     renderSummary(stats);
     refreshOverviewChart(stats);
     refreshPairCards(stats);
+    refreshStudentDeltas();
     if(refs.statusDot){
       refs.statusDot.className = 'status-dot' + (state.online ? '' : ' offline');
       clear(refs.statusDot);
