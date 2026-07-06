@@ -588,7 +588,7 @@ document.querySelectorAll('.db-tab').forEach(tab=>{
 
 /* ===== AI Activity (최신 AI 활동) ===== */
 const aiData = [
-  {badge:"공론장PM", badgeStyle:"dark", date:"2026.06.12", title:"전남광주 통합특별시 시민주권 정책 공론장", desc:"AI를 활용한 공론장으로써 AI 챗봇으로 학습하고 논의 결과는 AI로 시각화해 직접 구현하는 실시간 정책 제안 의견 수렴 공론장", org:"전남광주통합특별시 시민주권 정책공론장 추진위원회", link:"", image:"images/gongnon1.jpg", images:["images/gongnon1.jpg","images/gongnon2.jpg","images/gongnon3.jpg","images/gongnon4.jpg","images/gongnon5.jpg"]},
+  {badge:"공론장PM", badgeStyle:"dark", date:"2026.06.12", title:"전남광주 통합특별시 시민주권 정책 공론장", desc:"AI를 활용한 공론장으로써 AI 챗봇으로 학습하고 논의 결과는 AI로 시각화해 직접 구현하는 실시간 정책 제안 의견 수렴 공론장", org:"전남광주통합특별시 시민주권 정책공론장 추진위원회", link:"", image:"images/gongnon1.jpg", images:["images/gongnon1.jpg","images/gongnon2.jpg","images/gongnon3.jpg","images/gongnon4.jpg","images/gongnon5.jpg","images/gongnon6.jpg","images/gongnon7.jpg","images/gongnon8.jpg","images/gongnon9.jpg","images/gongnon10.jpg","images/gongnon11.jpg","images/gongnon12.jpg"]},
   {badge:"평생학습", date:"2025.06 - 12", title:"북평 꽃대어른학교 - 어른 AI 크리에이터 양성", desc:"어르신들이 실생활에서 활용할 수 있는 친숙한 생성형 AI 툴 실습 및 크리에이티브 미디어 제작 교육", org:"광주북구청", link:"", image:""},
   {badge:"특강", date:"2025.09.08, 15", title:"AI 활용 홍보 및 모니터링, 정책 제안서 작성법", desc:"시민참여단을 대상으로 정책 모니터링 수집 효율화 및 생성형 AI 기반의 설득력 있는 제안서 작성법 특강", org:"광주북구평생학습관", link:"", image:""},
   {badge:"강의", date:"2025.10.27 - 12.19 (5회차)", title:"AI 활용한 유튜버 양성교육", desc:"지역 신활력 플러스 사업단을 대상으로 생성형 AI를 활용한 유튜브 기획 및 제작 역량 강화", org:"장흥군신활력플러스사회적협동조합", link:"", image:""},
@@ -620,7 +620,7 @@ document.querySelectorAll('.ai-detail-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const item = aiData[btn.dataset.idx];
     const imgHtml = item.images && item.images.length > 1
-      ? `<div class="grid grid-cols-2 gap-2 mb-4">${item.images.map((src,i)=>`<img src="${src}" class="w-full rounded-xl object-cover h-36${i===0?' col-span-2 h-52':''}" alt="${item.title} ${i+1}">`).join('')}</div>`
+      ? `<div class="mb-4"><img src="${item.images[0]}" class="w-full rounded-xl object-cover h-52 mb-2" alt="${item.title} 1"><div class="grid grid-cols-3 gap-1.5">${item.images.slice(1).map((src,i)=>`<img src="${src}" class="w-full rounded-lg object-cover h-24" alt="${item.title} ${i+2}">`).join('')}</div></div>`
       : item.image ? `<img src="${item.image}" class="w-full rounded-xl mb-4 object-cover max-h-56" alt="${item.title}">` : '';
     detailModalBody.innerHTML = `
       <div class="flex items-center justify-between mb-3">
