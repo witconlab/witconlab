@@ -785,9 +785,20 @@ function validateStep(n){
 nextBtn.addEventListener('click', ()=>{
   if(!validateStep(currentStep)) return;
   if(currentStep === totalSteps){
-    document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
-    document.querySelector('.step[data-step="done"]').classList.remove('hidden');
-    document.getElementById('formNav').classList.add('hidden');
+    const data = new FormData(form);
+    fetch('https://formspree.io/f/mkolanbv', {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    }).then(res => {
+      document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
+      document.querySelector('.step[data-step="done"]').classList.remove('hidden');
+      document.getElementById('formNav').classList.add('hidden');
+    }).catch(() => {
+      document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
+      document.querySelector('.step[data-step="done"]').classList.remove('hidden');
+      document.getElementById('formNav').classList.add('hidden');
+    });
     return;
   }
   currentStep++;
