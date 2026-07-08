@@ -29,6 +29,13 @@ function getSheet_() {
     sheet = ss.insertSheet(SHEET_NAME);
   }
   sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  // 예전(더 넓은 컬럼 수) 스키마의 흔적이 오른쪽 열에 남아있으면 getDataRange()가
+  // 실제보다 넓게 잡혀서 배열 길이가 안 맞는 문제가 생기므로, 헤더보다 오른쪽 열은
+  // 통째로 비워서 항상 정확히 HEADERS.length 만큼만 사용되게 함
+  const maxCol = sheet.getMaxColumns();
+  if (maxCol > HEADERS.length) {
+    sheet.getRange(1, HEADERS.length + 1, sheet.getMaxRows(), maxCol - HEADERS.length).clearContent();
+  }
   // 예전 스키마에서 이 열들이 날짜/시간 서식으로 지정된 채 남아있으면, 이후 숫자를
   // 써도 날짜로 잘못 해석되는 문제가 생겨서 매번 일반 숫자 서식으로 고정해줌
   sheet.getRange(2, NUMBER_COL_START, Math.max(sheet.getMaxRows() - 1, 1), NUMBER_COL_COUNT).setNumberFormat('0.###');
@@ -130,13 +137,13 @@ function handleClear_(e) {
 
   const sheet = getSheet_();
   const values = sheet.getDataRange().getValues();
-  const kept = [values[0]]; // 헤더 유지
+  const kept = [values[0].slice(0, HEADERS.length)]; // 헤더 유지
   for (let i = 1; i < values.length; i++) {
     const r = values[i];
     const matchClass = String(r[0]) === cls;
     const matchType = !type || String(r[3]) === type;
     if (matchClass && matchType) continue; // 삭제 대상은 제외하고 나머지만 유지
-    kept.push(r);
+    kept.push(r.slice(0, HEADERS.length));
   }
 
   const lastRow = sheet.getLastRow();
@@ -167,7 +174,7 @@ function jsonOutput_(obj) {
 function cleanupCorruptRows() {
   const sheet = getSheet_();
   const values = sheet.getDataRange().getValues();
-  const kept = [values[0]];
+  const kept = [values[0].slice(0, HEADERS.length)];
   let removed = 0;
   for (let i = 1; i < values.length; i++) {
     const r = values[i];
@@ -177,7 +184,7 @@ function cleanupCorruptRows() {
     const afterOk = r[6] === '' || typeof r[6] === 'number';
     const valid = (type === '음식' || type === '운동') && beforeOk && afterOk;
     if (valid) {
-      kept.push(r);
+      kept.push(r.slice(0, HEADERS.length));
     } else {
       removed++;
     }
