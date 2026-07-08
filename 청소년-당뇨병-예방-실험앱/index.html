@@ -87,7 +87,7 @@ a{color:inherit;}
 .status-dot.offline i{background:var(--accent);}
 
 /* ---- tabs ---- */
-.tab-row{display:flex;gap:8px;margin:18px 0 4px;flex-wrap:wrap;}
+.tab-row{display:flex;gap:8px;margin:0 0 22px;flex-wrap:wrap;}
 .tab-btn{border:1.5px solid var(--line);border-radius:999px;padding:11px 18px;font-weight:700;font-size:13px;background:#fff;color:var(--ink-soft);}
 .tab-btn.active{border-color:var(--ink);background:var(--ink);color:var(--paper);}
 
@@ -436,8 +436,8 @@ function mountApp(root){
   const summaryGrid = el('div', {class:'summary-grid'});
   const bodyBox = el('div', {});
   const overviewCard = el('div', {class:'card overview-card'});
-  wrap.appendChild(heroBox);
   wrap.appendChild(tabRow);
+  wrap.appendChild(heroBox);
   wrap.appendChild(summaryGrid);
   wrap.appendChild(bodyBox);
   wrap.appendChild(overviewCard);
