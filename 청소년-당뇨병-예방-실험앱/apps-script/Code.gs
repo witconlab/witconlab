@@ -104,3 +104,55 @@ function jsonOutput_(obj) {
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * 유지보수용 1회성 함수 (웹앱 API와는 무관, Apps Script 편집기에서 직접 실행)
+ *
+ * 이전 스키마(반·모둠·학생·공복·30분후·수정시간, 6열)로 저장된 행들은 지금의
+ * 10열 헤더(제출시간·반·모둠·실험유형·음식·운동여부·운동종류·식전·식후30분·Δ혈당)
+ * 밑에서 컬럼이 밀려 보입니다. 이 함수는 '실험유형' 칸이 '음식'/'운동'이 아닌
+ * (=이전 스키마로 추정되는) 행만 골라 '이전버전_보관' 탭으로 옮기고, 원본
+ * 시트에는 정상 스키마 행만 남깁니다.
+ *
+ * 실행 방법: Apps Script 편집기 상단 함수 선택 드롭다운에서 archiveOldRows
+ * 선택 → ▷ 실행 → 권한 요청 시 승인. 완료 후 스프레드시트를 열어 확인하세요.
+ */
+function archiveOldRows() {
+  const sheet = getSheet_();
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ARCHIVE_NAME = '이전버전_보관';
+  let archive = ss.getSheetByName(ARCHIVE_NAME);
+  if (!archive) {
+    archive = ss.insertSheet(ARCHIVE_NAME);
+    archive.appendRow(['반', '모둠', '학생', '공복(0분)', '30분후', '수정시간']);
+  }
+
+  const values = sheet.getDataRange().getValues();
+  const keepRows = [];
+  const archiveRows = [];
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    if (!r[1] && !r[4]) continue; // 완전히 빈 행은 건너뜀
+    const type = r[3];
+    if (type !== '음식' && type !== '운동') {
+      archiveRows.push([r[0], r[1], r[2], r[3], r[4], r[5]]);
+    } else {
+      keepRows.push(r);
+    }
+  }
+
+  if (archiveRows.length > 0) {
+    archive.getRange(archive.getLastRow() + 1, 1, archiveRows.length, 6).setValues(archiveRows);
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, HEADERS.length).clearContent();
+  }
+  if (keepRows.length > 0) {
+    sheet.getRange(2, 1, keepRows.length, HEADERS.length).setValues(keepRows);
+  }
+
+  Logger.log('보관 ' + archiveRows.length + '건, 유지 ' + keepRows.length + '건');
+  return '보관 ' + archiveRows.length + '건, 유지 ' + keepRows.length + '건';
+}
