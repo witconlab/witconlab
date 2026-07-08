@@ -191,7 +191,7 @@ function cleanupCorruptRows() {
   let removed = 0;
   for (let i = 1; i < values.length; i++) {
     const r = values[i];
-    if (!r[0] && !r[4]) continue; // 완전히 빈 행은 건너뜀
+    if (!r[3]) continue; // 실험유형이 없는 완전히 빈 행만 건너뜀
     const type = r[3];
     const beforeOk = r[5] === '' || typeof r[5] === 'number';
     const afterOk = r[6] === '' || typeof r[6] === 'number';
@@ -214,4 +214,39 @@ function cleanupCorruptRows() {
 
   Logger.log('삭제 ' + removed + '건, 유지 ' + (kept.length - 1) + '건');
   return '삭제 ' + removed + '건, 유지 ' + (kept.length - 1) + '건';
+}
+
+/**
+ * 유지보수용 함수 (웹앱 API와는 무관, Apps Script 편집기에서 직접 실행)
+ *
+ * 탭2(운동 전후 혈당)는 반 선택이 없는 익명 제출이라, index.html의 "지우기" 버튼이
+ * 지원되지 않습니다. 탭2 데이터를 전부 초기화하고 싶을 때 이 함수를 실행하세요.
+ * 실행 방법: 함수 선택 드롭다운에서 clearAllExerciseRows 선택 → ▷ 실행.
+ */
+function clearAllExerciseRows() {
+  const sheet = getSheet_();
+  const values = sheet.getDataRange().getValues();
+  const kept = [values[0].slice(0, HEADERS.length)];
+  let removed = 0;
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    if (!r[3]) continue;
+    if (r[3] === '운동') {
+      removed++;
+    } else {
+      kept.push(r.slice(0, HEADERS.length));
+    }
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, HEADERS.length).clearContent();
+  }
+  if (kept.length > 1) {
+    sheet.getRange(2, 1, kept.length - 1, HEADERS.length).setValues(kept.slice(1));
+  }
+  sheet.getRange(2, NUMBER_COL_START, Math.max(sheet.getMaxRows() - 1, 1), NUMBER_COL_COUNT).setNumberFormat('0.###');
+
+  Logger.log('운동 데이터 삭제 ' + removed + '건');
+  return '운동 데이터 삭제 ' + removed + '건';
 }
