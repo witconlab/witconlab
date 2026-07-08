@@ -19,6 +19,8 @@
 
 const SHEET_NAME = '혈당데이터';
 const HEADERS = ['반', '모둠', '학생', '실험유형', '항목', '측정전', '측정후', 'Δ변화', '수정시간'];
+const NUMBER_COL_START = 6; // '측정전' 열 (1-based)
+const NUMBER_COL_COUNT = 3; // 측정전, 측정후, Δ변화
 
 function getSheet_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -27,6 +29,9 @@ function getSheet_() {
     sheet = ss.insertSheet(SHEET_NAME);
   }
   sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  // 예전 스키마에서 이 열들이 날짜/시간 서식으로 지정된 채 남아있으면, 이후 숫자를
+  // 써도 날짜로 잘못 해석되는 문제가 생겨서 매번 일반 숫자 서식으로 고정해줌
+  sheet.getRange(2, NUMBER_COL_START, Math.max(sheet.getMaxRows() - 1, 1), NUMBER_COL_COUNT).setNumberFormat('0.###');
   return sheet;
 }
 
@@ -39,6 +44,13 @@ function doGet(e) {
   } catch (err) {
     return jsonOutput_({ ok: false, error: String(err) });
   }
+}
+
+function numOrEmpty_(v) {
+  if (v === '' || v === null || v === undefined) return '';
+  if (v instanceof Date) return ''; // 셀 서식이 날짜로 잘못 지정되어 있던 경우에 대한 방어
+  const n = Number(v);
+  return isNaN(n) ? '' : n;
 }
 
 function handleRead_() {
@@ -54,9 +66,9 @@ function handleRead_() {
       student: r[2],
       type: r[3],
       item: r[4],
-      before: r[5] === '' ? '' : Number(r[5]),
-      after: r[6] === '' ? '' : Number(r[6]),
-      delta: r[7] === '' ? '' : Number(r[7]),
+      before: numOrEmpty_(r[5]),
+      after: numOrEmpty_(r[6]),
+      delta: numOrEmpty_(r[7]),
       ts: r[8]
     });
   }
@@ -102,11 +114,11 @@ function handleWrite_(e) {
   }
 
   const rowData = [cls, group, student, type, label, before, after, delta, timestamp];
-  if (rowIndex === -1) {
-    sheet.appendRow(rowData);
-  } else {
-    sheet.getRange(rowIndex, 1, 1, HEADERS.length).setValues([rowData]);
-  }
+  const targetRow = rowIndex === -1 ? sheet.getLastRow() + 1 : rowIndex;
+  const range = sheet.getRange(targetRow, 1, 1, HEADERS.length);
+  range.setNumberFormat('@'); // 우선 전체를 일반 텍스트로 리셋
+  range.setValues([rowData]);
+  sheet.getRange(targetRow, NUMBER_COL_START, 1, NUMBER_COL_COUNT).setNumberFormat('0.###'); // 숫자 열만 다시 숫자 서식으로
 
   return jsonOutput_({ ok: true });
 }
@@ -142,4 +154,44 @@ function jsonOutput_(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * 유지보수용 1회성 함수 (웹앱 API와는 무관, Apps Script 편집기에서 직접 실행)
+ *
+ * 지금 스키마(반·모둠·학생·실험유형·항목·측정전·측정후·Δ변화·수정시간)와 맞지 않거나
+ * (예: 실험유형이 '음식'/'운동'이 아님), 날짜 서식 오염으로 측정값이 숫자가 아닌 행을
+ * 찾아 삭제합니다. 실행 방법: Apps Script 편집기 상단 함수 선택 드롭다운에서
+ * cleanupCorruptRows 선택 → ▷ 실행 → 권한 요청 시 승인.
+ */
+function cleanupCorruptRows() {
+  const sheet = getSheet_();
+  const values = sheet.getDataRange().getValues();
+  const kept = [values[0]];
+  let removed = 0;
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    if (!r[0] && !r[4]) continue; // 완전히 빈 행은 건너뜀
+    const type = r[3];
+    const beforeOk = r[5] === '' || typeof r[5] === 'number';
+    const afterOk = r[6] === '' || typeof r[6] === 'number';
+    const valid = (type === '음식' || type === '운동') && beforeOk && afterOk;
+    if (valid) {
+      kept.push(r);
+    } else {
+      removed++;
+    }
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, HEADERS.length).clearContent();
+  }
+  if (kept.length > 1) {
+    sheet.getRange(2, 1, kept.length - 1, HEADERS.length).setValues(kept.slice(1));
+  }
+  sheet.getRange(2, NUMBER_COL_START, Math.max(sheet.getMaxRows() - 1, 1), NUMBER_COL_COUNT).setNumberFormat('0.###');
+
+  Logger.log('삭제 ' + removed + '건, 유지 ' + (kept.length - 1) + '건');
+  return '삭제 ' + removed + '건, 유지 ' + (kept.length - 1) + '건';
 }
