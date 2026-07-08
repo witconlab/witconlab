@@ -93,16 +93,25 @@ function handleWrite_(e) {
     return jsonOutput_({ ok: false, error: 'invalid json' });
   }
 
-  const cls = String(item.class || '');
-  const group = Number(item.group);
-  const student = Number(item.student);
   const type = String(item.type || '');
-  if (!cls || !group || !student || !type) {
-    return jsonOutput_({ ok: false, error: 'missing class/group/student/type' });
+  if (!type) {
+    return jsonOutput_({ ok: false, error: 'missing type' });
+  }
+  // 탭1(음식)은 반/모둠/학생이 필수이며 같은 자리를 덮어쓰는(upsert) 방식.
+  // 탭2(운동)는 반/모둠 선택 없는 익명 제출이라 매번 새 행으로 추가함.
+  const isFood = type === '음식';
+  const cls = String(item.class || '');
+  const group = item.group ? Number(item.group) : '';
+  const student = item.student ? Number(item.student) : '';
+  if (isFood && (!cls || !group || !student)) {
+    return jsonOutput_({ ok: false, error: 'missing class/group/student' });
   }
   const before = item.before === '' || item.before == null ? '' : Number(item.before);
   const after = item.after === '' || item.after == null ? '' : Number(item.after);
-  const delta = (before === '' || after === '') ? '' : (after - before);
+  if (before === '' || after === '' || isNaN(before) || isNaN(after)) {
+    return jsonOutput_({ ok: false, error: 'missing before/after' });
+  }
+  const delta = after - before;
   const label = item.item || '';
 
   const sheet = getSheet_();
@@ -110,13 +119,15 @@ function handleWrite_(e) {
   const tz = Session.getScriptTimeZone();
   const timestamp = Utilities.formatDate(now, tz, 'yyyy-MM-dd HH:mm:ss');
 
-  const values = sheet.getDataRange().getValues();
   let rowIndex = -1; // 1-based sheet row
-  for (let i = 1; i < values.length; i++) {
-    const r = values[i];
-    if (String(r[0]) === cls && Number(r[1]) === group && Number(r[2]) === student && String(r[3]) === type) {
-      rowIndex = i + 1;
-      break;
+  if (isFood) {
+    const values = sheet.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      const r = values[i];
+      if (String(r[0]) === cls && Number(r[1]) === group && Number(r[2]) === student && String(r[3]) === type) {
+        rowIndex = i + 1;
+        break;
+      }
     }
   }
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>우리 모둠의 혈당 변화 · 2형 당뇨병 예방 실험</title>
-<meta name="description" content="모둠원 4명이 각자 식전·식후 30분 혈당, 그리고 운동 전·후 혈당을 기록하면 모둠 평균이 자동 계산되어 실시간으로 비교되는 2형 당뇨병 예방 탐구 웹앱">
+<meta name="description" content="모둠원 4명이 각자 식전·식후 30분 혈당을 입력해 비교하는 탭1과, 반 구분 없이 누구나 운동 전후 혈당을 바로 기록하는 탭2로 구성된 2형 당뇨병 예방 탐구 웹앱">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -59,7 +59,7 @@ a{color:inherit;}
 /* ---- layout ---- */
 .wrap{max-width:900px;margin:0 auto;padding:28px 18px 90px;}
 
-/* ---- setup screen ---- */
+/* ---- hero / class picker ---- */
 .hero{padding:10px 6px 26px;}
 .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;color:var(--ink-soft);}
 .hero h1{font-family:var(--font-serif);font-size:26px;font-weight:700;margin-top:10px;line-height:1.4;}
@@ -75,7 +75,7 @@ a{color:inherit;}
   background:#fff;font-weight:600;font-size:15px;text-align:center;
 }
 .pick-btn.active{border-color:var(--ink);background:var(--ink);color:var(--paper);}
-.start-row{margin-top:30px;}
+.picker-card{padding:24px 22px;margin-top:8px;}
 
 /* ---- dashboard: hero header ---- */
 .dash-hero{padding:6px 0 18px;border-bottom:1.5px solid var(--ink);margin-bottom:20px;}
@@ -151,14 +151,26 @@ a{color:inherit;}
 .field-hdr-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;margin-bottom:6px;}
 .field-hdr-row span{font-size:10px;color:var(--ink-soft);font-weight:600;text-align:center;}
 
-/* ---- 탭2: 운동 전후 혈당 ---- */
-.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;}
-@media(max-width:640px){.ex-grid{grid-template-columns:1fr;}}
-.ex-group-card{padding:16px;}
-.ex-group-card h4{font-size:13.5px;font-weight:700;margin-bottom:12px;}
-.ex-type-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
-.ex-type-row button{flex:1;min-width:60px;border:1.5px solid var(--line);border-radius:7px;padding:6px 3px;font-size:10.5px;font-weight:600;background:#fff;color:var(--ink-soft);}
-.ex-type-row button.active{border-color:var(--purple);background:var(--purple-soft);color:var(--purple);}
+/* ---- 탭2: 운동 전후 혈당 (반/모둠 선택 없는 익명 폼) ---- */
+.ex-form-card{padding:26px 24px;margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;}
+.ex-form-card h3{font-family:var(--font-serif);font-size:18px;font-weight:700;text-align:center;}
+.ex-form-card .sub{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:8px;line-height:1.6;}
+.ex-field-row{display:flex;gap:10px;margin-top:20px;}
+.ex-field{flex:1;}
+.ex-field label{display:block;font-size:11px;color:var(--ink-soft);font-weight:600;margin-bottom:6px;text-align:center;}
+.ex-field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:13px 10px;font-family:var(--font-mono);font-size:17px;text-align:center;}
+.ex-field input:focus{outline:none;border-color:var(--ink);}
+.ex-delta-display{text-align:center;margin-top:18px;font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--ink-soft);}
+.ex-delta-display.up{color:var(--accent);}
+.ex-delta-display.down{color:var(--good);}
+.ex-toggle-row{display:flex;gap:8px;margin-top:22px;}
+.ex-toggle-row button{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:13px 8px;font-size:13.5px;font-weight:700;background:#fff;color:var(--ink-soft);}
+.ex-toggle-row button.active.off{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+.ex-toggle-row button.active.on{border-color:var(--good);background:var(--good-soft);color:var(--good);}
+.ex-types-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.ex-types-grid button{border:1.5px solid var(--line);border-radius:10px;padding:12px 6px;font-size:12.5px;font-weight:600;background:#fff;color:var(--ink-soft);}
+.ex-types-grid button.active{border-color:var(--purple);background:var(--purple-soft);color:var(--purple);}
+.ex-submit-row{margin-top:24px;}
 
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:12.5px;font-weight:600;box-shadow:var(--shadow);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;max-width:86vw;text-align:center;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
@@ -202,14 +214,13 @@ const TABS = [
 
 /* ==================================================================
    저장소 / 상태
-   store[class][group][student] = {
-     food:     { before, after },
-     exercise: { type, before, after }
-   }
-   탭1(음식)과 탭2(운동)는 서로 독립적인 데이터입니다.
+   탭1(음식): store[class][group][student] = { before, after } — 반 선택 필요
+   탭2(운동): 반/모둠 선택 없이 누구나 제출하는 익명 데이터. 서버에서 읽은
+             전체 운동 기록은 state.exerciseRows 에만 보관함(개인별 저장 없음).
    ================================================================== */
-const LS_CLASS = 'db5_class_v1';
-const LS_STORE = 'db5_store_v1';
+const LS_CLASS = 'db6_class_v1';
+const LS_STORE = 'db6_store_v1';
+const LS_EX_ROWS = 'db6_ex_rows_v1';
 
 function makeEmptyStore(){
   const store = {};
@@ -217,9 +228,7 @@ function makeEmptyStore(){
     store[c] = {};
     GROUPS.forEach(g=>{
       store[c][g] = {};
-      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        store[c][g][s] = { food:{before:'', after:''}, exercise:{type:'', before:'', after:''} };
-      }
+      for(let s=1;s<=STUDENTS_PER_GROUP;s++) store[c][g][s] = { before:'', after:'' };
     });
   });
   return store;
@@ -235,9 +244,7 @@ function loadStore(){
         if(!raw[c][g]) return;
         for(let s=1;s<=STUDENTS_PER_GROUP;s++){
           const src = raw[c][g][s];
-          if(!src) return;
-          if(src.food) store[c][g][s].food = { before:String(src.food.before||''), after:String(src.food.after||'') };
-          if(src.exercise) store[c][g][s].exercise = { type:String(src.exercise.type||''), before:String(src.exercise.before||''), after:String(src.exercise.after||'') };
+          if(src) store[c][g][s] = { before:String(src.before||''), after:String(src.after||'') };
         }
       });
     });
@@ -253,14 +260,23 @@ function loadSavedClass(){
 function saveSavedClass(c){
   try{ localStorage.setItem(LS_CLASS, c); }catch(e){}
 }
+function clearSavedClass(){
+  try{ localStorage.removeItem(LS_CLASS); }catch(e){}
+}
+function loadExerciseRowsCache(){
+  try{ return JSON.parse(localStorage.getItem(LS_EX_ROWS)) || []; }catch(e){ return []; }
+}
+function saveExerciseRowsCache(rows){
+  try{ localStorage.setItem(LS_EX_ROWS, JSON.stringify(rows)); }catch(e){}
+}
 
 const store = loadStore();
 const state = {
-  screen: 'setup',
   cls: null,
   tab: 'food',
   online: false,
-  syncing: false
+  syncing: false,
+  exerciseRows: loadExerciseRowsCache()
 };
 
 /* ==================================================================
@@ -330,30 +346,28 @@ async function apiClear(cls, type){
   return json;
 }
 
-/* 서버에서 읽은 행을 store에 병합. 현재 포커스 중인 입력칸은 덮어쓰지 않음 */
+/* 서버에서 읽은 행을 반영. 음식(탭1) 행은 반/모둠/학생별 store에 병합하고,
+   운동(탭2) 행은 익명 데이터 전체를 state.exerciseRows에 그대로 보관함 */
 function mergeRows(rows){
+  const exRows = [];
   rows.forEach(r=>{
+    if(r.type === '운동'){
+      exRows.push(r);
+      return;
+    }
     const cls = r.class, group = Number(r.group), student = Number(r.student);
     if(!store[cls] || !store[cls][group] || !store[cls][group][student]) return;
-    const focusedInfo = getFocusedFieldInfo();
-    const isFocusedHere = focusedInfo && focusedInfo.cls === cls && focusedInfo.group === group && focusedInfo.student === student && focusedInfo.kind === (r.type === '운동' ? 'exercise' : 'food');
-
-    if(r.type === '운동'){
-      const target = store[cls][group][student].exercise;
-      if(!isFocusedHere || focusedInfo.field !== 'type') target.type = r.item == null ? '' : String(r.item);
-      if(!isFocusedHere || focusedInfo.field !== 'before') target.before = r.before === '' || r.before == null ? '' : String(r.before);
-      if(!isFocusedHere || focusedInfo.field !== 'after') target.after = r.after === '' || r.after == null ? '' : String(r.after);
-    }else{
-      const target = store[cls][group][student].food;
-      if(!isFocusedHere || focusedInfo.field !== 'before') target.before = r.before === '' || r.before == null ? '' : String(r.before);
-      if(!isFocusedHere || focusedInfo.field !== 'after') target.after = r.after === '' || r.after == null ? '' : String(r.after);
-    }
+    const isFocusedHere = focusedRef && focusedRef.cls === cls && focusedRef.group === group && focusedRef.student === student;
+    const target = store[cls][group][student];
+    if(!isFocusedHere || focusedRef.field !== 'before') target.before = r.before === '' || r.before == null ? '' : String(r.before);
+    if(!isFocusedHere || focusedRef.field !== 'after') target.after = r.after === '' || r.after == null ? '' : String(r.after);
   });
   saveStore();
+  state.exerciseRows = exRows;
+  saveExerciseRowsCache(exRows);
 }
 
-let focusedRef = null; // {cls, group, student, kind:'food'|'exercise', field}
-function getFocusedFieldInfo(){ return focusedRef; }
+let focusedRef = null; // {cls, group, student, field}
 
 async function syncRead(){
   state.syncing = true;
@@ -369,19 +383,13 @@ async function syncRead(){
 }
 
 const writeTimers = {};
-function scheduleWrite(cls, group, student, kind){
-  const key = cls + '_' + group + '_' + student + '_' + kind;
+function scheduleWrite(cls, group, student){
+  const key = cls + '_' + group + '_' + student;
   clearTimeout(writeTimers[key]);
   writeTimers[key] = setTimeout(async ()=>{
     if(!gasConfigured()){ state.online = false; return; }
-    let item;
-    if(kind === 'food'){
-      const entry = store[cls][group][student].food;
-      item = { class:cls, group:group, student:student, type:'음식', item: GROUP_FOOD[group], before:entry.before, after:entry.after };
-    }else{
-      const entry = store[cls][group][student].exercise;
-      item = { class:cls, group:group, student:student, type:'운동', item: entry.type || '', before:entry.before, after:entry.after };
-    }
+    const entry = store[cls][group][student];
+    const item = { class:cls, group:group, student:student, type:'음식', item: GROUP_FOOD[group], before:entry.before, after:entry.after };
     try{
       await apiWrite(item);
       state.online = true;
@@ -391,74 +399,34 @@ function scheduleWrite(cls, group, student, kind){
   }, CONFIG.WRITE_DEBOUNCE_MS);
 }
 
+/* 탭2: 반/모둠 선택 없는 익명 제출. upsert 없이 매번 새 행으로 추가됨 */
+async function submitExerciseEntry(item){
+  const localRow = Object.assign({ ts: new Date().toISOString(), delta: item.after - item.before }, item);
+  state.exerciseRows = state.exerciseRows.concat([localRow]);
+  saveExerciseRowsCache(state.exerciseRows);
+  if(!gasConfigured()){ state.online = false; return {mode:'local'}; }
+  try{
+    await apiWrite(item);
+    state.online = true;
+    await syncRead();
+    return {mode:'server'};
+  }catch(e){
+    state.online = false;
+    return {mode:'local'};
+  }
+}
+
 /* ==================================================================
-   라우터
+   앱 루트: 탭1은 반 선택이 필요하고, 탭2는 반 선택 없이 바로 사용 가능
    ================================================================== */
 function boot(){
   const saved = loadSavedClass();
-  if(saved && CLASSES.includes(saved)){
-    state.cls = saved;
-    state.screen = 'dashboard';
-  }
-  render();
+  if(saved && CLASSES.includes(saved)) state.cls = saved;
+  mountApp(document.getElementById('app'));
 }
 
-function render(){
-  const root = document.getElementById('app');
-  clear(root);
-  if(state.screen === 'dashboard' && state.cls){
-    mountDashboard(root);
-  }else{
-    mountSetup(root);
-  }
-}
-
-/* ==================================================================
-   화면 1: 설정 스크린 (학급 선택)
-   ================================================================== */
-function mountSetup(root){
-  let picked = state.cls;
-  const wrap = el('div', {class:'wrap'});
-
-  wrap.appendChild(el('div', {class:'hero'},
-    el('div', {class:'eyebrow'}, '2형 당뇨병 생활습관 관리 탐구 · 혈당 변화 실험'),
-    el('h1', {}, '우리 모둠의 혈당 변화'),
-    el('p', {}, '모둠원 4명이 각자 공복(0분)과 식후 30분 혈당을 입력하고, 운동 전후 혈당도 함께 기록해 실시간으로 비교해요.')
-  ));
-
-  wrap.appendChild(el('div', {class:'notice'}, el('b', {}, '실험 통제 조건  '), CONTROL_NOTE));
-
-  wrap.appendChild(el('div', {class:'section-label'}, '학급 선택'));
-  const clsGrid = el('div', {class:'grid-3'});
-  CLASSES.forEach(c=>{
-    const btn = el('button', {class:'pick-btn' + (picked === c ? ' active' : ''), onclick:()=>{
-      picked = c;
-      Array.from(clsGrid.children).forEach((b,i)=>{ b.className = 'pick-btn' + (picked === CLASSES[i] ? ' active' : ''); });
-      startBtn.disabled = !picked;
-    }}, c);
-    clsGrid.appendChild(btn);
-  });
-  wrap.appendChild(clsGrid);
-
-  const startBtn = el('button', {class:'btn btn-primary btn-block', onclick:()=>{
-    if(!picked) return;
-    state.cls = picked;
-    state.screen = 'dashboard';
-    saveSavedClass(picked);
-    render();
-  }}, '입장하기 →');
-  startBtn.disabled = !picked;
-  wrap.appendChild(el('div', {class:'start-row'}, startBtn));
-
-  root.appendChild(wrap);
-}
-
-/* ==================================================================
-   화면 2: 메인 대시보드
-   ================================================================== */
-function mountDashboard(root){
-  const cls = state.cls;
-  const refs = { ov:{}, pair:[], input:{}, exGroup:{} };
+function mountApp(root){
+  const refs = { ov:{}, pair:[], input:{} };
 
   const wrap = el('div', {class:'wrap'});
   const heroBox = el('div', {class:'dash-hero'});
@@ -471,6 +439,7 @@ function mountDashboard(root){
   wrap.appendChild(summaryGrid);
   wrap.appendChild(bodyBox);
   wrap.appendChild(overviewCard);
+  clear(root);
   root.appendChild(wrap);
 
   /* ---------- 헤더 ---------- */
@@ -478,15 +447,21 @@ function mountDashboard(root){
     clear(heroBox);
     heroBox.appendChild(el('div', {class:'eyebrow'}, '2형 당뇨병 생활습관 관리 탐구 · 혈당 변화 실험'));
     heroBox.appendChild(el('h1', {}, '우리 모둠의 혈당 변화'));
-    heroBox.appendChild(el('p', {}, '모둠원 4명이 각자 공복(0분)과 식후 30분 혈당을 입력하고, 운동 전후 혈당도 함께 기록해 실시간으로 비교해요.'));
-    const row = el('div', {class:'class-row'},
-      el('span', {class:'badge'}, '📍 ' + cls),
-      el('button', {class:'btn btn-sm btn-ghost', onclick:()=>{
-        state.screen = 'setup';
-        render();
-      }}, '다른 반으로 전환')
-    );
-    heroBox.appendChild(row);
+    heroBox.appendChild(el('p', {},
+      state.tab === 'food'
+        ? '모둠원 4명이 각자 식전과 식후 30분 혈당을 입력하면, 모둠 평균으로 자동 계산되어 실시간으로 비교돼요.'
+        : '반/모둠 선택 없이 누구나 바로 운동 전·후 혈당을 기록할 수 있어요.'
+    ));
+    if(state.tab === 'food' && state.cls){
+      heroBox.appendChild(el('div', {class:'class-row'},
+        el('span', {class:'badge'}, '📍 ' + state.cls),
+        el('button', {class:'btn btn-sm btn-ghost', onclick:()=>{
+          state.cls = null;
+          clearSavedClass();
+          renderHero(); renderBody(); buildOverviewChart(); refreshAll();
+        }}, '다른 반으로 전환')
+      ));
+    }
     const statusRow = el('div', {class:'status-line'});
     refs.statusDot = el('span', {class:'status-dot' + (state.online ? '' : ' offline')},
       el('i'),
@@ -504,6 +479,7 @@ function mountDashboard(root){
         class:'tab-btn' + (state.tab === t.id ? ' active' : ''),
         onclick:()=>{
           state.tab = t.id;
+          renderHero();
           renderTabs();
           renderBody();
           buildOverviewChart();
@@ -518,43 +494,42 @@ function mountDashboard(root){
     const stats = {};
     GROUPS.forEach(g=>{
       const deltas = [];
-      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        const e = store[cls][g][s].food;
-        const b = parseFloat(e.before), a = parseFloat(e.after);
-        if(!isNaN(b) && !isNaN(a)) deltas.push(a-b);
+      if(state.cls){
+        for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+          const e = store[state.cls][g][s];
+          const b = parseFloat(e.before), a = parseFloat(e.after);
+          if(!isNaN(b) && !isNaN(a)) deltas.push(a-b);
+        }
       }
       stats[g] = { count: deltas.length, avg: deltas.length ? deltas.reduce((s,v)=>s+v,0)/deltas.length : null };
     });
     return stats;
   }
 
-  /* ---------- 통계 (탭2: 운동) ---------- */
+  /* ---------- 통계 (탭2: 운동, 반 구분 없는 전체 집계) ---------- */
   function computeExerciseStats(){
-    const stats = {};
-    EXERCISE_TYPES.forEach(t=>{ stats[t] = { count:0, deltas:[] }; });
-    let filled = 0;
-    GROUPS.forEach(g=>{
-      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        const e = store[cls][g][s].exercise;
-        const b = parseFloat(e.before), a = parseFloat(e.after);
-        if(!isNaN(b) && !isNaN(a) && e.type && stats[e.type]){
-          stats[e.type].deltas.push(a-b);
-          filled++;
-        }
-      }
-    });
+    const rows = state.exerciseRows;
+    const byType = {};
+    EXERCISE_TYPES.forEach(t=>{ byType[t] = []; });
+    rows.forEach(r=>{ if(byType[r.item]) byType[r.item].push(Number(r.delta||0)); });
+    const perType = {};
     EXERCISE_TYPES.forEach(t=>{
-      const arr = stats[t].deltas;
-      stats[t].count = arr.length;
-      stats[t].avg = arr.length ? arr.reduce((s,v)=>s+v,0)/arr.length : null;
+      const arr = byType[t];
+      perType[t] = { count: arr.length, avg: arr.length ? arr.reduce((s,v)=>s+v,0)/arr.length : null };
     });
-    stats._filled = filled;
-    return stats;
+    const count = rows.length;
+    const avgDelta = count ? rows.reduce((s,r)=>s+Number(r.delta||0),0)/count : null;
+    let topType = null, topAvg = null, topAbs = -Infinity;
+    EXERCISE_TYPES.forEach(t=>{
+      if(perType[t].count > 0 && Math.abs(perType[t].avg) > topAbs){ topAbs = Math.abs(perType[t].avg); topAvg = perType[t].avg; topType = t; }
+    });
+    return { perType, count, avgDelta, topType, topAvg };
   }
 
   function renderSummary(){
     clear(summaryGrid);
     if(state.tab === 'food'){
+      if(!state.cls) return; // 반을 아직 선택하지 않았으면 요약카드 숨김
       const stats = computeGroupStats();
       const totalStudents = GROUPS.length * STUDENTS_PER_GROUP;
       const filled = GROUPS.reduce((s,g)=>s+stats[g].count, 0);
@@ -577,36 +552,51 @@ function mountDashboard(root){
         topGroup ? el('div', {class:'sub'}, '평균 +' + fmt1(topAvg) + ' mg/dL') : null
       ));
     }else{
-      const stats = computeExerciseStats();
-      const totalStudents = GROUPS.length * STUDENTS_PER_GROUP;
-      const completedTypes = EXERCISE_TYPES.filter(t=>stats[t].count > 0).length;
-      let topType = null, topAvg = null, topAbs = -Infinity;
-      EXERCISE_TYPES.forEach(t=>{
-        if(stats[t].count > 0 && Math.abs(stats[t].avg) > topAbs){ topAbs = Math.abs(stats[t].avg); topAvg = stats[t].avg; topType = t; }
-      });
+      const s = computeExerciseStats();
       summaryGrid.appendChild(el('div', {class:'card summary-card'},
-        el('div', {class:'lbl'}, '입력 완료 인원'),
-        el('div', {class:'val'}, stats._filled + '/' + totalStudents + '명')
+        el('div', {class:'lbl'}, '제출 데이터 수'),
+        el('div', {class:'val'}, s.count + '건')
       ));
       summaryGrid.appendChild(el('div', {class:'card summary-card'},
-        el('div', {class:'lbl'}, '완성된 운동 종류'),
-        el('div', {class:'val'}, completedTypes + '/' + EXERCISE_TYPES.length)
+        el('div', {class:'lbl'}, '평균 혈당 변화량'),
+        el('div', {class:'val'}, s.avgDelta == null ? '—' : (s.avgDelta > 0 ? '+' : '') + fmt1(s.avgDelta) + ' mg/dL')
       ));
       summaryGrid.appendChild(el('div', {class:'card summary-card'},
-        el('div', {class:'lbl'}, '평균 혈당 변화가 가장 큰 운동'),
-        el('div', {class:'val small'}, topType || '—'),
-        topType ? el('div', {class:'sub'}, '평균 ' + (topAvg > 0 ? '+' : '') + fmt1(topAvg) + ' mg/dL') : null
+        el('div', {class:'lbl'}, '평균 변화가 가장 큰 운동'),
+        el('div', {class:'val small'}, s.topType || '—'),
+        s.topType ? el('div', {class:'sub'}, '평균 ' + (s.topAvg > 0 ? '+' : '') + fmt1(s.topAvg) + ' mg/dL') : null
       ));
     }
   }
 
-  /* ---------- 본문: 탭1(음식 비교쌍) / 탭2(운동 전후) ---------- */
+  /* ---------- 본문 ---------- */
   function renderBody(){
     clear(bodyBox);
-    if(state.tab === 'food') buildPairCards(); else buildExerciseCards();
+    if(state.tab === 'food'){
+      if(!state.cls) buildClassPicker(); else buildPairCards();
+    }else{
+      buildExerciseForm();
+    }
+  }
+
+  function buildClassPicker(){
+    bodyBox.appendChild(el('div', {class:'notice'}, el('b', {}, '실험 통제 조건  '), CONTROL_NOTE));
+    const card = el('div', {class:'card picker-card'});
+    card.appendChild(el('div', {class:'section-label'}, '학급 선택'));
+    const grid = el('div', {class:'grid-3'});
+    CLASSES.forEach(c=>{
+      grid.appendChild(el('button', {class:'pick-btn', onclick:()=>{
+        state.cls = c;
+        saveSavedClass(c);
+        renderHero(); renderBody(); buildOverviewChart(); refreshAll(); doSync();
+      }}, c));
+    });
+    card.appendChild(grid);
+    bodyBox.appendChild(card);
   }
 
   function buildPairCards(){
+    const cls = state.cls;
     refs.pair = [];
     PAIRS.forEach((pair)=>{
       const pr = { chartBox:null, groupCols:{}, studentDelta:{} };
@@ -619,16 +609,16 @@ function mountDashboard(root){
         const statusEl = el('div', {class:'pg-status'}, '아직 입력된 값이 없어요 (0/' + STUDENTS_PER_GROUP + '명)');
         const studentGrid = el('div', {});
         studentGrid.appendChild(el('div', {class:'field-hdr-row'},
-          el('span', {}, ''), el('span', {}, '0분(mg/dL)'), el('span', {}, '30분(mg/dL)')
+          el('span', {}, ''), el('span', {}, '식전(mg/dL)'), el('span', {}, '식후30분(mg/dL)')
         ));
         for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-          const entry = store[cls][g][s].food;
-          const beforeInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'0분', value: entry.before});
-          const afterInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'30분', value: entry.after});
+          const entry = store[cls][g][s];
+          const beforeInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'식전', value: entry.before});
+          const afterInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'식후30분', value: entry.after});
           bindFoodInput(beforeInput, cls, g, s, 'before');
           bindFoodInput(afterInput, cls, g, s, 'after');
-          refs.input[cls+'_'+g+'_'+s+'_food_before'] = beforeInput;
-          refs.input[cls+'_'+g+'_'+s+'_food_after'] = afterInput;
+          refs.input[cls+'_'+g+'_'+s+'_before'] = beforeInput;
+          refs.input[cls+'_'+g+'_'+s+'_after'] = afterInput;
           const deltaVal = el('span', {class:'val na'}, '—');
           pr.studentDelta[g+'_'+s] = deltaVal;
           studentGrid.appendChild(el('div', {class:'student-block'},
@@ -662,54 +652,89 @@ function mountDashboard(root){
     });
   }
 
-  function buildExerciseCards(){
-    bodyBox.appendChild(el('div', {class:'section-label'}, '실험 기록 · 운동 전후 혈당 (음식과 무관한 별도 실험)'));
-    const grid = el('div', {class:'ex-grid'});
-    refs.exGroup = {};
-    GROUPS.forEach(g=>{
-      const studentRows = [];
-      const card = el('div', {class:'card ex-group-card'},
-        el('h4', {}, g + '모둠')
-      );
-      card.appendChild(el('div', {class:'field-hdr-row'},
-        el('span', {}, ''), el('span', {}, '운동 전(mg/dL)'), el('span', {}, '운동 후(mg/dL)')
-      ));
-      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        const entry = store[cls][g][s].exercise;
-        const typeRow = el('div', {class:'ex-type-row'});
-        EXERCISE_TYPES.forEach(t=>{
-          const tBtn = el('button', {class: entry.type === t ? 'active' : '', onclick:()=>{
-            entry.type = t;
-            saveStore();
-            scheduleWrite(cls, g, s, 'exercise');
-            Array.from(typeRow.children).forEach(b=>b.classList.toggle('active', b.textContent === t));
-            refreshAll();
-          }}, t);
-          typeRow.appendChild(tBtn);
-        });
-        const beforeInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'운동전', value: entry.before});
-        const afterInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'운동후', value: entry.after});
-        bindExerciseInput(beforeInput, cls, g, s, 'before');
-        bindExerciseInput(afterInput, cls, g, s, 'after');
-        refs.input[cls+'_'+g+'_'+s+'_exercise_before'] = beforeInput;
-        refs.input[cls+'_'+g+'_'+s+'_exercise_after'] = afterInput;
-        const deltaVal = el('span', {class:'val na'}, '—');
-        studentRows.push({s, deltaVal});
-        card.appendChild(el('div', {class:'student-block'},
-          el('div', {class:'student-num'}, '학생 ' + s),
-          typeRow,
-          el('div', {class:'student-row'}, el('span'), beforeInput, afterInput),
-          el('div', {class:'student-delta-row'}, el('span', {}, ''), deltaVal)
-        ));
+  /* ---------- 탭2 폼: 반/모둠 선택 없는 익명 입력 ---------- */
+  function buildExerciseForm(){
+    const draft = { before:'', after:'', exercised:false, exerciseType:'' };
+
+    const beforeInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'mg/dL'});
+    const afterInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'mg/dL'});
+    const deltaDisplay = el('div', {class:'ex-delta-display'}, '—');
+
+    function refreshDelta(){
+      const b = parseFloat(draft.before), a = parseFloat(draft.after);
+      if(isNaN(b) || isNaN(a)){
+        deltaDisplay.textContent = '—';
+        deltaDisplay.className = 'ex-delta-display';
+      }else{
+        const d = a - b;
+        deltaDisplay.textContent = 'Δ ' + (d > 0 ? '+' : '') + fmt1(d) + ' mg/dL';
+        deltaDisplay.className = 'ex-delta-display ' + (d > 0 ? 'up' : (d < 0 ? 'down' : ''));
       }
-      refs.exGroup[g] = { studentRows };
-      grid.appendChild(card);
+    }
+    beforeInput.addEventListener('input', ()=>{ draft.before = beforeInput.value; refreshDelta(); });
+    afterInput.addEventListener('input', ()=>{ draft.after = afterInput.value; refreshDelta(); });
+
+    const offBtn = el('button', {}, '운동 안 함');
+    const onBtn = el('button', {}, '운동 함');
+    const typesGrid = el('div', {class:'ex-types-grid hidden'});
+    EXERCISE_TYPES.forEach(t=>{
+      typesGrid.appendChild(el('button', {onclick:()=>{
+        draft.exerciseType = t;
+        Array.from(typesGrid.children).forEach(b=>b.classList.toggle('active', b.textContent === t));
+      }}, t));
     });
-    bodyBox.appendChild(grid);
+    function refreshToggle(){
+      offBtn.className = !draft.exercised ? 'active off' : '';
+      onBtn.className = draft.exercised ? 'active on' : '';
+      typesGrid.classList.toggle('hidden', !draft.exercised);
+    }
+    offBtn.addEventListener('click', ()=>{ draft.exercised = false; refreshToggle(); });
+    onBtn.addEventListener('click', ()=>{ draft.exercised = true; refreshToggle(); });
+    refreshToggle();
+
+    const submitBtn = el('button', {class:'btn btn-primary btn-block', onclick: async ()=>{
+      const b = parseFloat(draft.before), a = parseFloat(draft.after);
+      if(isNaN(b) || isNaN(a)){
+        showToast('식전 / 식후 30분 후 값을 먼저 입력해 주세요');
+        return;
+      }
+      if(draft.exercised && !draft.exerciseType){
+        showToast('운동 종류를 선택해 주세요');
+        return;
+      }
+      const item = {
+        type:'운동',
+        item: draft.exercised ? draft.exerciseType : '',
+        before: b, after: a
+      };
+      const result = await submitExerciseEntry(item);
+      showToast(result.mode === 'server' ? '구글 시트에 제출되었습니다 ✓' : '오프라인 상태 · 이 기기에 저장되었습니다');
+      draft.before = ''; draft.after = ''; draft.exercised = false; draft.exerciseType = '';
+      beforeInput.value = ''; afterInput.value = '';
+      refreshDelta(); refreshToggle();
+      Array.from(typesGrid.children).forEach(b=>b.classList.remove('active'));
+      renderSummary();
+      refreshOverviewChart();
+    }}, '구글 시트에 제출');
+
+    const card = el('div', {class:'card ex-form-card'},
+      el('h3', {}, '운동 전후 혈당 기록'),
+      el('div', {class:'sub'}, '반/모둠 선택 없이 누구나 바로 입력할 수 있어요.'),
+      el('div', {class:'ex-field-row'},
+        el('div', {class:'ex-field'}, el('label', {}, '식전'), beforeInput),
+        el('div', {class:'ex-field'}, el('label', {}, '식후 30분 후'), afterInput)
+      ),
+      deltaDisplay,
+      el('div', {class:'ex-toggle-row'}, offBtn, onBtn),
+      typesGrid,
+      el('div', {class:'ex-submit-row'}, submitBtn)
+    );
+    bodyBox.appendChild(card);
   }
 
   function refreshPairCards(stats){
-    if(state.tab !== 'food') return;
+    if(state.tab !== 'food' || !state.cls) return;
+    const cls = state.cls;
     PAIRS.forEach((pair, idx)=>{
       const pr = refs.pair[idx];
       if(!pr) return;
@@ -726,7 +751,7 @@ function mountDashboard(root){
       const anyData = stats[gA].count > 0 || stats[gB].count > 0;
       if(!anyData){
         pr.chartBox.appendChild(el('div', {class:'placeholder'},
-          '모둠원들이 0분, 30분 값을 입력하면', el('br'), '모둠 평균 변화 폭이 여기에 그려져요'
+          '모둠원들이 식전, 식후30분 값을 입력하면', el('br'), '모둠 평균 변화 폭이 여기에 그려져요'
         ));
         return;
       }
@@ -744,13 +769,14 @@ function mountDashboard(root){
   }
 
   function refreshStudentDeltasFood(){
-    if(state.tab !== 'food') return;
+    if(state.tab !== 'food' || !state.cls) return;
+    const cls = state.cls;
     PAIRS.forEach((pair, idx)=>{
       const pr = refs.pair[idx];
       if(!pr) return;
       pair.groups.forEach(g=>{
         for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-          const e = store[cls][g][s].food;
+          const e = store[cls][g][s];
           const b = parseFloat(e.before), a = parseFloat(e.after);
           const deltaVal = pr.studentDelta[g+'_'+s];
           if(isNaN(b) || isNaN(a)){
@@ -766,69 +792,36 @@ function mountDashboard(root){
     });
   }
 
-  function refreshStudentDeltasExercise(){
-    if(state.tab !== 'exercise') return;
-    GROUPS.forEach(g=>{
-      const gr = refs.exGroup[g];
-      if(!gr) return;
-      gr.studentRows.forEach(({s, deltaVal})=>{
-        const e = store[cls][g][s].exercise;
-        const b = parseFloat(e.before), a = parseFloat(e.after);
-        if(isNaN(b) || isNaN(a)){
-          deltaVal.textContent = '—';
-          deltaVal.className = 'val na';
-        }else{
-          const d = a - b;
-          deltaVal.textContent = '개인 Δ ' + (d > 0 ? '+' : '') + fmt1(d) + ' mg/dL';
-          deltaVal.className = 'val ' + (d > 0 ? 'up' : (d < 0 ? 'down' : 'na'));
-        }
-      });
-    });
-  }
-
   function bindFoodInput(inputEl, cls, group, student, field){
-    inputEl.addEventListener('focus', ()=>{ focusedRef = {cls, group, student, kind:'food', field}; });
-    inputEl.addEventListener('blur', ()=>{ if(focusedRef && focusedRef.cls===cls && focusedRef.group===group && focusedRef.student===student && focusedRef.kind==='food' && focusedRef.field===field) focusedRef = null; });
+    inputEl.addEventListener('focus', ()=>{ focusedRef = {cls, group, student, field}; });
+    inputEl.addEventListener('blur', ()=>{ if(focusedRef && focusedRef.cls===cls && focusedRef.group===group && focusedRef.student===student && focusedRef.field===field) focusedRef = null; });
     inputEl.addEventListener('input', ()=>{
-      store[cls][group][student].food[field] = inputEl.value;
+      store[cls][group][student][field] = inputEl.value;
       saveStore();
-      scheduleWrite(cls, group, student, 'food');
-      refreshAll();
-    });
-  }
-  function bindExerciseInput(inputEl, cls, group, student, field){
-    inputEl.addEventListener('focus', ()=>{ focusedRef = {cls, group, student, kind:'exercise', field}; });
-    inputEl.addEventListener('blur', ()=>{ if(focusedRef && focusedRef.cls===cls && focusedRef.group===group && focusedRef.student===student && focusedRef.kind==='exercise' && focusedRef.field===field) focusedRef = null; });
-    inputEl.addEventListener('input', ()=>{
-      store[cls][group][student].exercise[field] = inputEl.value;
-      saveStore();
-      scheduleWrite(cls, group, student, 'exercise');
+      scheduleWrite(cls, group, student);
       refreshAll();
     });
   }
 
-  /* ---------- 결과 복사 / 초기화 (탭별) ---------- */
+  /* ---------- 결과 복사 / 초기화 ---------- */
   function onCopyResults(){
     let lines;
     if(state.tab === 'food'){
-      lines = ['반\t모둠\t음식\t학생\t식전(0분)\t식후30분\tΔ혈당'];
+      if(!state.cls){ showToast('먼저 학급을 선택해 주세요'); return; }
+      const cls = state.cls;
+      lines = ['반\t모둠\t음식\t학생\t식전\t식후30분\tΔ혈당'];
       GROUPS.forEach(g=>{
         for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-          const e = store[cls][g][s].food;
+          const e = store[cls][g][s];
           const b = parseFloat(e.before), a = parseFloat(e.after);
           if(isNaN(b) || isNaN(a)) continue;
           lines.push([cls, g, GROUP_FOOD[g], s, b, a, fmt1(a-b)].join('\t'));
         }
       });
     }else{
-      lines = ['반\t모둠\t학생\t운동종류\t운동전\t운동후\tΔ혈당'];
-      GROUPS.forEach(g=>{
-        for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-          const e = store[cls][g][s].exercise;
-          const b = parseFloat(e.before), a = parseFloat(e.after);
-          if(isNaN(b) || isNaN(a) || !e.type) continue;
-          lines.push([cls, g, s, e.type, b, a, fmt1(a-b)].join('\t'));
-        }
+      lines = ['식전\t식후30분\t운동여부\t운동종류\tΔ혈당'];
+      state.exerciseRows.forEach(r=>{
+        lines.push([r.before, r.after, r.item ? '운동함' : '운동안함', r.item || '', fmt1(Number(r.delta||0))].join('\t'));
       });
     }
     if(lines.length === 1){
@@ -855,28 +848,32 @@ function mountDashboard(root){
     });
   }
 
-  async function onClearClass(){
-    const tabLabel = state.tab === 'food' ? '탭 1(음식별)' : '탭 2(운동 전후)';
-    if(!confirm('"' + cls + '" 반의 ' + tabLabel + ' 입력값을 지울까요? 되돌릴 수 없어요.')) return;
-    GROUPS.forEach(g=>{
-      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        if(state.tab === 'food') store[cls][g][s].food = {before:'', after:''};
-        else store[cls][g][s].exercise = {type:'', before:'', after:''};
+  async function onClearData(){
+    if(state.tab === 'food'){
+      if(!state.cls) return;
+      const cls = state.cls;
+      if(!confirm('"' + cls + '" 반의 탭 1(음식별) 입력값을 지울까요? 되돌릴 수 없어요.')) return;
+      GROUPS.forEach(g=>{
+        for(let s=1;s<=STUDENTS_PER_GROUP;s++) store[cls][g][s] = {before:'', after:''};
+      });
+      saveStore();
+      renderBody();
+      refreshAll();
+      if(gasConfigured()){
+        try{ await apiClear(cls, '음식'); state.online = true; }catch(e){ state.online = false; }
       }
-    });
-    saveStore();
-    renderBody();
-    refreshAll();
-    if(gasConfigured()){
-      try{ await apiClear(cls, state.tab === 'food' ? '음식' : '운동'); state.online = true; }catch(e){ state.online = false; }
+      showToast('탭 1 입력값을 모두 지웠습니다');
+    }else{
+      showToast('탭 2는 개별 제출 기록이라 전체 삭제는 지원하지 않아요');
     }
-    showToast(tabLabel + ' 입력값을 모두 지웠습니다');
   }
 
   /* ---------- 하단 전체 비교 차트 ---------- */
   function buildOverviewChart(){
     clear(overviewCard);
     if(state.tab === 'food'){
+      if(!state.cls){ overviewCard.classList.add('hidden'); return; }
+      overviewCard.classList.remove('hidden');
       overviewCard.appendChild(el('h3', {}, '한눈에 보는 6가지 비교'));
       overviewCard.appendChild(el('div', {class:'sub-line'}, '모둠 평균 혈당 변화량(Δ, mg/dL) — 막대가 높을수록 혈당이 더 많이 올랐어요'));
       const chart = el('div', {class:'overview-chart'});
@@ -901,9 +898,14 @@ function mountDashboard(root){
       overviewCard.appendChild(el('div', {class:'overview-footnote'},
         '데이터는 같은 반 모든 모둠 화면에 자동으로 공유돼요. 같은 모둠 학생 4명 모두 자기 번호 칸에 입력해 주세요.'
       ));
+      overviewCard.appendChild(el('div', {class:'overview-actions'},
+        el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)'),
+        el('button', {class:'btn btn-sm btn-ghost', onclick: onClearData}, '탭1 입력값 지우기')
+      ));
     }else{
+      overviewCard.classList.remove('hidden');
       overviewCard.appendChild(el('h3', {}, '한눈에 보는 운동별 비교'));
-      overviewCard.appendChild(el('div', {class:'sub-line'}, '운동 종류별 평균 혈당 변화량(Δ, mg/dL) — 음식과 무관하게 운동 전후만 비교해요'));
+      overviewCard.appendChild(el('div', {class:'sub-line'}, '운동 종류별 평균 혈당 변화량(Δ, mg/dL) — 반 구분 없이 전체 제출값을 모아서 비교해요'));
       const chart = el('div', {class:'overview-chart'});
       const gridLines = el('div', {class:'overview-grid-lines'});
       for(let i=0;i<5;i++) gridLines.appendChild(el('div'));
@@ -924,18 +926,17 @@ function mountDashboard(root){
       });
       overviewCard.appendChild(chart);
       overviewCard.appendChild(el('div', {class:'overview-footnote'},
-        '데이터는 같은 반 모든 모둠 화면에 자동으로 공유돼요. 자신이 한 운동 종류를 고르고 운동 전·후 혈당을 입력해 주세요.'
+        '이 데이터는 반/모둠과 무관하게 모두 함께 모여요. 위 폼에서 자유롭게 여러 번 제출할 수 있어요.'
+      ));
+      overviewCard.appendChild(el('div', {class:'overview-actions'},
+        el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)')
       ));
     }
-    const actions = el('div', {class:'overview-actions'},
-      el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)'),
-      el('button', {class:'btn btn-sm btn-ghost', onclick: onClearClass}, '이 탭의 모든 입력값 지우기')
-    );
-    overviewCard.appendChild(actions);
   }
 
   function refreshOverviewChart(){
     if(state.tab === 'food'){
+      if(!state.cls) return;
       const stats = computeGroupStats();
       const maxAbs = Math.max(1, ...GROUPS.map(g=>Math.abs(stats[g].avg || 0)));
       GROUPS.forEach(g=>{
@@ -952,18 +953,17 @@ function mountDashboard(root){
       refreshStudentDeltasFood();
     }else{
       const stats = computeExerciseStats();
-      const maxAbs = Math.max(1, ...EXERCISE_TYPES.map(t=>Math.abs(stats[t].avg || 0)));
+      const maxAbs = Math.max(1, ...EXERCISE_TYPES.map(t=>Math.abs(stats.perType[t].avg || 0)));
       EXERCISE_TYPES.forEach(t=>{
         const r = refs.ov[t];
         if(!r) return;
-        const st = stats[t];
+        const st = stats.perType[t];
         const pct = st.avg == null ? 0 : Math.max(2, Math.abs(st.avg) / maxAbs * 100);
         r.fillEl.style.height = pct + '%';
         r.fillEl.style.background = st.avg == null ? 'var(--line)' : (st.avg >= 0 ? 'var(--accent)' : 'var(--good)');
         r.valueEl.textContent = st.avg == null ? '—' : (st.avg > 0 ? '+' : '') + fmt1(st.avg);
         r.countEl.textContent = st.count + '건';
       });
-      refreshStudentDeltasExercise();
     }
   }
 
@@ -982,16 +982,14 @@ function mountDashboard(root){
   }
 
   function renderInputsFromStore(){
+    if(!state.cls) return;
+    const cls = state.cls;
     GROUPS.forEach(g=>{
       for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        const fb = refs.input[cls+'_'+g+'_'+s+'_food_before'];
-        const fa = refs.input[cls+'_'+g+'_'+s+'_food_after'];
-        if(fb && document.activeElement !== fb) fb.value = store[cls][g][s].food.before;
-        if(fa && document.activeElement !== fa) fa.value = store[cls][g][s].food.after;
-        const eb = refs.input[cls+'_'+g+'_'+s+'_exercise_before'];
-        const ea = refs.input[cls+'_'+g+'_'+s+'_exercise_after'];
-        if(eb && document.activeElement !== eb) eb.value = store[cls][g][s].exercise.before;
-        if(ea && document.activeElement !== ea) ea.value = store[cls][g][s].exercise.after;
+        const fb = refs.input[cls+'_'+g+'_'+s+'_before'];
+        const fa = refs.input[cls+'_'+g+'_'+s+'_after'];
+        if(fb && document.activeElement !== fb) fb.value = store[cls][g][s].before;
+        if(fa && document.activeElement !== fa) fa.value = store[cls][g][s].after;
       }
     });
   }
@@ -1011,10 +1009,8 @@ function mountDashboard(root){
   refreshAll();
   doSync();
 
-  if(mountDashboard._timer) clearInterval(mountDashboard._timer);
-  mountDashboard._timer = setInterval(()=>{
-    if(state.screen === 'dashboard') doSync();
-  }, CONFIG.SYNC_INTERVAL_MS);
+  if(mountApp._timer) clearInterval(mountApp._timer);
+  mountApp._timer = setInterval(doSync, CONFIG.SYNC_INTERVAL_MS);
 }
 
 boot();
