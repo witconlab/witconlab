@@ -144,15 +144,18 @@ function handleWrite_(e) {
 }
 
 function handleClear_(e) {
-  const cls = e.parameter['class'];
-  const type = e.parameter['type']; // 선택: '음식' 또는 '운동'. 없으면 해당 반 전체 삭제
-  if (!cls) return jsonOutput_({ ok: false, error: 'missing class' });
+  const cls = e.parameter['class'] || '';
+  const type = e.parameter['type'] || ''; // 선택: '음식' 또는 '운동'
+  // class를 생략하고 type만 주면(예: 탭2의 반 없는 익명 운동 데이터) 반이 빈 값인
+  // 행만 대상이 되므로, 실제 반이 있는 탭1 데이터는 안전하게 보호됨
+  if (!cls && !type) return jsonOutput_({ ok: false, error: 'missing class or type' });
 
   const sheet = getSheet_();
   const values = sheet.getDataRange().getValues();
   const kept = [values[0].slice(0, HEADERS.length)]; // 헤더 유지
   for (let i = 1; i < values.length; i++) {
     const r = values[i];
+    if (!r[3]) continue;
     const matchClass = String(r[0]) === cls;
     const matchType = !type || String(r[3]) === type;
     if (matchClass && matchType) continue; // 삭제 대상은 제외하고 나머지만 유지
