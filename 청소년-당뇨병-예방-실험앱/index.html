@@ -86,9 +86,10 @@ a{color:inherit;}
 .status-dot i{width:8px;height:8px;border-radius:50%;background:var(--good);display:inline-block;flex-shrink:0;}
 .status-dot.offline i{background:var(--accent);}
 
-/* ---- tabs ---- */
-.tab-row{display:flex;gap:8px;margin:0 0 22px;flex-wrap:wrap;}
-.tab-btn{border:1.5px solid var(--line);border-radius:999px;padding:11px 18px;font-weight:700;font-size:13px;background:#fff;color:var(--ink-soft);}
+/* ---- tabs (메뉴 버튼) ---- */
+.tab-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 8px;}
+@media(max-width:560px){.tab-row{grid-template-columns:1fr;}}
+.tab-btn{border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:24px 14px;font-weight:700;font-size:17px;background:#fff;color:var(--ink);text-align:center;box-shadow:var(--shadow);}
 .tab-btn.active{border-color:var(--ink);background:var(--ink);color:var(--paper);}
 
 /* ---- summary cards ---- */
@@ -210,8 +211,8 @@ const NO_EXERCISE_LABEL = '운동 안 함';
 const EXERCISE_CHART_CATEGORIES = [NO_EXERCISE_LABEL, ...EXERCISE_TYPES];
 const CONTROL_NOTE = '실험 1시간 전 금식, 측정 전 손 세척, 측정 중 안정 상태 유지';
 const TABS = [
-  { id:'food', label:'탭 1. 음식별 혈당 변화' },
-  { id:'exercise', label:'탭 2. 식후 운동 효과 비교' }
+  { id:'food', label:'음식별 혈당 변화' },
+  { id:'exercise', label:'식후 운동 효과 비교' }
 ];
 
 /* ==================================================================
@@ -436,8 +437,8 @@ function mountApp(root){
   const summaryGrid = el('div', {class:'summary-grid'});
   const bodyBox = el('div', {});
   const overviewCard = el('div', {class:'card overview-card'});
-  wrap.appendChild(tabRow);
   wrap.appendChild(heroBox);
+  wrap.appendChild(tabRow);
   wrap.appendChild(summaryGrid);
   wrap.appendChild(bodyBox);
   wrap.appendChild(overviewCard);
