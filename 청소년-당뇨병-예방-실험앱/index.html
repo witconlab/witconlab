@@ -206,6 +206,8 @@ const PAIRS = [
   { groups:[5,6], title:'초코파이 vs 초코파이+견과류', question:'같이 먹는 음식으로 혈당 반응을 조절할 수 있을까?', accent:'purple', accentVar:'--purple' }
 ];
 const EXERCISE_TYPES = ['스쿼트', '계단 오르기', '까치발 운동', '산책'];
+const NO_EXERCISE_LABEL = '운동 안 함';
+const EXERCISE_CHART_CATEGORIES = [NO_EXERCISE_LABEL, ...EXERCISE_TYPES];
 const CONTROL_NOTE = '실험 1시간 전 금식, 측정 전 손 세척, 측정 중 안정 상태 유지';
 const TABS = [
   { id:'food', label:'탭 1. 음식별 혈당 변화' },
@@ -510,10 +512,13 @@ function mountApp(root){
   function computeExerciseStats(){
     const rows = state.exerciseRows;
     const byType = {};
-    EXERCISE_TYPES.forEach(t=>{ byType[t] = []; });
-    rows.forEach(r=>{ if(byType[r.item]) byType[r.item].push(Number(r.delta||0)); });
+    EXERCISE_CHART_CATEGORIES.forEach(t=>{ byType[t] = []; });
+    rows.forEach(r=>{
+      const key = r.item ? r.item : NO_EXERCISE_LABEL;
+      if(byType[key]) byType[key].push(Number(r.delta||0));
+    });
     const perType = {};
-    EXERCISE_TYPES.forEach(t=>{
+    EXERCISE_CHART_CATEGORIES.forEach(t=>{
       const arr = byType[t];
       perType[t] = { count: arr.length, avg: arr.length ? arr.reduce((s,v)=>s+v,0)/arr.length : null };
     });
@@ -905,13 +910,13 @@ function mountApp(root){
     }else{
       overviewCard.classList.remove('hidden');
       overviewCard.appendChild(el('h3', {}, '한눈에 보는 운동별 비교'));
-      overviewCard.appendChild(el('div', {class:'sub-line'}, '운동 종류별 평균 혈당 변화량(Δ, mg/dL) — 반 구분 없이 전체 제출값을 모아서 비교해요'));
+      overviewCard.appendChild(el('div', {class:'sub-line'}, '운동 안 함을 포함한 항목별 평균 혈당 변화량(Δ, mg/dL) — 반 구분 없이 전체 제출값을 모아서 비교해요'));
       const chart = el('div', {class:'overview-chart'});
       const gridLines = el('div', {class:'overview-grid-lines'});
       for(let i=0;i<5;i++) gridLines.appendChild(el('div'));
       chart.appendChild(gridLines);
       refs.ov = {};
-      EXERCISE_TYPES.forEach(t=>{
+      EXERCISE_CHART_CATEGORIES.forEach(t=>{
         const valueEl = el('div', {class:'ov-value'}, '—');
         const fillEl = el('div', {class:'ov-bar-fill'});
         const countEl = el('div', {class:'ov-count'}, '0건');
@@ -953,8 +958,8 @@ function mountApp(root){
       refreshStudentDeltasFood();
     }else{
       const stats = computeExerciseStats();
-      const maxAbs = Math.max(1, ...EXERCISE_TYPES.map(t=>Math.abs(stats.perType[t].avg || 0)));
-      EXERCISE_TYPES.forEach(t=>{
+      const maxAbs = Math.max(1, ...EXERCISE_CHART_CATEGORIES.map(t=>Math.abs(stats.perType[t].avg || 0)));
+      EXERCISE_CHART_CATEGORIES.forEach(t=>{
         const r = refs.ov[t];
         if(!r) return;
         const st = stats.perType[t];

@@ -66,7 +66,9 @@ function handleRead_() {
   const rows = [];
   for (let i = 1; i < values.length; i++) {
     const r = values[i];
-    if (!r[0] && !r[4]) continue; // 빈 행 스킵
+    // 실험유형(반/항목 아님)으로 빈 행을 판별함 — 반/모둠/학생 없는 익명 운동
+    // 제출(특히 '운동 안 함'처럼 항목명도 비어있는 경우)까지 실수로 걸러지지 않게 함
+    if (!r[3]) continue;
     rows.push({
       class: r[0],
       group: r[1],
