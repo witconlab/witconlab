@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마을 리빙랩 사례카드</title>
+<style>
+  :root{
+    --bg: #f5f3ee;
+    --card-bg: #ffffff;
+    --ink: #22252a;
+    --ink-soft: #5b6068;
+    --line: #e7e3da;
+    --accent: #2f6f5e;
+    --shadow: 0 8px 24px rgba(30,30,20,0.08);
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    padding: 48px 24px 28px;
+    text-align:center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header h1{
+    font-size: clamp(24px, 4vw, 34px);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+  header p{
+    color: var(--ink-soft);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 8px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 20;
+    padding-top: 12px;
+  }
+  .search-row{
+    display:flex;
+    gap:10px;
+    margin-bottom: 14px;
+  }
+  #search{
+    flex:1;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    font-size: 15px;
+    background: var(--card-bg);
+    color: var(--ink);
+  }
+  #search:focus{ outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chips{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .chip{
+    border: 1px solid var(--line);
+    background: var(--card-bg);
+    color: var(--ink-soft);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s ease;
+  }
+  .chip:hover{ border-color: var(--accent); color: var(--accent); }
+  .chip.active{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .count{
+    max-width:1100px;
+    margin: 0 auto;
+    padding: 14px 24px 0;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Grid ---------- */
+  .grid{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .card{
+    perspective: 1200px;
+    height: 460px;
+  }
+  .card-inner{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform .65s cubic-bezier(.4,.2,.2,1);
+  }
+  .card.flipped .card-inner{
+    transform: rotateY(180deg);
+  }
+  .card-face{
+    position: absolute;
+    inset: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .18s ease;
+  }
+  .card-inner:hover .card-face{
+    box-shadow: 0 14px 30px rgba(30,30,20,0.14);
+  }
+  .card-back{
+    transform: rotateY(180deg);
+  }
+  .card-photo{
+    position: relative;
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    background-color: #ddd8cb;
+  }
+  .card-photo::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%);
+  }
+  .badge{
+    position:absolute;
+    top: 10px; left: 10px;
+    z-index: 2;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+  .region-tag{
+    position:absolute;
+    bottom: 8px; left: 12px;
+    z-index: 2;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .card-body{
+    padding: 16px 16px 18px;
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+    flex: 1;
+  }
+  .card-q{
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .card-sol{
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .card-sol b{ color: var(--accent); }
+  .card-footer{
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+
+  /* ---------- Card back ---------- */
+  .cb-content{
+    padding: 16px 16px 14px;
+    overflow-y: auto;
+    height: 100%;
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cb-top{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .badge-static{
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+  .cb-region{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .section-label{
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .section-text{
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .cb-q{
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .cb-sol-photo{
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 10px;
+    background-color: #ddd8cb;
+    margin: 2px 0;
+    display:block;
+  }
+  .sol-title{
+    font-size: 14.5px;
+    font-weight: 800;
+  }
+  .link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top: 4px;
+    padding: 9px 14px;
+    background: var(--accent);
+    color:#fff;
+    text-decoration:none;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    align-self: flex-start;
+  }
+  .link-btn:hover{ opacity: 0.9; }
+  .cb-hint{
+    margin-top: auto;
+    padding-top: 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    opacity: 0.8;
+  }
+
+  .empty{
+    text-align:center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+    grid-column: 1 / -1;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #17181b;
+      --card-bg: #212226;
+      --ink: #f1efe9;
+      --ink-soft: #b1aea6;
+      --line: #34363b;
+      --accent: #6fd0b3;
+      --shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #17181b;
+    --card-bg: #212226;
+    --ink: #f1efe9;
+    --ink-soft: #b1aea6;
+    --line: #34363b;
+    --accent: #6fd0b3;
+    --shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  :root[data-theme="light"]{
+    --bg: #f5f3ee;
+    --card-bg: #ffffff;
+    --ink: #22252a;
+    --ink-soft: #5b6068;
+    --line: #e7e3da;
+    --accent: #2f6f5e;
+    --shadow: 0 8px 24px rgba(30,30,20,0.08);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏘️ 마을 리빙랩 사례카드</h1>
+  <p>우리 동네의 질문이, 다른 동네의 해답이 됩니다.<br>카드를 클릭해서 뒤집으면 상황과 해결 과정을 볼 수 있어요.</p>
+</header>
+
+<div class="controls">
+  <div class="search-row">
+    <input id="search" type="text" placeholder="지역, 질문, 해결 키워드로 검색해보세요 (예: 쓰레기, 안전, 청소년...)">
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+
+<script>
+const DATA = [
+{id:1, cat:"마을교육", region:"송화마을", q:"청소년이 마을에서 해보고 싶은 일 직접 결정할 순 없나요?", situation:"마을에 아동·청소년들이 하고 싶은 일을 기획하고 참여할 수 있는 방법이 없을까?", solTitle:"청소년자치협의회 설립 및 온ON 마을축제", solText:"마을의 문제점과 보완점을 논의하기 위한 청소년자치협의회를 설립하여 월 1회 회의를 통해 논의한다. 또, 아동·청소년의 의견을 수렴하여 유튜브로 '송화 온(on) 마을축제'를 운영하였다.", link:"https://blog.naver.com/yr2242"},
+{id:2, cat:"마을교육", region:"풍영정천", q:"마을의 생태환경 활동을 아이들에게 쉽게 알려줄 수 있는 방법이 있을까?", situation:"풍영정천을 가꾸기 위한 모임을 만들고 노력하고 있다. 아이들 눈높이에 맞는 생태 교육 방법은 무엇일까?", solTitle:"'내친구 풍영정천' 워크북과 영상 교육", solText:"광산구교육포럼 운영 실행과제로 '마을생태교과서'를 제안한 후, 아이들 수업에 활용할 수 있는 '내친구 풍영정천' 워크북과 영상으로 교육한다.", link:"https://blog.naver.com/yr2242"},
+{id:3, cat:"복지", region:"학운동", q:"버스정류장까지 가려면 10분 이상 걸어야 해서 노인들이 다리가 아픈데 좋은 방법이 없을까?", situation:"학운동은 마을들이 거리가 멀어서 버스정류장까지 가려면 10분 이상, 지하철은 30분 이상 걸어야 한다.", solTitle:"학운동 주민 의제 공론화를 통한 쉼의자 설치", solText:"학운동의 마을 의제로 공론화되어 현장조사를 통해 설치가 필요한 곳을 선정했다. 이후 도로교통과에 설치 가능 여부를 검토 후 쉼의자를 제작 후 설치했다.", link:"https://www.ktv.go.kr/content/view/content_jelic5-2301"},
+{id:4, cat:"복지", region:"충장동", q:"복지 사각지대에 놓여 무연고 고독사로 죽음을 맞이하는 경우를 해결하기 위해 어떻게 해야 할까?", situation:"충장동에는 1인 가구 비율이 높고, 복지 사각지대에 놓여 무연고 고독사로 죽음을 맞이하는 경우가 많다.", solTitle:"마을상주단 결성 및 장례서비스 추진", solText:"마을상주단을 결성하여 무연고자 사망 후 무연고 고독사 하는 주민의 장례를 치뤘다. 마을상주단이 유골함 구입부터 장례서비스까지 마을복지공동체 사업을 추진한다.", link:"https://www.jmilbo.com/view/media/view/cade201101214157159"},
+{id:5, cat:"복지", region:"상무2동", q:"겨울이 되면 더 소외되는 주민들을 위해 어떻게 하면 좋을까?", situation:"상무2동은 1인가구, 노인, 장애인 가구가 많은 마을이다.", solTitle:"주민 참여 산타 방문 기부 및 성탄절 트리 환경 개선", solText:"마을의 어려운 이웃을 파악하고 주민들이 직접 산타복을 입고 방문하여 기부받은 물품들을 나눠준다. 또, 재활용품을 활용하여 성탄절 트리로 환경을 개선한다.", link:""},
+{id:6, cat:"안전", region:"화정3동", q:"교통사고 및 범죄에 노출되는 청소년, 주민 등을 위해 어떻게 해결하면 좋을까?", situation:"학교 인근 좁은 골목길, 어두운 언덕길로 인해 교통사고 및 범죄 위험이 존재한다.", solTitle:"누구나 안전한 골목길 조성 및 헬로카펫 설치", solText:"학교 학생들이 주민총회 의제로 '누구나 안전한 골목길'을 선정하여 안전지도 제작 및 부착했다. 또, 친환경 쏠라를 사용하여 어린이 승·하차구역에 헬로카펫 등을 설치했다.", link:""},
+{id:7, cat:"안전", region:"화정4동", q:"상가건물에 인접한 주택가 앞의 주·정차문제, 어떻게 해결할 수 있을까?", situation:"주택가 앞 주·정차문제가 심각하여 집 앞에 주차금지 표지판, 타이어, 꼬깔콘 등 주차 방지물을 내놓는 갈등이 발생한다.", solTitle:"시간대별 '배려주차' 캠페인 전개", solText:"시간대를 나눠서 출근시간대에는 내집앞 주차를 허용하는 '배려주차' 캠페인을 통해 배려문화를 형성한다.", link:""},
+{id:8, cat:"안전", region:"풍암동", q:"길거리의 흡연자들이 많아 주민들이 불편함을 느끼고 있는데, 이런 문제는 어떻게 해결할까?", situation:"무분별한 길거리 흡연으로 인해 주민들의 간접흡연 피해와 불편함이 지속되고 있다.", solTitle:"주민자치회-행정 협업 금연거리 캠페인", solText:"흡연문화를 바꿔보기 위해 주민자치회와 행정이 협업하여 금연거리 캠페인을 실시하였다. (금연거리 선포 및 표지판 설치 및 홍보)", link:""},
+{id:9, cat:"안전", region:"일곡동", q:"아동·청소년들이 귀가 시 대형 화물차 불법주정차로 인해 위험한데 어떻게 해결하면 좋을까?", situation:"일곡동은 아동·청소년들의 이동이 많다. 대형 화물차를 운행하는 주민들 또한 많아 불법주정차로 인한 안전문제가 발생한다.", solTitle:"2년간의 야간 현장 모니터링 및 속도 30 캠페인", solText:"격주 토요일 저녁에 현장 모니터링을 2년간 실시했다. 그리고 마을내 속도 30 캠페인 등 안전한 마을을 만드는 지속적인 활동을 하고 있다.", link:""},
+{id:10, cat:"환경", region:"일곡지구", q:"사라질 뻔했던 마지막 논의 생태적 가치를 주민의 삶 속에서 지킬 수 있는 방법은 무엇일까?", situation:"주민들이 벼농사를 지으며 마을공동체를 형성했던 일곡지구의 마지막 논이 사라질 위기에 처했었다.", solTitle:"일회용품 없는 장터 '한새봉 개굴장' 운영", solText:"한새봉 개굴장은 지구와 함께하는 삶의 변화를 위해 실험들을 지속한다. 계절별로 '돌이켜 봄', '엄마의 가을걷이', '비건파티' 등을 주제로 일회용품 없는 장터를 만들어 가고 있다.", link:""},
+{id:11, cat:"마을일거리", region:"용봉동", q:"쓰레기 버리지 말자는 캠페인을 진행해도 쓰레기를 모을 장소가 없어 아무 데나 버리는데 어떻게 해야 할까요?", situation:"무단투기를 방지하기 위한 캠페인만으로는 쓰레기 수거 거점 부재 문제를 해결하기 어렵다.", solTitle:"쓰레기 해결단 조직 및 클린하우스 설치, 노인일자리 연계", solText:"쓰레기 해결단을 결성하고 클린하우스를 설치했다. 또, 주민 교육을 통한 자원순환활동가를 양성하고 노인일자리와 연계하여 마을순환경제시스템을 구축했다.", link:""},
+{id:12, cat:"환경", region:"농촌지역", q:"외지인들에 의한 무단투기와 농촌 쓰레기 문제를 어떻게 해결할 수 있을까?", situation:"주민 대다수가 농업에 종사하여 다양한 농촌 쓰레기가 발생하고, 외지인들에 의한 대형 폐기물부터 소형 쓰레기 무단투기가 발생한다.", solTitle:"폐비닐 수거봉투 제작 및 배출 캠페인, 노인일자리 연계", solText:"많이 배출되는 폐비닐부터 시작하여 비닐을 잘 모으는 캠페인을 진행하였다. 이후 전용 폐비닐 수거봉투를 제작하여 지정된 장소와 시기에 배출하는 캠페인을 진행하고 홍보 과정에서 노인일자리 연계 및 교육을 했다.", link:""},
+{id:13, cat:"환경", region:"문산마을", q:"주민들이 기후이상 현상에 경각심을 느끼고 있는데 실천할 수 있는 방법은 어떤 것이 있을까?", situation:"코로나19 등 기후위기 속에서 주민들이 일상 속 실천 방안을 필요로 하고 있다.", solTitle:"'부메랑 장바구니 프로젝트' 및 제로웨이스트 도전단", solText:"장바구니 사용을 독려하는 '부메랑 장바구니 프로젝트'를 진행했다. 제로웨이스트 물품을 만들고, 일회용품 안쓰기 도전단 운영 등 지속적인 활동을 전개하고 있다.", link:""},
+{id:14, cat:"안전/경제", region:"신가동", q:"재개발 사업과 코로나19로 인해 상권이 침체되고 있는데 어떻게 해결하면 좋을까?", situation:"재개발 사업으로 인구가 감소됨에 따라 경기가 침체되었고, 상가 상권 활성화가 시급한 상황이다.", solTitle:"상가 브랜드 '신가~안녕하신가' 개발 및 가이드북 배포", solText:"상가를 대상으로 설문조사를 실시하였고, '신가~안녕하신가' 라는 브랜드를 개발하였다. 또, 신가마을 음식점 가이드북을 제작해 주민들에게 배포하고 홍보하여 상권을 활성화 시켰다.", link:"https://blog.naver.com/kimb5728/222653775077"},
+{id:15, cat:"커뮤니티 공간", region:"양산동", q:"오래된 상점이 밀집한 골목이 침체되어 상권이 쇠퇴되는데 어떻게 바꿀 수 있을까?", situation:"침체된 오래된 골목 상권을 되살리고 주민 간 소통을 강화할 방법이 필요하다.", solTitle:"골목 미술 프로젝트 및 빈 점포 마을 갤러리 전환", solText:"옛 골목의 삶과 주민 사이에 공통점을 발견하여 예술가들이 주민들의 이야기를 골목에 그려나가기 시작했다. 빈 점포 마을의 갤러리를 소통의 장소로 바꾸고 점포 주인의 삶과 상점의 이야기를 간판으로 제작했다.", link:""},
+{id:16, cat:"커뮤니티 공간", region:"농성1동", q:"공동텃밭으로 사용되던 공간이 공원일몰제로 사라질 위기에 처해졌는데 해결할 좋은 방법이 있을까?", situation:"주민들의 소중한 커뮤니티 공간인 마을 텃밭을 지키고 활용할 대안이 필요하다.", solTitle:"'어쩌다 도시 농부' 프로젝트 및 수익금 온정 활동", solText:"마을네트워크를 구축하고 마을 텃밭을 활용해 '어쩌다 도시 농부' 프로젝트를 운영했다. 텃밭을 통해 수확한 작물은 먹거리 생산 및 판매해 수익금으로 온정의 활동을 했다.", link:""},
+{id:17, cat:"커뮤니티 공간", region:"지산2동", q:"가로수의 은행나무로 인해 인도가 너무 좁아서 불편한데 이를 해결하기 위해서는 어떻게 해야 할까?", situation:"은행나무 가로수가 관리되지 않아 통행이 불편하고 미관을 해치고 있다.", solTitle:"주민 참여 '은행나무 꾸밈길' 조성", solText:"주민들이 자발적으로 모여 병든 나무를 바꾸고 정돈하는 작업을 진행했다. 100그루가 넘는 은행나무에 다복을 상징하는 (주민들이 직접 만든) 부엉이와 오색옷을 입혀 은행나무 꾸밈길을 조성하였다.", link:""},
+{id:18, cat:"커뮤니티 공간", region:"양동", q:"90년 방직공장이 쇠퇴하며 도시가 활력을 잃었는데 어떻게 하면 다시 도시를 활성화시킬 수 있을까?", situation:"과거 중심지였던 방직공장 주변 지역이 쇠퇴하면서 도시 재생과 청년 유입이 필요한 상황이다.", solTitle:"도시재생사업 예술공방 유입 및 '청춘샌드위치' 노인 연계", solText:"도시재생사업을 통해 마을에 청년과 예술가들을 유입시켜 예술공방, 식당, 카페 등이 입주하면서 마을이 풍성해졌다. '청춘샌드위치'는 노인분들과 함께 연계하여 지역공동체의 상생을 이루고 있다.", link:""},
+{id:19, cat:"커뮤니티 공간", region:"지산1동", q:"마을에 커뮤니티 공간이 있지만 이용하는 사람이 없는데 어떻게 해야 사람들이 이용할 수 있을까?", situation:"지산1동에는 '미로마을사랑채'라는 공간이 있으나 주민들이 위치나 거리를 몰라 방치되고 있다.", solTitle:"단거리 근접 지도를 활용한 포스터 홍보", solText:"마을의 커뮤니티 공간이 실제로 가까움(걸어서 10분, 차타고 3분)에도 불구하고 몰라서 이용하지 않던 주민들을 위해, 단거리 근접 지도를 활용한 포스터를 부착하여 가깝다는 메시지를 전달하였다.", link:""},
+{id:20, cat:"환경", region:"원룸촌", q:"원룸촌의 무분별한 쓰레기 배출과 악성 무단투기를 줄이고 올바른 분리배출을 하게 할 방법은?", situation:"원룸촌 일대에 택배 박스, 송장, 테이프 등이 섞인 악성 무단투기가 심각하다.", solTitle:"'우리 그만 헤어져' 문고리 전단지 부착 캠페인", solText:"문고리에 택배박스에 붙어있는 끈적이는 테이프, 송장을 제거해서 버리기 위한 '우리 그만 헤어져'의 메시지를 담아 손잡이 모양의 전단지를 제작하고 부착하였다.", link:""},
+{id:21, cat:"안전", region:"운암1동", q:"아이들이 통학하는 코너 길이 위험한데 녹색어머니회 인력이 부족하다면 어떻게 사고를 예방할까?", situation:"통학로 코너 지역의 위험성에 비해 예방 활동을 할 수 있는 녹색어머니회 인력이 부족한 상황이다.", solTitle:"어린이 실사 등신대 설치 및 뒷면 모집 메시지 활용", solText:"녹색 어머니회와 어린이 실사 등신대를 제작하여 출근 시간대에 등신대를 설치하였다. 또한 등신대의 뒷면에는 녹색 어머니회의 모집 메시지를 담아 1석2조의 효과를 냈다.", link:""},
+{id:22, cat:"안전", region:"신가동", q:"실제로는 어른들과 청소년들의 흡연·음주로 어린이 공원을 아이들이 이용하지 못한다면 어떻게 해야 할까?", situation:"어린이 공원이 본래 목적과 달리 우범화되거나 유해 환경으로 변해 아이들이 소외받고 있다.", solTitle:"배려 시간 지정 '지금은 주인공 시간' 캠페인 보드 부착", solText:"'지금은 주인공 시간' 캠페인을 실행하였다. '아이들이 공원을 이용하는 시간 (2-6시까지)는 배려해주세요' 라는 메시지가 담긴 게시판보드를 공원에 부착하였다.", link:""},
+{id:23, cat:"환경", region:"양림동", q:"통학로 주변에 쌓인 쓰레기더미로 인해 아이들과 보행자가 위험한데 어떻게 예방할 수 있을까?", situation:"상습 쓰레기 투기 구역으로 인해 미관 저해뿐만 아니라 등교 학생, 상인, 운전자 모두가 위험을 겪는다.", solTitle:"'쌓지마 쓰레기' 팻말 및 스티커 부착 캠페인", solText:"양림동에서는 '쌓지마 쓰레기' 캠페인을 진행하였다. 쌓지마 쓰레기 팻말을 부착하여 쓰레기를 무단투기하지 못하도록 예방하였고, 쌓인 쓰레기 더미에 스티커를 부착해 쓰레기를 쌓지 못하도록 예방하였다.", link:""},
+{id:24, cat:"환경", region:"원주시", q:"코로나19로 인해 급증한 마스크 폐기물 문제를 어떻게 해결하면 좋을까?", situation:"마스크 쓰레기가 환경 오염 원인으로 대두되나 마땅한 재활용 방안이 부족한 상황이다.", solTitle:"mask do it 팀-장애인 직업 재활시설 협업 PP원료 가공", solText:"강원도 원주시 mask do it 팀은 일과 사랑센터 장애인 직업 재활시설과 협업하여 마스크 분리작업을 진행하고, 급증하는 마스크 폐기물을 pp원료로 가공하여 재활용 물품 생산을 진행하고 있다.", link:""},
+{id:25, cat:"안전", region:"충암중", q:"학교내 언어폭력과 시선이 닿지 않는 통학로의 학교폭력 위험을 어떻게 해결하면 좋을까?", situation:"갈수록 심각해지는 언어폭력과 통학로 사각지대에서의 청소년 비행이 우려되는 상황이다.", solTitle:"방송반 긍정 언어 서비스(별톡별) 및 통학로 고보조명 설치", solText:"방송반을 활용한 긍정 언어 말하기 서비스(별톡별)를 운영하였다. 통학로는 밝은 디자인과 고보조명을 적용하여 밝고 긍정적인 환경을 조성하였다.", link:""}
+];
+
+const CATEGORY_COLORS = {
+  "마을교육": "#4F86C6",
+  "복지": "#8E6FCE",
+  "안전": "#E0575B",
+  "환경": "#4CAF7D",
+  "마을일거리": "#E0A83E",
+  "안전/경제": "#D97B3D",
+  "커뮤니티 공간": "#3AB0A6"
+};
+
+function stockPhoto(item){
+  return `https://picsum.photos/seed/village${item.id}/700/500`;
+}
+function situationPhoto(item){
+  return `images/${item.id}_situation.jpg`;
+}
+function solutionPhoto(item){
+  return `images/${item.id}_solution.jpg`;
+}
+
+const grid = document.getElementById('grid');
+const chipsEl = document.getElementById('chips');
+const countEl = document.getElementById('count');
+const searchEl = document.getElementById('search');
+
+const categories = ["전체", ...Object.keys(CATEGORY_COLORS)];
+let activeCategory = "전체";
+let query = "";
+
+function renderChips(){
+  chipsEl.innerHTML = categories.map(c => {
+    const active = c === activeCategory ? 'active' : '';
+    return `<button class="chip ${active}" data-cat="${c}">${c}</button>`;
+  }).join('');
+  chipsEl.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = btn.dataset.cat;
+      renderChips();
+      renderGrid();
+    });
+  });
+}
+
+function matchesQuery(item, q){
+  if(!q) return true;
+  const hay = (item.region + item.q + item.solTitle + item.cat).toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+
+function renderGrid(){
+  const filtered = DATA.filter(item =>
+    (activeCategory === "전체" || item.cat === activeCategory) &&
+    matchesQuery(item, query)
+  );
+  countEl.textContent = `${filtered.length}개의 사례`;
+
+  if(filtered.length === 0){
+    grid.innerHTML = `<div class="empty">일치하는 사례가 없어요. 다른 키워드로 검색해보세요.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => {
+    const color = CATEGORY_COLORS[item.cat] || "#888";
+    return `
+    <div class="card" data-id="${item.id}">
+      <div class="card-inner">
+        <div class="card-face card-front">
+          <div class="card-photo" style="background-image:url('${situationPhoto(item)}')" data-fallback="${stockPhoto(item)}">
+            <span class="badge" style="background:${color}">${item.cat}</span>
+            <span class="region-tag">${item.region}</span>
+          </div>
+          <div class="card-body">
+            <div class="card-q">${item.q}</div>
+            <div class="card-sol"><b>💡 ${item.solTitle}</b></div>
+            <div class="card-footer">카드를 클릭해 뒤집어 보세요 ↺</div>
+          </div>
+        </div>
+        <div class="card-face card-back">
+          <div class="cb-content">
+            <div class="cb-top">
+              <span class="badge-static" style="background:${color}">${item.cat}</span>
+              <span class="cb-region">${item.region}</span>
+            </div>
+            <div class="section-label">상황</div>
+            <div class="cb-q">${item.q}</div>
+            <div class="section-text">${item.situation}</div>
+            <div class="section-label" style="margin-top:4px;">해결</div>
+            <img class="cb-sol-photo" src="${solutionPhoto(item)}" onerror="this.onerror=null;this.src='${stockPhoto(item)}'" alt="">
+            <div class="sol-title">${item.solTitle}</div>
+            <div class="section-text">${item.solText}</div>
+            ${item.link ? `<a class="link-btn" href="${item.link}" target="_blank" rel="noopener">🔗 참고 링크 보러가기</a>` : ''}
+            <div class="cb-hint">↺ 클릭하면 앞면으로 돌아가요</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // fallback: try local image first, fall back to stock photo if missing
+  grid.querySelectorAll('.card-photo').forEach(el => {
+    const fallback = el.dataset.fallback;
+    const localUrl = el.style.backgroundImage.slice(5, -2);
+    const img = new Image();
+    img.onerror = () => { el.style.backgroundImage = `url('${fallback}')`; };
+    img.src = localUrl;
+  });
+
+  grid.querySelectorAll('.card').forEach(card => {
+    card.querySelector('.card-inner').addEventListener('click', () => {
+      card.classList.toggle('flipped');
+    });
+    card.querySelector('.link-btn')?.addEventListener('click', (e) => e.stopPropagation());
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    grid.querySelectorAll('.card.flipped').forEach(c => c.classList.remove('flipped'));
+  }
+});
+
+searchEl.addEventListener('input', (e) => {
+  query = e.target.value;
+  renderGrid();
+});
+
+renderChips();
+renderGrid();
+</script>
+
+</body>
+</html>
