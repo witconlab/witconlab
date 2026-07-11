@@ -15,13 +15,22 @@
  * 학생 한 명이 값을 입력할 때마다 해당 (반, 모둠, 학생번호, 실험유형) 행을
  * 새로 추가하지 않고 덮어쓰는(upsert) 방식으로 동작합니다. 탭1(음식)과 탭2(운동)는
  * 실험유형 값('음식' / '운동')으로 구분되는 서로 독립적인 실험입니다.
+ *
+ * 탭3(엽떡실험)은 스프레드시트의 별도 탭('엽떡운동비교')에 저장됩니다.
+ * 반 없이 (그룹, 학생번호) 자리를 덮어쓰는(upsert) 방식입니다.
  */
 
 const SHEET_NAME = '혈당데이터';
-// '이름'은 탭3(엽떡실험)에서만 쓰이며, 기존 데이터와의 호환을 위해 맨 뒤에 추가함
 const HEADERS = ['반', '모둠', '학생', '실험유형', '항목', '측정전', '측정후', 'Δ변화', '수정시간', '이름'];
 const NUMBER_COL_START = 6; // '측정전' 열 (1-based)
 const NUMBER_COL_COUNT = 3; // 측정전, 측정후, Δ변화
+
+// 탭3(엽떡 운동 비교)은 별도 시트 탭에 자체 헤더로 저장 — 반 열 없이 이름이 앞쪽에 오도록
+const YEOP_TYPE = '엽떡실험';
+const YEOP_SHEET_NAME = '엽떡운동비교';
+const YEOP_HEADERS = ['그룹', '학생', '이름', '조건', '공복혈당', '식후(1시간후)', 'Δ변화', '수정시간'];
+const YEOP_NUMBER_COL_START = 5; // '공복혈당' 열 (1-based)
+const YEOP_NUMBER_COL_COUNT = 3; // 공복혈당, 식후(1시간후), Δ변화
 
 function getSheet_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -40,6 +49,21 @@ function getSheet_() {
   // 예전 스키마에서 이 열들이 날짜/시간 서식으로 지정된 채 남아있으면, 이후 숫자를
   // 써도 날짜로 잘못 해석되는 문제가 생겨서 매번 일반 숫자 서식으로 고정해줌
   sheet.getRange(2, NUMBER_COL_START, Math.max(sheet.getMaxRows() - 1, 1), NUMBER_COL_COUNT).setNumberFormat('0.###');
+  return sheet;
+}
+
+function getYeopSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(YEOP_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(YEOP_SHEET_NAME);
+  }
+  sheet.getRange(1, 1, 1, YEOP_HEADERS.length).setValues([YEOP_HEADERS]);
+  const maxCol = sheet.getMaxColumns();
+  if (maxCol > YEOP_HEADERS.length) {
+    sheet.getRange(1, YEOP_HEADERS.length + 1, sheet.getMaxRows(), maxCol - YEOP_HEADERS.length).clearContent();
+  }
+  sheet.getRange(2, YEOP_NUMBER_COL_START, Math.max(sheet.getMaxRows() - 1, 1), YEOP_NUMBER_COL_COUNT).setNumberFormat('0.###');
   return sheet;
 }
 
@@ -83,6 +107,26 @@ function handleRead_() {
       name: r[9] || ''
     });
   }
+
+  // 탭3(엽떡실험)은 별도 시트에서 읽어와 같은 형식(rows)으로 합쳐서 반환
+  const ySheet = getYeopSheet_();
+  const yValues = ySheet.getDataRange().getValues();
+  for (let i = 1; i < yValues.length; i++) {
+    const r = yValues[i];
+    if (!r[0] || !r[1]) continue; // 그룹/학생 없는 빈 행 건너뜀
+    rows.push({
+      class: '',
+      group: r[0],
+      student: r[1],
+      type: YEOP_TYPE,
+      item: r[3],
+      before: numOrEmpty_(r[4]),
+      after: numOrEmpty_(r[5]),
+      delta: numOrEmpty_(r[6]),
+      ts: r[7],
+      name: r[2] || ''
+    });
+  }
   return jsonOutput_({ ok: true, rows: rows });
 }
 
@@ -124,16 +168,37 @@ function handleWrite_(e) {
   const label = item.item || '';
   const name = item.name || '';
 
-  const sheet = getSheet_();
   const now = new Date();
   const tz = Session.getScriptTimeZone();
   const timestamp = Utilities.formatDate(now, tz, 'yyyy-MM-dd HH:mm:ss');
 
-  // 탭1(음식)과 탭3(엽떡실험)은 자리를 덮어쓰는(upsert) 방식(탭3는 반 없이 모둠/학생만),
+  // 탭3(엽떡실험)은 별도 시트에 (그룹, 학생) 자리를 덮어쓰는(upsert) 방식으로 저장
+  if (isYeoptteok) {
+    const ySheet = getYeopSheet_();
+    let yRowIndex = -1; // 1-based sheet row
+    const yValues = ySheet.getDataRange().getValues();
+    for (let i = 1; i < yValues.length; i++) {
+      const r = yValues[i];
+      if (Number(r[0]) === group && Number(r[1]) === student) {
+        yRowIndex = i + 1;
+        break;
+      }
+    }
+    const yRowData = [group, student, name, label, before, after, delta, timestamp];
+    const yTargetRow = yRowIndex === -1 ? ySheet.getLastRow() + 1 : yRowIndex;
+    const yRange = ySheet.getRange(yTargetRow, 1, 1, YEOP_HEADERS.length);
+    yRange.setNumberFormat('@'); // 우선 전체를 일반 텍스트로 리셋
+    yRange.setValues([yRowData]);
+    ySheet.getRange(yTargetRow, YEOP_NUMBER_COL_START, 1, YEOP_NUMBER_COL_COUNT).setNumberFormat('0.###');
+    return jsonOutput_({ ok: true });
+  }
+
+  const sheet = getSheet_();
+
+  // 탭1(음식)은 (반, 모둠, 학생) 자리를 덮어쓰는(upsert) 방식,
   // 탭2(운동)는 반/모둠 없는 익명 제출이라 매번 새 행으로 추가함
-  const usesUpsert = isFood || isYeoptteok;
   let rowIndex = -1; // 1-based sheet row
-  if (usesUpsert) {
+  if (isFood) {
     const values = sheet.getDataRange().getValues();
     for (let i = 1; i < values.length; i++) {
       const r = values[i];
@@ -156,10 +221,21 @@ function handleWrite_(e) {
 
 function handleClear_(e) {
   const cls = e.parameter['class'] || '';
-  const type = e.parameter['type'] || ''; // 선택: '음식' 또는 '운동'
+  const type = e.parameter['type'] || ''; // 선택: '음식' / '운동' / '엽떡실험'
+  if (!cls && !type) return jsonOutput_({ ok: false, error: 'missing class or type' });
+
+  // 탭3(엽떡실험)은 별도 시트 전체(헤더 제외)를 비움 — 다른 실험 데이터와 무관
+  if (type === YEOP_TYPE) {
+    const ySheet = getYeopSheet_();
+    const yLastRow = ySheet.getLastRow();
+    if (yLastRow > 1) {
+      ySheet.getRange(2, 1, yLastRow - 1, YEOP_HEADERS.length).clearContent();
+    }
+    return jsonOutput_({ ok: true });
+  }
+
   // class를 생략하고 type만 주면(예: 탭2의 반 없는 익명 운동 데이터) 반이 빈 값인
   // 행만 대상이 되므로, 실제 반이 있는 탭1 데이터는 안전하게 보호됨
-  if (!cls && !type) return jsonOutput_({ ok: false, error: 'missing class or type' });
 
   const sheet = getSheet_();
   const values = sheet.getDataRange().getValues();
@@ -209,7 +285,8 @@ function cleanupCorruptRows() {
     const type = r[3];
     const beforeOk = r[5] === '' || typeof r[5] === 'number';
     const afterOk = r[6] === '' || typeof r[6] === 'number';
-    const valid = (type === '음식' || type === '운동' || type === '엽떡실험') && beforeOk && afterOk;
+    // 엽떡실험은 별도 시트('엽떡운동비교')에 저장되므로 메인 시트에는 음식/운동만 유효
+    const valid = (type === '음식' || type === '운동') && beforeOk && afterOk;
     if (valid) {
       kept.push(r.slice(0, HEADERS.length));
     } else {
