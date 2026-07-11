@@ -18,7 +18,8 @@
  */
 
 const SHEET_NAME = '혈당데이터';
-const HEADERS = ['반', '모둠', '학생', '실험유형', '항목', '측정전', '측정후', 'Δ변화', '수정시간'];
+// '이름'은 탭3(엽떡실험)에서만 쓰이며, 기존 데이터와의 호환을 위해 맨 뒤에 추가함
+const HEADERS = ['반', '모둠', '학생', '실험유형', '항목', '측정전', '측정후', 'Δ변화', '수정시간', '이름'];
 const NUMBER_COL_START = 6; // '측정전' 열 (1-based)
 const NUMBER_COL_COUNT = 3; // 측정전, 측정후, Δ변화
 
@@ -78,7 +79,8 @@ function handleRead_() {
       before: numOrEmpty_(r[5]),
       after: numOrEmpty_(r[6]),
       delta: numOrEmpty_(r[7]),
-      ts: r[8]
+      ts: r[8],
+      name: r[9] || ''
     });
   }
   return jsonOutput_({ ok: true, rows: rows });
@@ -99,13 +101,14 @@ function handleWrite_(e) {
   if (!type) {
     return jsonOutput_({ ok: false, error: 'missing type' });
   }
-  // 탭1(음식)은 반/모둠/학생이 필수이며 같은 자리를 덮어쓰는(upsert) 방식.
+  // 탭1(음식)과 탭3(엽떡실험)은 반/모둠/학생이 필수이며 같은 자리를 덮어쓰는(upsert) 방식.
   // 탭2(운동)는 반/모둠 선택 없는 익명 제출이라 매번 새 행으로 추가함.
   const isFood = type === '음식';
+  const needsIdentity = isFood || type === '엽떡실험';
   const cls = String(item.class || '');
   const group = item.group ? Number(item.group) : '';
   const student = item.student ? Number(item.student) : '';
-  if (isFood && (!cls || !group || !student)) {
+  if (needsIdentity && (!cls || !group || !student)) {
     return jsonOutput_({ ok: false, error: 'missing class/group/student' });
   }
   const before = item.before === '' || item.before == null ? '' : Number(item.before);
@@ -115,14 +118,18 @@ function handleWrite_(e) {
   }
   const delta = after - before;
   const label = item.item || '';
+  const name = item.name || '';
 
   const sheet = getSheet_();
   const now = new Date();
   const tz = Session.getScriptTimeZone();
   const timestamp = Utilities.formatDate(now, tz, 'yyyy-MM-dd HH:mm:ss');
 
+  // 탭1(음식)과 탭3(엽떡실험)은 반/모둠/학생 자리를 덮어쓰는(upsert) 방식,
+  // 탭2(운동)는 반/모둠 없는 익명 제출이라 매번 새 행으로 추가함
+  const usesUpsert = isFood || type === '엽떡실험';
   let rowIndex = -1; // 1-based sheet row
-  if (isFood) {
+  if (usesUpsert) {
     const values = sheet.getDataRange().getValues();
     for (let i = 1; i < values.length; i++) {
       const r = values[i];
@@ -133,7 +140,7 @@ function handleWrite_(e) {
     }
   }
 
-  const rowData = [cls, group, student, type, label, before, after, delta, timestamp];
+  const rowData = [cls, group, student, type, label, before, after, delta, timestamp, name];
   const targetRow = rowIndex === -1 ? sheet.getLastRow() + 1 : rowIndex;
   const range = sheet.getRange(targetRow, 1, 1, HEADERS.length);
   range.setNumberFormat('@'); // 우선 전체를 일반 텍스트로 리셋
@@ -198,7 +205,7 @@ function cleanupCorruptRows() {
     const type = r[3];
     const beforeOk = r[5] === '' || typeof r[5] === 'number';
     const afterOk = r[6] === '' || typeof r[6] === 'number';
-    const valid = (type === '음식' || type === '운동') && beforeOk && afterOk;
+    const valid = (type === '음식' || type === '운동' || type === '엽떡실험') && beforeOk && afterOk;
     if (valid) {
       kept.push(r.slice(0, HEADERS.length));
     } else {
