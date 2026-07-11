@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>우리 모둠의 혈당 변화 · 2형 당뇨병 예방 실험</title>
-<meta name="description" content="모둠원 4명이 각자 식전·식후 30분 혈당을 입력해 비교하는 탭1과, 반 구분 없이 누구나 운동 전후 혈당을 바로 기록하는 탭2로 구성된 2형 당뇨병 예방 탐구 웹앱">
+<title>우리 그룹의 혈당 변화 · 2형 당뇨병 예방 실험</title>
+<meta name="description" content="그룹원 4명이 각자 식전·식후 30분 혈당을 입력해 비교하는 탭1과, 반 구분 없이 누구나 운동 전후 혈당을 바로 기록하는 탭2로 구성된 2형 당뇨병 예방 탐구 웹앱">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -158,7 +158,7 @@ a{color:inherit;}
 .field-hdr-row.wide-name{grid-template-columns:96px 1fr 1fr;}
 .student-row.wide-name input.name-input{text-align:left;padding-left:10px;font-family:var(--font-display);font-weight:600;font-size:12.5px;}
 
-/* ---- 탭2: 운동 전후 혈당 (반/모둠 선택 없는 익명 폼) ---- */
+/* ---- 탭2: 운동 전후 혈당 (반/그룹 선택 없는 익명 폼) ---- */
 .ex-form-card{padding:26px 24px;margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;}
 .ex-form-card h3{font-family:var(--font-serif);font-size:18px;font-weight:700;text-align:center;}
 .ex-form-card .sub{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:8px;line-height:1.6;}
@@ -217,8 +217,8 @@ const NO_EXERCISE_LABEL = '운동 안 함';
 const EXERCISE_CHART_CATEGORIES = [NO_EXERCISE_LABEL, ...EXERCISE_TYPES];
 const CONTROL_NOTE = '실험 1시간 전 금식, 측정 전 손 세척, 측정 중 안정 상태 유지';
 
-/* 탭3: 엽떡(매운 음식) + 운동 여부 비교 — 탭1 구조를 복제하되 그룹당 5명,
-   이름 입력칸, 공복/식후(1시간후) 라벨로 구성 */
+/* 탭3: 엽떡(매운 음식) + 운동 여부 비교 — 탭1 구조를 복제하되 반 선택 없이,
+   그룹당 5명, 이름 입력칸, 공복/식후(1시간후) 라벨로 구성 */
 const TAB3_TYPE = '엽떡실험';
 const TAB3_STUDENTS_PER_GROUP = 5;
 const TAB3_GROUPS = [1,2,3,4];
@@ -240,13 +240,13 @@ const TABS = [
 /* ==================================================================
    저장소 / 상태
    탭1(음식): store[class][group][student] = { before, after } — 반 선택 필요
-   탭2(운동): 반/모둠 선택 없이 누구나 제출하는 익명 데이터. 서버에서 읽은
+   탭2(운동): 반/그룹 선택 없이 누구나 제출하는 익명 데이터. 서버에서 읽은
              전체 운동 기록은 state.exerciseRows 에만 보관함(개인별 저장 없음).
    ================================================================== */
 const LS_CLASS = 'db6_class_v1';
 const LS_STORE = 'db6_store_v1';
 const LS_EX_ROWS = 'db6_ex_rows_v1';
-const LS_STORE3 = 'db6_store3_v1';
+const LS_STORE3 = 'db7_store3_v1'; // v1은 반 단위였던 예전 구조라 새 키로 분리
 
 function makeEmptyStore(){
   const store = {};
@@ -296,15 +296,12 @@ function saveExerciseRowsCache(rows){
   try{ localStorage.setItem(LS_EX_ROWS, JSON.stringify(rows)); }catch(e){}
 }
 
-/* 탭3(엽떡실험): store3[class][group][student] = { name, before, after } — 반 선택 필요 */
+/* 탭3(엽떡실험): store3[group][student] = { name, before, after } — 반 선택 없이 전역 공유 */
 function makeEmptyStore3(){
   const store3 = {};
-  CLASSES.forEach(c=>{
-    store3[c] = {};
-    TAB3_GROUPS.forEach(g=>{
-      store3[c][g] = {};
-      for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++) store3[c][g][s] = { name:'', before:'', after:'' };
-    });
+  TAB3_GROUPS.forEach(g=>{
+    store3[g] = {};
+    for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++) store3[g][s] = { name:'', before:'', after:'' };
   });
   return store3;
 }
@@ -313,15 +310,12 @@ function loadStore3(){
     const raw = JSON.parse(localStorage.getItem(LS_STORE3));
     if(!raw) return makeEmptyStore3();
     const store3 = makeEmptyStore3();
-    CLASSES.forEach(c=>{
-      if(!raw[c]) return;
-      TAB3_GROUPS.forEach(g=>{
-        if(!raw[c][g]) return;
-        for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
-          const src = raw[c][g][s];
-          if(src) store3[c][g][s] = { name:String(src.name||''), before:String(src.before||''), after:String(src.after||'') };
-        }
-      });
+    TAB3_GROUPS.forEach(g=>{
+      if(!raw[g]) return;
+      for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
+        const src = raw[g][s];
+        if(src) store3[g][s] = { name:String(src.name||''), before:String(src.before||''), after:String(src.after||'') };
+      }
     });
     return store3;
   }catch(e){ return makeEmptyStore3(); }
@@ -407,7 +401,7 @@ async function apiClear(cls, type){
   return json;
 }
 
-/* 서버에서 읽은 행을 반영. 음식(탭1)/엽떡(탭3) 행은 반/모둠/학생별 store에 병합하고,
+/* 서버에서 읽은 행을 반영. 음식(탭1)/엽떡(탭3) 행은 반/그룹/학생별 store에 병합하고,
    운동(탭2) 행은 익명 데이터 전체를 state.exerciseRows에 그대로 보관함 */
 function mergeRows(rows){
   const exRows = [];
@@ -417,10 +411,10 @@ function mergeRows(rows){
       return;
     }
     if(r.type === TAB3_TYPE){
-      const cls = r.class, group = Number(r.group), student = Number(r.student);
-      if(!store3[cls] || !store3[cls][group] || !store3[cls][group][student]) return;
-      const isFocusedHere = focusedRef3 && focusedRef3.cls === cls && focusedRef3.group === group && focusedRef3.student === student;
-      const target = store3[cls][group][student];
+      const group = Number(r.group), student = Number(r.student);
+      if(!store3[group] || !store3[group][student]) return;
+      const isFocusedHere = focusedRef3 && focusedRef3.group === group && focusedRef3.student === student;
+      const target = store3[group][student];
       if(!isFocusedHere || focusedRef3.field !== 'name') target.name = r.name == null ? '' : String(r.name);
       if(!isFocusedHere || focusedRef3.field !== 'before') target.before = r.before === '' || r.before == null ? '' : String(r.before);
       if(!isFocusedHere || focusedRef3.field !== 'after') target.after = r.after === '' || r.after == null ? '' : String(r.after);
@@ -440,7 +434,7 @@ function mergeRows(rows){
 }
 
 let focusedRef = null; // {cls, group, student, field}
-let focusedRef3 = null; // 탭3용: {cls, group, student, field}
+let focusedRef3 = null; // 탭3용(반 없음): {group, student, field}
 
 async function syncRead(){
   state.syncing = true;
@@ -473,13 +467,13 @@ function scheduleWrite(cls, group, student){
 }
 
 const writeTimers3 = {};
-function scheduleWrite3(cls, group, student){
-  const key = cls + '_' + group + '_' + student;
+function scheduleWrite3(group, student){
+  const key = group + '_' + student;
   clearTimeout(writeTimers3[key]);
   writeTimers3[key] = setTimeout(async ()=>{
     if(!gasConfigured()){ state.online = false; return; }
-    const entry = store3[cls][group][student];
-    const item = { class:cls, group:group, student:student, name:entry.name, type:TAB3_TYPE, item: TAB3_GROUP_CONDITION[group], before:entry.before, after:entry.after };
+    const entry = store3[group][student];
+    const item = { group:group, student:student, name:entry.name, type:TAB3_TYPE, item: TAB3_GROUP_CONDITION[group], before:entry.before, after:entry.after };
     try{
       await apiWrite(item);
       state.online = true;
@@ -489,7 +483,7 @@ function scheduleWrite3(cls, group, student){
   }, CONFIG.WRITE_DEBOUNCE_MS);
 }
 
-/* 탭2: 반/모둠 선택 없는 익명 제출. upsert 없이 매번 새 행으로 추가됨 */
+/* 탭2: 반/그룹 선택 없는 익명 제출. upsert 없이 매번 새 행으로 추가됨 */
 async function submitExerciseEntry(item){
   const localRow = Object.assign({ ts: new Date().toISOString(), delta: item.after - item.before }, item);
   state.exerciseRows = state.exerciseRows.concat([localRow]);
@@ -507,7 +501,7 @@ async function submitExerciseEntry(item){
 }
 
 /* ==================================================================
-   앱 루트: 탭1은 반 선택이 필요하고, 탭2는 반 선택 없이 바로 사용 가능
+   앱 루트: 탭1은 반 선택이 필요하고, 탭2·탭3은 반 선택 없이 바로 사용 가능
    ================================================================== */
 function boot(){
   const saved = loadSavedClass();
@@ -536,15 +530,15 @@ function mountApp(root){
   function renderHero(){
     clear(heroBox);
     heroBox.appendChild(el('div', {class:'eyebrow'}, '2형 당뇨병 생활습관 관리 탐구 · 혈당 변화 실험'));
-    heroBox.appendChild(el('h1', {}, '우리 모둠의 혈당 변화'));
+    heroBox.appendChild(el('h1', {}, '우리 그룹의 혈당 변화'));
     heroBox.appendChild(el('p', {},
       state.tab === 'food'
-        ? '모둠원 4명이 각자 식전과 식후 30분 혈당을 입력하면, 모둠 평균으로 자동 계산되어 실시간으로 비교돼요.'
+        ? '그룹원 4명이 각자 식전과 식후 30분 혈당을 입력하면, 그룹 평균으로 자동 계산되어 실시간으로 비교돼요.'
         : state.tab === 'exercise'
-        ? '반/모둠 선택 없이 누구나 바로 운동 전·후 혈당을 기록할 수 있어요.'
-        : '모둠원 5명이 이름과 함께 공복·식후(1시간후) 혈당을 입력하면, 매운 음식과 운동 여부에 따른 변화를 비교해요.'
+        ? '반/그룹 선택 없이 누구나 바로 운동 전·후 혈당을 기록할 수 있어요.'
+        : '그룹원 5명이 이름과 함께 공복·식후(1시간후) 혈당을 입력하면, 매운 음식과 운동 여부에 따른 변화를 비교해요.'
     ));
-    if((state.tab === 'food' || state.tab === 'yeoptteok') && state.cls){
+    if(state.tab === 'food' && state.cls){
       heroBox.appendChild(el('div', {class:'class-row'},
         el('span', {class:'badge'}, '📍 ' + state.cls),
         el('button', {class:'btn btn-sm btn-ghost', onclick:()=>{
@@ -603,12 +597,10 @@ function mountApp(root){
     const stats = {};
     TAB3_GROUPS.forEach(g=>{
       const deltas = [];
-      if(state.cls){
-        for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
-          const e = store3[state.cls][g][s];
-          const b = parseFloat(e.before), a = parseFloat(e.after);
-          if(!isNaN(b) && !isNaN(a)) deltas.push(a-b);
-        }
+      for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
+        const e = store3[g][s];
+        const b = parseFloat(e.before), a = parseFloat(e.after);
+        if(!isNaN(b) && !isNaN(a)) deltas.push(a-b);
       }
       stats[g] = { count: deltas.length, avg: deltas.length ? deltas.reduce((s,v)=>s+v,0)/deltas.length : null };
     });
@@ -659,12 +651,11 @@ function mountApp(root){
         el('div', {class:'val'}, completedPairs + '/' + PAIRS.length)
       ));
       summaryGrid.appendChild(el('div', {class:'card summary-card'},
-        el('div', {class:'lbl'}, '평균 가장 많이 오른 모둠'),
-        el('div', {class:'val small'}, topGroup ? (GROUP_FOOD[topGroup] + ' (' + topGroup + '모둠)') : '—'),
+        el('div', {class:'lbl'}, '평균 가장 많이 오른 그룹'),
+        el('div', {class:'val small'}, topGroup ? (GROUP_FOOD[topGroup] + ' (' + topGroup + '그룹)') : '—'),
         topGroup ? el('div', {class:'sub'}, '평균 +' + fmt1(topAvg) + ' mg/dL') : null
       ));
     }else if(state.tab === 'yeoptteok'){
-      if(!state.cls) return;
       const stats = computeGroupStats3();
       const totalStudents = TAB3_GROUPS.length * TAB3_STUDENTS_PER_GROUP;
       const filled = TAB3_GROUPS.reduce((s,g)=>s+stats[g].count, 0);
@@ -710,7 +701,7 @@ function mountApp(root){
     if(state.tab === 'food'){
       if(!state.cls) buildClassPicker(); else buildPairCards();
     }else if(state.tab === 'yeoptteok'){
-      if(!state.cls) buildClassPicker(); else buildPairCards3();
+      buildPairCards3();
     }else{
       buildExerciseForm();
     }
@@ -770,7 +761,7 @@ function mountApp(root){
         }
         pr.groupCols[g] = { statusEl };
         groupsRow.appendChild(el('div', {class:'pair-group-col'},
-          el('div', {class:'pg-head'}, dot, el('span', {class:'pg-title'}, g + '모둠 · ' + GROUP_FOOD[g])),
+          el('div', {class:'pg-head'}, dot, el('span', {class:'pg-title'}, g + '그룹 · ' + GROUP_FOOD[g])),
           statusEl,
           studentGrid
         ));
@@ -790,7 +781,6 @@ function mountApp(root){
   }
 
   function buildPairCards3(){
-    const cls = state.cls;
     refs.pair3 = [];
     TAB3_PAIRS.forEach((pair)=>{
       const pr = { chartBox:null, groupCols:{}, studentDelta:{} };
@@ -806,16 +796,16 @@ function mountApp(root){
           el('span', {}, '이름'), el('span', {}, '공복혈당(mg/dL)'), el('span', {}, '식후(1시간후, mg/dL)')
         ));
         for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
-          const entry = store3[cls][g][s];
+          const entry = store3[g][s];
           const nameInput = el('input', {class:'name-input', type:'text', placeholder:'학생 ' + s, value: entry.name});
           const beforeInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'공복혈당', value: entry.before});
           const afterInput = el('input', {type:'number', inputmode:'decimal', step:'0.1', placeholder:'식후1시간', value: entry.after});
-          bindNameInput3(nameInput, cls, g, s);
-          bindFoodInput3(beforeInput, cls, g, s, 'before');
-          bindFoodInput3(afterInput, cls, g, s, 'after');
-          refs.input3[cls+'_'+g+'_'+s+'_name'] = nameInput;
-          refs.input3[cls+'_'+g+'_'+s+'_before'] = beforeInput;
-          refs.input3[cls+'_'+g+'_'+s+'_after'] = afterInput;
+          bindNameInput3(nameInput, g, s);
+          bindFoodInput3(beforeInput, g, s, 'before');
+          bindFoodInput3(afterInput, g, s, 'after');
+          refs.input3[g+'_'+s+'_name'] = nameInput;
+          refs.input3[g+'_'+s+'_before'] = beforeInput;
+          refs.input3[g+'_'+s+'_after'] = afterInput;
           const deltaVal = el('span', {class:'val na'}, '—');
           pr.studentDelta[g+'_'+s] = deltaVal;
           studentGrid.appendChild(el('div', {class:'student-block'},
@@ -829,7 +819,7 @@ function mountApp(root){
         }
         pr.groupCols[g] = { statusEl };
         groupsRow.appendChild(el('div', {class:'pair-group-col'},
-          el('div', {class:'pg-head'}, dot, el('span', {class:'pg-title'}, g + '모둠 · ' + TAB3_GROUP_CONDITION[g])),
+          el('div', {class:'pg-head'}, dot, el('span', {class:'pg-title'}, g + '그룹 · ' + TAB3_GROUP_CONDITION[g])),
           statusEl,
           studentGrid
         ));
@@ -848,7 +838,7 @@ function mountApp(root){
     });
   }
 
-  /* ---------- 탭2 폼: 반/모둠 선택 없는 익명 입력 ---------- */
+  /* ---------- 탭2 폼: 반/그룹 선택 없는 익명 입력 ---------- */
   function buildExerciseForm(){
     const draft = { before:'', after:'', exercised:false, exerciseType:'' };
 
@@ -915,7 +905,7 @@ function mountApp(root){
 
     const card = el('div', {class:'card ex-form-card'},
       el('h3', {}, '운동 전후 혈당 기록'),
-      el('div', {class:'sub'}, '반/모둠 선택 없이 누구나 바로 입력할 수 있어요.'),
+      el('div', {class:'sub'}, '반/그룹 선택 없이 누구나 바로 입력할 수 있어요.'),
       el('div', {class:'ex-field-row'},
         el('div', {class:'ex-field'}, el('label', {}, '식전'), beforeInput),
         el('div', {class:'ex-field'}, el('label', {}, '식후 30분 후'), afterInput)
@@ -947,7 +937,7 @@ function mountApp(root){
       const anyData = stats[gA].count > 0 || stats[gB].count > 0;
       if(!anyData){
         pr.chartBox.appendChild(el('div', {class:'placeholder'},
-          '모둠원들이 식전, 식후30분 값을 입력하면', el('br'), '모둠 평균 변화 폭이 여기에 그려져요'
+          '그룹원들이 식전, 식후30분 값을 입력하면', el('br'), '그룹 평균 변화 폭이 여기에 그려져요'
         ));
         return;
       }
@@ -956,7 +946,7 @@ function mountApp(root){
         const st = stats[g];
         const pct = st.avg == null ? 0 : Math.abs(st.avg) / maxAbs * 100;
         pr.chartBox.appendChild(el('div', {class:'pc-bar-row'},
-          el('div', {class:'pc-bar-label'}, g + '모둠 · ' + GROUP_FOOD[g]),
+          el('div', {class:'pc-bar-label'}, g + '그룹 · ' + GROUP_FOOD[g]),
           el('div', {class:'pc-bar-track'}, el('div', {class:'pc-bar-fill', style:'width:' + pct + '%;background:var(' + pair.accentVar + ');'})),
           el('div', {class:'pc-bar-num'}, st.avg == null ? '—' : (st.avg > 0 ? '+' : '') + fmt1(st.avg))
         ));
@@ -989,7 +979,7 @@ function mountApp(root){
   }
 
   function refreshPairCards3(stats){
-    if(state.tab !== 'yeoptteok' || !state.cls) return;
+    if(state.tab !== 'yeoptteok') return;
     TAB3_PAIRS.forEach((pair, idx)=>{
       const pr = refs.pair3[idx];
       if(!pr) return;
@@ -1006,7 +996,7 @@ function mountApp(root){
       const anyData = stats[gA].count > 0 || stats[gB].count > 0;
       if(!anyData){
         pr.chartBox.appendChild(el('div', {class:'placeholder'},
-          '모둠원들이 공복·식후(1시간후) 값을 입력하면', el('br'), '모둠 평균 변화 폭이 여기에 그려져요'
+          '그룹원들이 공복·식후(1시간후) 값을 입력하면', el('br'), '그룹 평균 변화 폭이 여기에 그려져요'
         ));
         return;
       }
@@ -1015,7 +1005,7 @@ function mountApp(root){
         const st = stats[g];
         const pct = st.avg == null ? 0 : Math.abs(st.avg) / maxAbs * 100;
         pr.chartBox.appendChild(el('div', {class:'pc-bar-row'},
-          el('div', {class:'pc-bar-label'}, g + '모둠 · ' + TAB3_GROUP_CONDITION[g]),
+          el('div', {class:'pc-bar-label'}, g + '그룹 · ' + TAB3_GROUP_CONDITION[g]),
           el('div', {class:'pc-bar-track'}, el('div', {class:'pc-bar-fill', style:'width:' + pct + '%;background:var(' + pair.accentVar + ');'})),
           el('div', {class:'pc-bar-num'}, st.avg == null ? '—' : (st.avg > 0 ? '+' : '') + fmt1(st.avg))
         ));
@@ -1024,14 +1014,13 @@ function mountApp(root){
   }
 
   function refreshStudentDeltasFood3(){
-    if(state.tab !== 'yeoptteok' || !state.cls) return;
-    const cls = state.cls;
+    if(state.tab !== 'yeoptteok') return;
     TAB3_PAIRS.forEach((pair, idx)=>{
       const pr = refs.pair3[idx];
       if(!pr) return;
       pair.groups.forEach(g=>{
         for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
-          const e = store3[cls][g][s];
+          const e = store3[g][s];
           const b = parseFloat(e.before), a = parseFloat(e.after);
           const deltaVal = pr.studentDelta[g+'_'+s];
           if(isNaN(b) || isNaN(a)){
@@ -1058,24 +1047,24 @@ function mountApp(root){
     });
   }
 
-  function bindFoodInput3(inputEl, cls, group, student, field){
-    inputEl.addEventListener('focus', ()=>{ focusedRef3 = {cls, group, student, field}; });
-    inputEl.addEventListener('blur', ()=>{ if(focusedRef3 && focusedRef3.cls===cls && focusedRef3.group===group && focusedRef3.student===student && focusedRef3.field===field) focusedRef3 = null; });
+  function bindFoodInput3(inputEl, group, student, field){
+    inputEl.addEventListener('focus', ()=>{ focusedRef3 = {group, student, field}; });
+    inputEl.addEventListener('blur', ()=>{ if(focusedRef3 && focusedRef3.group===group && focusedRef3.student===student && focusedRef3.field===field) focusedRef3 = null; });
     inputEl.addEventListener('input', ()=>{
-      store3[cls][group][student][field] = inputEl.value;
+      store3[group][student][field] = inputEl.value;
       saveStore3();
-      scheduleWrite3(cls, group, student);
+      scheduleWrite3(group, student);
       refreshAll();
     });
   }
 
-  function bindNameInput3(inputEl, cls, group, student){
-    inputEl.addEventListener('focus', ()=>{ focusedRef3 = {cls, group, student, field:'name'}; });
-    inputEl.addEventListener('blur', ()=>{ if(focusedRef3 && focusedRef3.cls===cls && focusedRef3.group===group && focusedRef3.student===student && focusedRef3.field==='name') focusedRef3 = null; });
+  function bindNameInput3(inputEl, group, student){
+    inputEl.addEventListener('focus', ()=>{ focusedRef3 = {group, student, field:'name'}; });
+    inputEl.addEventListener('blur', ()=>{ if(focusedRef3 && focusedRef3.group===group && focusedRef3.student===student && focusedRef3.field==='name') focusedRef3 = null; });
     inputEl.addEventListener('input', ()=>{
-      store3[cls][group][student].name = inputEl.value;
+      store3[group][student].name = inputEl.value;
       saveStore3();
-      scheduleWrite3(cls, group, student);
+      scheduleWrite3(group, student);
     });
   }
 
@@ -1085,7 +1074,7 @@ function mountApp(root){
     if(state.tab === 'food'){
       if(!state.cls){ showToast('먼저 학급을 선택해 주세요'); return; }
       const cls = state.cls;
-      lines = ['반\t모둠\t음식\t학생\t식전\t식후30분\tΔ혈당'];
+      lines = ['반\t그룹\t음식\t학생\t식전\t식후30분\tΔ혈당'];
       GROUPS.forEach(g=>{
         for(let s=1;s<=STUDENTS_PER_GROUP;s++){
           const e = store[cls][g][s];
@@ -1095,15 +1084,13 @@ function mountApp(root){
         }
       });
     }else if(state.tab === 'yeoptteok'){
-      if(!state.cls){ showToast('먼저 학급을 선택해 주세요'); return; }
-      const cls = state.cls;
-      lines = ['반\t모둠\t조건\t이름\t학생\t공복혈당\t식후(1시간후)\tΔ혈당'];
+      lines = ['그룹\t조건\t이름\t학생\t공복혈당\t식후(1시간후)\tΔ혈당'];
       TAB3_GROUPS.forEach(g=>{
         for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
-          const e = store3[cls][g][s];
+          const e = store3[g][s];
           const b = parseFloat(e.before), a = parseFloat(e.after);
           if(isNaN(b) || isNaN(a)) continue;
-          lines.push([cls, g, TAB3_GROUP_CONDITION[g], e.name || '', s, b, a, fmt1(a-b)].join('\t'));
+          lines.push([g, TAB3_GROUP_CONDITION[g], e.name || '', s, b, a, fmt1(a-b)].join('\t'));
         }
       });
     }else{
@@ -1152,17 +1139,15 @@ function mountApp(root){
       }
       showToast('탭 1 입력값을 모두 지웠습니다');
     }else if(state.tab === 'yeoptteok'){
-      if(!state.cls) return;
-      const cls = state.cls;
-      if(!confirm('"' + cls + '" 반의 엽떡 운동 비교 입력값을 지울까요? 되돌릴 수 없어요.')) return;
+      if(!confirm('엽떡 운동 비교 입력값을 모두 지울까요? 되돌릴 수 없어요.')) return;
       TAB3_GROUPS.forEach(g=>{
-        for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++) store3[cls][g][s] = {name:'', before:'', after:''};
+        for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++) store3[g][s] = {name:'', before:'', after:''};
       });
       saveStore3();
       renderBody();
       refreshAll();
       if(gasConfigured()){
-        try{ await apiClear(cls, TAB3_TYPE); state.online = true; }catch(e){ state.online = false; }
+        try{ await apiClear('', TAB3_TYPE); state.online = true; }catch(e){ state.online = false; }
       }
       showToast('엽떡 운동 비교 입력값을 모두 지웠습니다');
     }else{
@@ -1177,7 +1162,7 @@ function mountApp(root){
       if(!state.cls){ overviewCard.classList.add('hidden'); return; }
       overviewCard.classList.remove('hidden');
       overviewCard.appendChild(el('h3', {}, '한눈에 보는 6가지 비교'));
-      overviewCard.appendChild(el('div', {class:'sub-line'}, '모둠 평균 혈당 변화량(Δ, mg/dL) — 막대가 높을수록 혈당이 더 많이 올랐어요'));
+      overviewCard.appendChild(el('div', {class:'sub-line'}, '그룹 평균 혈당 변화량(Δ, mg/dL) — 막대가 높을수록 혈당이 더 많이 올랐어요'));
       const chart = el('div', {class:'overview-chart'});
       const gridLines = el('div', {class:'overview-grid-lines'});
       for(let i=0;i<5;i++) gridLines.appendChild(el('div'));
@@ -1198,14 +1183,13 @@ function mountApp(root){
       });
       overviewCard.appendChild(chart);
       overviewCard.appendChild(el('div', {class:'overview-footnote'},
-        '데이터는 같은 반 모든 모둠 화면에 자동으로 공유돼요. 같은 모둠 학생 4명 모두 자기 번호 칸에 입력해 주세요.'
+        '데이터는 같은 반 모든 그룹 화면에 자동으로 공유돼요. 같은 그룹 학생 4명 모두 자기 번호 칸에 입력해 주세요.'
       ));
       overviewCard.appendChild(el('div', {class:'overview-actions'},
         el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)'),
         el('button', {class:'btn btn-sm btn-ghost', onclick: onClearData}, '탭1 입력값 지우기')
       ));
     }else if(state.tab === 'yeoptteok'){
-      if(!state.cls){ overviewCard.classList.add('hidden'); return; }
       overviewCard.classList.remove('hidden');
       overviewCard.appendChild(el('h3', {}, '한눈에 보는 4가지 비교'));
       overviewCard.appendChild(el('div', {class:'sub-line'}, '조건별 평균 혈당 변화량(Δ, mg/dL) — 막대가 높을수록 혈당이 더 많이 올랐어요'));
@@ -1229,7 +1213,7 @@ function mountApp(root){
       });
       overviewCard.appendChild(chart3);
       overviewCard.appendChild(el('div', {class:'overview-footnote'},
-        '데이터는 같은 반 모든 모둠 화면에 자동으로 공유돼요. 같은 모둠 학생 5명 모두 이름과 함께 입력해 주세요.'
+        '반/그룹 선택 없이 모두 함께 공유되는 데이터예요. 같은 그룹 학생 5명 모두 이름과 함께 자기 칸에 입력해 주세요.'
       ));
       overviewCard.appendChild(el('div', {class:'overview-actions'},
         el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)'),
@@ -1259,7 +1243,7 @@ function mountApp(root){
       });
       overviewCard.appendChild(chart);
       overviewCard.appendChild(el('div', {class:'overview-footnote'},
-        '이 데이터는 반/모둠과 무관하게 모두 함께 모여요. 위 폼에서 자유롭게 여러 번 제출할 수 있어요.'
+        '이 데이터는 반/그룹과 무관하게 모두 함께 모여요. 위 폼에서 자유롭게 여러 번 제출할 수 있어요.'
       ));
       overviewCard.appendChild(el('div', {class:'overview-actions'},
         el('button', {class:'btn btn-sm btn-good', onclick: onCopyResults}, '📋 결과 복사하기 (구글 시트 붙여넣기용)')
@@ -1285,7 +1269,6 @@ function mountApp(root){
       refreshPairCards(stats);
       refreshStudentDeltasFood();
     }else if(state.tab === 'yeoptteok'){
-      if(!state.cls) return;
       const stats = computeGroupStats3();
       const maxAbs = Math.max(1, ...TAB3_GROUPS.map(g=>Math.abs(stats[g].avg || 0)));
       TAB3_GROUPS.forEach(g=>{
@@ -1331,24 +1314,25 @@ function mountApp(root){
   }
 
   function renderInputsFromStore(){
-    if(!state.cls) return;
-    const cls = state.cls;
-    GROUPS.forEach(g=>{
-      for(let s=1;s<=STUDENTS_PER_GROUP;s++){
-        const fb = refs.input[cls+'_'+g+'_'+s+'_before'];
-        const fa = refs.input[cls+'_'+g+'_'+s+'_after'];
-        if(fb && document.activeElement !== fb) fb.value = store[cls][g][s].before;
-        if(fa && document.activeElement !== fa) fa.value = store[cls][g][s].after;
-      }
-    });
+    if(state.cls){
+      const cls = state.cls;
+      GROUPS.forEach(g=>{
+        for(let s=1;s<=STUDENTS_PER_GROUP;s++){
+          const fb = refs.input[cls+'_'+g+'_'+s+'_before'];
+          const fa = refs.input[cls+'_'+g+'_'+s+'_after'];
+          if(fb && document.activeElement !== fb) fb.value = store[cls][g][s].before;
+          if(fa && document.activeElement !== fa) fa.value = store[cls][g][s].after;
+        }
+      });
+    }
     TAB3_GROUPS.forEach(g=>{
       for(let s=1;s<=TAB3_STUDENTS_PER_GROUP;s++){
-        const fn = refs.input3[cls+'_'+g+'_'+s+'_name'];
-        const fb = refs.input3[cls+'_'+g+'_'+s+'_before'];
-        const fa = refs.input3[cls+'_'+g+'_'+s+'_after'];
-        if(fn && document.activeElement !== fn) fn.value = store3[cls][g][s].name;
-        if(fb && document.activeElement !== fb) fb.value = store3[cls][g][s].before;
-        if(fa && document.activeElement !== fa) fa.value = store3[cls][g][s].after;
+        const fn = refs.input3[g+'_'+s+'_name'];
+        const fb = refs.input3[g+'_'+s+'_before'];
+        const fa = refs.input3[g+'_'+s+'_after'];
+        if(fn && document.activeElement !== fn) fn.value = store3[g][s].name;
+        if(fb && document.activeElement !== fb) fb.value = store3[g][s].before;
+        if(fa && document.activeElement !== fa) fa.value = store3[g][s].after;
       }
     });
   }

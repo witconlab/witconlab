@@ -101,15 +101,19 @@ function handleWrite_(e) {
   if (!type) {
     return jsonOutput_({ ok: false, error: 'missing type' });
   }
-  // 탭1(음식)과 탭3(엽떡실험)은 반/모둠/학생이 필수이며 같은 자리를 덮어쓰는(upsert) 방식.
-  // 탭2(운동)는 반/모둠 선택 없는 익명 제출이라 매번 새 행으로 추가함.
+  // 탭1(음식)은 반/모둠/학생이 모두 필수, 탭3(엽떡실험)은 반 없이 모둠/학생만 필수 —
+  // 둘 다 같은 자리를 덮어쓰는(upsert) 방식. 탭2(운동)는 반/모둠 선택 없는 익명
+  // 제출이라 매번 새 행으로 추가함.
   const isFood = type === '음식';
-  const needsIdentity = isFood || type === '엽떡실험';
+  const isYeoptteok = type === '엽떡실험';
   const cls = String(item.class || '');
   const group = item.group ? Number(item.group) : '';
   const student = item.student ? Number(item.student) : '';
-  if (needsIdentity && (!cls || !group || !student)) {
+  if (isFood && (!cls || !group || !student)) {
     return jsonOutput_({ ok: false, error: 'missing class/group/student' });
+  }
+  if (isYeoptteok && (!group || !student)) {
+    return jsonOutput_({ ok: false, error: 'missing group/student' });
   }
   const before = item.before === '' || item.before == null ? '' : Number(item.before);
   const after = item.after === '' || item.after == null ? '' : Number(item.after);
@@ -125,9 +129,9 @@ function handleWrite_(e) {
   const tz = Session.getScriptTimeZone();
   const timestamp = Utilities.formatDate(now, tz, 'yyyy-MM-dd HH:mm:ss');
 
-  // 탭1(음식)과 탭3(엽떡실험)은 반/모둠/학생 자리를 덮어쓰는(upsert) 방식,
+  // 탭1(음식)과 탭3(엽떡실험)은 자리를 덮어쓰는(upsert) 방식(탭3는 반 없이 모둠/학생만),
   // 탭2(운동)는 반/모둠 없는 익명 제출이라 매번 새 행으로 추가함
-  const usesUpsert = isFood || type === '엽떡실험';
+  const usesUpsert = isFood || isYeoptteok;
   let rowIndex = -1; // 1-based sheet row
   if (usesUpsert) {
     const values = sheet.getDataRange().getValues();
