@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종이팩은 종이가 아니다 | 종이팩 자원순환 캠페인</title>
+<meta name="description" content="종이팩(일반팩·멸균팩)은 일반 종이류와 달라 별도로 분리배출해야 해요. 종이팩 자원순환 캠페인 사이트.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+<style>
+  :root{
+    --blue:#00A2E9;
+    --blue-dark:#0B84BF;
+    --blue-soft:#E6F6FE;
+    --orange:#FC5C2C;
+    --orange-soft:#FFEBE3;
+    --yellow:#FFE600;
+    --green:#08A44D;
+    --green-soft:#E7F8EE;
+    --ink:#171717;
+    --gray:#5B6472;
+    --gray-soft:#F4F6F8;
+    --paper:#FFFFFF;
+    --radius-lg:28px;
+    --radius-md:18px;
+    --radius-sm:12px;
+    --shadow:0 10px 30px rgba(23,23,23,.08);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; overflow-x:hidden;}
+  body{
+    margin:0;
+    font-family:'Gowun Dodum', sans-serif;
+    font-size:18px;
+    line-height:1.75;
+    color:var(--ink);
+    background:var(--paper);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.jua{font-family:'Jua', sans-serif; font-weight:400; line-height:1.35;}
+  img{max-width:100%; display:block;}
+  a{color:inherit;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+  button{font-family:inherit; cursor:pointer;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:none; border-radius:999px; padding:14px 28px; font-size:18px;
+    font-family:'Jua',sans-serif; letter-spacing:.5px; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-blue{background:var(--blue); color:#fff; box-shadow:0 8px 20px rgba(0,162,233,.35);}
+  .btn-orange{background:var(--orange); color:#fff; box-shadow:0 8px 20px rgba(252,92,44,.35);}
+  .btn-outline{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-ghost{background:transparent; color:var(--ink); border:2px solid rgba(23,23,23,.15);}
+  .btn-sm{padding:10px 18px; font-size:15px;}
+  .btn[disabled]{opacity:.45; cursor:not-allowed;}
+
+  .eyebrow{
+    display:inline-block; font-family:'Jua',sans-serif; font-size:15px; color:var(--blue-dark);
+    background:var(--blue-soft); padding:6px 16px; border-radius:999px; margin-bottom:14px;
+  }
+  section{padding:90px 0;}
+  section.soft{background:var(--gray-soft);}
+  .section-head{max-width:640px; margin-bottom:48px;}
+  .section-head h2{font-size:38px; margin:0 0 14px;}
+  .section-head p{color:var(--gray); margin:0; font-size:19px;}
+  .center{text-align:center; margin-left:auto; margin-right:auto;}
+
+  /* ===== Header ===== */
+  header{
+    position:sticky; top:0; z-index:500; background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(23,23,23,.08);
+  }
+  .nav-row{display:flex; align-items:center; justify-content:space-between; height:78px;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Jua',sans-serif; font-size:20px; text-decoration:none;}
+  .logo img{height:38px; width:auto;}
+  nav.main-nav{display:flex; align-items:center; gap:4px;}
+  nav.main-nav > ul{display:flex; list-style:none; margin:0; padding:0; gap:8px;}
+  nav.main-nav > ul > li{position:relative;}
+  nav.main-nav > ul > li > a{
+    display:block; padding:12px 20px; font-family:'Noto Sans KR', sans-serif; font-weight:700; font-size:18px;
+    text-decoration:none; border-radius:999px; white-space:nowrap; background:var(--gray-soft); border:2px solid transparent;
+    color:var(--ink); transition:all .15s ease;
+  }
+  nav.main-nav > ul > li:hover > a, nav.main-nav > ul > li > a:focus{background:var(--blue); color:#fff; border-color:var(--blue);}
+  .submenu{
+    position:absolute; top:100%; left:0; min-width:220px; background:#fff; border-radius:16px;
+    box-shadow:var(--shadow); padding:10px; list-style:none; margin:6px 0 0; opacity:0; visibility:hidden;
+    transform:translateY(6px); transition:all .18s ease;
+  }
+  nav.main-nav > ul > li:hover .submenu{opacity:1; visibility:visible; transform:translateY(0);}
+  .submenu li a{display:block; padding:10px 14px; border-radius:10px; font-size:18px;}
+  .submenu li a:hover{background:var(--gray-soft);}
+  .header-actions{display:flex; align-items:center; gap:10px;}
+  .hamburger{display:none; flex-direction:column; gap:5px; background:none; border:none; padding:8px;}
+  .hamburger span{width:26px; height:3px; background:var(--ink); border-radius:3px;}
+
+  /* mobile nav */
+  .mobile-nav{
+    display:none; position:fixed; top:78px; right:0; bottom:0; left:0; background:#fff; z-index:499; padding:20px 24px;
+    overflow-y:auto;
+  }
+  .mobile-nav.open{display:block;}
+  .mobile-nav ul{list-style:none; margin:0; padding:0;}
+  .mobile-nav > ul > li > a{display:block; padding:16px 4px; font-family:'Jua',sans-serif; font-size:20px; border-bottom:1px solid var(--gray-soft);}
+  .mobile-nav .submenu-mobile{list-style:none; padding:0 0 10px 14px; margin:0;}
+  .mobile-nav .submenu-mobile a{display:block; padding:10px 4px; font-size:18px; color:var(--gray);}
+
+  /* ===== Hero ===== */
+  .hero{padding:64px 0 40px; position:relative; overflow:hidden;}
+  .hero .wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center;}
+  .hero-title-card img{width:100%; max-width:480px; margin:0 auto;}
+  .hero-copy p.lead{font-size:21px; color:var(--gray); max-width:480px;}
+  .hero-stats{display:flex; gap:14px; flex-wrap:wrap; margin:28px 0;}
+  .stat-chip{background:var(--paper); border:2px solid var(--ink); border-radius:18px; padding:14px 18px; min-width:150px;}
+  .stat-chip b{display:block; font-family:'Jua',sans-serif; font-size:26px; color:var(--orange);}
+  .stat-chip span{font-size:14px; color:var(--gray);}
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+  .hero-visual{position:relative; text-align:center;}
+  .hero-visual img{width:100%; max-width:380px; margin:0 auto;}
+  .blob{position:absolute; border-radius:50%; filter:blur(2px); z-index:-1; opacity:.5;}
+
+  /* ===== Compare cards (일반팩 vs 멸균팩) ===== */
+  .compare-grid{display:grid; grid-template-columns:1fr 1fr; gap:28px;}
+  .compare-card{background:#fff; border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow); text-align:center;}
+  .compare-card img{width:100%; max-width:230px; margin:0 auto 12px;}
+  .compare-card h3{font-size:24px; margin:10px 0 6px;}
+  .compare-card p{color:var(--gray); font-size:16.5px;}
+  .tag{display:inline-block; font-family:'Jua',sans-serif; font-size:13px; padding:4px 12px; border-radius:999px; margin-bottom:8px;}
+  .tag-blue{background:var(--blue-soft); color:var(--blue-dark);}
+  .tag-orange{background:var(--orange-soft); color:var(--orange);}
+
+  /* ===== Stat cards ===== */
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:10px;}
+  .stat-card{background:#fff; border-radius:var(--radius-md); padding:28px; box-shadow:var(--shadow);}
+  .stat-card .num{font-family:'Jua',sans-serif; font-size:46px; color:var(--blue);}
+  .stat-card .num.o{color:var(--orange);}
+  .stat-card .label{font-size:16px; color:var(--gray); margin-top:6px;}
+  .stat-card .src{font-size:12.5px; color:#9AA3AE; margin-top:12px;}
+  .poster-figure{background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:16px; text-align:center;}
+  .poster-figure img{border-radius:16px;}
+  .poster-figure figcaption{font-size:14px; color:var(--gray); margin-top:10px;}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:center;}
+  .two-col.reverse{direction:rtl;}
+  .two-col.reverse > *{direction:ltr;}
+
+  /* Grid/flex items default to min-width:auto, which stops them shrinking below
+     their content's un-wrapped width. Reset so wrapping flex rows inside them
+     (buttons, chips) can actually wrap instead of overflowing the viewport. */
+  .hero-copy, .hero-visual, .two-col > *, .map-panel > *, .signature-panel > *,
+  .compare-card, .stat-card, .case-card, .contact-form, #contact-faq, .epr-box,
+  .kpi-card, .icon-step{ min-width:0; }
+
+  /* ===== EPR box ===== */
+  .epr-box{background:#fff; border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow); display:flex; gap:24px; align-items:center; flex-wrap:wrap;}
+  .epr-box img{width:150px; max-width:100%; flex:none;}
+  .epr-box h4{margin:0 0 8px; font-size:20px;}
+  .epr-box p{margin:0; color:var(--gray); font-size:16px;}
+
+  /* ===== 종이팩 수거 ===== */
+  .icon-steps{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .icon-step{background:#fff; border-radius:var(--radius-md); padding:26px; box-shadow:var(--shadow); text-align:center;}
+  .icon-step .num-badge{
+    width:36px; height:36px; border-radius:50%; background:var(--blue); color:#fff; display:flex;
+    align-items:center; justify-content:center; font-family:'Jua',sans-serif; margin:0 auto 14px;
+  }
+  .icon-step img{width:100%; max-width:150px; margin:0 auto 10px;}
+  .icon-step h4{font-size:18px; margin:8px 0 4px;}
+  .icon-step p{font-size:15px; color:var(--gray); margin:0;}
+
+  .map-panel{background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:32px; display:grid; grid-template-columns:1fr 1.2fr; gap:28px;}
+  .map-filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+  .chip{border:2px solid var(--ink); background:#fff; border-radius:999px; padding:8px 16px; font-size:15px; font-family:'Jua',sans-serif;}
+  .chip.active{background:var(--ink); color:#fff;}
+  .region-select{padding:12px 14px; border-radius:12px; border:2px solid rgba(23,23,23,.15); font-size:16px; font-family:inherit; width:100%; margin-bottom:16px;}
+  .svg-map{width:100%; height:auto; background:var(--blue-soft); border-radius:20px; padding:16px;}
+  .svg-map circle{cursor:pointer; transition:r .15s ease;}
+  .svg-map circle:hover{r:12;}
+  .point-list{list-style:none; margin:0; padding:0; max-height:340px; overflow-y:auto;}
+  .point-list li{padding:14px; border-radius:14px; margin-bottom:10px; background:var(--gray-soft); font-size:15.5px;}
+  .point-list li b{display:block; font-size:16.5px;}
+  .point-list li .pcat{display:inline-block; font-size:12.5px; padding:2px 10px; border-radius:999px; margin-top:6px;}
+  .cat-center{background:var(--blue-soft); color:var(--blue-dark);}
+  .cat-shop{background:var(--green-soft); color:var(--green);}
+  .cat-bin{background:var(--orange-soft); color:var(--orange);}
+  .map-note{font-size:13.5px; color:#9AA3AE; margin-top:14px;}
+
+  .exchange-box{background:#fff; border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow); margin-bottom:28px;}
+  .exchange-box h3{margin-top:0;}
+  .exchange-box ul{padding-left:20px; color:var(--gray); font-size:16.5px;}
+
+  /* ===== 실천사례 ===== */
+  .case-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:26px;}
+  .case-card{background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column;}
+  .case-card .thumb{height:180px; background:var(--blue-soft); display:flex; align-items:center; justify-content:center;}
+  .case-card .thumb img{max-height:130px;}
+  .case-card .body{padding:24px;}
+  .case-card h3{font-size:21px; margin:0 0 8px;}
+  .case-card p{color:var(--gray); font-size:15.5px; margin:0;}
+  .case-card .note{margin-top:12px; font-size:12.5px; color:#9AA3AE;}
+
+  .signature-panel{background:linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%); border-radius:var(--radius-lg); padding:44px; color:#fff; margin-top:56px; display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center;}
+  .signature-panel h3{font-size:28px; margin:0 0 10px;}
+  .signature-panel p{opacity:.9; margin:0 0 20px;}
+  .sign-form{display:flex; flex-direction:column; gap:10px;}
+  .sign-form input, .sign-form textarea{padding:14px 16px; border-radius:14px; border:none; font-family:inherit; font-size:16px;}
+  .sign-count{font-family:'Jua',sans-serif; font-size:44px;}
+
+  /* ===== 자료실 ===== */
+  .tabs{display:flex; gap:10px; margin-bottom:30px; flex-wrap:wrap;}
+  .tab-btn{padding:14px 26px; border-radius:999px; border:2px solid var(--ink); background:#fff; font-family:'Jua',sans-serif; font-size:16px;}
+  .tab-btn.active{background:var(--ink); color:#fff;}
+  .resource-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px;}
+  .res-card{background:#fff; border-radius:var(--radius-md); box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column;}
+  .res-thumb{aspect-ratio:4/3; background:var(--gray-soft); overflow:hidden; cursor:pointer;}
+  .res-thumb img{width:100%; height:100%; object-fit:cover;}
+  .res-body{padding:16px 18px 20px; display:flex; flex-direction:column; gap:8px; flex:1;}
+  .res-body h4{font-size:16.5px; margin:0; line-height:1.4;}
+  .res-body .count{font-size:13px; color:var(--gray);}
+  .res-actions{display:flex; gap:8px; margin-top:auto;}
+  .res-actions .btn{flex:1; padding:9px 10px; font-size:13.5px;}
+  .empty-video{grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--gray); background:#fff; border-radius:var(--radius-md);}
+
+  /* ===== 문의 ===== */
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:40px;}
+  .contact-form{background:#fff; border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow);}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-family:'Jua',sans-serif; font-size:15px; margin-bottom:6px;}
+  .field input, .field textarea{width:100%; padding:14px 16px; border-radius:14px; border:2px solid rgba(23,23,23,.12); font-family:inherit; font-size:16px;}
+  .field textarea{min-height:120px; resize:vertical;}
+  .faq-item{background:#fff; border-radius:16px; box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;}
+  .faq-q{width:100%; text-align:left; padding:20px 22px; background:none; border:none; font-family:'Jua',sans-serif; font-size:17px; display:flex; justify-content:space-between; align-items:center;}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .25s ease;}
+  .faq-a p{padding:0 22px 20px; margin:0; color:var(--gray); font-size:15.5px;}
+  .faq-item.open .faq-a{max-height:220px;}
+  .faq-item.open .faq-q .chevron{transform:rotate(180deg);}
+  .chevron{transition:transform .2s ease;}
+
+  /* ===== Footer ===== */
+  footer{background:#111417; color:#cfd4da; padding:56px 0 30px;}
+  footer .wrap{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px;}
+  footer h5{color:#fff; font-family:'Jua',sans-serif; font-size:17px; margin:0 0 14px;}
+  footer a{color:#cfd4da; text-decoration:none; font-size:14.5px;}
+  footer ul{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;}
+  .footer-bottom{border-top:1px solid #2a2f36; margin-top:36px; padding-top:20px; font-size:13px; color:#8991a0;}
+  .footer-mascot img{width:70px; margin-bottom:12px;}
+
+  /* ===== Modals ===== */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(17,17,17,.6); z-index:900; display:none;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:#fff; border-radius:var(--radius-lg); max-width:520px; width:100%; padding:32px; position:relative; max-height:88vh; overflow-y:auto;}
+  .modal-box.wide{max-width:900px;}
+  .modal-close{position:absolute; top:16px; right:18px; background:none; border:none; font-size:26px; line-height:1; color:var(--gray);}
+  .modal-box h3{margin-top:0;}
+  .preview-body img, .preview-body iframe{width:100%; border-radius:14px; border:none; min-height:60vh;}
+
+  /* Admin */
+  .admin-overlay{position:fixed; inset:0; background:#F4F6F8; z-index:950; display:none; overflow-y:auto;}
+  .admin-overlay.show{display:block;}
+  .admin-top{display:flex; justify-content:space-between; align-items:center; padding:20px 32px; background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0;}
+  .admin-body{padding:32px; max-width:1180px; margin:0 auto;}
+  .kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:32px;}
+  .kpi-card{background:#fff; border-radius:18px; padding:22px; box-shadow:var(--shadow);}
+  .kpi-card .kpi-num{font-family:'Jua',sans-serif; font-size:34px; color:var(--blue);}
+  .kpi-card .kpi-label{color:var(--gray); font-size:14.5px;}
+  .admin-panel{background:#fff; border-radius:18px; padding:26px; box-shadow:var(--shadow); margin-bottom:28px;}
+  .admin-panel h3{margin-top:0;}
+  table.admin-table{width:100%; border-collapse:collapse; font-size:15px;}
+  table.admin-table th, table.admin-table td{text-align:left; padding:12px 10px; border-bottom:1px solid #eee;}
+  .status-pill{padding:4px 12px; border-radius:999px; font-size:12.5px; font-family:'Jua',sans-serif;}
+  .status-pending{background:#FFF2D8; color:#B7791F;}
+  .status-completed{background:var(--green-soft); color:var(--green);}
+  .chart-wrap{height:300px;}
+
+  /* ===== Responsive ===== */
+  @media (max-width:980px){
+    nav.main-nav{display:none;}
+    .hamburger{display:flex;}
+    .hero .wrap{grid-template-columns:1fr; text-align:center;}
+    .hero-copy p.lead{margin:0 auto;}
+    .hero-actions, .hero-stats{justify-content:center;}
+    .compare-grid, .two-col, .stat-grid, .icon-steps, .case-grid, .contact-grid{grid-template-columns:1fr;}
+    .map-panel{grid-template-columns:1fr;}
+    .resource-grid{grid-template-columns:repeat(2,1fr);}
+    .signature-panel{grid-template-columns:1fr;}
+    footer .wrap{grid-template-columns:1fr; text-align:left;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    section{padding:60px 0;}
+  }
+  @media (max-width:520px){
+    .resource-grid{grid-template-columns:1fr 1fr;}
+    .section-head h2{font-size:30px;}
+    .kpi-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="wrap nav-row">
+    <a href="#top" class="logo">
+      <img src="assets/images/carton_general.png" alt="종이팩 마스코트">
+      종이팩은 종이가 아니다
+    </a>
+    <nav class="main-nav" aria-label="주 메뉴">
+      <ul>
+        <li><a href="#recycling">종이팩 자원순환</a>
+          <ul class="submenu">
+            <li><a href="#recycling-what">종이팩이란?</a></li>
+            <li><a href="#recycling-stat">재활용현황</a></li>
+            <li><a href="#recycling-data">통계자료</a></li>
+          </ul>
+        </li>
+        <li><a href="#collection">종이팩 수거</a>
+          <ul class="submenu">
+            <li><a href="#collection-exchange">교환사업</a></li>
+            <li><a href="#collection-map">수거정거장</a></li>
+          </ul>
+        </li>
+        <li><a href="#cases">종이팩자원순환 실천사례</a>
+          <ul class="submenu">
+            <li><a href="#case-1">실천사례 1</a></li>
+            <li><a href="#case-2">실천사례 2</a></li>
+            <li><a href="#case-3">실천사례 3</a></li>
+          </ul>
+        </li>
+        <li><a href="#archive">자료실</a>
+          <ul class="submenu">
+            <li><a href="#archive" data-tab="campaign">캠페인물</a></li>
+            <li><a href="#archive" data-tab="report">기록집</a></li>
+            <li><a href="#archive" data-tab="video">관련 영상</a></li>
+          </ul>
+        </li>
+        <li><a href="#contact">문의</a>
+          <ul class="submenu">
+            <li><a href="#contact-form">1:1 문의</a></li>
+            <li><a href="#contact-faq">FAQ</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="mobile-nav" id="mobileNav">
+  <ul>
+    <li><a href="#recycling">종이팩 자원순환</a>
+      <ul class="submenu-mobile">
+        <li><a href="#recycling-what">종이팩이란?</a></li>
+        <li><a href="#recycling-stat">재활용현황</a></li>
+        <li><a href="#recycling-data">통계자료</a></li>
+      </ul>
+    </li>
+    <li><a href="#collection">종이팩 수거</a>
+      <ul class="submenu-mobile">
+        <li><a href="#collection-exchange">교환사업</a></li>
+        <li><a href="#collection-map">수거정거장</a></li>
+      </ul>
+    </li>
+    <li><a href="#cases">종이팩자원순환 실천사례</a></li>
+    <li><a href="#archive">자료실</a></li>
+    <li><a href="#contact">문의</a></li>
+  </ul>
+</div>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <div class="hero-title-card">
+          <img src="assets/images/hero_title.png" alt="종이팩은 종이가 아니다 - 종이팩 재활용에 대해 알아보아요">
+        </div>
+        <p class="lead">우유, 두유, 주스를 담는 종이팩은 겉모습만 종이일 뿐, 속은 PE필름과 알루미늄으로 이루어진 완전히 다른 재질이에요. 그래서 일반 종이류와 따로 분리배출해야 다시 새 자원으로 태어날 수 있어요.</p>
+        <div class="hero-stats">
+          <div class="stat-chip"><b>15.8%</b><span>국내 종이팩 재활용률 (2020)</span></div>
+          <div class="stat-chip"><b>85.1%</b><span>"수거함 있으면 분리배출할래요"</span></div>
+        </div>
+        <div class="hero-actions">
+          <a href="#collection-map" class="btn btn-blue">가까운 수거정거장 찾기</a>
+          <a href="#recycling-what" class="btn btn-outline">종이팩 자세히 알아보기</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img src="assets/images/final_mascot.png" alt="종이팩은 일회용이 아니다 마스코트">
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 종이팩 자원순환 ================= -->
+  <section id="recycling">
+    <div class="wrap">
+
+      <div id="recycling-what">
+        <span class="eyebrow">종이팩 자원순환</span>
+        <div class="section-head">
+          <h2>종이팩이 뭐예요?</h2>
+          <p>우유, 두유, 주스와 같은 액체류를 담는, 종이를 주원료로 한 포장재예요. 크게 일반팩과 멸균팩 두 가지로 나뉘어요.</p>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <span class="tag tag-blue">일반팩 (약 60%)</span>
+            <img src="assets/images/carton_general.png" alt="일반팩 캐릭터">
+            <h3>일반팩 · 살균팩</h3>
+            <p>우유를 담는 데 많이 쓰이는 지붕 모양 용기예요. 원지 안팎에 PE필름이 붙어 있는 3겹 구조예요.</p>
+          </div>
+          <div class="compare-card">
+            <span class="tag tag-orange">멸균팩 (지속 증가)</span>
+            <img src="assets/images/carton_aseptic.png" alt="멸균팩 캐릭터">
+            <h3>멸균팩</h3>
+            <p>두유, 생크림 등을 담는 벽돌 모양 용기예요. 내부에 알루미늄(은박) 코팅이 한 겹 더 있는 5겹 구조예요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:70px"></div>
+
+      <div id="recycling-stat" class="two-col">
+        <div>
+          <span class="eyebrow">재활용현황</span>
+          <h2 style="font-size:32px;">이렇게 좋은 자원인데, 왜 재활용률이 낮을까요?</h2>
+          <p style="color:var(--gray)">종이팩 원지에 사용되는 펄프는 전량 수입에 의존해요 (주로 미국·독일·스칸디나비아). 종이팩을 100% 재활용하면 연간 20년생 나무 130만 그루를 심는 효과가 있지만, 배출할 곳이 마땅치 않거나 선별 과정에서 종이팩만 따로 골라내지 못해 폐기되는 경우가 많아요.</p>
+          <div class="epr-box" style="margin-top:24px;">
+            <img src="assets/images/epr_icon.png" alt="EPR 생산자책임재활용제도 아이콘">
+            <div>
+              <h4>EPR제도 (생산자책임재활용제도)</h4>
+              <p>종이팩은 EPR제도의 재활용 의무 대상 포장재예요. 생산자에게 재활용이 용이한 제품 생산부터 회수·재활용까지 책임 범위를 확대하되, 소비자·지자체·정부가 역할을 나누어 분담하는 체계예요.</p>
+            </div>
+          </div>
+        </div>
+        <div class="poster-figure">
+          <img src="assets/images/posters/poster_04_epr.png" alt="종이팩 재활용률 19%, EPR 대상 포장재 재활용률 비교 그래프">
+          <figcaption>EPR 대상 포장재 재활용률 (2019.12.31 기준) · 출처: 한국순환자원유통지원센터</figcaption>
+        </div>
+      </div>
+
+      <div style="height:70px"></div>
+
+      <div id="recycling-data">
+        <span class="eyebrow">통계자료</span>
+        <div class="section-head">
+          <h2>숫자로 보는 종이팩 이야기</h2>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="num o">15.8%</div>
+            <div class="label">한국의 종이팩 재활용률</div>
+            <div class="src">2020년 종이팩 재활용률 통계, 한국순환자원유통지원센터</div>
+          </div>
+          <div class="stat-card">
+            <div class="num">19%</div>
+            <div class="label">종이팩 EPR 재활용률 (전체 EPR 대상 포장재는 78%)</div>
+            <div class="src">2019.12.31 기준, 한국순환자원유통지원센터 (kora.or.kr/epr)</div>
+          </div>
+          <div class="stat-card">
+            <div class="num" style="color:var(--green);">85.1%</div>
+            <div class="label">"종이팩 전용 수거함이 있으면 분리배출할 것" 응답 비율</div>
+            <div class="src">2021.9 서울환경운동연합 조사 (전국 1,001명 대상)</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;" class="two-col reverse">
+          <div class="poster-figure">
+            <img src="assets/images/posters/poster_06_cycle.png" alt="우리가 바라는 종이팩의 순환 인포그래픽">
+            <figcaption>나무 → 종이팩 생산 → 소비 → 세척·분리배출 → 선별 → 공장 재생 → 화장지, 순환 구조</figcaption>
+          </div>
+          <div>
+            <h3 style="font-size:24px;">종이팩 재활용 의무 이행 실적 (2019년 기준)</h3>
+            <p style="color:var(--gray);">종이팩 출고·수입량 72,272톤 중 재활용 의무량은 22,043톤(의무율 30%)이지만, 실제 재활용량은 13,994톤(재활용률 19%)에 그쳤어요. 의무량에도 못 미치는 수준이에요.</p>
+            <p style="color:var(--gray);">종이팩은 세척 → 분쇄 → 해리(펄프·PE필름 분리) → 약품처리 → 원단 생성 과정을 거쳐 화장지로 다시 태어나요. 멸균팩은 펄프는 핸드타월로, 비닐·알루미늄 잔재물은 펠릿으로 만들어 재활용 플라스틱 제품(파렛트 등)을 생산해요.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 종이팩 수거 ================= -->
+  <section id="collection" class="soft">
+    <div class="wrap">
+      <span class="eyebrow">종이팩 수거</span>
+      <div class="section-head">
+        <h2>종이팩, 이렇게 분리배출해요</h2>
+        <p>종이팩은 물로 헹군 후 펼친 상태로 말려주세요. 깨끗하게 세척하지 않으면 부패하기 쉽고 악취가 심해 재활용이 어려워요.</p>
+      </div>
+
+      <div class="icon-steps">
+        <div class="icon-step">
+          <div class="num-badge">1</div>
+          <img src="assets/images/wash_dry_icons.png" alt="종이팩 세척 및 건조">
+          <h4>헹구고 펼쳐서 말리기</h4>
+          <p>내용물을 비우고 물로 헹군 뒤, 펼친 상태로 완전히 말려주세요.</p>
+        </div>
+        <div class="icon-step">
+          <div class="num-badge">2</div>
+          <img src="assets/images/bin_icon.png" alt="종이팩 전용 수거함">
+          <h4>전용 수거함이 있다면</h4>
+          <p>잘 마른 종이팩을 종이팩 전용 수거함에 배출해주세요.</p>
+        </div>
+        <div class="icon-step">
+          <div class="num-badge">3</div>
+          <img src="assets/images/bundle_icon.png" alt="전용 수거함이 없는 경우 종이팩끼리 묶어서 배출" style="max-width:170px;">
+          <h4>전용 수거함이 없다면</h4>
+          <p>재활용품 배출 시 종이팩끼리 따로 묶어서 배출해주세요.</p>
+        </div>
+      </div>
+
+      <div style="height:60px"></div>
+
+      <div id="collection-exchange" class="exchange-box">
+        <h3>교환사업 안내</h3>
+        <p style="color:var(--gray)">지역에 따라 동 행정복지센터나 구청에서 종이팩을 수거하고, 화장지나 보상포인트로 교환해주는 사업을 진행하고 있어요. 종이팩 전용 수거함을 찾기 어려운 현실 속에서, 이런 교환사업이 좋은 대안이 될 수 있어요.</p>
+        <ul>
+          <li>운영 여부·교환 품목·요일은 지역마다 달라요. 방문 전 관할 행정복지센터·구청에 꼭 문의해주세요.</li>
+          <li>세척 후 완전히 건조한 종이팩만 교환 대상으로 인정하는 곳이 많아요.</li>
+        </ul>
+      </div>
+
+      <div id="collection-map" class="map-panel">
+        <div>
+          <h3 style="margin-top:0;">수거정거장 찾기 (샘플)</h3>
+          <select class="region-select" id="regionSelect">
+            <option value="전체">전체 지역</option>
+            <option value="서울">서울</option>
+            <option value="광주">광주</option>
+            <option value="부산">부산</option>
+            <option value="대전">대전</option>
+            <option value="경기">경기</option>
+          </select>
+          <div class="map-filters" id="catFilters">
+            <button class="chip active" data-cat="전체" type="button">전체</button>
+            <button class="chip" data-cat="행정복지센터" type="button">행정복지센터</button>
+            <button class="chip" data-cat="제로웨이스트샵" type="button">제로웨이스트샵</button>
+            <button class="chip" data-cat="수거함" type="button">수거함</button>
+          </div>
+          <svg class="svg-map" viewBox="0 0 300 340" id="krMap">
+            <path d="M120 20 L180 20 L200 60 L190 110 L210 150 L190 200 L200 250 L170 300 L140 320 L110 300 L90 260 L100 210 L80 160 L95 100 L90 60 Z"
+                  fill="#ffffff" stroke="#00A2E9" stroke-width="3"/>
+            <circle cx="150" cy="70" r="9" fill="#00A2E9" data-region="서울"></circle>
+            <circle cx="150" cy="150" r="9" fill="#08A44D" data-region="대전"></circle>
+            <circle cx="120" cy="220" r="9" fill="#FC5C2C" data-region="광주"></circle>
+            <circle cx="175" cy="240" r="9" fill="#00A2E9" data-region="부산" transform="translate(0,20)"></circle>
+            <circle cx="160" cy="95" r="9" fill="#08A44D" data-region="경기"></circle>
+          </svg>
+          <p class="map-note">* 실제 서비스에서는 카카오맵/구글지도 API 연동 예정이며, 현재는 샘플 데이터로 구성된 데모 지도예요.</p>
+        </div>
+        <div>
+          <h4 style="margin-top:0;">검색 결과 <span id="resultCount"></span></h4>
+          <ul class="point-list" id="pointList"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 실천사례 ================= -->
+  <section id="cases">
+    <div class="wrap">
+      <span class="eyebrow">종이팩자원순환 실천사례</span>
+      <div class="section-head">
+        <h2>먼저 실천하고 있는 사람들</h2>
+        <p>종이팩 자원순환을 위해 목소리를 내고 실천해온 사례들을 소개해요.</p>
+      </div>
+      <div class="case-grid">
+        <div class="case-card" id="case-1">
+          <div class="thumb"><img src="assets/images/carton_general.png" alt="카페라떼클럽"></div>
+          <div class="body">
+            <h3>실천사례 1 · 카페라떼클럽</h3>
+            <p>"종이팩은 종이가 아니다" 교육자료의 기획·컨텐츠 제작에 함께한 멸종위기 캠페인팀이에요. 종이팩 분리배출의 필요성을 알기 쉬운 인포그래픽으로 만들어 시민들에게 전하고 있어요.</p>
+            <p class="note">출처: 종이팩 재활용 교육자료 크레딧</p>
+          </div>
+        </div>
+        <div class="case-card" id="case-2">
+          <div class="thumb"><img src="assets/images/carton_aseptic.png" alt="알맹상점"></div>
+          <div class="body">
+            <h3>실천사례 2 · 알맹상점</h3>
+            <p>포장재 없는 소비를 실험해온 제로웨이스트 상점으로, 종이팩을 포함한 자원순환 교육자료 제작에 함께했어요. 매장을 통해 분리배출 실천 방법을 직접 안내하고 있어요.</p>
+            <p class="note">출처: 종이팩 재활용 교육자료 크레딧</p>
+          </div>
+        </div>
+        <div class="case-card" id="case-3">
+          <div class="thumb"><img src="assets/images/bin_icon.png" alt="아파트 단지 실천 예시"></div>
+          <div class="body">
+            <h3>실천사례 3 · 아파트 단지 자치 분리수거 (예시)</h3>
+            <p>일부 아파트 단지에서는 관리사무소와 주민이 함께 종이팩 전용 수거함을 자체적으로 마련하고, 분리배출 안내문을 게시해 참여율을 높이는 자치 활동이 늘고 있어요.</p>
+            <p class="note">※ 특정 단지의 실제 사례가 아닌, 실천 유형을 소개하는 예시예요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="signature-panel">
+        <div>
+          <h3>종이팩 수거함, 목소리를 모아주세요</h3>
+          <p>종이팩 전용 수거함을 늘리는 데 힘을 보태고 싶다면, 캠페인 서명에 참여해주세요.</p>
+          <div class="sign-count"><span id="signCount">0</span>명 참여</div>
+        </div>
+        <form class="sign-form" id="signForm">
+          <input type="text" id="signName" placeholder="이름 또는 닉네임" required>
+          <textarea id="signMsg" placeholder="응원 메시지 (선택)"></textarea>
+          <button class="btn btn-orange" type="submit">서명 참여하기</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 자료실 ================= -->
+  <section id="archive" class="soft">
+    <div class="wrap">
+      <span class="eyebrow">자료실</span>
+      <div class="section-head">
+        <h2>캠페인 자료를 확인해보세요</h2>
+        <p>미리보기 후 다운로드할 수 있어요.</p>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="campaign" type="button">캠페인물</button>
+        <button class="tab-btn" data-tab="report" type="button">기록집</button>
+        <button class="tab-btn" data-tab="video" type="button">관련 영상</button>
+      </div>
+      <div class="resource-grid" id="resourceGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= 문의 ================= -->
+  <section id="contact">
+    <div class="wrap">
+      <span class="eyebrow">문의</span>
+      <div class="section-head">
+        <h2>궁금한 점을 남겨주세요</h2>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-form" id="contact-form">
+          <h3 style="margin-top:0;">1:1 문의</h3>
+          <form id="inquiryForm">
+            <div class="field"><label>이름</label><input type="text" id="inqName" required></div>
+            <div class="field"><label>이메일</label><input type="email" id="inqEmail" required></div>
+            <div class="field"><label>문의 내용</label><textarea id="inqMsg" required></textarea></div>
+            <button class="btn btn-blue" type="submit" style="width:100%;">문의 접수하기</button>
+          </form>
+        </div>
+        <div id="contact-faq">
+          <h3 style="margin-top:0;">FAQ</h3>
+          <div class="faq-item">
+            <button class="faq-q">종이팩도 그냥 종이류에 버리면 안 되나요? <span class="chevron">▾</span></button>
+            <div class="faq-a"><p>안 돼요. 종이팩은 원지 안팎에 PE필름(멸균팩은 알루미늄까지)이 붙어있어 일반 종이와 재활용 공정이 완전히 달라요. 종이류에 섞이면 오히려 두 재질 모두 재활용이 어려워져요.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">우리 동네에 종이팩 수거함이 없어요. 어떻게 하나요? <span class="chevron">▾</span></button>
+            <div class="faq-a"><p>재활용품 배출일에 종이팩끼리 따로 묶어서 배출해주세요. 또한 동 행정복지센터·구청의 교환사업을 확인하거나, 위 지도에서 가까운 제로웨이스트샵을 찾아보세요.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">일반팩과 멸균팩을 같이 배출해도 되나요? <span class="chevron">▾</span></button>
+            <div class="faq-a"><p>네, 세척·건조가 되어 있다면 종이팩류로 함께 배출해도 괜찮아요. 다만 가능하면 별도 안내가 있는 지자체 기준을 따라주세요.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">종이팩을 재활용하면 무엇이 되나요? <span class="chevron">▾</span></button>
+            <div class="faq-a"><p>세척 → 해리 → 약품처리 과정을 거쳐 화장지 원단이 돼요. 멸균팩은 펄프는 핸드타월로, 비닐·알루미늄은 펠릿으로 만들어져 파렛트 등 재활용 플라스틱 제품으로 재탄생해요.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="footer-mascot">
+      <img src="assets/images/carton_general.png" alt="종이팩 마스코트">
+      <p style="color:#fff; font-family:'Jua',sans-serif; font-size:18px; margin:0 0 8px;">종이팩은 종이가 아니다</p>
+      <p style="font-size:14px; max-width:320px;">그냥 버려지는 종이팩이 없도록, 제대로 된 종이팩 재활용을 위해 함께 목소리를 높여주세요.</p>
+    </div>
+    <div>
+      <h5>바로가기</h5>
+      <ul>
+        <li><a href="#recycling">종이팩 자원순환</a></li>
+        <li><a href="#collection">종이팩 수거</a></li>
+        <li><a href="#cases">실천사례</a></li>
+        <li><a href="#archive">자료실</a></li>
+        <li><a href="#contact">문의</a></li>
+        <li><a href="#" id="footerAdminBtn">관리자</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>자료 출처</h5>
+      <ul>
+        <li>종이팩 재활용 교육자료 (누구나 사용가능)</li>
+        <li>기획·컨텐츠: 카페라떼클럽, 알맹상점</li>
+        <li>디자인: 어라운드랩</li>
+        <li>지원: (재)숲과나눔 풀꽃 사업</li>
+        <li>통계: 한국순환자원유통지원센터 (kora.or.kr/epr)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    ⓒ 종이팩은 종이가 아니다 캠페인. 본 사이트는 교육 목적의 데모 페이지이며, 수거정거장 지도 데이터는 샘플입니다.
+  </div>
+</footer>
+
+<!-- ================= PREVIEW MODAL ================= -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-box wide">
+    <button class="modal-close" data-close>&times;</button>
+    <h3 id="previewTitle"></h3>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</div>
+
+<!-- ================= ADMIN PASSWORD MODAL ================= -->
+<div class="modal-overlay" id="adminAuthModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close>&times;</button>
+    <h3>관리자 인증</h3>
+    <p style="color:var(--gray);">관리자 대시보드에 입장하려면 비밀번호를 입력해주세요.</p>
+    <div class="field"><input type="password" id="adminPassInput" placeholder="비밀번호"></div>
+    <p id="adminAuthError" style="color:var(--orange); font-size:14px; display:none;">비밀번호가 올바르지 않아요.</p>
+    <button class="btn btn-blue" id="adminAuthSubmit" style="width:100%;">입장하기</button>
+  </div>
+</div>
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-top">
+    <div class="logo"><img src="assets/images/carton_general.png" alt="로고" style="height:32px;">관리자 대시보드</div>
+    <button class="btn btn-ghost btn-sm" id="closeAdminBtn">사이트로 돌아가기</button>
+  </div>
+  <div class="admin-body">
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-num" id="kpiDownloads">0</div><div class="kpi-label">총 자료 다운로드 수</div></div>
+      <div class="kpi-card"><div class="kpi-num" id="kpiSignatures">0</div><div class="kpi-label">서명 참여자 수</div></div>
+      <div class="kpi-card"><div class="kpi-num" id="kpiInquiries">0</div><div class="kpi-label">문의 접수 건수</div></div>
+      <div class="kpi-card"><div class="kpi-num" id="kpiBins">12</div><div class="kpi-label">등록 수거함 수 (샘플)</div></div>
+    </div>
+
+    <div class="admin-panel">
+      <h3>자료별 다운로드 현황</h3>
+      <div class="chart-wrap"><canvas id="downloadChart"></canvas></div>
+    </div>
+
+    <div class="admin-panel">
+      <h3>1:1 문의 내역</h3>
+      <table class="admin-table">
+        <thead><tr><th>이름</th><th>이메일</th><th>내용</th><th>접수일</th><th>상태</th><th></th></tr></thead>
+        <tbody id="inquiryTableBody"></tbody>
+      </table>
+      <p id="inquiryEmpty" style="color:var(--gray);">아직 접수된 문의가 없어요.</p>
+    </div>
+
+    <div class="admin-panel">
+      <h3>캠페인 서명 목록</h3>
+      <table class="admin-table">
+        <thead><tr><th>이름</th><th>메시지</th><th>참여일</th></tr></thead>
+        <tbody id="signatureTableBody"></tbody>
+      </table>
+      <p id="signatureEmpty" style="color:var(--gray);">아직 참여한 서명이 없어요.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Utilities ---------- */
+  const $ = (sel, ctx) => (ctx||document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.from((ctx||document).querySelectorAll(sel));
+  const fmtDate = (d) => new Date(d).toLocaleString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const uid = () => Math.random().toString(36).slice(2,10);
+
+  function load(key, fallback){
+    try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; }
+  }
+  function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+  /* ---------- Mobile nav ---------- */
+  const hamburgerBtn = $('#hamburgerBtn');
+  const mobileNav = $('#mobileNav');
+  hamburgerBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
+  $$('#mobileNav a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('open')));
+
+  /* ---------- Smooth scroll (native handles most via CSS scroll-behavior; ensure offset for sticky header) ---------- */
+  document.addEventListener('click', function(e){
+    const a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    const id = a.getAttribute('href');
+    if(id.length < 2) return;
+    const target = document.querySelector(id);
+    if(!target) return;
+    e.preventDefault();
+    const headerH = document.querySelector('header').offsetHeight;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerH - 12;
+    window.scrollTo({top, behavior:'smooth'});
+    if(a.dataset.tab){ setTimeout(()=>selectArchiveTab(a.dataset.tab), 350); }
+  });
+
+  /* ================= 자료실 (Resource Archive) ================= */
+  const defaultResources = [
+    {id:'c1', category:'campaign', title:'종이팩은 종이가 아니다 (타이틀 포스터)', description:'캠페인 대표 타이틀 이미지', fileUrl:'assets/images/posters/poster_01_title.png', previewUrl:'assets/images/posters/poster_01_title.png', downloadCount:0},
+    {id:'c2', category:'campaign', title:'종이팩, 재활용이 되나요?', description:'분리배출 안내 포스터', fileUrl:'assets/images/posters/poster_02_recyclable.png', previewUrl:'assets/images/posters/poster_02_recyclable.png', downloadCount:0},
+    {id:'c3', category:'campaign', title:'종이팩 재활용률 15.8%의 진실', description:'통계 인포그래픽 포스터', fileUrl:'assets/images/posters/poster_03_stat158.png', previewUrl:'assets/images/posters/poster_03_stat158.png', downloadCount:0},
+    {id:'c4', category:'campaign', title:'EPR 생산자책임재활용제도', description:'제도 안내 포스터', fileUrl:'assets/images/posters/poster_04_epr.png', previewUrl:'assets/images/posters/poster_04_epr.png', downloadCount:0},
+    {id:'c5', category:'campaign', title:'우리는 준비되어 있어요 85.1%', description:'시민 인식조사 포스터', fileUrl:'assets/images/posters/poster_05_stat851.png', previewUrl:'assets/images/posters/poster_05_stat851.png', downloadCount:0},
+    {id:'c6', category:'campaign', title:'우리가 바라는 종이팩의 순환', description:'순환 구조 인포그래픽', fileUrl:'assets/images/posters/poster_06_cycle.png', previewUrl:'assets/images/posters/poster_06_cycle.png', downloadCount:0},
+    {id:'c7', category:'campaign', title:'우리의 바람', description:'이해관계자별 실천 안내', fileUrl:'assets/images/posters/poster_07_wish.png', previewUrl:'assets/images/posters/poster_07_wish.png', downloadCount:0},
+    {id:'c8', category:'campaign', title:'종이팩은 일회용이 아니다!', description:'캠페인 마무리 포스터', fileUrl:'assets/images/posters/poster_08_final.png', previewUrl:'assets/images/posters/poster_08_final.png', downloadCount:0},
+    {id:'r1', category:'report', title:'종이팩 재활용 교육자료 (전체 PDF)', description:'카페라떼클럽·알맹상점 기획, 어라운드랩 디자인', fileUrl:'assets/docs/종이팩_재활용_교육자료.pdf', previewUrl:'assets/images/posters/poster_01_title.png', downloadCount:0}
+  ];
+  let resources = load('ppak_resources', null);
+  if(!resources){ resources = defaultResources; save('ppak_resources', resources); }
+  else {
+    // merge in any new default items not present (keeps counts for existing)
+    defaultResources.forEach(d => { if(!resources.find(r=>r.id===d.id)) resources.push(d); });
+  }
+
+  let activeTab = 'campaign';
+  function selectArchiveTab(tab){
+    activeTab = tab;
+    $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+    renderResources();
+  }
+  $$('.tab-btn').forEach(b => b.addEventListener('click', () => selectArchiveTab(b.dataset.tab)));
+
+  function renderResources(){
+    const grid = $('#resourceGrid');
+    grid.innerHTML = '';
+    const items = resources.filter(r => r.category === activeTab);
+    if(activeTab === 'video'){
+      grid.innerHTML = '<div class="empty-video">🎬 관련 영상은 준비 중이에요. 캠페인 영상이 업로드되면 이 곳에서 확인할 수 있어요.</div>';
+      return;
+    }
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'res-card';
+      card.innerHTML = `
+        <div class="res-thumb" data-preview="${item.id}"><img src="${item.previewUrl}" alt="${item.title}"></div>
+        <div class="res-body">
+          <h4>${item.title}</h4>
+          <div class="count">다운로드 ${item.downloadCount}회</div>
+          <div class="res-actions">
+            <button class="btn btn-ghost" data-preview="${item.id}" type="button">미리보기</button>
+            <button class="btn btn-blue" data-download="${item.id}" type="button">다운로드</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+  renderResources();
+
+  document.addEventListener('click', function(e){
+    const pv = e.target.closest('[data-preview]');
+    if(pv){
+      const item = resources.find(r => r.id === pv.dataset.preview);
+      if(item) openPreview(item);
+    }
+    const dl = e.target.closest('[data-download]');
+    if(dl){
+      const item = resources.find(r => r.id === dl.dataset.download);
+      if(item) doDownload(item);
+    }
+  });
+
+  function openPreview(item){
+    $('#previewTitle').textContent = item.title;
+    const body = $('#previewBody');
+    if(item.fileUrl.endsWith('.pdf')){
+      body.innerHTML = `<iframe src="${item.previewUrl === item.fileUrl ? item.fileUrl : item.fileUrl}"></iframe>`;
+      // Try to preview the PDF itself
+      body.innerHTML = `<iframe src="${item.fileUrl}"></iframe>`;
+    } else {
+      body.innerHTML = `<img src="${item.previewUrl}" alt="${item.title}">`;
+    }
+    $('#previewModal').classList.add('show');
+  }
+
+  function doDownload(item){
+    item.downloadCount = (item.downloadCount||0) + 1;
+    save('ppak_resources', resources);
+    renderResources();
+    refreshAdminIfOpen();
+    const a = document.createElement('a');
+    a.href = item.fileUrl;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  /* ---------- Modal close handlers ---------- */
+  $$('.modal-overlay [data-close]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.modal-overlay').classList.remove('show'));
+  });
+  $$('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', (e) => { if(e.target === ov) ov.classList.remove('show'); });
+  });
+
+  /* ================= 수거정거장 지도 ================= */
+  const samplePoints = [
+    {name:'광산구 행정복지센터 종이팩 교환소', region:'광주', cat:'행정복지센터'},
+    {name:'알맹상점 망원점', region:'서울', cat:'제로웨이스트샵'},
+    {name:'용산구 종이팩 전용 수거함 (아파트 단지)', region:'서울', cat:'수거함'},
+    {name:'유성구 행정복지센터 화장지 교환사업', region:'대전', cat:'행정복지센터'},
+    {name:'해운대구 종이팩 수거함', region:'부산', cat:'수거함'},
+    {name:'수원 제로웨이스트샵 알맹상점 분점', region:'경기', cat:'제로웨이스트샵'},
+    {name:'서구 행정복지센터', region:'광주', cat:'행정복지센터'},
+    {name:'분당구 아파트 단지 종이팩함', region:'경기', cat:'수거함'}
+  ];
+  let mapRegion = '전체', mapCat = '전체';
+  function renderPoints(){
+    const list = $('#pointList');
+    const filtered = samplePoints.filter(p => (mapRegion==='전체'||p.region===mapRegion) && (mapCat==='전체'||p.cat===mapCat));
+    $('#resultCount').textContent = `(${filtered.length}건)`;
+    list.innerHTML = filtered.map(p => {
+      const catClass = p.cat==='행정복지센터'?'cat-center':(p.cat==='제로웨이스트샵'?'cat-shop':'cat-bin');
+      return `<li><b>${p.name}</b>${p.region}<span class="pcat ${catClass}">${p.cat}</span></li>`;
+    }).join('') || '<li>조건에 맞는 수거정거장이 없어요.</li>';
+  }
+  $('#regionSelect').addEventListener('change', e => { mapRegion = e.target.value; renderPoints(); });
+  $$('#catFilters .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      $$('#catFilters .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      mapCat = chip.dataset.cat;
+      renderPoints();
+    });
+  });
+  $$('#krMap circle').forEach(c => {
+    c.addEventListener('click', () => {
+      mapRegion = c.dataset.region;
+      $('#regionSelect').value = mapRegion;
+      renderPoints();
+    });
+  });
+  renderPoints();
+
+  /* ================= 서명 참여 ================= */
+  let signatures = load('ppak_signatures', []);
+  function renderSignCount(){ $('#signCount').textContent = signatures.length; }
+  renderSignCount();
+  $('#signForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = $('#signName').value.trim();
+    const msg = $('#signMsg').value.trim();
+    if(!name) return;
+    signatures.push({id:uid(), name, message:msg, createdAt:new Date().toISOString()});
+    save('ppak_signatures', signatures);
+    renderSignCount();
+    refreshAdminIfOpen();
+    $('#signForm').reset();
+    alert('서명해주셔서 감사해요! 함께 목소리를 높여주셔서 고마워요.');
+  });
+
+  /* ================= FAQ 아코디언 ================= */
+  $$('.faq-item .faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      $$('.faq-item').forEach(i => i.classList.remove('open'));
+      if(!wasOpen) item.classList.add('open');
+    });
+  });
+
+  /* ================= 1:1 문의 ================= */
+  let inquiries = load('ppak_inquiries', []);
+  $('#inquiryForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = $('#inqName').value.trim();
+    const email = $('#inqEmail').value.trim();
+    const message = $('#inqMsg').value.trim();
+    if(!name || !email || !message) return;
+    inquiries.push({id:uid(), name, email, message, createdAt:new Date().toISOString(), status:'pending'});
+    save('ppak_inquiries', inquiries);
+    refreshAdminIfOpen();
+    $('#inquiryForm').reset();
+    alert('문의가 접수되었어요. 빠르게 확인 후 답변드릴게요.');
+  });
+
+  /* ================= 관리자 대시보드 ================= */
+  const ADMIN_PASSWORD = '1234';
+  const adminAuthModal = $('#adminAuthModal');
+  const adminOverlay = $('#adminOverlay');
+  let downloadChartInstance = null;
+
+  function openAdminAuth(e){
+    if(e) e.preventDefault();
+    $('#adminPassInput').value = '';
+    $('#adminAuthError').style.display = 'none';
+    adminAuthModal.classList.add('show');
+    mobileNav.classList.remove('open');
+    setTimeout(()=>$('#adminPassInput').focus(), 100);
+  }
+  $('#footerAdminBtn').addEventListener('click', openAdminAuth);
+
+  function tryAdminLogin(){
+    if($('#adminPassInput').value === ADMIN_PASSWORD){
+      adminAuthModal.classList.remove('show');
+      openAdminDashboard();
+    } else {
+      $('#adminAuthError').style.display = 'block';
+    }
+  }
+  $('#adminAuthSubmit').addEventListener('click', tryAdminLogin);
+  $('#adminPassInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryAdminLogin(); });
+
+  $('#closeAdminBtn').addEventListener('click', () => adminOverlay.classList.remove('show'));
+
+  function openAdminDashboard(){
+    adminOverlay.classList.add('show');
+    renderAdmin();
+  }
+  function refreshAdminIfOpen(){
+    if(adminOverlay.classList.contains('show')) renderAdmin();
+  }
+
+  function renderAdmin(){
+    resources = load('ppak_resources', resources);
+    inquiries = load('ppak_inquiries', []);
+    signatures = load('ppak_signatures', []);
+
+    const totalDownloads = resources.reduce((s,r) => s + (r.downloadCount||0), 0);
+    $('#kpiDownloads').textContent = totalDownloads;
+    $('#kpiSignatures').textContent = signatures.length;
+    $('#kpiInquiries').textContent = inquiries.length;
+
+    // Chart
+    const ctx = $('#downloadChart');
+    const labels = resources.map(r => r.title.length>14 ? r.title.slice(0,14)+'…' : r.title);
+    const data = resources.map(r => r.downloadCount||0);
+    if(downloadChartInstance) downloadChartInstance.destroy();
+    downloadChartInstance = new Chart(ctx, {
+      type:'bar',
+      data:{ labels, datasets:[{ label:'다운로드 수', data, backgroundColor:'#00A2E9', borderRadius:8 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{ y:{ beginAtZero:true, ticks:{precision:0} }, x:{ ticks:{autoSkip:false, maxRotation:60, minRotation:30} } }
+      }
+    });
+
+    // Inquiry table
+    const tbody = $('#inquiryTableBody');
+    tbody.innerHTML = '';
+    $('#inquiryEmpty').style.display = inquiries.length ? 'none' : 'block';
+    inquiries.slice().reverse().forEach(inq => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${inq.name}</td>
+        <td>${inq.email}</td>
+        <td>${inq.message.length>30?inq.message.slice(0,30)+'…':inq.message}</td>
+        <td>${fmtDate(inq.createdAt)}</td>
+        <td><span class="status-pill ${inq.status==='completed'?'status-completed':'status-pending'}">${inq.status==='completed'?'완료':'대기중'}</span></td>
+        <td><button class="btn btn-ghost btn-sm" data-toggle-inquiry="${inq.id}">상태 변경</button></td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Signature table
+    const sbody = $('#signatureTableBody');
+    sbody.innerHTML = '';
+    $('#signatureEmpty').style.display = signatures.length ? 'none' : 'block';
+    signatures.slice().reverse().forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${s.name}</td><td>${s.message||'-'}</td><td>${fmtDate(s.createdAt)}</td>`;
+      sbody.appendChild(tr);
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    const t = e.target.closest('[data-toggle-inquiry]');
+    if(!t) return;
+    const inq = inquiries.find(i => i.id === t.dataset.toggleInquiry);
+    if(inq){
+      inq.status = inq.status === 'completed' ? 'pending' : 'completed';
+      save('ppak_inquiries', inquiries);
+      renderAdmin();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
