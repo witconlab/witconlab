@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>종이팩은 종이가 아니다 | 종이팩 자원순환 캠페인</title>
 <meta name="description" content="종이팩(일반팩·멸균팩)은 일반 종이류와 달라 별도로 분리배출해야 해요. 종이팩 자원순환 캠페인 사이트.">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
@@ -48,7 +48,9 @@
     background:var(--paper);
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
   }
+  a, button{touch-action:manipulation;}
   h1,h2,h3,h4{font-weight:800; line-height:1.35; margin:0;}
   img{max-width:100%; display:block;}
   a{color:inherit; text-decoration:none;}
@@ -84,32 +86,29 @@
 
   /* ===== Header ===== */
   header{
-    position:sticky; top:0; z-index:500; background:rgba(255,255,255,.95); backdrop-filter:blur(8px);
-    border-bottom:1px solid #EAEDF1;
+    position:sticky; top:0; z-index:500; background:rgba(255,255,255,.97); backdrop-filter:blur(8px);
+    border-bottom:1px solid #EAEDF1; padding-top:env(safe-area-inset-top);
   }
-  .nav-row{display:flex; align-items:center; justify-content:space-between; height:76px;}
-  .logo{display:flex; align-items:center; gap:10px; font-size:19px; font-weight:800;}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; height:68px;}
+  .logo{display:flex; align-items:center; gap:10px; font-size:18px; font-weight:800; flex:none;}
   .logo .logo-icon{
-    width:36px; height:36px; border-radius:50%; background:var(--teal-soft); color:var(--teal);
-    display:flex; align-items:center; justify-content:center; font-size:19px; flex:none;
+    width:34px; height:34px; border-radius:50%; background:var(--teal-soft); color:var(--teal);
+    display:flex; align-items:center; justify-content:center; font-size:18px; flex:none;
   }
   .logo .accent{color:var(--teal);}
-  nav.main-nav > ul{display:flex; list-style:none; margin:0; padding:0; gap:30px;}
-  nav.main-nav > ul > li > a{font-size:15.5px; font-weight:600; color:var(--ink); padding:8px 0;}
-  nav.main-nav > ul > li > a:hover{color:var(--teal);}
-  .header-actions{display:flex; align-items:center; gap:14px;}
+  .header-actions{display:flex; align-items:center; gap:14px; flex:none;}
   .header-cta{white-space:nowrap;}
-  .hamburger{display:none; flex-direction:column; gap:5px; background:none; border:none; padding:8px;}
-  .hamburger span{width:26px; height:3px; background:var(--ink); border-radius:3px;}
 
-  /* mobile nav */
-  .mobile-nav{
-    display:none; position:fixed; top:76px; right:0; bottom:0; left:0; background:#fff; z-index:499; padding:20px 24px;
-    overflow-y:auto;
+  /* Always-exposed tab bar (no hamburger, no hidden overlay — works the same on web & app viewports) */
+  .tab-row{border-top:1px solid #EEF1F5;}
+  .tab-row .wrap{overflow-x:auto; -ms-overflow-style:none; scrollbar-width:none;}
+  .tab-row .wrap::-webkit-scrollbar{display:none;}
+  nav.main-nav > ul{display:flex; list-style:none; margin:0; padding:0; gap:4px; white-space:nowrap; width:max-content; min-width:100%; justify-content:center;}
+  nav.main-nav > ul > li > a{
+    display:block; font-size:14.5px; font-weight:700; color:var(--gray); padding:13px 16px;
+    border-bottom:3px solid transparent; transition:color .15s ease, border-color .15s ease;
   }
-  .mobile-nav.open{display:block;}
-  .mobile-nav ul{list-style:none; margin:0; padding:0;}
-  .mobile-nav > ul > li > a{display:block; padding:16px 4px; font-size:19px; font-weight:700; border-bottom:1px solid var(--gray-soft);}
+  nav.main-nav > ul > li > a:hover, nav.main-nav > ul > li > a.active{color:var(--teal); border-bottom-color:var(--teal);}
 
   /* ===== Hero ===== */
   .hero{padding:64px 0; background:linear-gradient(180deg, #F0FBF8 0%, #FFFFFF 100%);}
@@ -327,8 +326,7 @@
 
   /* ===== Responsive ===== */
   @media (max-width:980px){
-    nav.main-nav{display:none;}
-    .hamburger{display:flex;}
+    nav.main-nav > ul{justify-content:flex-start;}
     .hero .wrap{grid-template-columns:1fr;}
     .hero-copy p.lead{margin-left:auto; margin-right:auto;}
     .compare-pane-grid, .two-col, .icon-steps, .case-grid, .contact-grid, .signature-band > .wrap-inner{grid-template-columns:1fr;}
@@ -357,33 +355,25 @@
       <span class="logo-icon">♻️</span>
       종이팩은 <span class="accent">종이가 아니다</span>
     </a>
-    <nav class="main-nav" aria-label="주 메뉴">
-      <ul>
-        <li><a href="#recycling-what">종이팩이란?</a></li>
-        <li><a href="#recycling-data">재활용통계</a></li>
-        <li><a href="#collection-map">수거지도</a></li>
-        <li><a href="#archive">캠페인자료실</a></li>
-        <li><a href="#signature">서명참여</a></li>
-      </ul>
-    </nav>
     <div class="header-actions">
       <a href="#archive" class="btn btn-green btn-sm header-cta">자료 다운로드</a>
-      <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
-        <span></span><span></span><span></span>
-      </button>
+    </div>
+  </div>
+  <div class="tab-row">
+    <div class="wrap">
+      <nav class="main-nav" aria-label="주 메뉴">
+        <ul>
+          <li><a href="#recycling-what">종이팩이란?</a></li>
+          <li><a href="#recycling-data">재활용통계</a></li>
+          <li><a href="#collection-map">수거지도</a></li>
+          <li><a href="#archive">캠페인자료실</a></li>
+          <li><a href="#signature">서명참여</a></li>
+          <li><a href="#contact">문의</a></li>
+        </ul>
+      </nav>
     </div>
   </div>
 </header>
-<div class="mobile-nav" id="mobileNav">
-  <ul>
-    <li><a href="#recycling-what">종이팩이란?</a></li>
-    <li><a href="#recycling-data">재활용통계</a></li>
-    <li><a href="#collection-map">수거지도</a></li>
-    <li><a href="#archive">캠페인자료실</a></li>
-    <li><a href="#signature">서명참여</a></li>
-    <li><a href="#contact">문의</a></li>
-  </ul>
-</div>
 
 <main id="top">
 
@@ -855,12 +845,6 @@
   }
   function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
 
-  /* ---------- Mobile nav ---------- */
-  const hamburgerBtn = $('#hamburgerBtn');
-  const mobileNav = $('#mobileNav');
-  hamburgerBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
-  $$('#mobileNav a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('open')));
-
   /* ---------- Smooth scroll ---------- */
   document.addEventListener('click', function(e){
     const a = e.target.closest('a[href^="#"]');
@@ -874,6 +858,22 @@
     const top = target.getBoundingClientRect().top + window.scrollY - headerH - 12;
     window.scrollTo({top, behavior:'smooth'});
   });
+
+  /* ---------- Tab-bar scroll-spy (highlights the section currently in view) ---------- */
+  const navLinks = $$('.main-nav a[href^="#"]');
+  const spySections = navLinks
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+  if(spySections.length){
+    const spyObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(!entry.isIntersecting) return;
+        const id = '#' + entry.target.id;
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+      });
+    }, {rootMargin:'-45% 0px -50% 0px'});
+    spySections.forEach(s => spyObserver.observe(s));
+  }
 
   /* ================= 자료실 (Resource Archive) ================= */
   const defaultResources = [
@@ -1159,7 +1159,6 @@
     $('#adminPassInput').value = '';
     $('#adminAuthError').style.display = 'none';
     adminAuthModal.classList.add('show');
-    mobileNav.classList.remove('open');
     setTimeout(()=>$('#adminPassInput').focus(), 100);
   }
   $('#footerAdminBtn').addEventListener('click', openAdminAuth);
