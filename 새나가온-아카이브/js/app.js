@@ -355,8 +355,11 @@
 
     <section class="section"><div class="wrap center">
       <p class="eyebrow">함께하는 이웃</p>
-      <h2 class="section-title" style="margin-bottom:28px">마을 곳곳의 단체·기관과 함께해요</h2>
-      <div class="partners">${PARTNERS.map(p => `<span class="partner">${esc(p)}</span>`).join('')}</div>
+      <h2 class="section-title">마을 곳곳의 단체·기관과 함께해요</h2>
+      <p class="section-lead">새나가온은 혼자 하지 않아요. 치평동의 작은도서관, 마을공동체, 동네 모임 17곳이 서로 이어져 함께 알리고, 함께 만들어요.</p>
+      <div class="network" id="network">
+        <div class="partners">${PARTNERS.map(p => `<span class="partner">${esc(p)}</span>`).join('')}</div>
+      </div>
     </div></section>
 
     <section class="section"><div class="wrap">
@@ -665,7 +668,7 @@
   /* ---------- router ---------- */
   const ROUTES = {
     home: [pageHome],
-    about: [pageAbout],
+    about: [pageAbout, () => window.renderNetwork && window.renderNetwork(document.getElementById('network'))],
     tools: [pageTools, afterTools],
     activities: [pageActivities, afterActivities],
     apply: [pageApply, afterApply]
