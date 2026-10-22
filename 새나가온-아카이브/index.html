@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>새나가온 · 우리 집은 다정하게 우리 마을은 평등하게</title>
+<meta name="description" content="광주 서구 치평동 마을공동체 새나가온의 성평등 활동 아카이브. 성평등 교구와 그림책, 가족캠프 기록, 책상자 체험단 신청.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#home" class="logo" aria-label="새나가온 홈">
+      <span class="logo-mark" id="logo-mark"></span>
+      <span class="logo-text">새나가온</span>
+    </a>
+    <nav class="tabs" aria-label="주요 메뉴">
+      <a href="#about" data-route="about">새나가온이란?</a>
+      <a href="#tools" data-route="tools">교구 소개</a>
+      <a href="#activities" data-route="activities">활동 소개</a>
+      <a href="#apply" data-route="apply" class="tab-cta">책상자 신청</a>
+    </nav>
+  </div>
+</header>
+
+<main id="app" tabindex="-1"></main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-sns" id="footer-sns"></div>
+    <strong class="footer-name">새나가온</strong>
+    <p class="footer-motto">우리 집은 다정하게, 우리 마을은 평등하게</p>
+    <div class="footer-info">
+      <p>광주광역시 서구 상무평화로 62 라인동산상가 1동 302호</p>
+      <p>문의 <a id="footer-mail" href="#"></a></p>
+      <p class="footer-small">2026 광주광역시 여성친화마을 조성 공모 선정사업 · 마을 성평등 실천 확산 프로젝트</p>
+    </div>
+  </div>
+</footer>
+
+<a href="#apply" class="float-cta" id="float-cta">
+  <span class="float-ico" aria-hidden="true">📦</span>책상자 신청
+</a>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" data-close aria-label="닫기">×</button>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lb-close" aria-label="닫기">×</button>
+  <button class="lb-prev" aria-label="이전 사진">‹</button>
+  <img id="lb-img" alt="">
+  <button class="lb-next" aria-label="다음 사진">›</button>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
