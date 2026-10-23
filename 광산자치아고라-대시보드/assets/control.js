@@ -17,7 +17,7 @@
   }
 
   // ── 상단 ──
-  $('#mode').textContent = A.MODE === 'live' ? 'LIVE · Google Docs 연동' : 'DEMO · 시뮬레이션';
+  $('#mode').textContent = A.MODE === 'live' ? 'LIVE' : 'DEMO · 시뮬레이션';
   $('#mode').classList.toggle('live', A.MODE === 'live');
   if (A.MODE === 'live') $('#sim-card').style.display = 'none';
   $('#open-screen').onclick = () => window.open('index.html', 'agora-screen');
