@@ -56,7 +56,7 @@
 4. 프로젝트 설정 → 스크립트 속성
    - `ADMIN_KEY` : 관제 비밀번호 (setup이 `agora2026`으로 만들어 둠 — 꼭 바꾸세요)
    - `GEMINI_API_KEY` : Google AI Studio에서 발급
-   - `GEMINI_MODEL` : 선택. 기본 `gemini-2.5-flash`
+   - `GEMINI_MODEL` : 선택. 기본 `gemini-3.8-flash`
 5. **배포 → 새 배포 → 웹 앱** (실행: 나, 액세스: 모든 사용자) → URL 복사.
 6. `config.js`의 `window.AGORA_API`에 URL을 넣고 이 폴더를 웹에 올립니다(GitHub Pages 등). 참가자 휴대폰이 `vote.html`에 접속해야 하므로 공개 주소가 필요합니다.
 7. 관제 패널 → 연결 설정에서 관제 비밀번호를 입력합니다.

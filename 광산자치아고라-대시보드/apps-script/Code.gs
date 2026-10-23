@@ -10,7 +10,7 @@
  * 스크립트 속성(프로젝트 설정 → 스크립트 속성)
  *  - ADMIN_KEY      : 관제 패널 비밀번호(필수)
  *  - GEMINI_API_KEY : Gemini API 키(AI 요약용)
- *  - GEMINI_MODEL   : 선택, 기본 gemini-2.5-flash
+ *  - GEMINI_MODEL   : 선택, 기본 gemini-3.8-flash
  *
  * 처음 한 번 setup() 을 실행하면 시트와 12개 기록 Docs(양식 포함)가 만들어집니다.
  */
@@ -210,7 +210,7 @@ function saveSummary_(tables) {
 function summarize_() {
   var key = prop_('GEMINI_API_KEY');
   if (!key) throw new Error('스크립트 속성에 GEMINI_API_KEY 가 없어요.');
-  var model = prop_('GEMINI_MODEL') || 'gemini-2.5-flash';
+  var model = prop_('GEMINI_MODEL') || 'gemini-3.8-flash';
   CacheService.getScriptCache().remove('feed');
   var feed = feed_();
   var tables = readTables_();
