@@ -126,7 +126,7 @@
   $('#run-ai').onclick = async () => {
     if (dirty && !confirm('저장하지 않은 수정 내용이 있어요. AI 요약으로 덮어쓸까요?')) return;
     const btn = $('#run-ai');
-    btn.disabled = true; $('#ai-msg').textContent = A.MODE === 'live' ? 'Gemini가 12개 테이블 기록을 읽는 중… (20~60초)' : '데모: 태그가 붙은 줄로 정리하는 중…';
+    btn.disabled = true; $('#ai-msg').textContent = A.MODE === 'live' ? 'Gemini가 12개 테이블 기록을 정리하는 중… 보통 1~3분 걸려요. 다른 버튼은 계속 써도 됩니다.' : '데모: 태그가 붙은 줄로 정리하는 중…';
     const ok = await act(async () => { summary = await A.summarize(); dirty = false; renderSummary(); }, 'AI 요약이 완료됐어요. 검수 후 저장해 주세요.');
     if (!ok && A.MODE === 'live' && confirm('Gemini 요약에 실패했어요. 기록의 [실천]/[협력] 태그로 대신 정리할까요?')) {
       const out = A.ruleSummary(items);

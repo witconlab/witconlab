@@ -299,7 +299,19 @@
     return s;
   }
   async function summarize() {
-    if (MODE === 'live') return apiPost({ action: 'summarize', key: adminKey() }, 1);
+    if (MODE === 'live') {
+      // 서버는 요약을 뒤에서 돌리고 바로 응답합니다. 끝날 때까지 결과를 다시 읽어 확인.
+      const start = await apiPost({ action: 'summarize', key: adminKey() }, 1);
+      const since = start.job ? start.job.started : Date.now();
+      for (let waited = 0; waited < 8 * 60000; waited += 4000) {
+        await sleep(4000);
+        const s = await apiGet('summary');
+        const job = s.job;
+        if (job && job.started >= since && job.status === 'done') return s;
+        if (job && job.started >= since && job.status === 'failed') throw new Error(job.error || 'AI 요약에 실패했어요.');
+      }
+      throw new Error('AI 요약이 8분 넘게 끝나지 않았어요. 태그 기반 정리를 써 주세요.');
+    }
     // DEMO: Gemini 대신 규칙 기반 정리(태그가 붙은 줄에서 뽑음)
     await sleep(2200);
     const items = await loadFeed();

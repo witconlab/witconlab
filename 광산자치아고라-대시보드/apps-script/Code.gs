@@ -78,7 +78,7 @@ function doPost(e) {
     switch (body.action) {
       case 'setState':    return json_({ state: writeState_(body.state) });
       case 'push':        return json_(pushManual_(body));
-      case 'summarize':   return json_(summarize_());
+      case 'summarize':   return json_(startSummarizeJob_());
       case 'saveSummary': return json_(saveSummary_(body.tables));
       case 'resetVotes':  return json_(resetVotes_());
       default:            return json_({ error: 'unknown action' });
@@ -193,7 +193,10 @@ function readSummary_() {
       keywords: String(r[5] || '').split(',').map(function (s) { return s.trim(); }).filter(String)
     };
   });
-  return { tables: tables, at: prop_('SUMMARY_AT') ? Number(prop_('SUMMARY_AT')) : 0, source: prop_('SUMMARY_SRC') || '' };
+  return {
+    tables: tables, at: prop_('SUMMARY_AT') ? Number(prop_('SUMMARY_AT')) : 0, source: prop_('SUMMARY_SRC') || '',
+    job: prop_('SUMMARY_JOB') ? JSON.parse(prop_('SUMMARY_JOB')) : null
+  };
 }
 
 function saveSummary_(tables) {
@@ -282,14 +285,19 @@ function summarize_() {
  */
 function callGemini_(key, models, payload) {
   var errors = [];
+  var started = Date.now();
   for (var i = 0; i < models.length; i++) {
     for (var attempt = 0; attempt < 2; attempt++) {
+      // 6분 실행 제한 안에서 끝나도록, 3분이 지났으면 새 요청을 시작하지 않음
+      if (Date.now() - started > 180000) { errors.push('시간 초과'); i = models.length; break; }
       if (attempt) Utilities.sleep(3000);
+      var t0 = Date.now();
       var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + models[i] + ':generateContent', {
         method: 'post', contentType: 'application/json', headers: { 'x-goog-api-key': key },
         muteHttpExceptions: true, payload: payload
       });
       var code = res.getResponseCode();
+      console.log('Gemini ' + models[i] + ' → ' + code + ', ' + ((Date.now() - t0) / 1000).toFixed(1) + '초');
       if (code === 200) {
         var data = JSON.parse(res.getContentText());
         var text = data.candidates[0].content.parts
@@ -302,6 +310,42 @@ function callGemini_(key, models, payload) {
     }
   }
   throw new Error('Gemini 요약 실패 (' + errors.join(', ') + '). 잠시 뒤 다시 실행하거나 [실천]/[협력] 태그로 정리하세요.');
+}
+
+/**
+ * AI 요약은 Gemini가 붐비면 몇 분 걸릴 수 있어 웹 요청 안에서 기다리지 않고,
+ * 1초 뒤 실행되는 일회용 트리거로 뒤에서 돌립니다. 진행 상황은 SUMMARY_JOB 에 기록되고
+ * 관제 패널이 summary 를 다시 읽어 확인합니다.
+ */
+function startSummarizeJob_() {
+  var job = prop_('SUMMARY_JOB') ? JSON.parse(prop_('SUMMARY_JOB')) : null;
+  if (job && job.status === 'running' && Date.now() - job.started < 7 * 60000) return { job: job };
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'runSummarizeJob') ScriptApp.deleteTrigger(t);
+  });
+  job = { status: 'running', started: Date.now() };
+  PropertiesService.getScriptProperties().setProperty('SUMMARY_JOB', JSON.stringify(job));
+  ScriptApp.newTrigger('runSummarizeJob').timeBased().after(1000).create();
+  return { job: job };
+}
+
+/** 트리거가 실행하는 함수(직접 실행하지 않아도 됨) */
+function runSummarizeJob() {
+  var sp = PropertiesService.getScriptProperties();
+  var job = { started: Date.now() };
+  try {
+    summarize_();
+    job.status = 'done';
+    job.model = (prop_('SUMMARY_SRC') || '').replace('gemini:', '');
+  } catch (e) {
+    job.status = 'failed';
+    job.error = e.message;
+  }
+  job.finished = Date.now();
+  sp.setProperty('SUMMARY_JOB', JSON.stringify(job));
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'runSummarizeJob') ScriptApp.deleteTrigger(t);
+  });
 }
 
 /** 편집기에서 실행: API 키·모델 확인용 */
