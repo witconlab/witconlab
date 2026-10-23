@@ -149,7 +149,9 @@
   async function pullState() {
     if (MODE !== 'live') return state;
     const r = await apiGet('state');
+    // 서버에 아직 상태가 없으면(관제에서 한 번도 안 바꿈) 이 브라우저에 남은 데모 상태 대신 기본값
     if (r.state) applyState(r.state);
+    else if (state.updated) { state = Object.assign({}, DEFAULT_STATE); LS.set('agora-state', state); emitState(); }
     return state;
   }
   window.addEventListener('storage', e => {

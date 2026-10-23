@@ -116,7 +116,8 @@ function readTables_() {
 }
 
 function docId_(url) {
-  var m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+  // .../document/d/ID/edit 와 .../open?id=ID 두 형식 모두 지원
+  var m = url.match(/(?:\/d\/|[?&]id=)([a-zA-Z0-9_-]{20,})/);
   return m ? m[1] : url.trim();
 }
 
@@ -336,7 +337,7 @@ function setup() {
     DOC_TEMPLATE.forEach(function (line) { body.appendParagraph(line); });
     doc.saveAndClose();
     DriveApp.getFileById(doc.getId()).moveTo(docsFolder);
-    tables.appendRow([t[0], t[1], t[2], t[3], doc.getUrl(), '']);
+    tables.appendRow([t[0], t[1], t[2], t[3], 'https://docs.google.com/document/d/' + doc.getId() + '/edit', '']);
   });
 
   sheet_(SHEETS.summary).clearContents().appendRow(['번호', '논의 요약', '주민 실천과제 1', '주민 실천과제 2', '행정 협력 요청', '키워드(쉼표)']);
