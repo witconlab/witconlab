@@ -11,6 +11,7 @@
  *  - ADMIN_KEY      : 관제 패널 비밀번호(필수)
  *  - GEMINI_API_KEY : Gemini API 키(AI 요약용)
  *  - GEMINI_MODEL   : 선택, 기본 gemini-3.8-flash
+ *  - GEMINI_FALLBACK: 선택, 첫 모델이 붐비거나 없을 때 차례로 시도할 모델(쉼표). 기본 gemini-3.5-flash,gemini-flash-latest
  *
  * 처음 한 번 setup() 을 실행하면 시트와 12개 기록 Docs(양식 포함)가 만들어집니다.
  */
@@ -210,7 +211,10 @@ function saveSummary_(tables) {
 function summarize_() {
   var key = prop_('GEMINI_API_KEY');
   if (!key) throw new Error('스크립트 속성에 GEMINI_API_KEY 가 없어요.');
-  var model = prop_('GEMINI_MODEL') || 'gemini-3.8-flash';
+  var models = [prop_('GEMINI_MODEL') || 'gemini-3.8-flash']
+    .concat((prop_('GEMINI_FALLBACK') || 'gemini-3.5-flash,gemini-flash-latest').split(','))
+    .map(function (m) { return m.trim(); })
+    .filter(function (m, i, a) { return m && a.indexOf(m) === i; });
   CacheService.getScriptCache().remove('feed');
   var feed = feed_();
   var tables = readTables_();
@@ -257,26 +261,69 @@ function summarize_() {
     required: ['tables']
   };
 
-  var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
-    method: 'post',
-    contentType: 'application/json',
-    headers: { 'x-goog-api-key': key },
-    muteHttpExceptions: true,
-    payload: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.3, responseMimeType: 'application/json', responseSchema: schema }
-    })
+  var payload = JSON.stringify({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.3, responseMimeType: 'application/json', responseSchema: schema }
   });
-  if (res.getResponseCode() !== 200) throw new Error('Gemini 오류 ' + res.getResponseCode() + ': ' + res.getContentText().slice(0, 300));
-  var data = JSON.parse(res.getContentText());
-  var parsed = JSON.parse(data.candidates[0].content.parts[0].text);
+  var r = callGemini_(key, models, payload);
+  var parsed = r.parsed;
 
   var out = {};
   parsed.tables.forEach(function (t) {
     out[t.no] = { summary: t.summary, actions: (t.actions || []).slice(0, 2), admin: t.admin, keywords: t.keywords || [] };
   });
-  PropertiesService.getScriptProperties().setProperty('SUMMARY_SRC', 'gemini');
+  PropertiesService.getScriptProperties().setProperty('SUMMARY_SRC', 'gemini:' + r.model);
   return saveSummary_(out);
+}
+
+/**
+ * 모델을 차례로 시도합니다. 붐빔(429·500·503)은 같은 모델로 잠시 뒤 한 번 더,
+ * 없는 모델(404)이나 계속 붐비면 다음 모델로 넘어갑니다.
+ */
+function callGemini_(key, models, payload) {
+  var errors = [];
+  for (var i = 0; i < models.length; i++) {
+    for (var attempt = 0; attempt < 2; attempt++) {
+      if (attempt) Utilities.sleep(3000);
+      var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + models[i] + ':generateContent', {
+        method: 'post', contentType: 'application/json', headers: { 'x-goog-api-key': key },
+        muteHttpExceptions: true, payload: payload
+      });
+      var code = res.getResponseCode();
+      if (code === 200) {
+        var data = JSON.parse(res.getContentText());
+        var text = data.candidates[0].content.parts
+          .filter(function (p) { return p.text && !p.thought; })
+          .map(function (p) { return p.text; }).join('');
+        return { model: models[i], parsed: JSON.parse(text) };
+      }
+      errors.push(models[i] + ' ' + code);
+      if ([429, 500, 503].indexOf(code) < 0) break;
+    }
+  }
+  throw new Error('Gemini 요약 실패 (' + errors.join(', ') + '). 잠시 뒤 다시 실행하거나 [실천]/[협력] 태그로 정리하세요.');
+}
+
+/** 편집기에서 실행: API 키·모델 확인용 */
+function testGemini() {
+  var key = prop_('GEMINI_API_KEY');
+  var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', {
+    headers: { 'x-goog-api-key': key }, muteHttpExceptions: true });
+  Logger.log('응답 코드: ' + res.getResponseCode());
+  var body = JSON.parse(res.getContentText());
+  if (body.error) { Logger.log('오류: ' + body.error.message); return; }
+  Logger.log('쓸 수 있는 flash 모델: ' + body.models.map(function (m) { return m.name.replace('models/', ''); })
+    .filter(function (n) { return /flash/.test(n); }).join(', '));
+}
+
+/** 편집기에서 실행: 지금 기록으로 AI 요약을 돌려 보고 결과를 summary 시트에 저장 */
+function testSummarize() {
+  try {
+    var r = summarize_();
+    Logger.log('성공(' + prop_('SUMMARY_SRC') + '): ' + JSON.stringify(r.tables[1]));
+  } catch (e) {
+    Logger.log('실패: ' + e.message);
+  }
 }
 
 // ─────────────────────────── 투표 ───────────────────────────

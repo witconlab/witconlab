@@ -57,6 +57,8 @@
    - `ADMIN_KEY` : 관제 비밀번호 (setup이 `agora2026`으로 만들어 둠 — 꼭 바꾸세요)
    - `GEMINI_API_KEY` : Google AI Studio에서 발급
    - `GEMINI_MODEL` : 선택. 기본 `gemini-3.8-flash`
+   - `GEMINI_FALLBACK` : 선택. 첫 모델이 붐빌 때(503) 차례로 쓸 모델. 기본 `gemini-3.5-flash,gemini-flash-latest`
+   - 편집기에서 `testGemini`(키·모델 확인), `testSummarize`(지금 기록으로 요약 시험)를 실행할 수 있습니다.
 5. **배포 → 새 배포 → 웹 앱** (실행: 나, 액세스: 모든 사용자) → URL 복사.
 6. `config.js`의 `window.AGORA_API`에 URL을 넣고 이 폴더를 웹에 올립니다(GitHub Pages 등). 참가자 휴대폰이 `vote.html`에 접속해야 하므로 공개 주소가 필요합니다.
 7. 관제 패널 → 연결 설정에서 관제 비밀번호를 입력합니다.

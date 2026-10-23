@@ -95,7 +95,7 @@
   let summary = { tables: {}, at: 0 };
   let dirty = false;
   function renderSummary() {
-    $('#sum-status').textContent = summary.at ? hhmm(summary.at) + ' 정리 · ' + ({ gemini: 'Gemini', rule: '규칙 기반(데모)', edited: '수정됨' }[summary.source] || '시트') : '아직 실행 전';
+    $('#sum-status').textContent = summary.at ? hhmm(summary.at) + ' 정리 · ' + (/^gemini/.test(summary.source || '') ? 'Gemini' + (summary.source.split(':')[1] ? ' (' + summary.source.split(':')[1] + ')' : '') : { rule: '규칙 기반(데모)', edited: '수정됨' }[summary.source] || '시트·태그 정리') : '아직 실행 전';
     $('#sumlist').innerHTML = A.tables.map(t => {
       const s = summary.tables[t.no] || { summary: '', actions: [], admin: '', keywords: [] };
       return '<div class="sum" data-no="' + t.no + '" style="' + catVar(t.cat) + '"><div class="sum-hd"><b>테이블 ' + t.no + '</b><span class="muted small">' + esc(CATS[t.cat].short + ' · ' + t.dongs) + '</span></div>' +
