@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광산자치아고라 대형 스크린</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="assets/display.css">
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+    <header class="hd">
+      <div class="hd-brand">
+        <div class="hd-mark" id="hd-mark"></div>
+        <div>
+          <div class="hd-title">2026 광산자치아고라</div>
+          <div class="hd-sub">하천·공원·맨발길, 동네를 잇고 변화를 만들다</div>
+        </div>
+      </div>
+      <ol class="hd-steps" id="hd-steps"></ol>
+      <div class="hd-right">
+        <div class="hd-docs" id="hd-docs"></div>
+        <div class="hd-live" id="hd-live"><i></i>LIVE</div>
+        <div class="hd-clock" id="hd-clock">--:--</div>
+      </div>
+    </header>
+
+    <main class="scenes">
+      <!-- 대기 -->
+      <section class="scene" data-scene="wait">
+        <div class="wait-hero">
+          <div class="eyebrow">주민총회 의제로 함께 만드는 공론장</div>
+          <h1 class="wait-title">함께 걷고,<br>함께 가꾸는 <em>광산</em></h1>
+          <p class="wait-meta" id="wait-meta"></p>
+          <div class="wait-count" id="wait-count"></div>
+        </div>
+        <div class="wait-tables">
+          <div class="wait-tables-hd"><span>테이블 기록 연결 점검</span><b id="wait-ok">0 / 12</b></div>
+          <div class="wait-grid" id="wait-grid"></div>
+        </div>
+      </section>
+
+      <!-- 1부 여는마당 -->
+      <section class="scene" data-scene="open">
+        <div class="open-wrap">
+          <div class="eyebrow">1부 · 여는마당</div>
+          <h1 class="open-title">함께 걷고, 함께 가꾸는 광산</h1>
+          <p class="open-theme">하천 · 공원 · 맨발길, 동네를 잇고 변화를 만들다</p>
+          <div class="open-icons" id="open-icons"></div>
+          <div class="open-stats">
+            <div><b>21</b><span>개 동</span></div>
+            <div><b>122</b><span>건 주민총회 의제</span></div>
+            <div><b>12</b><span>개 테이블</span></div>
+            <div><b>150</b><span>명 주민·전문가·행정</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 주제 발제 -->
+      <section class="scene" data-scene="keynote">
+        <div class="key-wrap">
+          <div class="key-left">
+            <div class="eyebrow">2부 · 주민공론장 · 주제 발제</div>
+            <h1 class="key-title">“생활공간을 잇고,<br>함께 만드는 변화”</h1>
+            <p class="key-speaker">더가능연구소 엄관용 연구실장</p>
+          </div>
+          <div class="key-cats" id="key-cats"></div>
+        </div>
+      </section>
+
+      <!-- 의제공론화 (실시간 피드) -->
+      <section class="scene" data-scene="talk">
+        <div class="talk-steps" id="talk-steps"></div>
+        <div class="talk-body">
+          <div class="lanes" id="lanes"></div>
+          <aside class="talk-side">
+            <div class="spot" id="spot">
+              <div class="spot-label"><i></i>방금 올라온 이야기</div>
+              <div class="spot-card" id="spot-card"><p class="spot-empty">테이블 기록을 기다리고 있어요</p></div>
+              <div class="spot-bar" id="spot-bar"></div>
+            </div>
+            <div class="side-box">
+              <div class="side-hd">테이블별 기록 <span id="feed-total"></span></div>
+              <div class="heat" id="heat"></div>
+            </div>
+          </aside>
+        </div>
+        <div class="ai-overlay" id="ai-overlay">
+          <div class="ai-box">
+            <div class="ai-orb"><span></span><span></span><span></span></div>
+            <h2>AI가 12개 테이블의 이야기를 정리하고 있어요</h2>
+            <p>주민 공동 실천과제 1~2개 · 행정 협력 요청사항 1개</p>
+            <div class="ai-grid" id="ai-grid"></div>
+            <div class="ai-cloud"><div class="side-hd">오늘 많이 나온 말</div><div class="cloud" id="cloud"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 결과 공유 -->
+      <section class="scene" data-scene="share">
+        <div class="share-hd">
+          <div>
+            <div class="eyebrow">공론 결과 공유</div>
+            <h2 class="share-title" id="share-title">생활공간별로 모은 우리의 실천과제</h2>
+          </div>
+          <div class="share-legend">
+            <span><i class="lg-action"></i>주민 공동 실천과제</span>
+            <span><i class="lg-admin"></i>행정 협력 요청</span>
+          </div>
+        </div>
+        <div class="share-body" id="share-body"></div>
+      </section>
+
+      <!-- 우선순위 투표 -->
+      <section class="scene" data-scene="vote">
+        <div class="vote-wrap">
+          <div class="vote-left">
+            <div class="eyebrow">우선순위 투표</div>
+            <h2 class="vote-title">가장 먼저 함께<br>실천하고 싶은 과제는?</h2>
+            <div class="qr" id="qr"></div>
+            <p class="vote-how">휴대폰 카메라로 QR을 비추고<br><b id="vote-picks">3</b>개까지 골라 주세요</p>
+            <div class="vote-count"><b id="vote-voters">0</b><span>명 참여</span></div>
+            <div class="vote-closed" id="vote-closed">투표가 마감되었습니다</div>
+          </div>
+          <div class="vote-bars" id="vote-bars"></div>
+        </div>
+      </section>
+
+      <!-- 투표 결과 -->
+      <section class="scene" data-scene="result">
+        <div class="res-hd">
+          <div class="eyebrow">투표 결과</div>
+          <h2 class="res-title">우리가 함께 고른 우선 실천과제</h2>
+          <p class="res-sub" id="res-sub"></p>
+        </div>
+        <div class="podium" id="podium"></div>
+        <div class="res-rest" id="res-rest"></div>
+      </section>
+
+      <!-- 슬로건 (모션그래픽) -->
+      <section class="scene" data-scene="slogan">
+        <svg class="slo-lines" id="slo-lines" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
+        <div class="slo-dongs" id="slo-dongs" aria-hidden="true"></div>
+        <div class="slo-core" id="slo-core"></div>
+        <div class="slo-rings" id="slo-rings"></div>
+        <div class="slo-wrap">
+          <h1 class="slo" id="slo"></h1>
+          <p class="slo-sub" id="slo-sub">하천 · 공원 · 맨발길, 동네를 잇고 변화를 만들다</p>
+          <div class="slo-icons" id="slo-icons"></div>
+        </div>
+        <div class="slo-count" id="slo-count">
+          <svg viewBox="0 0 400 400"><circle class="trk" cx="200" cy="200" r="180"/><circle class="arc" id="slo-arc" cx="200" cy="200" r="180"/></svg>
+          <b id="slo-num"></b>
+        </div>
+      </section>
+    </main>
+
+    <div class="mode-badge" id="mode-badge"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/display.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광산자치아고라 관제 패널</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="assets/control.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-l">
+    <b>광산자치아고라 관제</b>
+    <span class="mode" id="mode"></span>
+    <span class="sync" id="sync"></span>
+  </div>
+  <div class="top-r">
+    <button class="btn ghost" id="open-screen">대형 스크린 열기</button>
+    <button class="btn ghost" id="open-vote">투표 페이지</button>
+    <button class="btn ghost" id="open-settings">연결 설정</button>
+  </div>
+</header>
+
+<main class="grid">
+  <!-- 왼쪽: 미리보기 + 진행 -->
+  <div class="col">
+    <section class="card">
+      <div class="card-hd"><h2>스크린 미리보기</h2><span class="muted" id="now-label"></span></div>
+      <div class="preview"><iframe id="preview" title="대형 스크린 미리보기" src="index.html?preview"></iframe></div>
+    </section>
+
+    <section class="card">
+      <div class="card-hd">
+        <h2>진행 단계</h2>
+        <label class="switch"><input type="checkbox" id="auto"><span></span>타임테이블 자동 전환</label>
+      </div>
+      <div class="stages" id="stages"></div>
+      <div class="sub" id="sub-wrap">
+        <h3>의제공론화 세부 단계 <small class="muted">60분</small></h3>
+        <div class="subs" id="subs"></div>
+      </div>
+    </section>
+
+    <section class="card" id="share-card">
+      <div class="card-hd"><h2>결과 공유 화면</h2></div>
+      <div class="seg" id="views">
+        <button data-v="category">분야별 모아보기</button>
+        <button data-v="table">12개 테이블 한눈에</button>
+        <button data-v="focus">테이블 발표 집중</button>
+      </div>
+      <div class="focus-row">
+        <button class="btn" id="focus-prev">◀ 이전</button>
+        <div class="focus-nums" id="focus-nums"></div>
+        <button class="btn" id="focus-next">다음 ▶</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-hd"><h2>슬로건 · 마무리</h2></div>
+      <p class="muted">슬로건 화면으로 넘어가면서 3·2·1 카운트다운 후 구호가 크게 나옵니다.</p>
+      <button class="btn big gold" id="slogan-go">3 · 2 · 1 구호 외치기</button>
+    </section>
+  </div>
+
+  <!-- 오른쪽: 데이터 -->
+  <div class="col">
+    <section class="card">
+      <div class="card-hd"><h2>테이블 기록 현황</h2><span class="muted" id="feed-sum"></span></div>
+      <div class="docs" id="docs"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-hd"><h2>수동 발언 푸시</h2><span class="muted">기록이 늦거나 Wi‑Fi 장애 시</span></div>
+      <form class="push" id="push">
+        <select id="push-table" aria-label="테이블"></select>
+        <select id="push-type" aria-label="유형"></select>
+        <input id="push-dong" placeholder="동 (선택)" aria-label="동">
+        <input id="push-text" placeholder="화면에 띄울 한 줄" aria-label="내용" required>
+        <button class="btn primary" type="submit">푸시</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-hd">
+        <h2>AI 요약 · 검수</h2>
+        <span class="muted" id="sum-status"></span>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="run-ai">AI 요약 실행</button>
+        <button class="btn" id="save-sum" disabled>검수 내용 저장</button>
+        <span class="muted small" id="ai-msg"></span>
+      </div>
+      <div class="sumlist" id="sumlist"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-hd"><h2>우선순위 투표</h2><span class="muted" id="vote-sum"></span></div>
+      <div class="row">
+        <button class="btn" id="cand-1">후보 만들기 (테이블당 1개)</button>
+        <button class="btn" id="cand-2">테이블당 2개</button>
+        <label class="inline">1인 <select id="picks"><option>1</option><option>2</option><option selected>3</option><option>5</option></select> 개 선택</label>
+      </div>
+      <ol class="cands" id="cands"></ol>
+      <div class="row">
+        <button class="btn primary" id="vote-open">투표 열기</button>
+        <button class="btn" id="vote-close">투표 마감</button>
+        <button class="btn danger" id="vote-reset">투표 초기화</button>
+      </div>
+    </section>
+
+    <section class="card" id="sim-card">
+      <div class="card-hd"><h2>시뮬레이션</h2><span class="muted">행사 전 테스트·시연용</span></div>
+      <div class="row">
+        <label class="switch"><input type="checkbox" id="sim"><span></span>자동 기록 시뮬레이션</label>
+        <label class="inline">속도 <select id="sim-speed"><option value="1">보통</option><option value="2">빠르게</option><option value="4">매우 빠르게</option></select></label>
+        <button class="btn danger" id="sim-reset">시뮬레이션 기록 지우기</button>
+      </div>
+      <p class="muted small">대형 스크린 창이 열려 있을 때 그 창이 기록자처럼 한 줄씩 입력합니다. 투표 단계에서는 가상 참가자가 투표합니다.</p>
+    </section>
+  </div>
+</main>
+
+<dialog id="settings">
+  <form method="dialog" class="settings">
+    <h2>연결 설정</h2>
+    <label>Apps Script 웹앱 URL<input id="set-api" placeholder="https://script.google.com/macros/s/…/exec"></label>
+    <label>관제 비밀번호 (ADMIN_KEY)<input id="set-key" type="password" autocomplete="off"></label>
+    <p class="muted small">URL을 비우면 시뮬레이션(DEMO) 모드로 동작합니다. 이 브라우저에만 저장되므로 대형 스크린 PC에서도 한 번 설정하거나 config.js 에 URL을 넣어 주세요.</p>
+    <div class="row end">
+      <button class="btn" value="cancel">취소</button>
+      <button class="btn primary" id="set-save" value="ok">저장 후 새로고침</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
+<script src="config.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/control.js"></script>
+</body>
+</html>
