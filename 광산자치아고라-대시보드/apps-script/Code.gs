@@ -5,7 +5,7 @@
  *  - tables  시트 : 12개 테이블 설정(분야·동·대상공간·기록 Docs 링크)
  *  - summary 시트 : AI 요약 결과(관제반이 셀을 직접 고쳐 검수)
  *  - manual  시트 : 관제반 수동 푸시 발언
- *  - votes   시트 : 우선순위 투표 기록(기기당 1표, 재투표 시 덮어씀)
+ *  - votes   시트 : 행사 후 exportVotes() 를 실행하면 투표 결과가 기록됨 (투표 중에는 스크립트 속성에 저장)
  *
  * 스크립트 속성(프로젝트 설정 → 스크립트 속성)
  *  - ADMIN_KEY      : 관제 패널 비밀번호(필수)
@@ -280,41 +280,55 @@ function summarize_() {
 }
 
 // ─────────────────────────── 투표 ───────────────────────────
+// 150명이 거의 동시에 누르므로 잠금·시트 쓰기 없이 기기별 스크립트 속성 한 칸에 덮어씁니다.
+// (같은 기기가 다시 투표하면 같은 칸이 바뀌므로 잠금이 필요 없음) 시트 기록은 exportVotes() 로.
+
+var VOTE_PREFIX = 'v_';
 
 function vote_(b) {
   var state = readState_() || {};
   if (!state.voteOpen) return { error: '지금은 투표 시간이 아니에요.' };
   var valid = (state.candidates || []).map(function (c) { return c.id; });
   var picks = (b.picks || []).filter(function (id) { return valid.indexOf(id) >= 0; }).slice(0, state.votePicks || 3);
-  if (!b.device || !picks.length) return { error: '선택한 항목이 없어요.' };
-
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
-    var sh = sheet_(SHEETS.votes);
-    var rows = sh.getDataRange().getValues();
-    for (var i = rows.length - 1; i >= 1; i--) {
-      if (rows[i][1] === b.device) sh.deleteRow(i + 1);
-    }
-    sh.appendRow([new Date(), b.device, picks.join(',')]);
-  } finally {
-    lock.releaseLock();
-  }
+  var device = String(b.device || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+  if (!device || !picks.length) return { error: '선택한 항목이 없어요.' };
+  PropertiesService.getScriptProperties().setProperty(VOTE_PREFIX + device, picks.join(','));
   return { ok: true, picks: picks };
 }
 
 function readVotes_() {
-  var rows = sheet_(SHEETS.votes).getDataRange().getValues().slice(1);
+  var props = PropertiesService.getScriptProperties().getProperties();
   var ballots = {};
-  rows.forEach(function (r) { if (r[1]) ballots[r[1]] = String(r[2]).split(',').filter(String); });
+  Object.keys(props).forEach(function (k) {
+    if (k.indexOf(VOTE_PREFIX) === 0) ballots[k.slice(VOTE_PREFIX.length)] = props[k].split(',').filter(String);
+  });
   return { ballots: ballots };
 }
 
 function resetVotes_() {
+  var sp = PropertiesService.getScriptProperties();
+  Object.keys(sp.getProperties()).forEach(function (k) { if (k.indexOf(VOTE_PREFIX) === 0) sp.deleteProperty(k); });
   var sh = sheet_(SHEETS.votes);
   sh.clearContents();
-  sh.appendRow(['시각', '기기', '선택']);
+  sh.appendRow(['기기', '선택']);
   return { ok: true };
+}
+
+/** 행사 후 실행: 투표 결과를 votes 시트에 기록(기기별 선택 + 후보별 득표) */
+function exportVotes() {
+  var ballots = readVotes_().ballots;
+  var sh = sheet_(SHEETS.votes);
+  sh.clearContents();
+  sh.appendRow(['기기', '선택']);
+  Object.keys(ballots).forEach(function (d) { sh.appendRow([d, ballots[d].join(',')]); });
+  var counts = {};
+  Object.keys(ballots).forEach(function (d) { ballots[d].forEach(function (id) { counts[id] = (counts[id] || 0) + 1; }); });
+  var cands = ((readState_() || {}).candidates) || [];
+  sh.appendRow([]);
+  sh.appendRow(['후보', '테이블', '실천과제', '득표']);
+  cands.map(function (c) { return [c.id, c.table, c.text, counts[c.id] || 0]; })
+    .sort(function (x, y) { return y[3] - x[3]; })
+    .forEach(function (r) { sh.appendRow(r); });
 }
 
 // ─────────────────────────── 최초 설정 ───────────────────────────

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광산자치아고라 이용 안내</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root { --ink: #111; --muted: #555; --line: #ddd; --river: #0284c7; --park: #16a34a; --road: #ea580c; --common: #9333ea; --soft: #f5f5f4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; color: var(--ink); background: #e7e5e4; word-break: keep-all; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 0; }
+  .page { width: 210mm; min-height: 297mm; margin: 10mm auto; background: #fff; padding: 13mm 15mm 10mm; position: relative; display: flex; flex-direction: column; }
+  @media print { body { background: #fff; } .page { margin: 0; height: 297mm; overflow: hidden; page-break-after: always; } .noprint { display: none; } }
+  @media screen and (max-width: 820px) { .page { width: auto; min-height: 0; margin: 0 0 12px; padding: 24px 16px; } }
+
+  .bar { display: flex; gap: 4px; margin-bottom: 6mm; }
+  .bar i { flex: 1; height: 5px; border-radius: 3px; }
+  .eyebrow { font-size: 12pt; font-weight: 700; color: var(--muted); }
+  h1 { font-size: 23pt; font-weight: 900; letter-spacing: -.02em; line-height: 1.25; margin: 1.5mm 0 2.5mm; }
+  .lead { font-size: 11pt; color: var(--muted); line-height: 1.6; }
+  h2 { font-size: 13pt; font-weight: 800; margin: 5.5mm 0 2.5mm; display: flex; align-items: center; gap: 8px; }
+  h2 b { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 11pt; }
+  p, li { font-size: 10.5pt; line-height: 1.55; }
+  ul { padding-left: 18px; }
+  .box { background: var(--soft); border-radius: 10px; padding: 4mm 5mm; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+  th, td { text-align: left; padding: 1.5mm 3mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 10pt; color: var(--muted); font-weight: 700; }
+  .tag { display: inline-block; font-weight: 800; font-family: ui-monospace, Menlo, monospace; font-size: 10.5pt; padding: 1px 7px; border-radius: 5px; background: #e7e5e4; white-space: nowrap; }
+  .t-pain { background: #fee2e2; } .t-idea { background: #fef3c7; } .t-action { background: #d1fae5; } .t-admin { background: #dbeafe; }
+  pre { font-family: ui-monospace, Menlo, monospace; font-size: 9.5pt; line-height: 1.6; background: #1c1917; color: #fafaf9; border-radius: 10px; padding: 4mm 5mm; white-space: pre-wrap; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; }
+  .steps div { border: 1px solid var(--line); border-radius: 8px; padding: 2mm; font-size: 9.5pt; line-height: 1.45; }
+  .steps div b { display: block; font-size: 10pt; }
+  .steps div.hi { border: 2px solid var(--park); background: #f0fdf4; }
+  .warn { border-left: 4px solid var(--road); background: #fff7ed; padding: 3mm 4mm; border-radius: 0 8px 8px 0; }
+  .foot { margin-top: auto; padding-top: 4mm; font-size: 9pt; color: var(--muted); display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
+
+  .vote { display: grid; grid-template-columns: 56mm 1fr; gap: 7mm; align-items: center; border: 2px solid var(--ink); border-radius: 14px; padding: 5mm; margin-top: 3mm; }
+  .qr { width: 56mm; height: 56mm; display: grid; place-items: center; }
+  .qr img, .qr canvas { width: 100% !important; height: auto !important; }
+  .vote ol { padding-left: 18px; }
+  .vote li { font-size: 11pt; margin-bottom: 1.5mm; }
+  .url { font-size: 8.5pt; color: var(--muted); word-break: break-all; margin-top: 2mm; }
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-top: 3mm; }
+  .flow div { border-radius: 10px; padding: 3.5mm; background: var(--soft); }
+  .flow div b { display: block; font-size: 11pt; margin-bottom: 1mm; }
+  .flow div span { font-size: 9.5pt; color: var(--muted); line-height: 1.5; display: block; }
+  .flow em { font-style: normal; font-size: 9pt; font-weight: 800; color: var(--muted); }
+  .slogan { margin-top: 5mm; text-align: center; padding: 4.5mm; border-radius: 14px; background: #111; color: #fff; }
+  .slogan b { display: block; font-size: 20pt; font-weight: 900; letter-spacing: -.02em; }
+  .slogan span { font-size: 10pt; color: #a8a29e; }
+  .printbtn { position: fixed; right: 16px; bottom: 16px; padding: 12px 18px; border: 0; border-radius: 12px; background: #111; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ───────── 1쪽: 테이블 기록자 안내 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+  <div class="eyebrow">2026 광산자치아고라 · 테이블 기록자 안내</div>
+  <h1>내가 적은 한 줄이<br>무대 화면에 바로 올라갑니다</h1>
+  <p class="lead">기록자는 테이블에서 나온 이야기를 배정받은 Google 문서에 한 줄씩 적어 주세요. 적은 내용은 5~10초 뒤 대형 스크린에 카드로 올라가고, 마지막에는 AI가 테이블별 실천과제로 정리합니다.</p>
+
+  <h2><b>1</b>준비</h2>
+  <ul>
+    <li>노트북 또는 태블릿에서 <b>배정받은 테이블 번호의 문서 링크</b>를 엽니다. (관제반이 행사 전에 전달)</li>
+    <li>오른쪽 위에 <b>"편집"</b>이 보이는지 확인합니다. "보기 전용"이면 관제반에 알려 주세요.</li>
+    <li>회색 <span class="tag">※</span> 안내 줄과 <span class="tag">(예시)</span> 줄은 화면에 나가지 않으니 지우지 않아도 됩니다.</li>
+  </ul>
+
+  <h2><b>2</b>쓰는 법 — 한 줄에 발언 하나</h2>
+  <div class="grid2">
+    <table>
+      <tr><th>줄 앞 표시</th><th>이럴 때</th></tr>
+      <tr><td><span class="tag">[경험]</span></td><td>이용하면서 겪은 일</td></tr>
+      <tr><td><span class="tag t-pain">[불편]</span></td><td>불편한 점, 고칠 점</td></tr>
+      <tr><td><span class="tag">[자원]</span></td><td>이미 있는 모임·시설·사람</td></tr>
+      <tr><td><span class="tag t-idea">[아이디어]</span></td><td>함께 해 보면 좋을 방법</td></tr>
+      <tr><td><span class="tag t-action">[실천]</span></td><td>주민이 직접 할 일</td></tr>
+      <tr><td><span class="tag t-admin">[협력]</span></td><td>행정에 요청할 일</td></tr>
+    </table>
+    <div>
+      <pre>[경험] 도산: 저녁마다 제방길을 걸어요
+[불편] 임곡: 가로등이 없어 밤에 무서워요
+[자원] 걷기 동아리가 화요일마다 모여요
+[아이디어] 두 동이 같이 줍깅 데이를 정해요
+[실천] 매월 셋째 토요일 합동 줍깅하기
+[협력] 산막동 구간 가로등 설치 요청</pre>
+      <ul style="margin-top:3mm">
+        <li><b>도산:</b>처럼 동 이름을 앞에 쓰면 카드에 동이 표시됩니다.</li>
+        <li>표시를 빼면 바로 위 줄의 표시를 이어 씁니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><b>3</b>시간대별로 이렇게 적어 주세요 <span style="font-size:10pt;color:var(--muted);font-weight:600">· 의제공론화 60분</span></h2>
+  <div class="steps">
+    <div><b>사례공유 10분</b>[경험] [자원]</div>
+    <div><b>경험 나누기 15분</b>[경험] [불편] [자원]</div>
+    <div><b>활용방안 20분</b>[아이디어]</div>
+    <div class="hi"><b>실천과제 10분</b>[실천] 1~2줄<br>[협력] 1줄 <b>꼭!</b></div>
+    <div><b>결과 정리 5분</b>빠진 것 보충</div>
+  </div>
+
+  <h2><b>4</b>꼭 지켜 주세요</h2>
+  <div class="warn">
+    <ul>
+      <li><b>이름·전화번호 등 개인정보는 적지 않습니다.</b> "도산 주민", "통장님"처럼 적어 주세요. 기록은 AI 요약에 쓰입니다.</li>
+      <li>이미 쓴 줄을 고치면 화면에 한 번 더 올라갑니다. <b>오타는 그대로 두고</b> 다음 줄로 넘어가세요.</li>
+      <li>짧게, 말한 사람의 표현 그대로. 한 줄은 두 문장을 넘지 않게 적습니다.</li>
+      <li>인터넷이 끊기면 휴대폰 테더링으로 바꾸고, 안 되면 손을 들어 관제반을 불러 주세요. 관제반이 대신 화면에 올립니다.</li>
+    </ul>
+  </div>
+
+  <div class="foot"><span>2026. 11. 19.(목) 14:00–16:00 · 광산구청 7층 윤상원홀</span><span>문의: 중앙 관제반</span></div>
+</section>
+
+<!-- ───────── 2쪽: 참가자 안내 (테이블 비치용) ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+  <div class="eyebrow">2026 광산자치아고라 · 참가자 안내</div>
+  <h1>오늘 우리 테이블의 이야기가<br>실시간으로 화면에 올라가요</h1>
+  <p class="lead">하천·공원·맨발길, 동네를 잇고 변화를 만드는 공론장에 오신 것을 환영합니다. 테이블 기록자가 여러분의 이야기를 적으면, 앞 화면에 바로 나타납니다.</p>
+
+  <h2><b>1</b>오늘의 흐름</h2>
+  <div class="flow">
+    <div><em>14:00</em><b>여는마당</b><span>취지 공유, 퍼포먼스와 기념촬영</span></div>
+    <div><em>14:30</em><b>테이블 토론 60분</b><span>내 이야기가 화면에 카드로 올라가요</span></div>
+    <div><em>15:30</em><b>결과 공유</b><span>AI가 정리한 테이블별 실천과제를 함께 봐요</span></div>
+    <div><em>15:45</em><b>투표 · 구호</b><span>먼저 할 과제를 고르고 함께 외쳐요</span></div>
+  </div>
+
+  <h2><b>2</b>우선순위 투표 방법</h2>
+  <div class="vote">
+    <div>
+      <div class="qr" id="qr"></div>
+      <div class="url" id="url"></div>
+    </div>
+    <div>
+      <ol>
+        <li>진행자가 <b>"투표를 시작합니다"</b>라고 하면, 휴대폰 카메라로 왼쪽 QR을 비춥니다.</li>
+        <li>열린 화면에서 가장 먼저 함께 하고 싶은 실천과제를 <b>최대 3개</b> 고릅니다.</li>
+        <li>아래 <b>투표하기</b>를 누르면 끝! 결과는 앞 화면에서 실시간으로 바뀝니다.</li>
+      </ol>
+      <ul style="margin-top:3mm;color:var(--muted)">
+        <li>로그인이나 개인정보 입력은 없습니다. 휴대폰 한 대당 1표입니다.</li>
+        <li>마음이 바뀌면 <b>선택 바꾸기</b>로 다시 고를 수 있어요(마감 전까지).</li>
+        <li>투표 시작 전에 QR을 열면 "아직 열리지 않았어요"가 보입니다. 그대로 두면 투표가 열릴 때 화면이 자동으로 바뀝니다.</li>
+        <li>휴대폰이 없거나 어려우면 옆 분이나 퍼실리테이터에게 도움을 요청하세요.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="slogan">
+    <span>마지막에 화면의 3 · 2 · 1 카운트다운에 맞춰 함께 외쳐요</span>
+    <b>함께 걷고, 함께 가꾸는 광산!</b>
+  </div>
+
+  <div class="foot"><span>주최 광산구 도시재생공동체센터</span><span>2026. 11. 19.(목) 14:00–16:00 · 광산구청 7층 윤상원홀</span></div>
+</section>
+
+<button class="printbtn noprint" onclick="window.print()">인쇄 / PDF 저장</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // 이 안내문과 같은 폴더의 vote.html (GitHub Pages 주소로 열면 그 주소가 QR이 됨)
+  var url = location.protocol.indexOf('http') === 0 && location.hostname !== 'localhost'
+    ? new URL('vote.html', location.href).href
+    : 'https://witconlab.github.io/witconlab/광산자치아고라-대시보드/vote.html';
+  document.getElementById('url').textContent = decodeURI(url);
+  new QRCode(document.getElementById('qr'), { text: encodeURI(decodeURI(url)), width: 512, height: 512, correctLevel: QRCode.CorrectLevel.M });
+</script>
+</body>
+</html>

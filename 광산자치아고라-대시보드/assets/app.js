@@ -115,18 +115,25 @@
   }
 
   // ── 서버 통신 ───────────────────────────────────────────────
-  async function apiGet(action) {
-    const res = await fetch(API + (API.includes('?') ? '&' : '?') + 'action=' + action, { cache: 'no-store' });
-    const j = await res.json();
-    if (j.error) throw new Error(j.error);
-    return j;
+  // Apps Script는 동시 요청이 몰리면 JSON 대신 "서버 바쁨" HTML을 돌려줍니다.
+  // 그런 경우와 네트워크 오류만 간격을 늘려 가며 다시 보냅니다(앱 오류 {error}는 그대로 전달).
+  async function call(doFetch, tries) {
+    let last;
+    for (let n = 0; n < tries; n++) {
+      if (n) await sleep(600 * Math.pow(2, n - 1) + Math.random() * 900);
+      let j;
+      try { j = await (await doFetch()).json(); } catch (e) { last = e; continue; }
+      if (j.error) throw new Error(j.error);
+      return j;
+    }
+    throw new Error('서버가 붐벼요. 잠시 후 다시 시도해 주세요.' + (last ? ' (' + last.message + ')' : ''));
   }
-  async function apiPost(body) {
+  function apiGet(action) {
+    return call(() => fetch(API + (API.includes('?') ? '&' : '?') + 'action=' + action, { cache: 'no-store' }), 4);
+  }
+  function apiPost(body, tries = 5) {
     // text/plain 으로 보내야 Apps Script 웹앱에서 CORS 사전요청이 생기지 않습니다.
-    const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
-    const j = await res.json();
-    if (j.error) throw new Error(j.error);
-    return j;
+    return call(() => fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }), tries);
   }
   const adminKey = () => LS.get('agora-admin-key', '');
 
@@ -292,7 +299,7 @@
     return s;
   }
   async function summarize() {
-    if (MODE === 'live') return apiPost({ action: 'summarize', key: adminKey() });
+    if (MODE === 'live') return apiPost({ action: 'summarize', key: adminKey() }, 1);
     // DEMO: Gemini 대신 규칙 기반 정리(태그가 붙은 줄에서 뽑음)
     await sleep(2200);
     const items = await loadFeed();
