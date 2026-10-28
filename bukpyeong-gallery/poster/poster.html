@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>북평데이 수강생 작품 갤러리 포스터</title>
+<style>
+  @font-face { font-family: "Ddeoksang"; src: url("../fonts/ddeoksang.ttf") format("truetype"); }
+  @page { size: A3; margin: 0; }
+  :root {
+    --bg: #fffcf6;
+    --gold: #d6b25e;
+    --orange: #e2a26c;
+    --orange-deep: #cf8a52;
+    --brown: #9a6a45;
+    --berry: #e2554f;
+    --mint: #8fc49b;
+    --blush: #f8e3dc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 297mm; height: 420mm; background: var(--bg); }
+  body { font-family: "Ddeoksang", sans-serif; color: var(--orange); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .poster { position: relative; width: 297mm; height: 420mm; overflow: hidden; background: var(--bg); }
+
+  /* 금색 가는 선 프레임 */
+  .vline, .hline { position: absolute; background: var(--gold); }
+  .vline { top: 0; bottom: 0; width: .45mm; }
+  .vline.l { left: 17mm; } .vline.r { right: 17mm; }
+  .hline { left: 0; right: 0; height: .45mm; }
+  .hline.top { top: 104mm; }
+  .hline.mid { top: 334mm; left: 17mm; right: 17mm; }
+
+  /* 헤더 */
+  .title { position: absolute; top: 21mm; left: 0; right: 0; text-align: center; font-size: 46mm; line-height: 1; color: var(--orange); letter-spacing: 1mm; }
+  .subtitle { position: absolute; top: 69mm; left: 0; right: 0; text-align: center; font-size: 15mm; line-height: 1; color: var(--orange-deep); letter-spacing: .4mm; }
+
+  .lead { position: absolute; top: 115mm; left: 0; right: 0; text-align: center; font-size: 11mm; line-height: 1.1; color: var(--orange); }
+  .lead-sub { position: absolute; top: 130mm; left: 0; right: 0; text-align: center; font-size: 7.4mm; color: var(--orange-deep); }
+
+  /* QR 두 개 */
+  .halls { position: absolute; top: 146mm; left: 24mm; right: 24mm; display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+  .hall { text-align: center; }
+  .hall .no { font-size: 6.4mm; color: var(--gold); letter-spacing: .4mm; }
+  .collage { position: relative; height: 62mm; margin-top: 3mm; }
+  .collage .ph { position: absolute; top: 0; padding: 1.4mm; background: #fff; border: .45mm solid var(--gold); border-radius: 2.5mm; box-shadow: 0 .8mm 2mm rgba(154, 106, 69, .18); }
+  .collage .ph img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 1.6mm; }
+  .collage .a { left: 4mm; width: 38mm; height: 52mm; transform: rotate(-5deg); top: 6mm; }
+  .collage .b { left: 39mm; width: 40mm; height: 58mm; z-index: 2; }
+  .collage .c { right: 4mm; width: 38mm; height: 52mm; transform: rotate(5deg); top: 6mm; }
+  .collage .play { position: absolute; left: 50%; top: 50%; width: 11mm; height: 11mm; margin: -5.5mm 0 0 -5.5mm; border-radius: 50%; background: rgba(255, 255, 255, .9); display: flex; align-items: center; justify-content: center; color: var(--orange-deep); font-size: 5mm; padding-left: .8mm; }
+  .hall h2 { font-weight: 400; font-size: 11mm; color: var(--orange); margin-top: 5mm; letter-spacing: -.2mm; }
+  .hall .meta { font-size: 6.2mm; color: var(--orange-deep); margin-top: 2mm; }
+  .hall .desc { font-size: 5mm; line-height: 1.6; color: var(--brown); margin-top: 2.4mm; }
+  .qrbox { display: inline-flex; flex-direction: column; align-items: center; margin-top: 5mm; }
+  .qr { width: 46mm; height: 46mm; padding: 2mm; border: .45mm solid var(--gold); border-radius: 2.5mm; background: #fff; }
+  .qr img { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  .qrbox .cap { font-size: 5.6mm; color: var(--orange-deep); margin-top: 2.6mm; }
+
+  /* 보는 방법 */
+  .how-title { position: absolute; top: 341mm; left: 0; right: 0; text-align: center; font-size: 9mm; color: var(--orange); }
+  .steps { position: absolute; top: 356mm; left: 40mm; right: 40mm; display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+  .steps b { display: inline-flex; width: 8mm; height: 8mm; border-radius: 50%; background: var(--blush); color: var(--berry); font-size: 4.6mm; align-items: center; justify-content: center; }
+  .steps p { font-size: 5mm; line-height: 1.45; color: var(--orange-deep); margin-top: 2.4mm; }
+  .closing { position: absolute; top: 389mm; left: 0; right: 0; text-align: center; font-size: 7.4mm; color: var(--orange); }
+  .foot { position: absolute; top: 401mm; left: 0; right: 0; text-align: center; font-size: 4.4mm; color: #c9a98a; }
+
+  @media screen {
+    body { width: auto; height: auto; padding: 8mm; background: #e9e1d4; }
+    .poster { margin: 0 auto; box-shadow: 0 2mm 8mm rgba(0, 0, 0, .15); }
+  }
+  @media print { body { padding: 0; } .poster { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="vline l"></div><div class="vline r"></div>
+  <div class="hline top"></div><div class="hline mid"></div>
+
+  <div class="title">북평데이</div>
+  <div class="subtitle">AI 크리에이터 수강생 작품전</div>
+
+  <div class="lead">어르신들이 AI로 직접 만든 작품을 만나보세요</div>
+  <div class="lead-sub">꽃대어른학교 AI 크리에이터 과정 · 16번의 수업이 남긴 결과물</div>
+
+  <div class="halls">
+    <div class="hall">
+      <div class="no">QR 1</div>
+      <div class="collage">
+        <div class="ph a"><img src="../cardnews/img/s03/033.jpg" alt=""></div>
+        <div class="ph b"><img src="../cardnews/img/s01/005.jpg" alt=""></div>
+        <div class="ph c"><img src="../cardnews/img/s05/025.jpg" alt=""></div>
+      </div>
+      <h2>카드뉴스 · 정보 자료</h2>
+      <div class="meta">카드뉴스 240여 장 · 정보 자료 PDF 13권</div>
+      <div class="desc">여행·맛집·건강·복지 정보부터<br>가족 웹툰과 우리 동네 인포그래픽까지</div>
+      <div class="qrbox">
+        <div class="qr"><img src="qr-cardnews.png" alt="카드뉴스 갤러리 QR"></div>
+        <div class="cap">QR 찍고 카드뉴스 보기</div>
+      </div>
+    </div>
+    <div class="hall">
+      <div class="no">QR 2</div>
+      <div class="collage">
+        <div class="ph a"><img src="../videos/v/01_04.jpg" alt=""><span class="play">▶</span></div>
+        <div class="ph b"><img src="../videos/v/02_04.jpg" alt=""><span class="play">▶</span></div>
+        <div class="ph c"><img src="../videos/v/04_07.jpg" alt=""><span class="play">▶</span></div>
+      </div>
+      <h2>영상 작품</h2>
+      <div class="meta">AI로 만든 영상 100여 편</div>
+      <div class="desc">말바우시장 소개, 무등산 수박 곰 이야기,<br>내 얼굴로 만든 AI 아바타 안내 영상까지</div>
+      <div class="qrbox">
+        <div class="qr"><img src="qr-videos.png" alt="영상 갤러리 QR"></div>
+        <div class="cap">QR 찍고 영상 보기</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-title">이렇게 보세요</div>
+  <div class="steps">
+    <div><b>1</b><p>휴대폰<br>카메라를 켜요</p></div>
+    <div><b>2</b><p>보고 싶은<br>QR을 비춰요</p></div>
+    <div><b>3</b><p>화면에 뜬<br>주소를 눌러요</p></div>
+  </div>
+  <div class="closing">배움으로 피어난 우리의 작품, 함께 즐겨주세요</div>
+  <div class="foot">2026. 10. 29.(목) 10:00 ~ 15:00 · 북구평생학습관 · 꽃대어른학교 AI 크리에이터 과정</div>
+</div>
+</body>
+</html>

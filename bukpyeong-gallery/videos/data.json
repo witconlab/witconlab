@@ -1,0 +1,702 @@
+[
+ {
+  "key": "3차시",
+  "title": "우리 동네 소개 영상",
+  "desc": "NotebookLM으로 만든 북구 생활 정보 영상",
+  "items": [
+   {
+    "src": "v/06_01.mp4",
+    "poster": "v/06_01.jpg",
+    "vert": false,
+    "dur": 139,
+    "title": "2025 북구 무료 생활체육교실"
+   },
+   {
+    "src": "v/06_02.mp4",
+    "poster": "v/06_02.jpg",
+    "vert": false,
+    "dur": 120,
+    "title": "2025 주민자치센터 프로그램 페스티벌"
+   },
+   {
+    "src": "v/06_03.mp4",
+    "poster": "v/06_03.jpg",
+    "vert": false,
+    "dur": 108,
+    "title": "북구 맘편한 태교·요가교실"
+   },
+   {
+    "src": "v/06_04.mp4",
+    "poster": "v/06_04.jpg",
+    "vert": false,
+    "dur": 141,
+    "title": "북구종합체육관 랜선 투어"
+   }
+  ]
+ },
+ {
+  "key": "4차시",
+  "title": "생활 정보 영상",
+  "desc": "NotebookLM으로 만든 여행·건강·노후 정보",
+  "items": [
+   {
+    "src": "v/07_01.mp4",
+    "poster": "v/07_01.jpg",
+    "vert": false,
+    "dur": 100,
+    "title": "100세 시대 인생 2막 디자인"
+   },
+   {
+    "src": "v/07_02.mp4",
+    "poster": "v/07_02.jpg",
+    "vert": false,
+    "dur": 144,
+    "title": "2026 크루즈 여행 트렌드"
+   },
+   {
+    "src": "v/07_03.mp4",
+    "poster": "v/07_03.jpg",
+    "vert": false,
+    "dur": 71,
+    "title": "시니어를 위한 남미 여행 가이드"
+   },
+   {
+    "src": "v/07_04.mp4",
+    "poster": "v/07_04.jpg",
+    "vert": false,
+    "dur": 61,
+    "title": "인공관절 수술 6개월 후 관리"
+   }
+  ]
+ },
+ {
+  "key": "6차시",
+  "title": "우리 고장 역사 영상",
+  "desc": "NotebookLM으로 정리한 가문 이야기",
+  "items": [
+   {
+    "src": "v/08_01.mp4",
+    "poster": "v/08_01.jpg",
+    "vert": false,
+    "dur": 143,
+    "title": "광산 이씨  학자, 비극, 회복력"
+   }
+  ]
+ },
+ {
+  "key": "7차시",
+  "title": "AI 이미지로 영상 만들기",
+  "desc": "장보는 동물 친구들, 내가 1930년에 태어났다면?",
+  "items": [
+   {
+    "src": "v/09_01.mp4",
+    "poster": "v/09_01.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/09_02.mp4",
+    "poster": "v/09_02.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/09_03.mp4",
+    "poster": "v/09_03.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/09_04.mp4",
+    "poster": "v/09_04.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/09_05.mp4",
+    "poster": "v/09_05.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/09_06.mp4",
+    "poster": "v/09_06.jpg",
+    "vert": true,
+    "dur": 13,
+    "title": null
+   },
+   {
+    "src": "v/09_07.mp4",
+    "poster": "v/09_07.jpg",
+    "vert": true,
+    "dur": 13,
+    "title": null
+   },
+   {
+    "src": "v/09_08.mp4",
+    "poster": "v/09_08.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/09_09.mp4",
+    "poster": "v/09_09.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/09_10.mp4",
+    "poster": "v/09_10.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "8차시",
+  "title": "곰돌이 캐릭터 영상",
+  "desc": "같은 캐릭터로 장면 이어 만들기",
+  "items": [
+   {
+    "src": "v/10_06.mp4",
+    "poster": "v/10_06.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/10_11.mp4",
+    "poster": "v/10_11.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/10_16.mp4",
+    "poster": "v/10_16.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/10_17.mp4",
+    "poster": "v/10_17.jpg",
+    "vert": true,
+    "dur": 5,
+    "title": null
+   },
+   {
+    "src": "v/10_18.mp4",
+    "poster": "v/10_18.jpg",
+    "vert": true,
+    "dur": 9,
+    "title": null
+   },
+   {
+    "src": "v/10_20.mp4",
+    "poster": "v/10_20.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "9차시",
+  "title": "무등산 수박 곰 이야기",
+  "desc": "이야기를 만들고 장면을 이어 붙인 동화 영상",
+  "items": [
+   {
+    "src": "v/11_02.mp4",
+    "poster": "v/11_02.jpg",
+    "vert": true,
+    "dur": 37,
+    "title": null
+   },
+   {
+    "src": "v/11_03.mp4",
+    "poster": "v/11_03.jpg",
+    "vert": false,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/11_04.mp4",
+    "poster": "v/11_04.jpg",
+    "vert": false,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/11_05.mp4",
+    "poster": "v/11_05.jpg",
+    "vert": false,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/11_08.mp4",
+    "poster": "v/11_08.jpg",
+    "vert": false,
+    "dur": 24,
+    "title": null
+   },
+   {
+    "src": "v/11_11.mp4",
+    "poster": "v/11_11.jpg",
+    "vert": false,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/11_13.mp4",
+    "poster": "v/11_13.jpg",
+    "vert": false,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/11_14.mp4",
+    "poster": "v/11_14.jpg",
+    "vert": false,
+    "dur": 40,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "10차시",
+  "title": "말바우시장 소개 영상",
+  "desc": "AI 캐릭터가 소개하는 우리 동네 시장",
+  "items": [
+   {
+    "src": "v/01_02.mp4",
+    "poster": "v/01_02.jpg",
+    "vert": true,
+    "dur": 16,
+    "title": null
+   },
+   {
+    "src": "v/01_03.mp4",
+    "poster": "v/01_03.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/01_04.mp4",
+    "poster": "v/01_04.jpg",
+    "vert": true,
+    "dur": 33,
+    "title": null
+   },
+   {
+    "src": "v/01_05.mp4",
+    "poster": "v/01_05.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/01_06.mp4",
+    "poster": "v/01_06.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/01_07.mp4",
+    "poster": "v/01_07.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "11회차",
+  "title": "우리 동네 꽃집 이야기",
+  "desc": "AI 캐릭터 홍보 영상",
+  "items": [
+   {
+    "src": "v/02_01.mp4",
+    "poster": "v/02_01.jpg",
+    "vert": true,
+    "dur": 48,
+    "title": null
+   },
+   {
+    "src": "v/02_02.mp4",
+    "poster": "v/02_02.jpg",
+    "vert": true,
+    "dur": 28,
+    "title": null
+   },
+   {
+    "src": "v/02_03.mp4",
+    "poster": "v/02_03.jpg",
+    "vert": true,
+    "dur": 42,
+    "title": null
+   },
+   {
+    "src": "v/02_04.mp4",
+    "poster": "v/02_04.jpg",
+    "vert": true,
+    "dur": 48,
+    "title": null
+   },
+   {
+    "src": "v/02_05.mp4",
+    "poster": "v/02_05.jpg",
+    "vert": true,
+    "dur": 37,
+    "title": null
+   },
+   {
+    "src": "v/02_06.mp4",
+    "poster": "v/02_06.jpg",
+    "vert": true,
+    "dur": 34,
+    "title": null
+   },
+   {
+    "src": "v/02_07.mp4",
+    "poster": "v/02_07.jpg",
+    "vert": true,
+    "dur": 50,
+    "title": null
+   },
+   {
+    "src": "v/02_08.mp4",
+    "poster": "v/02_08.jpg",
+    "vert": true,
+    "dur": 39,
+    "title": null
+   },
+   {
+    "src": "v/02_09.mp4",
+    "poster": "v/02_09.jpg",
+    "vert": true,
+    "dur": 34,
+    "title": null
+   },
+   {
+    "src": "v/02_10.mp4",
+    "poster": "v/02_10.jpg",
+    "vert": true,
+    "dur": 30,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "12회차",
+  "title": "요리 영상과 AI 노래",
+  "desc": "우리 집 요리법, AI 캐릭터, Suno로 만든 노래",
+  "items": [
+   {
+    "src": "v/03_01.mp4",
+    "poster": "v/03_01.jpg",
+    "vert": true,
+    "dur": 8,
+    "title": null
+   },
+   {
+    "src": "v/03_03.mp4",
+    "poster": "v/03_03.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/03_04.mp4",
+    "poster": "v/03_04.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/03_06.mp4",
+    "poster": "v/03_06.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/03_07.mp4",
+    "poster": "v/03_07.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/03_09.mp4",
+    "poster": "v/03_09.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/03_02.mp4",
+    "poster": "v/03_02.jpg",
+    "vert": true,
+    "dur": 32,
+    "title": null
+   },
+   {
+    "src": "v/03_05.mp4",
+    "poster": "v/03_05.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/03_10.mp4",
+    "poster": "v/03_10.jpg",
+    "vert": true,
+    "dur": 35,
+    "title": null
+   },
+   {
+    "src": "v/03_11.mp4",
+    "poster": "v/03_11.jpg",
+    "vert": true,
+    "dur": 32,
+    "title": null
+   },
+   {
+    "src": "v/03_12.mp4",
+    "poster": "v/03_12.jpg",
+    "vert": true,
+    "dur": 31,
+    "title": null
+   },
+   {
+    "src": "v/03_13.mp4",
+    "poster": "v/03_13.jpg",
+    "vert": true,
+    "dur": 31,
+    "title": null
+   },
+   {
+    "src": "v/03_14.mp4",
+    "poster": "v/03_14.jpg",
+    "vert": true,
+    "dur": 30,
+    "title": null
+   },
+   {
+    "src": "v/03_15.mp4",
+    "poster": "v/03_15.jpg",
+    "vert": true,
+    "dur": 30,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "13차시",
+  "title": "북구 생활 지혜",
+  "desc": "AI 캐릭터가 알려주는 생활 정보",
+  "items": [
+   {
+    "src": "v/04_01.mp4",
+    "poster": "v/04_01.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/04_02.mp4",
+    "poster": "v/04_02.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/04_03.mp4",
+    "poster": "v/04_03.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/04_04.mp4",
+    "poster": "v/04_04.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/04_05.mp4",
+    "poster": "v/04_05.jpg",
+    "vert": true,
+    "dur": 32,
+    "title": null
+   },
+   {
+    "src": "v/04_06.mp4",
+    "poster": "v/04_06.jpg",
+    "vert": true,
+    "dur": 39,
+    "title": null
+   },
+   {
+    "src": "v/04_07.mp4",
+    "poster": "v/04_07.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/04_08.mp4",
+    "poster": "v/04_08.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/04_09.mp4",
+    "poster": "v/04_09.jpg",
+    "vert": true,
+    "dur": 48,
+    "title": null
+   },
+   {
+    "src": "v/04_10.mp4",
+    "poster": "v/04_10.jpg",
+    "vert": true,
+    "dur": 47,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "14회차",
+  "title": "AI 아바타가 알려드려요",
+  "desc": "내 얼굴로 만든 AI 아바타 안내 영상",
+  "items": [
+   {
+    "src": "v/12_01.mp4",
+    "poster": "v/12_01.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/12_02.mp4",
+    "poster": "v/12_02.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/12_03.mp4",
+    "poster": "v/12_03.jpg",
+    "vert": true,
+    "dur": 50,
+    "title": null
+   },
+   {
+    "src": "v/12_04.mp4",
+    "poster": "v/12_04.jpg",
+    "vert": true,
+    "dur": 32,
+    "title": null
+   },
+   {
+    "src": "v/12_05.mp4",
+    "poster": "v/12_05.jpg",
+    "vert": true,
+    "dur": 32,
+    "title": null
+   }
+  ]
+ },
+ {
+  "key": "15회차",
+  "title": "통합돌봄과 우리 고장",
+  "desc": "광주다움 통합돌봄 안내와 고장 이야기",
+  "items": [
+   {
+    "src": "v/05_02.mp4",
+    "poster": "v/05_02.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/05_03.mp4",
+    "poster": "v/05_03.jpg",
+    "vert": false,
+    "dur": 36,
+    "title": null
+   },
+   {
+    "src": "v/05_06.mp4",
+    "poster": "v/05_06.jpg",
+    "vert": true,
+    "dur": 38,
+    "title": null
+   },
+   {
+    "src": "v/05_08.mp4",
+    "poster": "v/05_08.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/05_10.mp4",
+    "poster": "v/05_10.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/05_11.mp4",
+    "poster": "v/05_11.jpg",
+    "vert": true,
+    "dur": 10,
+    "title": null
+   },
+   {
+    "src": "v/05_12.mp4",
+    "poster": "v/05_12.jpg",
+    "vert": true,
+    "dur": 60,
+    "title": null
+   },
+   {
+    "src": "v/05_13.mp4",
+    "poster": "v/05_13.jpg",
+    "vert": true,
+    "dur": 34,
+    "title": null
+   },
+   {
+    "src": "v/05_14.mp4",
+    "poster": "v/05_14.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   },
+   {
+    "src": "v/05_15.mp4",
+    "poster": "v/05_15.jpg",
+    "vert": true,
+    "dur": 40,
+    "title": null
+   }
+  ]
+ }
+]
