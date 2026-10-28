@@ -1088,11 +1088,6 @@
    },
    {
     "type": "img",
-    "src": "img/s06/005.jpg",
-    "thumb": "img/s06/005_t.jpg"
-   },
-   {
-    "type": "img",
     "src": "img/s06/006.jpg",
     "thumb": "img/s06/006_t.jpg"
    },
@@ -1115,11 +1110,6 @@
     "type": "img",
     "src": "img/s06/010.jpg",
     "thumb": "img/s06/010_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s06/011.jpg",
-    "thumb": "img/s06/011_t.jpg"
    },
    {
     "type": "img",
