@@ -1,0 +1,1652 @@
+[
+ {
+  "key": "1차시",
+  "title": "나만의 꽃대어른 다이어리",
+  "desc": "가족과 함께한 순간을 웹툰 다이어리로",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s01/004.jpg",
+    "thumb": "img/s01/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/005.jpg",
+    "thumb": "img/s01/005_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/006.jpg",
+    "thumb": "img/s01/006_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/007.jpg",
+    "thumb": "img/s01/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/008.jpg",
+    "thumb": "img/s01/008_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/009.jpg",
+    "thumb": "img/s01/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/010.jpg",
+    "thumb": "img/s01/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/011.jpg",
+    "thumb": "img/s01/011_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/012.jpg",
+    "thumb": "img/s01/012_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/013.jpg",
+    "thumb": "img/s01/013_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/014.jpg",
+    "thumb": "img/s01/014_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s01/015.jpg",
+    "thumb": "img/s01/015_t.jpg"
+   }
+  ]
+ },
+ {
+  "key": "3차시",
+  "title": "우리 동네 인포그래픽",
+  "desc": "NotebookLM으로 정리한 북구 생활 정보",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s02/001.jpg",
+    "thumb": "img/s02/001_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/002.jpg",
+    "thumb": "img/s02/002_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/003.jpg",
+    "thumb": "img/s02/003_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/004.jpg",
+    "thumb": "img/s02/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/005.jpg",
+    "thumb": "img/s02/005_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/006.jpg",
+    "thumb": "img/s02/006_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/007.jpg",
+    "thumb": "img/s02/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/008.jpg",
+    "thumb": "img/s02/008_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/009.jpg",
+    "thumb": "img/s02/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/010.jpg",
+    "thumb": "img/s02/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/011.jpg",
+    "thumb": "img/s02/011_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/012.jpg",
+    "thumb": "img/s02/012_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/013.jpg",
+    "thumb": "img/s02/013_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s02/014.jpg",
+    "thumb": "img/s02/014_t.jpg"
+   }
+  ]
+ },
+ {
+  "key": "4차시",
+  "title": "인스타그램 카드뉴스",
+  "desc": "여행·맛집·건강·복지 정보를 카드뉴스로",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s03/001.jpg",
+    "thumb": "img/s03/001_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/002.jpg",
+    "thumb": "img/s03/002_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/003.jpg",
+    "thumb": "img/s03/003_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/004.jpg",
+    "thumb": "img/s03/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/005.jpg",
+    "thumb": "img/s03/005_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/006.jpg",
+    "thumb": "img/s03/006_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/007.jpg",
+    "thumb": "img/s03/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/008.jpg",
+    "thumb": "img/s03/008_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/009.jpg",
+    "thumb": "img/s03/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/010.jpg",
+    "thumb": "img/s03/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/011.jpg",
+    "thumb": "img/s03/011_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/012.jpg",
+    "thumb": "img/s03/012_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/013.jpg",
+    "thumb": "img/s03/013_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/014.jpg",
+    "thumb": "img/s03/014_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/021.jpg",
+    "thumb": "img/s03/021_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/022.jpg",
+    "thumb": "img/s03/022_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/023.jpg",
+    "thumb": "img/s03/023_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/024.jpg",
+    "thumb": "img/s03/024_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/025.jpg",
+    "thumb": "img/s03/025_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/026.jpg",
+    "thumb": "img/s03/026_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/033.jpg",
+    "thumb": "img/s03/033_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/034.jpg",
+    "thumb": "img/s03/034_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/035.jpg",
+    "thumb": "img/s03/035_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/036.jpg",
+    "thumb": "img/s03/036_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/037.jpg",
+    "thumb": "img/s03/037_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/038.jpg",
+    "thumb": "img/s03/038_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/040.jpg",
+    "thumb": "img/s03/040_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/041.jpg",
+    "thumb": "img/s03/041_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/042.jpg",
+    "thumb": "img/s03/042_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/043.jpg",
+    "thumb": "img/s03/043_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/044.jpg",
+    "thumb": "img/s03/044_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/045.jpg",
+    "thumb": "img/s03/045_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/047.jpg",
+    "thumb": "img/s03/047_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/048.jpg",
+    "thumb": "img/s03/048_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/049.jpg",
+    "thumb": "img/s03/049_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/050.jpg",
+    "thumb": "img/s03/050_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/051.jpg",
+    "thumb": "img/s03/051_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/052.jpg",
+    "thumb": "img/s03/052_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/053.jpg",
+    "thumb": "img/s03/053_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/054.jpg",
+    "thumb": "img/s03/054_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/055.jpg",
+    "thumb": "img/s03/055_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/056.jpg",
+    "thumb": "img/s03/056_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/057.jpg",
+    "thumb": "img/s03/057_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/058.jpg",
+    "thumb": "img/s03/058_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/059.jpg",
+    "thumb": "img/s03/059_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/060.jpg",
+    "thumb": "img/s03/060_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/061.jpg",
+    "thumb": "img/s03/061_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/062.jpg",
+    "thumb": "img/s03/062_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/063.jpg",
+    "thumb": "img/s03/063_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/065.jpg",
+    "thumb": "img/s03/065_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/066.jpg",
+    "thumb": "img/s03/066_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/067.jpg",
+    "thumb": "img/s03/067_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/068.jpg",
+    "thumb": "img/s03/068_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/069.jpg",
+    "thumb": "img/s03/069_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/070.jpg",
+    "thumb": "img/s03/070_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/071.jpg",
+    "thumb": "img/s03/071_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/075.jpg",
+    "thumb": "img/s03/075_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/076.jpg",
+    "thumb": "img/s03/076_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/077.jpg",
+    "thumb": "img/s03/077_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/078.jpg",
+    "thumb": "img/s03/078_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/079.jpg",
+    "thumb": "img/s03/079_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/080.jpg",
+    "thumb": "img/s03/080_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/081.jpg",
+    "thumb": "img/s03/081_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/082.jpg",
+    "thumb": "img/s03/082_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/083.jpg",
+    "thumb": "img/s03/083_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/084.jpg",
+    "thumb": "img/s03/084_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/085.jpg",
+    "thumb": "img/s03/085_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/086.jpg",
+    "thumb": "img/s03/086_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/087.jpg",
+    "thumb": "img/s03/087_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/088.jpg",
+    "thumb": "img/s03/088_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/089.jpg",
+    "thumb": "img/s03/089_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/090.jpg",
+    "thumb": "img/s03/090_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/091.jpg",
+    "thumb": "img/s03/091_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/092.jpg",
+    "thumb": "img/s03/092_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/093.jpg",
+    "thumb": "img/s03/093_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/094.jpg",
+    "thumb": "img/s03/094_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s03/099.jpg",
+    "thumb": "img/s03/099_t.jpg"
+   }
+  ]
+ },
+ {
+  "key": "5차시",
+  "title": "카드뉴스 더 만들기",
+  "desc": "마음쉼터·ESG·탁구 예절·어르신 복지 혜택",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s04/001.jpg",
+    "thumb": "img/s04/001_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/002.jpg",
+    "thumb": "img/s04/002_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/003.jpg",
+    "thumb": "img/s04/003_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/004.jpg",
+    "thumb": "img/s04/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/005.jpg",
+    "thumb": "img/s04/005_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/006.jpg",
+    "thumb": "img/s04/006_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/007.jpg",
+    "thumb": "img/s04/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/008.jpg",
+    "thumb": "img/s04/008_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/009.jpg",
+    "thumb": "img/s04/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/010.jpg",
+    "thumb": "img/s04/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/018.jpg",
+    "thumb": "img/s04/018_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/019.jpg",
+    "thumb": "img/s04/019_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/020.jpg",
+    "thumb": "img/s04/020_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/021.jpg",
+    "thumb": "img/s04/021_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/022.jpg",
+    "thumb": "img/s04/022_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/023.jpg",
+    "thumb": "img/s04/023_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/024.jpg",
+    "thumb": "img/s04/024_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/025.jpg",
+    "thumb": "img/s04/025_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/026.jpg",
+    "thumb": "img/s04/026_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/027.jpg",
+    "thumb": "img/s04/027_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/028.jpg",
+    "thumb": "img/s04/028_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/029.jpg",
+    "thumb": "img/s04/029_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/030.jpg",
+    "thumb": "img/s04/030_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/031.jpg",
+    "thumb": "img/s04/031_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/032.jpg",
+    "thumb": "img/s04/032_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/033.jpg",
+    "thumb": "img/s04/033_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/034.jpg",
+    "thumb": "img/s04/034_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/035.jpg",
+    "thumb": "img/s04/035_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/036.jpg",
+    "thumb": "img/s04/036_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/037.jpg",
+    "thumb": "img/s04/037_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/038.jpg",
+    "thumb": "img/s04/038_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/039.jpg",
+    "thumb": "img/s04/039_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/040.jpg",
+    "thumb": "img/s04/040_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/041.jpg",
+    "thumb": "img/s04/041_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/042.jpg",
+    "thumb": "img/s04/042_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/043.jpg",
+    "thumb": "img/s04/043_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/044.jpg",
+    "thumb": "img/s04/044_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/045.jpg",
+    "thumb": "img/s04/045_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/046.jpg",
+    "thumb": "img/s04/046_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/047.jpg",
+    "thumb": "img/s04/047_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/048.jpg",
+    "thumb": "img/s04/048_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/049.jpg",
+    "thumb": "img/s04/049_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/050.jpg",
+    "thumb": "img/s04/050_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/051.jpg",
+    "thumb": "img/s04/051_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/052.jpg",
+    "thumb": "img/s04/052_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/053.jpg",
+    "thumb": "img/s04/053_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/054.jpg",
+    "thumb": "img/s04/054_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/055.jpg",
+    "thumb": "img/s04/055_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/056.jpg",
+    "thumb": "img/s04/056_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/057.jpg",
+    "thumb": "img/s04/057_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/058.jpg",
+    "thumb": "img/s04/058_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/059.jpg",
+    "thumb": "img/s04/059_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/060.jpg",
+    "thumb": "img/s04/060_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/061.jpg",
+    "thumb": "img/s04/061_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/062.jpg",
+    "thumb": "img/s04/062_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/063.jpg",
+    "thumb": "img/s04/063_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/064.jpg",
+    "thumb": "img/s04/064_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/065.jpg",
+    "thumb": "img/s04/065_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/066.jpg",
+    "thumb": "img/s04/066_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/067.jpg",
+    "thumb": "img/s04/067_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/068.jpg",
+    "thumb": "img/s04/068_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/069.jpg",
+    "thumb": "img/s04/069_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/070.jpg",
+    "thumb": "img/s04/070_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/071.jpg",
+    "thumb": "img/s04/071_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/072.jpg",
+    "thumb": "img/s04/072_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/073.jpg",
+    "thumb": "img/s04/073_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/074.jpg",
+    "thumb": "img/s04/074_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/075.jpg",
+    "thumb": "img/s04/075_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/076.jpg",
+    "thumb": "img/s04/076_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/077.jpg",
+    "thumb": "img/s04/077_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/078.jpg",
+    "thumb": "img/s04/078_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/079.jpg",
+    "thumb": "img/s04/079_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/080.jpg",
+    "thumb": "img/s04/080_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/081.jpg",
+    "thumb": "img/s04/081_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/082.jpg",
+    "thumb": "img/s04/082_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/083.jpg",
+    "thumb": "img/s04/083_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/084.jpg",
+    "thumb": "img/s04/084_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/085.jpg",
+    "thumb": "img/s04/085_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/086.jpg",
+    "thumb": "img/s04/086_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/087.jpg",
+    "thumb": "img/s04/087_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/088.jpg",
+    "thumb": "img/s04/088_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s04/089.jpg",
+    "thumb": "img/s04/089_t.jpg"
+   },
+   {
+    "type": "pdf",
+    "title": "2025 북구 어르신 혜택",
+    "thumb": "img/s04/pdf01/cover_t.jpg",
+    "pages": [
+     "img/s04/pdf01/p-1.jpg",
+     "img/s04/pdf01/p-2.jpg",
+     "img/s04/pdf01/p-3.jpg",
+     "img/s04/pdf01/p-4.jpg",
+     "img/s04/pdf01/p-5.jpg",
+     "img/s04/pdf01/p-6.jpg",
+     "img/s04/pdf01/p-7.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "파크골프 쉽게 배우기",
+    "thumb": "img/s04/pdf02/cover_t.jpg",
+    "pages": [
+     "img/s04/pdf02/p-1.jpg",
+     "img/s04/pdf02/p-2.jpg",
+     "img/s04/pdf02/p-3.jpg",
+     "img/s04/pdf02/p-4.jpg",
+     "img/s04/pdf02/p-5.jpg",
+     "img/s04/pdf02/p-6.jpg"
+    ]
+   }
+  ]
+ },
+ {
+  "key": "6차시",
+  "title": "요리·역사 카드뉴스와 웹툰",
+  "desc": "우리 집 요리법과 가문 이야기, AI 웹툰",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s05/004.jpg",
+    "thumb": "img/s05/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/007.jpg",
+    "thumb": "img/s05/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/009.jpg",
+    "thumb": "img/s05/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/010.jpg",
+    "thumb": "img/s05/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/011.jpg",
+    "thumb": "img/s05/011_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/012.jpg",
+    "thumb": "img/s05/012_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/013.jpg",
+    "thumb": "img/s05/013_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/014.jpg",
+    "thumb": "img/s05/014_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/015.jpg",
+    "thumb": "img/s05/015_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/016.jpg",
+    "thumb": "img/s05/016_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/017.jpg",
+    "thumb": "img/s05/017_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/018.jpg",
+    "thumb": "img/s05/018_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/019.jpg",
+    "thumb": "img/s05/019_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/020.jpg",
+    "thumb": "img/s05/020_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/023.jpg",
+    "thumb": "img/s05/023_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/024.jpg",
+    "thumb": "img/s05/024_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/025.jpg",
+    "thumb": "img/s05/025_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/026.jpg",
+    "thumb": "img/s05/026_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/027.jpg",
+    "thumb": "img/s05/027_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/028.jpg",
+    "thumb": "img/s05/028_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/029.jpg",
+    "thumb": "img/s05/029_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/030.jpg",
+    "thumb": "img/s05/030_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/031.jpg",
+    "thumb": "img/s05/031_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/032.jpg",
+    "thumb": "img/s05/032_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/033.jpg",
+    "thumb": "img/s05/033_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/034.jpg",
+    "thumb": "img/s05/034_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/035.jpg",
+    "thumb": "img/s05/035_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/036.jpg",
+    "thumb": "img/s05/036_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/037.jpg",
+    "thumb": "img/s05/037_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/038.jpg",
+    "thumb": "img/s05/038_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/039.jpg",
+    "thumb": "img/s05/039_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/040.jpg",
+    "thumb": "img/s05/040_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/041.jpg",
+    "thumb": "img/s05/041_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/042.jpg",
+    "thumb": "img/s05/042_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/043.jpg",
+    "thumb": "img/s05/043_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/044.jpg",
+    "thumb": "img/s05/044_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/045.jpg",
+    "thumb": "img/s05/045_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/048.jpg",
+    "thumb": "img/s05/048_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/049.jpg",
+    "thumb": "img/s05/049_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/050.jpg",
+    "thumb": "img/s05/050_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s05/051.jpg",
+    "thumb": "img/s05/051_t.jpg"
+   }
+  ]
+ },
+ {
+  "key": "7차시",
+  "title": "AI 이미지 디자인",
+  "desc": "음식 사진과 매생이 떡국 포스터",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s06/001.jpg",
+    "thumb": "img/s06/001_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/002.jpg",
+    "thumb": "img/s06/002_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/003.jpg",
+    "thumb": "img/s06/003_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/004.jpg",
+    "thumb": "img/s06/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/005.jpg",
+    "thumb": "img/s06/005_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/006.jpg",
+    "thumb": "img/s06/006_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/007.jpg",
+    "thumb": "img/s06/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/008.jpg",
+    "thumb": "img/s06/008_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/009.jpg",
+    "thumb": "img/s06/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/010.jpg",
+    "thumb": "img/s06/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/011.jpg",
+    "thumb": "img/s06/011_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/012.jpg",
+    "thumb": "img/s06/012_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/013.jpg",
+    "thumb": "img/s06/013_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/014.jpg",
+    "thumb": "img/s06/014_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/015.jpg",
+    "thumb": "img/s06/015_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/016.jpg",
+    "thumb": "img/s06/016_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/017.jpg",
+    "thumb": "img/s06/017_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/018.jpg",
+    "thumb": "img/s06/018_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s06/019.jpg",
+    "thumb": "img/s06/019_t.jpg"
+   }
+  ]
+ },
+ {
+  "key": "8차시",
+  "title": "매일의 영감 수집",
+  "desc": "일상 기록 인포그래픽",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s07/002.jpg",
+    "thumb": "img/s07/002_t.jpg"
+   },
+   {
+    "type": "pdf",
+    "title": "Daily Inspiration Collection",
+    "thumb": "img/s07/pdf01/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf01/p-01.jpg",
+     "img/s07/pdf01/p-02.jpg",
+     "img/s07/pdf01/p-03.jpg",
+     "img/s07/pdf01/p-04.jpg",
+     "img/s07/pdf01/p-05.jpg",
+     "img/s07/pdf01/p-06.jpg",
+     "img/s07/pdf01/p-07.jpg",
+     "img/s07/pdf01/p-08.jpg",
+     "img/s07/pdf01/p-09.jpg",
+     "img/s07/pdf01/p-10.jpg",
+     "img/s07/pdf01/p-11.jpg",
+     "img/s07/pdf01/p-12.jpg",
+     "img/s07/pdf01/p-13.jpg",
+     "img/s07/pdf01/p-14.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Daily Inspiration Scrapbook",
+    "thumb": "img/s07/pdf02/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf02/p-01.jpg",
+     "img/s07/pdf02/p-02.jpg",
+     "img/s07/pdf02/p-03.jpg",
+     "img/s07/pdf02/p-04.jpg",
+     "img/s07/pdf02/p-05.jpg",
+     "img/s07/pdf02/p-06.jpg",
+     "img/s07/pdf02/p-07.jpg",
+     "img/s07/pdf02/p-08.jpg",
+     "img/s07/pdf02/p-09.jpg",
+     "img/s07/pdf02/p-10.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Daily Senior Inspiration",
+    "thumb": "img/s07/pdf03/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf03/p-01.jpg",
+     "img/s07/pdf03/p-02.jpg",
+     "img/s07/pdf03/p-03.jpg",
+     "img/s07/pdf03/p-04.jpg",
+     "img/s07/pdf03/p-05.jpg",
+     "img/s07/pdf03/p-06.jpg",
+     "img/s07/pdf03/p-07.jpg",
+     "img/s07/pdf03/p-08.jpg",
+     "img/s07/pdf03/p-09.jpg",
+     "img/s07/pdf03/p-10.jpg",
+     "img/s07/pdf03/p-11.jpg",
+     "img/s07/pdf03/p-12.jpg",
+     "img/s07/pdf03/p-13.jpg",
+     "img/s07/pdf03/p-14.jpg",
+     "img/s07/pdf03/p-15.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Galaxy Senior Visibility Guide",
+    "thumb": "img/s07/pdf04/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf04/p-1.jpg",
+     "img/s07/pdf04/p-2.jpg",
+     "img/s07/pdf04/p-3.jpg",
+     "img/s07/pdf04/p-4.jpg",
+     "img/s07/pdf04/p-5.jpg",
+     "img/s07/pdf04/p-6.jpg",
+     "img/s07/pdf04/p-7.jpg",
+     "img/s07/pdf04/p-8.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Galaxy Vision Guide",
+    "thumb": "img/s07/pdf05/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf05/p-01.jpg",
+     "img/s07/pdf05/p-02.jpg",
+     "img/s07/pdf05/p-03.jpg",
+     "img/s07/pdf05/p-04.jpg",
+     "img/s07/pdf05/p-05.jpg",
+     "img/s07/pdf05/p-06.jpg",
+     "img/s07/pdf05/p-07.jpg",
+     "img/s07/pdf05/p-08.jpg",
+     "img/s07/pdf05/p-09.jpg",
+     "img/s07/pdf05/p-10.jpg",
+     "img/s07/pdf05/p-11.jpg",
+     "img/s07/pdf05/p-12.jpg",
+     "img/s07/pdf05/p-13.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Senior Daily Inspiration",
+    "thumb": "img/s07/pdf06/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf06/p-1.jpg",
+     "img/s07/pdf06/p-2.jpg",
+     "img/s07/pdf06/p-3.jpg",
+     "img/s07/pdf06/p-4.jpg",
+     "img/s07/pdf06/p-5.jpg",
+     "img/s07/pdf06/p-6.jpg",
+     "img/s07/pdf06/p-7.jpg",
+     "img/s07/pdf06/p-8.jpg",
+     "img/s07/pdf06/p-9.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Senior Galaxy Clarity Guide",
+    "thumb": "img/s07/pdf07/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf07/p-01.jpg",
+     "img/s07/pdf07/p-02.jpg",
+     "img/s07/pdf07/p-03.jpg",
+     "img/s07/pdf07/p-04.jpg",
+     "img/s07/pdf07/p-05.jpg",
+     "img/s07/pdf07/p-06.jpg",
+     "img/s07/pdf07/p-07.jpg",
+     "img/s07/pdf07/p-08.jpg",
+     "img/s07/pdf07/p-09.jpg",
+     "img/s07/pdf07/p-10.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Senior Galaxy View Guide",
+    "thumb": "img/s07/pdf08/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf08/p-01.jpg",
+     "img/s07/pdf08/p-02.jpg",
+     "img/s07/pdf08/p-03.jpg",
+     "img/s07/pdf08/p-04.jpg",
+     "img/s07/pdf08/p-05.jpg",
+     "img/s07/pdf08/p-06.jpg",
+     "img/s07/pdf08/p-07.jpg",
+     "img/s07/pdf08/p-08.jpg",
+     "img/s07/pdf08/p-09.jpg",
+     "img/s07/pdf08/p-10.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Senior Inspiration Scrapbook",
+    "thumb": "img/s07/pdf09/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf09/p-01.jpg",
+     "img/s07/pdf09/p-02.jpg",
+     "img/s07/pdf09/p-03.jpg",
+     "img/s07/pdf09/p-04.jpg",
+     "img/s07/pdf09/p-05.jpg",
+     "img/s07/pdf09/p-06.jpg",
+     "img/s07/pdf09/p-07.jpg",
+     "img/s07/pdf09/p-08.jpg",
+     "img/s07/pdf09/p-09.jpg",
+     "img/s07/pdf09/p-10.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "Senior Life Curation",
+    "thumb": "img/s07/pdf10/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf10/p-01.jpg",
+     "img/s07/pdf10/p-02.jpg",
+     "img/s07/pdf10/p-03.jpg",
+     "img/s07/pdf10/p-04.jpg",
+     "img/s07/pdf10/p-05.jpg",
+     "img/s07/pdf10/p-06.jpg",
+     "img/s07/pdf10/p-07.jpg",
+     "img/s07/pdf10/p-08.jpg",
+     "img/s07/pdf10/p-09.jpg",
+     "img/s07/pdf10/p-10.jpg"
+    ]
+   },
+   {
+    "type": "pdf",
+    "title": "The Daily Inspiration Collector",
+    "thumb": "img/s07/pdf11/cover_t.jpg",
+    "pages": [
+     "img/s07/pdf11/p-01.jpg",
+     "img/s07/pdf11/p-02.jpg",
+     "img/s07/pdf11/p-03.jpg",
+     "img/s07/pdf11/p-04.jpg",
+     "img/s07/pdf11/p-05.jpg",
+     "img/s07/pdf11/p-06.jpg",
+     "img/s07/pdf11/p-07.jpg",
+     "img/s07/pdf11/p-08.jpg",
+     "img/s07/pdf11/p-09.jpg",
+     "img/s07/pdf11/p-10.jpg",
+     "img/s07/pdf11/p-11.jpg",
+     "img/s07/pdf11/p-12.jpg",
+     "img/s07/pdf11/p-13.jpg",
+     "img/s07/pdf11/p-14.jpg"
+    ]
+   }
+  ]
+ },
+ {
+  "key": "14회차",
+  "title": "복지 혜택 안내",
+  "desc": "2026 어르신 3대 복지 혜택",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s08/001.jpg",
+    "thumb": "img/s08/001_t.jpg"
+   }
+  ]
+ },
+ {
+  "key": "16회차",
+  "title": "시화와 행사 포스터",
+  "desc": "가을 시화, 모임·행사 포스터",
+  "items": [
+   {
+    "type": "img",
+    "src": "img/s09/001.jpg",
+    "thumb": "img/s09/001_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/002.jpg",
+    "thumb": "img/s09/002_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/003.jpg",
+    "thumb": "img/s09/003_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/004.jpg",
+    "thumb": "img/s09/004_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/005.jpg",
+    "thumb": "img/s09/005_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/006.jpg",
+    "thumb": "img/s09/006_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/007.jpg",
+    "thumb": "img/s09/007_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/008.jpg",
+    "thumb": "img/s09/008_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/009.jpg",
+    "thumb": "img/s09/009_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/010.jpg",
+    "thumb": "img/s09/010_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/011.jpg",
+    "thumb": "img/s09/011_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/012.jpg",
+    "thumb": "img/s09/012_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/013.jpg",
+    "thumb": "img/s09/013_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/014.jpg",
+    "thumb": "img/s09/014_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/015.jpg",
+    "thumb": "img/s09/015_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/016.jpg",
+    "thumb": "img/s09/016_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/017.jpg",
+    "thumb": "img/s09/017_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/018.jpg",
+    "thumb": "img/s09/018_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/019.jpg",
+    "thumb": "img/s09/019_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/020.jpg",
+    "thumb": "img/s09/020_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/021.jpg",
+    "thumb": "img/s09/021_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/022.jpg",
+    "thumb": "img/s09/022_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/023.jpg",
+    "thumb": "img/s09/023_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/024.jpg",
+    "thumb": "img/s09/024_t.jpg"
+   },
+   {
+    "type": "img",
+    "src": "img/s09/025.jpg",
+    "thumb": "img/s09/025_t.jpg"
+   }
+  ]
+ }
+]

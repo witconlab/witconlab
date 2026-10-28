@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>카드뉴스 갤러리 · 꽃대어른학교</title>
+<link rel="stylesheet" href="../gallery.css">
+</head>
+<body>
+<header class="hero">
+  <p class="eyebrow">2026 북평데이 · 꽃대어른학교 AI 크리에이터 과정</p>
+  <h1>카드뉴스 · 정보 자료<br>갤러리</h1>
+  <p class="lead">수강생들이 AI로 직접 만든 카드뉴스와 정보 자료예요.<br>그림을 누르면 크게 보고 옆으로 넘길 수 있어요.</p>
+</header>
+<nav class="chips" id="chips"></nav>
+<main id="main"></main>
+<footer class="foot">
+  <a class="cross" href="../videos/">🎬 수강생 영상 작품 보러 가기</a>
+  <p>꽃대어른학교 AI 크리에이터 과정 · 북구평생학습관</p>
+</footer>
+
+<div class="lb" id="lb" hidden>
+  <div class="lb-bar">
+    <span id="lbCount"></span>
+    <button type="button" id="lbClose" aria-label="닫기">✕</button>
+  </div>
+  <div class="lb-track" id="lbTrack"></div>
+  <button type="button" class="lb-nav prev" id="lbPrev" aria-label="이전">‹</button>
+  <button type="button" class="lb-nav next" id="lbNext" aria-label="다음">›</button>
+</div>
+
+<script>
+const lb = document.getElementById("lb"), track = document.getElementById("lbTrack"), count = document.getElementById("lbCount");
+
+function openLB(srcs, start) {
+  track.innerHTML = srcs.map((s, i) =>
+    `<figure><img src="${s}" alt="" loading="${Math.abs(i - start) <= 1 ? "eager" : "lazy"}" decoding="async"></figure>`).join("");
+  lb.hidden = false;
+  document.body.style.overflow = "hidden";
+  track.scrollLeft = start * track.clientWidth;
+  updateCount();
+  history.pushState({ lb: 1 }, "");
+}
+function closeLB() {
+  lb.hidden = true;
+  document.body.style.overflow = "";
+  track.innerHTML = "";
+}
+function updateCount() {
+  const n = track.children.length, i = Math.round(track.scrollLeft / track.clientWidth);
+  count.textContent = `${i + 1} / ${n}`;
+}
+function step(d) { track.scrollBy({ left: d * track.clientWidth, behavior: "smooth" }); }
+
+track.addEventListener("scroll", () => requestAnimationFrame(updateCount), { passive: true });
+document.getElementById("lbClose").onclick = () => history.back();
+document.getElementById("lbPrev").onclick = () => step(-1);
+document.getElementById("lbNext").onclick = () => step(1);
+window.addEventListener("popstate", () => { if (!lb.hidden) closeLB(); });
+document.addEventListener("keydown", e => {
+  if (lb.hidden) return;
+  if (e.key === "Escape") history.back();
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+
+fetch("data.json").then(r => r.json()).then(data => {
+  const chips = document.getElementById("chips"), main = document.getElementById("main");
+  data.forEach((s, si) => {
+    const id = "s" + si;
+    chips.insertAdjacentHTML("beforeend", `<a href="#${id}">${s.key}</a>`);
+    const imgs = s.items.filter(it => it.type === "img");
+    const pdfs = s.items.filter(it => it.type === "pdf");
+    const sec = document.createElement("section");
+    sec.id = id;
+    sec.innerHTML = `
+      <div class="sec-head"><span class="tag">${s.key}</span><h2>${s.title}</h2><p>${s.desc}</p></div>
+      ${pdfs.length ? `<h3 class="sub">📄 정보 자료</h3><div class="grid pdfs">${pdfs.map((p, i) =>
+        `<button type="button" class="card pdf" data-pdf="${i}"><img src="${p.thumb}" alt="" loading="lazy"><span class="badge">PDF · ${p.pages.length}쪽</span></button>`).join("")}</div>` : ""}
+      ${imgs.length ? `${pdfs.length ? '<h3 class="sub">🖼 카드뉴스</h3>' : ""}<div class="grid">${imgs.map((it, i) =>
+        `<button type="button" class="card" data-img="${i}"><img src="${it.thumb}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}`;
+    sec.addEventListener("click", e => {
+      const b = e.target.closest("button.card");
+      if (!b) return;
+      if (b.dataset.pdf !== undefined) openLB(pdfs[+b.dataset.pdf].pages, 0);
+      else openLB(imgs.map(it => it.src), +b.dataset.img);
+    });
+    main.appendChild(sec);
+  });
+});
+</script>
+</body>
+</html>
