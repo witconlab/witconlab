@@ -458,7 +458,7 @@
  {
   "key": "5차시",
   "title": "카드뉴스 더 만들기",
-  "desc": "마음쉼터·ESG·탁구 예절·어르신 복지 혜택",
+  "desc": "그림책 마음쉼터·ESG·여행·어르신 복지 혜택",
   "items": [
    {
     "type": "img",
@@ -489,26 +489,6 @@
     "type": "img",
     "src": "img/s04/006.jpg",
     "thumb": "img/s04/006_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/007.jpg",
-    "thumb": "img/s04/007_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/008.jpg",
-    "thumb": "img/s04/008_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/009.jpg",
-    "thumb": "img/s04/009_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/010.jpg",
-    "thumb": "img/s04/010_t.jpg"
    },
    {
     "type": "img",
@@ -659,36 +639,6 @@
     "type": "img",
     "src": "img/s04/047.jpg",
     "thumb": "img/s04/047_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/048.jpg",
-    "thumb": "img/s04/048_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/049.jpg",
-    "thumb": "img/s04/049_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/050.jpg",
-    "thumb": "img/s04/050_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/051.jpg",
-    "thumb": "img/s04/051_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/052.jpg",
-    "thumb": "img/s04/052_t.jpg"
-   },
-   {
-    "type": "img",
-    "src": "img/s04/053.jpg",
-    "thumb": "img/s04/053_t.jpg"
    },
    {
     "type": "img",
