@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>진 관리 - 선생님</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="css/zine.css">
+<style>
+  body { padding-top: 20px; padding-bottom: 40px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 40px; line-height: 1.1; }
+  h2 { margin: 0 0 10px; font-size: 30px; line-height: 1.1; }
+  .card { background: var(--white); border: 2px solid var(--ink); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 18px; margin-top: 16px; }
+  .login { max-width: 380px; margin: 40px auto 0; }
+  .msg { margin: 12px 0 0; padding: 10px 14px; border: 2px solid var(--ink); border-radius: var(--radius); font-size: 15px; background: var(--yellow); overflow-wrap: anywhere; }
+  .msg.err { background: #fde0dc; border-color: var(--red); }
+  .msg.ok { background: var(--lime); }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .bar .grow { flex: 1 1 auto; }
+  .sm { min-height: 40px; padding: 0 14px; font-size: 14px; }
+  .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; }
+  .chk input { width: 20px; height: 20px; accent-color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1.5px dashed rgba(43, 38, 32, .35); font-size: 15px; vertical-align: middle; }
+  th { font-size: 13px; color: var(--ink-soft); }
+  td.act { display: flex; flex-wrap: wrap; gap: 6px; }
+  td.nm { font-weight: 700; font-size: 17px; }
+  a.btn { text-decoration: none; }
+  .empty { margin: 14px 0 0; color: var(--ink-soft); }
+  .stk-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; }
+  .stk-row .input { flex: 1 1 160px; min-height: 44px; }
+  ul.fails { margin: 6px 0 0; padding-left: 20px; }
+  @media (max-width: 640px) {
+    h1 { font-size: 34px; }
+    table, tbody, tr, td { display: block; }
+    thead { display: none; }
+    tr { margin-top: 12px; padding: 12px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--cream); }
+    td { border: 0; padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; }
+    td::before { content: attr(data-label); color: var(--ink-soft); font-size: 13px; flex: none; }
+    td.act { justify-content: flex-start; padding-top: 8px; }
+    td.act::before, td.sel::before { content: none; }
+    td.nm { font-size: 19px; }
+  }
+</style>
+</head>
+<body class="dot-paper">
+<div class="wrap">
+  <section class="card login" id="loginView">
+    <h1 class="hand">선생님 입장</h1>
+    <form id="loginForm" novalidate>
+      <label for="pw" style="display:block;margin:12px 0 6px;font-weight:700">관리자 비밀번호</label>
+      <input class="input" id="pw" type="password" autocomplete="off" required>
+      <div class="msg err" id="loginErr" role="alert" hidden></div>
+      <button class="btn btn-primary btn-block" id="loginBtn" type="submit" style="margin-top:16px">들어가기</button>
+    </form>
+  </section>
+
+  <main id="mainView" hidden>
+    <div class="bar">
+      <h1 class="hand grow">진 관리</h1>
+      <button class="btn sm" id="reload" type="button">새로고침</button>
+      <button class="btn sm" id="logout" type="button">나가기</button>
+    </div>
+    <div class="msg err" id="topErr" role="alert" hidden></div>
+    <div class="msg ok" id="topOk" role="status" hidden></div>
+
+    <section class="card">
+      <div class="bar">
+        <h2 class="hand grow" id="summary">학생</h2>
+      </div>
+      <div class="bar" style="margin-top:6px">
+        <label class="chk"><input type="checkbox" id="selAll"> 모두 선택</label>
+        <label class="chk"><input type="checkbox" id="guides" checked> 접는 선 표시</label>
+        <button class="btn btn-primary sm" id="a3Btn" type="button" disabled>A3 접기용 PDF</button>
+      </div>
+      <div class="msg" id="a3Msg" role="status" hidden></div>
+      <div class="msg err" id="a3Warn" role="alert" hidden></div>
+      <p class="empty" id="empty" hidden>아직 만든 학생이 없어요.</p>
+      <table id="tbl">
+        <thead><tr><th></th><th>이름</th><th>채운 쪽</th><th>마지막 수정</th><th>완성</th><th>잠김</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2 class="hand">스티커 추가</h2>
+      <p style="margin:0;font-size:14px;color:var(--ink-soft)">배경이 투명한 PNG를 추천해요. 올리면 학생 편집기의 스티커 목록에 나타나요.</p>
+      <div class="stk-row">
+        <input type="file" id="stkFile" accept="image/png,image/jpeg,image/webp,image/gif">
+        <input class="input" id="stkName" type="text" maxlength="40" placeholder="스티커 이름">
+        <button class="btn sm" id="stkBtn" type="button">올리기</button>
+      </div>
+      <div class="msg err" id="stkErr" role="alert" hidden></div>
+      <div class="msg ok" id="stkOk" role="status" hidden></div>
+    </section>
+  </main>
+</div>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
