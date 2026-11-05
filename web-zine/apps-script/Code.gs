@@ -26,6 +26,7 @@ function setup() {
     props.setProperty('ROOT_FOLDER_ID', root.getId());
   }
   child_(root, STICKER_FOLDER, true);
+  Logger.log('설치 완료 · 웹진 폴더 ID: ' + root.getId());
   return root.getId();
 }
 

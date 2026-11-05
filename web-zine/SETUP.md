@@ -26,7 +26,7 @@
 2. **실행**을 누릅니다.
 3. "승인 필요" 창이 뜨면 **권한 검토** → 본인 구글 계정 선택.
 4. "Google에서 확인하지 않은 앱" 화면이 나오면 정상입니다(내가 만든 프로그램이라서요). **고급** → **웹진(안전하지 않음)으로 이동** → **허용**을 누릅니다.
-5. 아래 "실행 로그"에 `ROOT_FOLDER_ID` 같은 글이 나오면 성공입니다. 내 구글 드라이브에 `웹진` 폴더가 생겼는지 확인해 보세요.
+5. 아래 "실행 로그"에 **실행 완료**가 나오고 **설치 완료**가 보이며, 내 구글 드라이브에 `웹진` 폴더가 생기면 성공입니다.
 
 (화면 캡처: 권한 허용 화면의 "고급" 위치)
 
@@ -81,7 +81,7 @@
 - 학생 화면: https://witconlab.github.io/witconlab/web-zine/
 - 선생님 화면: https://witconlab.github.io/witconlab/web-zine/admin.html
 
-켜져 있지 않다면: GitHub 저장소 → **Settings** → **Pages** → Branch를 배포할 브랜치(예: `main`), 폴더 `/ (root)`로 선택 → Save. 웹진 파일은 `web-zine` 폴더에 있으므로 주소 끝에 `/web-zine/`가 붙습니다. 웹진을 `main`에 합치기 전이라면 브랜치 선택에 `web-zine`이 보이는지 확인하세요.
+켜져 있지 않다면: GitHub 저장소 → **Settings** → **Pages** → Branch를 배포할 브랜치(예: `main`), 폴더 `/ (root)`로 선택 → Save. 배포가 끝나면 **Settings → Pages** 화면 위쪽에 실제 접속 주소가 나타납니다. 웹진 파일은 `web-zine` 폴더에 있으므로 주소 끝에 `/web-zine/`가 붙습니다. 웹진을 `main`에 합치기 전이라면 브랜치 선택에 `web-zine`이 보이는지 확인하세요.
 
 (화면 캡처: GitHub Pages 설정 화면)
 
