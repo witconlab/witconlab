@@ -33,7 +33,10 @@
 .vw-leaf.vw-on-right { left: 50%; transform-origin: left center; }
 .vw-leaf.vw-on-left { left: 0; transform-origin: right center; }
 .vw-face { position: absolute; inset: 0; background: var(--cream); overflow: hidden; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-.vw-face.vw-back { transform: rotateY(180deg); }
+.vw-face.vw-front { transform: translateZ(0); }
+.vw-face.vw-back { transform: rotateY(180deg) translateZ(0); }
+/* Safari can show a child's mirrored back through a turned-away face unless the children hide it too */
+.vw-face > *, .vw-face canvas, .vw-shade { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 .vw-face.sp-l { border-radius: 0 4px 4px 0; }
 .vw-face.sp-r { border-radius: 4px 0 0 4px; }
 .vw-shade { position: absolute; inset: 0; z-index: 1; opacity: 0; pointer-events: none; }

@@ -3,6 +3,7 @@ import { call, getSession, clearSession, getAdminToken, fetchPhoto } from './api
 import { createPhotoLoader } from './photo-cache.js';
 import { ensureFonts, buildPagesPdf, JSPDF_URL, zineText, zineTitle } from './pdf.js';
 import { renderPage } from './render.js';
+import { PAPERS } from './model.js';
 import { newSaveId, backupKeyFor } from './saver.js';
 
 const PAGE_COUNT = 8;
@@ -10,6 +11,9 @@ const RATIO = 105 / 148;
 const SWIPE_PX = 40;
 const TURN_MS = 650;
 const FADE_MS = 160;
+const TURN_LIMIT_MS = TURN_MS + 1500; // a turn that takes longer than this is abandoned and the book is reset
+const FACE_WAIT_MS = 1200; // a turn waits at most this long for a page; the page finishes drawing in place afterwards
+const FIRST_WAIT_MS = 8000;
 
 // The editor's unsaved-work backup for this student (see saver.js).
 export function hasUnsavedBackup(storage, name) {
@@ -88,20 +92,30 @@ function main() {
   }
 
   // Each page is drawn once per layout; the same canvas moves between the book halves and the turning leaf.
-  function pageCanvas(n) {
+  // The canvas starts as plain paper, so a slow photo never blocks a turn (the drawing lands in place
+  // later) and a failed render still leaves a page to turn (it is retried on the next request).
+  function pageCanvas(n, wait = FACE_WAIT_MS) {
     if (n == null) return Promise.resolve(null);
-    if (cache.has(n)) return cache.get(n);
-    const c = document.createElement('canvas');
-    c.width = Math.round(dims.w * dims.dpr);
-    c.height = Math.round(dims.h * dims.dpr);
-    c.style.width = dims.w + 'px';
-    c.style.height = dims.h + 'px';
-    const ctx = c.getContext('2d');
-    ctx.setTransform(dims.dpr, 0, 0, dims.dpr, 0, 0);
-    const p = renderPage(ctx, zine.pages[n - 1], { width: dims.w, height: dims.h, loadImage, pageNumber: n }).then(() => c);
-    cache.set(n, p);
-    p.catch(() => { if (cache.get(n) === p) cache.delete(n); });
-    return p;
+    if (!cache.has(n)) {
+      const c = document.createElement('canvas');
+      c.width = Math.round(dims.w * dims.dpr);
+      c.height = Math.round(dims.h * dims.dpr);
+      c.style.width = dims.w + 'px';
+      c.style.height = dims.h + 'px';
+      const ctx = c.getContext('2d');
+      ctx.setTransform(dims.dpr, 0, 0, dims.dpr, 0, 0);
+      const page = zine.pages[n - 1];
+      ctx.fillStyle = PAPERS[page && page.background] || PAPERS.cream;
+      ctx.fillRect(0, 0, dims.w, dims.h);
+      const entry = { canvas: c, done: null };
+      const mine = cache;
+      entry.done = Promise.resolve()
+        .then(() => renderPage(ctx, page, { width: dims.w, height: dims.h, loadImage, pageNumber: n }))
+        .catch(() => { if (mine.get(n) === entry) mine.delete(n); }); // blank paper stays; next request redraws
+      cache.set(n, entry);
+    }
+    const { canvas, done } = cache.get(n);
+    return Promise.race([done, new Promise((r) => setTimeout(r, wait))]).then(() => canvas);
   }
 
   // closed on the front cover the book is shifted so the cover is centred; on the back cover the other way
@@ -124,10 +138,10 @@ function main() {
     book = { el, left, right };
   }
 
-  async function showStatic(i) {
+  async function showStatic(i, wait) {
     const my = gen;
     const s = sidesOf(spreads[i]);
-    const [L, R] = await Promise.all([pageCanvas(s.L), pageCanvas(s.R)]);
+    const [L, R] = await Promise.all([pageCanvas(s.L, wait), pageCanvas(s.R, wait)]);
     if (my !== gen) return;
     fill(book.left, L);
     fill(book.right, R);
@@ -160,8 +174,6 @@ function main() {
     // draw every face the turn needs before it starts, so nothing flashes blank
     const [front, back, under] = await Promise.all([pageCanvas(plan.front), pageCanvas(plan.back), pageCanvas(plan.under)]);
     if (my !== gen) return;
-    idx = to;
-    updateChrome();
     const fwd = d > 0;
     const moving = fwd ? book.right : book.left; // half the leaf starts on
     const other = fwd ? book.left : book.right; // half the leaf lands on
@@ -169,6 +181,8 @@ function main() {
       fill(other, back);
       fill(moving, under);
       book.el.style.transform = `translateX(${shiftOf(to)}px)`;
+      idx = to;
+      updateChrome(); // the label changes when the page has landed
     };
 
     if (reduceMotion()) {
@@ -224,22 +238,38 @@ function main() {
 
   // warm neighbours so the next turn starts instantly
   function warm(i) {
-    for (const j of [i - 1, i + 1]) if (spreads[j]) spreads[j].forEach((n) => pageCanvas(n).catch(() => {}));
+    for (const j of [i - 1, i + 1]) if (spreads[j]) spreads[j].forEach((n) => pageCanvas(n));
   }
 
-  function go(d) { if (!busy) { busy = true; turn(d).catch(() => {}).finally(() => { busy = false; }); } }
+  // One turn at a time. If a turn ever hangs, give up on it and redraw the book at the target spread.
+  function go(d) {
+    if (busy || !spreads[idx + d]) return;
+    busy = true;
+    const target = spreads[idx + d][0];
+    let timer;
+    const limit = new Promise((r) => { timer = setTimeout(() => r('timeout'), TURN_LIMIT_MS); });
+    Promise.race([turn(d).catch(() => {}), limit])
+      .then((res) => (res === 'timeout' ? layout(target) : null)) // layout drops the leaf and stale turn
+      .catch(() => {})
+      .finally(() => { clearTimeout(timer); busy = false; });
+  }
 
-  async function layout(keepPage) {
+  async function layout(keepPage, wait = FACE_WAIT_MS) {
     gen++;
-    cache = new Map();
-    dims = sizes();
-    spreads = spreadsFor();
-    const target = keepPage ?? spreads[idx][0];
-    idx = Math.max(0, spreads.findIndex((s) => s.includes(target)));
-    buildBook();
-    updateChrome();
-    await showStatic(idx);
-    warm(idx);
+    const was = busy;
+    busy = true; // no taps while the book is rebuilt
+    try {
+      const d = sizes();
+      if (d.w !== dims.w || d.h !== dims.h || d.dpr !== dims.dpr) cache = new Map();
+      dims = d;
+      spreads = spreadsFor();
+      const target = keepPage ?? spreads[idx][0];
+      idx = Math.max(0, spreads.findIndex((s) => s.includes(target)));
+      buildBook();
+      updateChrome();
+      await showStatic(idx, wait);
+      warm(idx);
+    } finally { busy = was; }
   }
 
   // ----- stamp / done toggle -----
@@ -394,7 +424,7 @@ function main() {
     paintDone();
     bindInput();
     await Promise.race([ensureFonts(document, zineText([zine])).catch(() => {}), new Promise((r) => setTimeout(r, 5000))]);
-    await layout(1);
+    await layout(1, FIRST_WAIT_MS);
     $('loading').hidden = true;
   })();
 }
