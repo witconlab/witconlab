@@ -16,19 +16,21 @@ function setup() {
     output(t) { log.push({ n: 'output', t }); return { fake: 'blob' }; }
   }
   const canvases = [];
+  const shots = [];
   const createCanvas = (w, h) => {
     const id = canvases.length;
     const ops = [];
     const ctx = new Proxy({}, {
       get: (_, p) => p === 'measureText' ? (s) => ({ width: String(s).length * 10 })
-        : (...a) => { ops.push({ n: p, a }); },
+        : (...a) => { if (p === 'clearRect') ops.length = 0; ops.push({ n: p, a }); },
       set: () => true,
     });
-    const c = { id, w, h, ops, getContext: () => ctx, toDataURL: (t, q) => `data:${id}:${t}:${q}` };
+    const c = { id, width: w, height: h, ops, getContext: () => ctx, toDataURL: (t, q) => { shots.push({ canvas: c, ops: [...ops] }); return `data:${id}:${shots.length - 1}:${t}:${q}`; } };
     canvases.push(c);
     return c;
   };
-  return { log, FakePdf, createCanvas, canvases, loadImage: async () => ({ width: 10, height: 10 }) };
+  const shot = (url) => shots[Number(url.split(':')[2])];
+  return { log, FakePdf, createCanvas, canvases, shots, shot, loadImage: async () => ({ width: 10, height: 10 }) };
 }
 
 test('ensureFonts called before first render', async () => {
@@ -45,8 +47,8 @@ test('ensureFonts called before first render', async () => {
 
 test('ensureFonts loads fonts and waits ready', async () => {
   const loads = []; let ready = false;
-  await ensureFonts({ fonts: { load: async (f) => { loads.push(f); }, get ready() { ready = true; return Promise.resolve(); } } });
-  assert.deepEqual(loads, ['40px "Nanum Pen Script"', '700 40px Pretendard']);
+  await ensureFonts({ fonts: { load: async (f, t) => { loads.push(f + '|' + t); }, get ready() { ready = true; return Promise.resolve(); } } });
+  assert.deepEqual(loads, ['40px "Nanum Pen Script"|가나다진', '700 40px Pretendard|가나다진', '900 40px Pretendard|가나다진']);
   assert.ok(ready);
 });
 
@@ -62,8 +64,9 @@ test('pages pdf has 8 pages of 105x148', async () => {
   assert.equal(s.log.filter((l) => l.n === 'addPage').length, 7);
   assert.deepEqual(s.log[0].o, { orientation: 'portrait', unit: 'mm', format: [105, 148] });
   assert.deepEqual(imgs[0].a.slice(1), ['JPEG', 0, 0, 105, 148]);
-  assert.ok(imgs[0].a[0].endsWith('image/jpeg:0.92'));
-  assert.equal(s.canvases[0].w, 1240); assert.equal(s.canvases[0].h, 1748);
+  assert.ok(imgs[0].a[0].endsWith(':image/jpeg:0.92'));
+  assert.equal(s.canvases.length, 1);
+  assert.equal(s.canvases[0].width, 0); // released after build
   assert.deepEqual(r.blob, { fake: 'blob' });
   assert.deepEqual(r.failed, []);
   assert.deepEqual(prog[7], [8, 8]);
@@ -77,7 +80,9 @@ test('a3 pdf places page 1 at x=315,y=148.5', async () => {
   // slot order follows IMPOSITION: index 7 is page 1
   assert.deepEqual(imgs[7].a.slice(2), [315, 148.5, 105, 148.5]);
   // page 1 panel is canvas 11 (4 rotated slots use 2 canvases each), unrotated -> its own data url
-  assert.ok(imgs[7].a[0].startsWith('data:11:'));
+  const p1 = s.shot(imgs[7].a[0]);
+  assert.ok(!p1.ops.some((o) => o.n === 'rotate'));
+  assert.ok(p1.ops.some((o) => o.n === 'rect' || o.n === 'fillRect')); // a rendered panel, not a rotated copy
   assert.deepEqual(s.log[0].o, { orientation: 'landscape', unit: 'mm', format: [420, 297] });
 });
 
@@ -86,16 +91,22 @@ test('page 5 image rotated 180', async () => {
   await buildA3Pdf([createEmptyZine('a')], { jsPDF: s.FakePdf, loadImage: s.loadImage, createCanvas: s.createCanvas, ensureFonts: async () => {} });
   const imgs = s.log.filter((l) => l.n === 'addImage');
   assert.deepEqual(imgs[0].a.slice(2), [0, 0, 105, 148.5]);
-  // first addImage uses the rotated copy (canvas 1), not the rendered panel (canvas 0)
-  assert.ok(imgs[0].a[0].startsWith('data:1:'));
-  const rot = s.canvases[1].ops;
-  assert.deepEqual(rot.find((o) => o.n === 'rotate').a, [Math.PI]);
-  assert.deepEqual(rot.find((o) => o.n === 'translate').a, [1240, 1754]);
-  assert.equal(rot.find((o) => o.n === 'drawImage').a[0], s.canvases[0]);
+  const rot = s.shot(imgs[0].a[0]);
+  assert.equal(rot.canvas, s.canvases[1]); // the rotated scratch canvas, not the render canvas
+  assert.deepEqual(rot.ops.find((o) => o.n === 'rotate').a, [Math.PI]);
+  assert.deepEqual(rot.ops.find((o) => o.n === 'translate').a, [1240, 1754]);
+  assert.equal(rot.ops.find((o) => o.n === 'drawImage').a[0], s.canvases[0]);
   // an unrotated page (page 6, slot index 4) is not rotated
-  const p6 = imgs[4].a[0];
-  const src = s.canvases.find((c) => p6.startsWith(`data:${c.id}:`));
-  assert.ok(!src.ops.some((o) => o.n === 'rotate'));
+  const p6 = s.shot(imgs[4].a[0]);
+  assert.equal(p6.canvas, s.canvases[0]);
+  assert.ok(!p6.ops.some((o) => o.n === 'rotate'));
+});
+
+test('a3 build of 3 zines allocates at most 2 canvases and releases them', async () => {
+  const s = setup();
+  await buildA3Pdf([createEmptyZine('a'), createEmptyZine('b'), createEmptyZine('c')], { jsPDF: s.FakePdf, loadImage: s.loadImage, createCanvas: s.createCanvas, ensureFonts: async () => {} });
+  assert.ok(s.canvases.length <= 2);
+  assert.ok(s.canvases.every((c) => c.width === 0 && c.height === 0));
 });
 
 test('a3 pdf one sheet per zine', async () => {

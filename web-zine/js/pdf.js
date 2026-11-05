@@ -9,8 +9,10 @@ const PANEL_PX = { w: 1240, h: 1754 };  // 105x148.5 at 300dpi
 const JPEG_Q = 0.92;
 
 export async function ensureFonts(doc = document) {
-  await doc.fonts.load('40px "Nanum Pen Script"');
-  await doc.fonts.load('700 40px Pretendard');
+  const sample = '가나다진';
+  await doc.fonts.load('40px "Nanum Pen Script"', sample);
+  await doc.fonts.load('700 40px Pretendard', sample);
+  await doc.fonts.load('900 40px Pretendard', sample);
   await doc.fonts.ready;
 }
 
@@ -20,18 +22,30 @@ function defaultCreateCanvas(w, h) {
   return c;
 }
 
-async function renderToCanvas(createCanvas, page, w, h, pageNumber, loadImage) {
-  const canvas = createCanvas(w, h);
-  const res = await renderPage(canvas.getContext('2d'), page, { width: w, height: h, loadImage, pageNumber });
-  return { canvas, failed: res?.failed || [] };
+// One scratch canvas is reused for every page/panel (memory cap on Safari); cleared before each use.
+function clear(canvas, w, h) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  return ctx;
 }
 
-function rotate180(createCanvas, src, w, h) {
-  const out = createCanvas(w, h);
-  const ctx = out.getContext('2d');
+function release(...canvases) {
+  for (const c of canvases) if (c) { c.width = 0; c.height = 0; }
+}
+
+async function renderOnto(canvas, page, w, h, pageNumber, loadImage) {
+  const ctx = clear(canvas, w, h);
+  const res = await renderPage(ctx, page, { width: w, height: h, loadImage, pageNumber });
+  return res?.failed || [];
+}
+
+function rotate180Onto(out, src, w, h) {
+  const ctx = clear(out, w, h);
+  ctx.save();
   ctx.translate(w, h);
   ctx.rotate(Math.PI);
   ctx.drawImage(src, 0, 0);
+  ctx.restore();
   return out;
 }
 
@@ -41,13 +55,16 @@ export async function buildPagesPdf(zine, opts = {}) {
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [105, 148] });
   const failed = [];
   const total = zine.pages.length;
-  for (let i = 0; i < total; i++) {
-    const { canvas, failed: f } = await renderToCanvas(createCanvas, zine.pages[i], PAGE_PX.w, PAGE_PX.h, i + 1, loadImage);
-    for (const x of f) failed.push({ ...x, pageNumber: i + 1 });
-    if (i > 0) pdf.addPage([105, 148], 'portrait');
-    pdf.addImage(canvas.toDataURL('image/jpeg', JPEG_Q), 'JPEG', 0, 0, 105, 148);
-    onProgress?.(i + 1, total);
-  }
+  const canvas = createCanvas(PAGE_PX.w, PAGE_PX.h);
+  try {
+    for (let i = 0; i < total; i++) {
+      const f = await renderOnto(canvas, zine.pages[i], PAGE_PX.w, PAGE_PX.h, i + 1, loadImage);
+      for (const x of f) failed.push({ ...x, pageNumber: i + 1 });
+      if (i > 0) pdf.addPage([105, 148], 'portrait');
+      pdf.addImage(canvas.toDataURL('image/jpeg', JPEG_Q), 'JPEG', 0, 0, 105, 148);
+      onProgress?.(i + 1, total);
+    }
+  } finally { release(canvas); }
   return { blob: pdf.output('blob'), failed };
 }
 
@@ -58,27 +75,31 @@ export async function buildA3Pdf(zines, opts = {}) {
   const failed = [];
   const total = zines.length * IMPOSITION.length;
   let done = 0;
-  for (let z = 0; z < zines.length; z++) {
-    const zine = zines[z];
-    if (z > 0) pdf.addPage([A3.w, A3.h], 'landscape');
-    for (const slot of IMPOSITION) {
-      const { canvas, failed: f } = await renderToCanvas(createCanvas, zine.pages[slot.page - 1], PANEL_PX.w, PANEL_PX.h, slot.page, loadImage);
-      for (const x of f) failed.push({ ...x, pageNumber: slot.page, name: zine.name });
-      const src = slot.rotate === 180 ? rotate180(createCanvas, canvas, PANEL_PX.w, PANEL_PX.h) : canvas;
-      const r = panelRect(slot);
-      pdf.addImage(src.toDataURL('image/jpeg', JPEG_Q), 'JPEG', r.x, r.y, r.w, r.h);
-      onProgress?.(++done, total);
+  const canvas = createCanvas(PANEL_PX.w, PANEL_PX.h);
+  const rotCanvas = createCanvas(PANEL_PX.w, PANEL_PX.h);
+  try {
+    for (let z = 0; z < zines.length; z++) {
+      const zine = zines[z];
+      if (z > 0) pdf.addPage([A3.w, A3.h], 'landscape');
+      for (const slot of IMPOSITION) {
+        const f = await renderOnto(canvas, zine.pages[slot.page - 1], PANEL_PX.w, PANEL_PX.h, slot.page, loadImage);
+        for (const x of f) failed.push({ ...x, pageNumber: slot.page, name: zine.name });
+        const src = slot.rotate === 180 ? rotate180Onto(rotCanvas, canvas, PANEL_PX.w, PANEL_PX.h) : canvas;
+        const r = panelRect(slot);
+        pdf.addImage(src.toDataURL('image/jpeg', JPEG_Q), 'JPEG', r.x, r.y, r.w, r.h);
+        onProgress?.(++done, total);
+      }
+      if (guides) {
+        pdf.setDrawColor('#cccccc');
+        pdf.setLineWidth(0.2);
+        pdf.setLineDashPattern([2, 2], 0);
+        for (const l of FOLD_LINES) pdf.line(l.x1, l.y1, l.x2, l.y2);
+        pdf.setLineDashPattern([], 0);
+        pdf.setDrawColor('#e8473a');
+        pdf.setLineWidth(0.3);
+        pdf.line(CUT_LINE.x1, CUT_LINE.y, CUT_LINE.x2, CUT_LINE.y);
+      }
     }
-    if (guides) {
-      pdf.setDrawColor('#cccccc');
-      pdf.setLineWidth(0.2);
-      pdf.setLineDashPattern([2, 2], 0);
-      for (const l of FOLD_LINES) pdf.line(l.x1, l.y1, l.x2, l.y2);
-      pdf.setLineDashPattern([], 0);
-      pdf.setDrawColor('#e8473a');
-      pdf.setLineWidth(0.3);
-      pdf.line(CUT_LINE.x1, CUT_LINE.y, CUT_LINE.x2, CUT_LINE.y);
-    }
-  }
+  } finally { release(canvas, rotCanvas); }
   return { blob: pdf.output('blob'), failed };
 }
