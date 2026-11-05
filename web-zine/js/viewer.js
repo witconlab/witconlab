@@ -5,22 +5,39 @@ import { ensureFonts, buildPagesPdf, JSPDF_URL, zineText, zineTitle } from './pd
 import { renderPage } from './render.js';
 import { newSaveId, backupKeyFor } from './saver.js';
 
-export const WIDE_MIN = 768;
 const PAGE_COUNT = 8;
 const RATIO = 105 / 148;
 const SWIPE_PX = 40;
+const TURN_MS = 650;
+const FADE_MS = 160;
 
 // The editor's unsaved-work backup for this student (see saver.js).
 export function hasUnsavedBackup(storage, name) {
   try { return !!(storage && storage.getItem(backupKeyFor(name))); } catch (e) { return false; }
 }
 
-export function spreadsFor(wide) {
-  if (!wide) return Array.from({ length: PAGE_COUNT }, (_, i) => [i + 1]);
+// Same on every screen: front cover alone, inner pages as spreads, back cover alone.
+export function spreadsFor() {
   const out = [[1]];
   for (let p = 2; p < PAGE_COUNT; p += 2) out.push([p, p + 1]);
   out.push([PAGE_COUNT]);
   return out;
+}
+
+// Which half of the open book each page sits on. A closed book shows the
+// front cover on the right half and the back cover on the left half.
+export function sidesOf(spread) {
+  if (spread.length > 1) return { L: spread[0], R: spread[1] };
+  return spread[0] === 1 ? { L: null, R: 1 } : { L: spread[0], R: null };
+}
+
+// One page turn from spread `from` to `to` (neighbours only).
+// front: the page that lifts; back: what its other side shows once it lands;
+// under: the page revealed beneath it; stays: the page on the other half that does not move.
+export function turnPlan(spreads, from, to) {
+  if (!spreads[from] || !spreads[to] || Math.abs(to - from) !== 1) return null;
+  const a = sidesOf(spreads[from]), b = sidesOf(spreads[to]);
+  return to > from ? { front: a.R, back: b.L, under: b.R, stays: a.L } : { front: a.L, back: b.R, under: b.L, stays: a.R };
 }
 
 if (typeof document !== 'undefined') main();
@@ -37,10 +54,10 @@ function main() {
 
   let zine = null;
   let spreads = [];
-  let wide = false;
   let idx = 0;
   let dims = { w: 0, h: 0, dpr: 1 };
-  let cache = new Map(); // page number -> canvas
+  let cache = new Map(); // page number -> Promise<canvas>
+  let book = null; // { el, left, right }
   let gen = 0; // bumps on resize to drop stale renders
   let busy = false;
 
@@ -56,14 +73,12 @@ function main() {
     return (await call('load', { token: session.token })).zine;
   }
 
+  // page size: two pages side by side must fit the stage (phones: fill the width; wide screens: fit the height)
   function sizes() {
     const st = $('stage');
     const aw = st.clientWidth, ah = st.clientHeight - 8;
-    wide = window.innerWidth >= WIDE_MIN;
-    const cols = wide ? 2 : 1;
-    let h = Math.min(ah, aw / (cols * RATIO));
-    let w = Math.floor(h * RATIO);
-    h = Math.floor(w / RATIO);
+    const w = Math.floor(Math.min(aw / 2, ah * RATIO));
+    const h = Math.floor(w / RATIO);
     return { w: Math.max(w, 60), h: Math.max(h, 80), dpr: Math.min(window.devicePixelRatio || 1, 2) };
   }
 
@@ -72,9 +87,10 @@ function main() {
     return (s.length > 1 ? `${s[0]}–${s[1]}` : `${s[0]}`) + ` / ${PAGE_COUNT}쪽`;
   }
 
-  async function pageCanvas(n) {
+  // Each page is drawn once per layout; the same canvas moves between the book halves and the turning leaf.
+  function pageCanvas(n) {
+    if (n == null) return Promise.resolve(null);
     if (cache.has(n)) return cache.get(n);
-    const my = gen;
     const c = document.createElement('canvas');
     c.width = Math.round(dims.w * dims.dpr);
     c.height = Math.round(dims.h * dims.dpr);
@@ -82,26 +98,40 @@ function main() {
     c.style.height = dims.h + 'px';
     const ctx = c.getContext('2d');
     ctx.setTransform(dims.dpr, 0, 0, dims.dpr, 0, 0);
-    await renderPage(ctx, zine.pages[n - 1], { width: dims.w, height: dims.h, loadImage, pageNumber: n });
-    if (my === gen) cache.set(n, c);
-    return c;
+    const p = renderPage(ctx, zine.pages[n - 1], { width: dims.w, height: dims.h, loadImage, pageNumber: n }).then(() => c);
+    cache.set(n, p);
+    p.catch(() => { if (cache.get(n) === p) cache.delete(n); });
+    return p;
   }
 
-  async function spreadEl(i) {
+  // closed on the front cover the book is shifted so the cover is centred; on the back cover the other way
+  const shiftOf = (i) => { const s = sidesOf(spreads[i]); return s.L == null ? -dims.w / 2 : s.R == null ? dims.w / 2 : 0; };
+
+  function fill(slot, canvas) {
+    slot.replaceChildren(...(canvas ? [canvas] : []));
+    slot.classList.toggle('has', !!canvas);
+  }
+
+  function buildBook() {
     const el = document.createElement('div');
-    const pages = spreads[i];
-    el.className = 'vw-spread' + (pages.length > 1 ? ' two' : '');
-    const cs = await Promise.all(pages.map((n) => pageCanvas(n)));
-    // a cached canvas lives in one place only; clone pixels when it is already mounted
-    for (const c of cs) {
-      if (c.parentNode) {
-        const k = document.createElement('canvas');
-        k.width = c.width; k.height = c.height; k.style.width = c.style.width; k.style.height = c.style.height;
-        k.getContext('2d').drawImage(c, 0, 0);
-        el.append(k);
-      } else el.append(c);
-    }
-    return el;
+    el.className = 'vw-book';
+    el.style.width = dims.w * 2 + 'px';
+    el.style.height = dims.h + 'px';
+    const left = document.createElement('div'); left.className = 'vw-slot vw-left';
+    const right = document.createElement('div'); right.className = 'vw-slot vw-right';
+    el.append(left, right);
+    $('track').replaceChildren(el);
+    book = { el, left, right };
+  }
+
+  async function showStatic(i) {
+    const my = gen;
+    const s = sidesOf(spreads[i]);
+    const [L, R] = await Promise.all([pageCanvas(s.L), pageCanvas(s.R)]);
+    if (my !== gen) return;
+    fill(book.left, L);
+    fill(book.right, R);
+    book.el.style.transform = `translateX(${shiftOf(i)}px)`;
   }
 
   function updateChrome() {
@@ -110,50 +140,106 @@ function main() {
     $('next').disabled = idx === spreads.length - 1;
   }
 
-  async function show(i, dir = 0) {
-    if (i < 0 || i >= spreads.length) return;
+  const reduceMotion = () => document.documentElement.classList.contains('vw-reduce-motion')
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function shade(parent, cls) {
+    const d = document.createElement('div');
+    d.className = 'vw-shade ' + cls;
+    parent.append(d);
+    return d;
+  }
+
+  // Turn one page like a real book: the leaf rotates around the spine, its back is the next page.
+  async function turn(d) {
+    const to = idx + d;
+    const plan = turnPlan(spreads, idx, to);
+    if (!plan) return;
     const my = gen;
-    const track = $('track');
-    const next = await spreadEl(i);
+    const from = idx;
+    // draw every face the turn needs before it starts, so nothing flashes blank
+    const [front, back, under] = await Promise.all([pageCanvas(plan.front), pageCanvas(plan.back), pageCanvas(plan.under)]);
     if (my !== gen) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const old = track.firstElementChild;
-    idx = i;
+    idx = to;
     updateChrome();
-    if (!dir || !old || reduce) { track.replaceChildren(next); return; }
-    const w = $('stage').clientWidth;
-    track.replaceChildren(old);
-    track.style.position = 'relative';
-    // slide: old goes out, new comes in from the side
-    const inc = document.createElement('div');
-    inc.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center';
-    inc.append(next);
-    inc.style.transform = `translateX(${dir * w}px)`;
-    track.append(inc);
-    old.style.transition = inc.style.transition = 'transform .3s ease';
-    void inc.offsetWidth;
-    old.style.transform = `translateX(${-dir * w}px)`;
-    inc.style.transform = 'translateX(0)';
-    await new Promise((r) => setTimeout(r, 310));
+    const fwd = d > 0;
+    const moving = fwd ? book.right : book.left; // half the leaf starts on
+    const other = fwd ? book.left : book.right; // half the leaf lands on
+    const finish = () => {
+      fill(other, back);
+      fill(moving, under);
+      book.el.style.transform = `translateX(${shiftOf(to)}px)`;
+    };
+
+    if (reduceMotion()) {
+      const out = book.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FADE_MS, fill: 'forwards' });
+      await out.finished.catch(() => {});
+      if (my !== gen) return;
+      finish();
+      const fadeIn = book.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: FADE_MS });
+      out.cancel();
+      await fadeIn.finished.catch(() => {});
+      warm(to);
+      return;
+    }
+
+    const leaf = document.createElement('div');
+    leaf.className = 'vw-leaf ' + (fwd ? 'vw-on-right' : 'vw-on-left');
+    const fF = document.createElement('div'); fF.className = 'vw-face vw-front ' + (fwd ? 'sp-l' : 'sp-r');
+    const fB = document.createElement('div'); fB.className = 'vw-face vw-back ' + (fwd ? 'sp-r' : 'sp-l');
+    fF.append(front); // moves the canvas off the book half
+    fB.append(back);
+    const sF = shade(fF, fwd ? 'to-l' : 'to-r');
+    const sB = shade(fB, fwd ? 'to-r' : 'to-l');
+    leaf.append(fF, fB);
+    fill(moving, under);
+    book.el.append(leaf);
+    const sUnder = moving.classList.contains('has') ? shade(moving, fwd ? 'to-l' : 'to-r') : null;
+    const sOther = other.classList.contains('has') ? shade(other, fwd ? 'to-r' : 'to-l') : null;
+
+    const opt = { duration: TURN_MS, easing: 'ease-in-out', fill: 'forwards' };
+    const anims = [
+      leaf.animate([{ transform: 'rotateY(0deg)' }, { transform: `rotateY(${fwd ? -180 : 180}deg)` }], opt),
+      // the lifting page darkens as it stands up, its back lightens as it lies down
+      sF.animate([{ opacity: 0 }, { opacity: 0.5 }], { ...opt, duration: TURN_MS / 2, easing: 'ease-in' }),
+      sB.animate([{ opacity: 0.5, offset: 0 }, { opacity: 0.5, offset: 0.5 }, { opacity: 0, offset: 1 }], opt),
+    ];
+    // revealed page comes out of the leaf's shadow; the covered page goes into it
+    if (sUnder) anims.push(sUnder.animate([{ opacity: 0.6 }, { opacity: 0 }], opt));
+    if (sOther) anims.push(sOther.animate([{ opacity: 0 }, { opacity: 0 , offset: 0.4 }, { opacity: 0.45 }], opt));
+    const x0 = shiftOf(from), x1 = shiftOf(to);
+    if (x0 !== x1) {
+      // opening widens the closed book (cover moves off-centre), closing narrows it again
+      book.el.style.transform = `translateX(${x1}px)`;
+      anims.push(book.el.animate([{ transform: `translateX(${x0}px)` }, { transform: `translateX(${x1}px)` }], { duration: TURN_MS, easing: 'ease-in-out' }));
+    }
+    await Promise.all(anims.map((a) => a.finished.catch(() => {})));
     if (my !== gen) return;
-    track.style.position = '';
-    next.style.transform = '';
-    track.replaceChildren(next);
-    // warm neighbours so the next flip is instant
+    leaf.remove();
+    if (sUnder) sUnder.remove();
+    if (sOther) sOther.remove();
+    finish();
+    warm(to);
+  }
+
+  // warm neighbours so the next turn starts instantly
+  function warm(i) {
     for (const j of [i - 1, i + 1]) if (spreads[j]) spreads[j].forEach((n) => pageCanvas(n).catch(() => {}));
   }
 
-  function go(d) { if (!busy) { busy = true; show(idx + d, d).finally(() => { busy = false; }); } }
+  function go(d) { if (!busy) { busy = true; turn(d).catch(() => {}).finally(() => { busy = false; }); } }
 
   async function layout(keepPage) {
     gen++;
     cache = new Map();
     dims = sizes();
-    spreads = spreadsFor(wide);
+    spreads = spreadsFor();
     const target = keepPage ?? spreads[idx][0];
     idx = Math.max(0, spreads.findIndex((s) => s.includes(target)));
-    $('track').replaceChildren();
-    await show(idx, 0);
+    buildBook();
+    updateChrome();
+    await showStatic(idx);
+    warm(idx);
   }
 
   // ----- stamp / done toggle -----
@@ -249,6 +335,12 @@ function main() {
       const dx = e.clientX - sx, dy = e.clientY - sy;
       sx = null;
       if (Math.abs(dx) >= SWIPE_PX && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+      else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+        // a tap on the right page turns forward, on the left page backward
+        const r = st.getBoundingClientRect();
+        const f = (e.clientX - r.left) / r.width;
+        if (f > 0.55) go(1); else if (f < 0.45) go(-1);
+      }
     });
     st.addEventListener('pointercancel', () => { sx = null; });
     let timer = null;
