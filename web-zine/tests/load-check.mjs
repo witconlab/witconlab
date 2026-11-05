@@ -80,7 +80,7 @@ function fakeJpegBase64(bytes = 200 * 1024) {
 }
 
 async function student(i) {
-  const name = '테스트' + String(i).padStart(2, '0');
+  const name = (process.argv[4] || '테스트') + String(i).padStart(2, '0');
   // Same rule as index.html: retry busy/network errors after 2s, 4s, 8s, 12s (+0~1.5s jitter).
   const LOGIN_NO_RETRY = new Set(['BAD_PIN', 'LOCKED', 'BAD_INPUT', 'AUTH']);
   const login = await op('login', () => call('login', { name, pin: PIN }),
@@ -124,5 +124,5 @@ for (const kind of ['login', 'save', 'upload']) {
   console.log(`${kind.padEnd(8)} ${String(s.ok).padStart(5)} ${String(s.fail).padStart(5)} ${String(s.retries).padStart(6)} ${String(pct(s.ms, 50)).padStart(9)} ${String(pct(s.ms, 95)).padStart(8)}`);
   for (const [k, n] of Object.entries(s.errors)) console.log(`         실패 이유: ${k} × ${n}`);
 }
-console.log('\n확인이 끝나면 구글 드라이브 웹진 폴더에서 테스트01~테스트50 폴더를 지워 주세요.');
+console.log(`\n확인이 끝나면 구글 드라이브 웹진 폴더에서 ${process.argv[4] || '테스트'}01~ 폴더를 지워 주세요.`);
 process.exit(done === STUDENTS ? 0 : 1);
