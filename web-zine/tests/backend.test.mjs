@@ -14,6 +14,28 @@ function setup() {
 }
 const MIN = 60 * 1000;
 
+test('pin reset never rewrites zine.json and survives a racing save', () => {
+  const { call, drive } = setup();
+  const a = call('login', { name: '김민지', pin: '1234' });
+  const saved = call('save', { token: a.token, zine: { ...a.zine, title: '바다' } });
+  assert.equal(saved.ok, true);
+  const adminToken = call('adminLogin', { password: 'teacher-pw' }).adminToken;
+  const before = JSON.stringify(drive.find('웹진/김민지/zine.json')._bytes);
+
+  assert.equal(call('adminResetPin', { adminToken, name: '김민지', pin: '9999' }).ok, true);
+  // 리셋이 학생 진 파일을 다시 쓰지 않아야 학생의 최신 저장이 되돌아가지 않는다
+  assert.equal(JSON.stringify(drive.find('웹진/김민지/zine.json')._bytes), before);
+
+  // 리셋 직전에 읽은 학생 저장이 리셋 뒤에 써져도(옛 auth 복사) 새 비밀번호가 유지된다
+  const z = call('load', { token: a.token }).zine;
+  assert.equal(call('save', { token: a.token, zine: { ...z, title: '바다2' } }).ok, true);
+  assert.equal(call('login', { name: '김민지', pin: '1234' }).error, 'BAD_PIN');
+  const again = call('login', { name: '김민지', pin: '9999' });
+  assert.equal(again.ok, true);
+  assert.equal(again.zine.title, '바다2');
+  assert.equal(again.zine.auth, undefined);
+});
+
 test('first login creates zine', () => {
   const { call, drive } = setup();
   const r = call('login', { name: '김민지', pin: '1234' });

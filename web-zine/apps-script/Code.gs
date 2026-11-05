@@ -268,6 +268,7 @@ function login_(b) {
       var fresh = emptyZine_(name);
       fresh.auth = makeAuth_(b.pin);
       fresh.updatedAt = new Date().toISOString();
+      PropertiesService.getScriptProperties().deleteProperty('auth_' + name); // 예전 같은 이름의 리셋 기록 정리
       writeStudentZine_(name, fresh, folder);
       return { zine: fresh, created: true };
     });
@@ -284,7 +285,8 @@ function login_(b) {
   }
   if (f.until) f = { count: 0, until: 0 }; // 잠금이 풀림
 
-  if (hash_(zine.auth.salt, b.pin) !== zine.auth.hash) {
+  var auth = authOf_(name, zine);
+  if (hash_(auth.salt, b.pin) !== auth.hash) {
     f.count += 1;
     if (f.count >= MAX_FAILS) {
       var until = now + LOCK_MS;
@@ -501,15 +503,26 @@ function adminGetZine_(b) {
   return { ok: true, zine: publicZine_(zine) };
 }
 
+// 선생님이 바꾼 비밀번호(스크립트 속성)가 있으면 그것을, 없으면 zine.json의 것을 쓴다.
+function authOf_(name, zine) {
+  var raw = PropertiesService.getScriptProperties().getProperty('auth_' + name);
+  if (raw) {
+    try { return JSON.parse(raw); } catch (e) { /* 손상된 값은 무시 */ }
+  }
+  return zine.auth;
+}
+
 function adminResetPin_(b) {
   if (!isAdmin_(b)) return AUTH_FAIL();
   if (!validPin_(b.pin)) return fail_('BAD_INPUT', '비밀번호는 숫자 4자리예요.');
   var folder = adminZineFolder_(b);
   var zine = folder ? readZine_(folder) : null;
   if (!zine) return fail_('NOT_FOUND', '그 학생을 찾을 수 없어요.');
-  zine.auth = makeAuth_(b.pin);
-  writeStudentZine_(folder.getName(), zine, folder);
-  PropertiesService.getScriptProperties().deleteProperty('fail_' + folder.getName());
+  // 학생 저장은 잠그지 않으므로 zine.json을 다시 쓰면 그 사이의 학생 저장을 되돌릴 수 있다.
+  // 새 비밀번호는 스크립트 속성에만 저장하고, 로그인 때 이것을 먼저 본다.
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('auth_' + folder.getName(), JSON.stringify(makeAuth_(b.pin)));
+  props.deleteProperty('fail_' + folder.getName());
   return { ok: true };
 }
 
