@@ -145,3 +145,25 @@ test('builtin sticker with draw is drawn directly; svg via loadSvg; custom via l
   assert.deepEqual(calls.sort(), ['img:custom:abc', 'svg']);
   assert.ok(ctx.calls.some((c) => c.name === 'fillText' && c.args[0] === 'A'));
 });
+
+test('failed loads are reported and other elements still draw', async () => {
+  const page = pageWith({ type: 'photo', src: 'bad', w: 0.3, h: 0.3 }, { type: 'photo', src: 'good', w: 0.3, h: 0.3 },
+    { type: 'sticker', src: 'builtin:nope', w: 0.2, h: 0.2 });
+  const ctx = fakeCtx();
+  const res = await renderPage(ctx, page, { width: W, height: H, loadSvg: async () => img('svg'),
+    loadImage: async (s) => { if (s === 'bad') throw new Error('x'); return img(s); } });
+  assert.deepEqual(res.failed.map((f) => f.src).sort(), ['bad', 'builtin:nope']);
+  assert.ok(res.failed[0].error);
+  assert.deepEqual(ctx.calls.filter((c) => c.name === 'drawImage').map((c) => c.args[0].tag), ['good']);
+});
+
+test('tape outline is a monotone loop; svgs have explicit size; number sits inside frame', async () => {
+  const tape = BUILTIN_STICKERS.find((s) => s.group === 'tape');
+  const d = tape.svg.match(/d="(M2 0H98[^"]*)"/)[1];
+  const ys = [...d.split('H98')[1].split('H2')[0].matchAll(/L[\d.]+ ([\d.]+)/g)].map((m) => +m[1]);
+  assert.deepEqual(ys, [...ys].sort((a, b) => a - b));
+  for (const s of BUILTIN_STICKERS.filter((s) => s.svg)) assert.match(s.svg, /<svg[^>]* width="\d+" height="\d+"/);
+  const ctx = await render(pageWith(), { pageNumber: 3 });
+  const t = ctx.calls.find((c) => c.name === 'fillText' && c.args[0] === '3');
+  assert.ok(t.args[1] > (5 / 105) * W + 0.03 * W && t.args[2] > (5 / 148) * H + 0.02 * H);
+});

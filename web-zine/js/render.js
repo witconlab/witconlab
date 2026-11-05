@@ -127,14 +127,28 @@ async function loadSource(el, opts) {
   return { kind: 'image', im: await opts.loadImage(src) };
 }
 
+/**
+ * Draws one page. Callers must await font loading ("Nanum Pen Script" and 900 Pretendard)
+ * before calling, or text is measured/drawn with fallback fonts.
+ * Resolves to { failed: [{id, src, error}] } for elements that could not be loaded (skipped).
+ */
 export async function renderPage(ctx, page, opts) {
   const { width, height, showSafeArea = false, pageNumber } = opts;
   const sources = new Map();
+  const failed = [];
   await Promise.all(page.elements.map(async (el) => {
-    try { sources.set(el.id, await loadSource(el, opts)); } catch { sources.set(el.id, null); }
+    try {
+      const info = await loadSource(el, opts);
+      if (!info) failed.push({ id: el.id, src: el.src, error: new Error('unknown sticker') });
+      sources.set(el.id, info);
+    } catch (error) {
+      failed.push({ id: el.id, src: el.src, error });
+      sources.set(el.id, null);
+    }
   }));
 
   ctx.save();
+  try {
   ctx.beginPath();
   ctx.rect(0, 0, width, height);
   ctx.clip();
@@ -156,14 +170,14 @@ export async function renderPage(ctx, page, opts) {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     const label = String(pageNumber);
-    const nx = sx + width * 0.03, ny = sy + height * 0.01;
+    const nx = sx + width * 0.05, ny = sy + height * 0.03;
     ctx.fillText(label, nx, ny);
     const tw = ctx.measureText(label).width;
     ctx.strokeStyle = TEXT_COLORS.ink;
     ctx.lineWidth = width * 0.004;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(nx - width * 0.01, ny + px * 1.02);
+    ctx.moveTo(nx - width * 0.01, ny + px * 1.0);
     ctx.lineTo(nx + tw + width * 0.01, ny + px * 1.0);
     ctx.stroke();
   }
@@ -187,7 +201,7 @@ export async function renderPage(ctx, page, opts) {
   if ((page.title || '').trim() !== '') {
     const px = height * 0.06;
     const step = px * LINE_HEIGHT;
-    const box = page.titleBox;
+    const box = page.titleBox || { x: 0.06, y: 0.04, w: 0.88 };
     const boxW = box.w * width;
     ctx.font = `${px}px ${HAND}`;
     ctx.textAlign = 'center';
@@ -215,5 +229,8 @@ export async function renderPage(ctx, page, opts) {
     ctx.strokeRect(sx, sy, width - 2 * sx, height - 2 * sy);
     ctx.setLineDash([]);
   }
-  ctx.restore();
+  } finally {
+    ctx.restore();
+  }
+  return { failed };
 }

@@ -27,7 +27,7 @@ function blobPath(cx, cy, rx, ry, seed, jitter = 0.09, n = 11) {
 }
 
 const svgWrap = (inner, vb = '0 0 100 100') =>
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" fill="none" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${vb.split(' ')[2]}" height="${vb.split(' ')[3]}" viewBox="${vb}" fill="none" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
 const INK = '#1b1713';
 const line = (d, w = 4) => `<path d="${d}" stroke="${INK}" stroke-width="${w}"/>`;
 
@@ -96,7 +96,7 @@ function starPath(seed) {
 // --- Washi tape: translucent rectangle with serrated ends ---
 ['#f6a0b4', '#8fd0e8', '#f7d348'].forEach((c, i) => {
   let left = '', right = '';
-  for (let y = 0; y < 40; y += 5) { left += `L${y % 10 ? 0 : 4} ${y + 2.5}`; right += `L${y % 10 ? 100 : 96} ${40 - y - 2.5}`; }
+  for (let y = 0; y < 40; y += 5) { right += `L${y % 10 ? 100 : 96} ${y + 2.5}`; left += `L${y % 10 ? 0 : 4} ${40 - y - 2.5}`; }
   add({ key: `tape-${i + 1}`, group: 'tape', label: `마스킹테이프 ${i + 1}`, aspect: 2.5,
     svg: svgWrap(`<path d="M2 0H98${right}L98 40H2${left}Z" fill="${c}" fill-opacity=".72"/>` +
       `<path d="M14 6L30 34M40 6L56 34M66 6L82 34" stroke="#fff" stroke-opacity=".45" stroke-width="4"/>`, '0 0 100 40') });
