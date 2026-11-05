@@ -44,6 +44,17 @@ export function turnPlan(spreads, from, to) {
   return to > from ? { front: a.R, back: b.L, under: b.R, stays: a.L } : { front: a.L, back: b.R, under: b.L, stays: a.R };
 }
 
+// Input lock shared by page turns and re-layouts. A counter, not a flag: every hold() is undone by
+// exactly one release(), so overlapping turns/resizes can never leave the book stuck locked.
+export function createLock() {
+  let n = 0;
+  return {
+    hold() { n++; },
+    release() { if (n > 0) n--; },
+    get held() { return n > 0; },
+  };
+}
+
 if (typeof document !== 'undefined') main();
 
 function main() {
@@ -63,7 +74,7 @@ function main() {
   let cache = new Map(); // page number -> Promise<canvas>
   let book = null; // { el, left, right }
   let gen = 0; // bumps on resize to drop stale renders
-  let busy = false;
+  const lock = createLock(); // input is ignored while a turn or re-layout is running
 
   const loading = (msg) => { $('loading').innerHTML = ''; const p = document.createElement('p'); p.className = 'hand'; p.textContent = msg; $('loading').append(p); };
   function fatal(msg, link) {
@@ -243,21 +254,20 @@ function main() {
 
   // One turn at a time. If a turn ever hangs, give up on it and redraw the book at the target spread.
   function go(d) {
-    if (busy || !spreads[idx + d]) return;
-    busy = true;
+    if (lock.held || !spreads[idx + d]) return;
+    lock.hold();
     const target = spreads[idx + d][0];
     let timer;
     const limit = new Promise((r) => { timer = setTimeout(() => r('timeout'), TURN_LIMIT_MS); });
     Promise.race([turn(d).catch(() => {}), limit])
       .then((res) => (res === 'timeout' ? layout(target) : null)) // layout drops the leaf and stale turn
       .catch(() => {})
-      .finally(() => { clearTimeout(timer); busy = false; });
+      .finally(() => { clearTimeout(timer); lock.release(); });
   }
 
   async function layout(keepPage, wait = FACE_WAIT_MS) {
     gen++;
-    const was = busy;
-    busy = true; // no taps while the book is rebuilt
+    lock.hold(); // no taps while the book is rebuilt
     try {
       const d = sizes();
       if (d.w !== dims.w || d.h !== dims.h || d.dpr !== dims.dpr) cache = new Map();
@@ -269,7 +279,7 @@ function main() {
       updateChrome();
       await showStatic(idx, wait);
       warm(idx);
-    } finally { busy = was; }
+    } finally { lock.release(); }
   }
 
   // ----- stamp / done toggle -----

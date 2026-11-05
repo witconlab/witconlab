@@ -37,3 +37,20 @@ test('unsaved editor backup for this student is detected', () => {
   assert.equal(hasUnsavedBackup(st, '서준'), false); // stale copies are not "unsaved changes"
   assert.equal(hasUnsavedBackup({ getItem() { throw new Error('private mode'); } }, '민지'), false);
 });
+
+import { createLock } from '../js/viewer.js';
+
+test('input lock: overlapping holders never leave it stuck', () => {
+  const l = createLock();
+  assert.equal(l.held, false);
+  l.hold(); // turn starts
+  l.hold(); // resize during the turn
+  l.release(); // turn ends first
+  assert.equal(l.held, true); // layout still running
+  l.release(); // layout ends
+  assert.equal(l.held, false);
+  l.release(); // extra release is harmless
+  assert.equal(l.held, false);
+  l.hold(); l.hold(); l.release(); l.release(); // two overlapping layouts
+  assert.equal(l.held, false);
+});
