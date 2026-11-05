@@ -49,3 +49,28 @@ test('onChange reports pending count', async () => {
   assert.equal(seen[0], 1);
   assert.equal(seen.at(-1), 0);
 });
+
+test('does not retry AUTH or BAD_INPUT by default', async () => {
+  for (const code of ['AUTH', 'BAD_INPUT']) {
+    let n = 0; const waits = [];
+    const q = createUploadQueue({
+      upload: async () => { n++; throw Object.assign(new Error(code), { code }); },
+      wait: async (ms) => { waits.push(ms); },
+    });
+    await assert.rejects(q.add('b'), (e) => e.code === code);
+    assert.equal(n, 1);
+    assert.deepEqual(waits, []);
+    assert.equal(q.pending(), 0);
+  }
+});
+
+test('custom shouldRetry is honoured', async () => {
+  let n = 0;
+  const q = createUploadQueue({
+    upload: async () => { n++; throw Object.assign(new Error('x'), { code: 'SERVER' }); },
+    wait: async () => {},
+    shouldRetry: () => false,
+  });
+  await assert.rejects(q.add('b'));
+  assert.equal(n, 1);
+});

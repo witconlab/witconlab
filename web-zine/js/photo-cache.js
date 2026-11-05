@@ -27,12 +27,14 @@ function idbOp(dbp, mode, fn) {
   }));
 }
 
-async function toImage(url) {
-  const img = new Image();
-  img.src = url;
-  if (img.decode) await img.decode();
-  else await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('image load failed')); });
-  return img;
+// onload/onerror rather than img.decode(): decode() can stay pending forever in some browsers/contexts.
+function toImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('image load failed'));
+    img.src = url;
+  });
 }
 
 export function createPhotoLoader({ fetchPhoto }) {

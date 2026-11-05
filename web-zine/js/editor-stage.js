@@ -1,5 +1,5 @@
 // Editor page canvas: print-matched background/title layers, element DOM, selection box and gestures.
-import { renderPage, drawTitle, wrapText, HAND, LINE_HEIGHT } from './render.js';
+import { renderPage, drawTitle, wrapText, HAND, LINE_HEIGHT, DEFAULT_TEXT_SIZE } from './render.js';
 import { TEXT_COLORS, outsideSafeArea } from './model.js';
 import { getSticker } from './stickers.js';
 import { dragDelta, pinch, applyTransform } from './gestures.js';
@@ -20,7 +20,7 @@ function measurer(px) {
 // Height (page fraction) that fits a text element's wrapped lines, using a print-sized reference page.
 export function fitTextHeight(el) {
   const H = 1480, W = H * PAGE_RATIO;
-  const px = (el.style?.size ?? 0.055) * H;
+  const px = (el.style?.size ?? DEFAULT_TEXT_SIZE) * H;
   const n = Math.max(1, wrapText(measurer(px), el.text || '', el.w * W).length);
   return Math.min(MAX, (n * px * LINE_HEIGHT) / H);
 }
@@ -43,7 +43,7 @@ function transformed(base, t) {
   const scale = clampScale(base, t.scale ?? 1);
   const r = applyTransform(base, { ...t, scale });
   const out = { ...base, ...r, rotate: normDeg(r.rotate) };
-  if (base.type === 'text') out.style = { ...base.style, size: (base.style?.size ?? 0.055) * scale };
+  if (base.type === 'text') out.style = { ...base.style, size: (base.style?.size ?? DEFAULT_TEXT_SIZE) * scale };
   return out;
 }
 
@@ -137,7 +137,7 @@ export function createStage(host, app) {
     node.textContent = '';
     node.classList.remove('is-broken');
     if (el.type === 'text') {
-      const px = (el.style?.size ?? 0.055) * H;
+      const px = (el.style?.size ?? DEFAULT_TEXT_SIZE) * H;
       const t = mk('div', 'ed-text');
       t.style.fontSize = px + 'px';
       t.style.color = TEXT_COLORS[el.style?.color] || el.style?.color || TEXT_COLORS.ink;
@@ -365,8 +365,18 @@ export function createStage(host, app) {
   window.addEventListener('resize', () => { if (layout()) render(); });
   layout();
 
+  // Drop an in-progress gesture without committing (page switch, undo/redo).
+  function cancel() {
+    if (!g && !live && !pointers.size) return;
+    g = null;
+    live = null;
+    pointers.clear();
+    render();
+  }
+
   return {
     render,
+    cancel,
     busy: () => g !== null,
   };
 }

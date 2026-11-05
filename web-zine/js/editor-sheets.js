@@ -1,6 +1,7 @@
 // Editor bottom sheets: stickers, caption text, page title, background.
 import { BUILTIN_STICKERS, getSticker } from './stickers.js';
 import { PAPERS, TEXT_COLORS, HIGHLIGHTS } from './model.js';
+import { DEFAULT_TEXT_SIZE } from './render.js';
 
 const $ = (id) => document.getElementById(id);
 const RECENT_KEY = 'webzine.recentStickers';
@@ -13,7 +14,7 @@ const TAB_GROUPS = { face: ['face'], doodle: ['doodle', 'tape'], star: ['star'],
 const PAPER_NAMES = { cream: '크림', yellow: '노랑', sky: '하늘', lime: '연두', white: '흰색' };
 const COLOR_NAMES = { ink: '검정', red: '빨강', blue: '파랑', white: '흰색' };
 const HL_NAMES = { lavender: '보라', sky: '하늘', lemon: '레몬', pink: '분홍' };
-const DEFAULT_SIZE = 0.055;
+const DEFAULT_SIZE = DEFAULT_TEXT_SIZE;
 
 function readRecent() {
   try {

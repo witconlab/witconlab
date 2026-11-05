@@ -7,6 +7,7 @@ const PAGE_W_MM = 105;
 const PAGE_H_MM = 148;
 const SAFE_MM = 5;
 export const LINE_HEIGHT = 1.25;
+export const DEFAULT_TEXT_SIZE = 0.055; // caption size (fraction of page height) when style.size is missing
 
 export function wrapText(measure, text, maxWidth) {
   const out = [];
@@ -79,7 +80,7 @@ function drawBackground(ctx, page, width, height) {
 }
 
 function drawText(ctx, el, width, height) {
-  const px = (el.style?.size ?? 0.05) * height;
+  const px = (el.style?.size ?? DEFAULT_TEXT_SIZE) * height;
   const boxW = el.w * width;
   ctx.font = `${px}px ${HAND}`;
   ctx.fillStyle = TEXT_COLORS[el.style?.color] || el.style?.color || TEXT_COLORS.ink;

@@ -41,6 +41,8 @@ const localBySrc = new Map(); // photoId -> blob URL after upload (avoids re-dow
 const blobs = new Map(); // element id -> resized Blob (kept for retry)
 const uploaded = new Map(); // element id -> photoId
 const failed = new Set(); // element ids whose upload gave up
+const discarded = new Set(); // pending photos the student deleted: upload skipped, never shown again
+let leaving = false; // set when we navigate away on purpose (no unload prompt)
 
 // ---------- helpers ----------
 function toast(msg) {
@@ -54,15 +56,16 @@ function toast(msg) {
 const page = () => zine.pages[pageIndex];
 const findEl = (id) => page().elements.find((e) => e.id === id);
 
+// Pending photos: swap in the photoId once uploaded; drop the ones whose local data was discarded.
 function normalize(z) {
-  if (!uploaded.size) return z;
+  if (!uploaded.size && !discarded.size) return z;
   let changed = false;
   const pages = z.pages.map((p) => {
-    if (!p.elements.some((e) => e.pending && uploaded.has(e.id))) return p;
+    if (!p.elements.some((e) => e.pending && (uploaded.has(e.id) || discarded.has(e.id)))) return p;
     changed = true;
     return {
       ...p,
-      elements: p.elements.map((e) => {
+      elements: p.elements.filter((e) => !(e.pending && discarded.has(e.id))).map((e) => {
         if (!e.pending || !uploaded.has(e.id)) return e;
         const { pending, ...rest } = e;
         return { ...rest, src: uploaded.get(e.id) };
@@ -124,6 +127,7 @@ function applyEntry(entry, focusPage) {
 }
 
 function undo() {
+  stage?.cancel();
   const prev = history.undo();
   if (!prev) return;
   const changedPage = currentEntry.page; // the change being undone happened on this page
@@ -131,6 +135,7 @@ function undo() {
   applyEntry(prev, changedPage);
 }
 function redo() {
+  stage?.cancel();
   const next = history.redo();
   if (!next) return;
   currentEntry = next;
@@ -143,6 +148,7 @@ function select(id) {
 }
 
 function setPage(i, rerender = true) {
+  stage?.cancel();
   pageIndex = Math.max(0, Math.min(M.PAGE_COUNT - 1, i));
   selectedId = null;
   try { window.history.replaceState(null, '', `edit.html?page=${pageIndex + 1}`); } catch { /* file:// etc. */ }
@@ -150,12 +156,15 @@ function setPage(i, rerender = true) {
 }
 
 // ---------- uploads ----------
+const cancelled = () => Object.assign(new Error('cancelled'), { code: 'CANCELLED' });
 const queue = createUploadQueue({
-  upload: async (blob) => {
+  upload: async ({ id, blob }) => {
+    if (discarded.has(id)) throw cancelled(); // deleted before its turn came
     const data = await blobToBase64(blob);
     const res = await call('uploadPhoto', { token: session.token, data, mime: blob.type || 'image/jpeg' });
     return res.photoId;
   },
+  shouldRetry: (err) => !(err && ['AUTH', 'BAD_INPUT', 'CANCELLED'].includes(err.code)),
 });
 queue.onChange((n) => {
   const chip = $('uploadChip');
@@ -167,22 +176,54 @@ function startUpload(id) {
   const blob = blobs.get(id);
   if (!blob) return;
   failed.delete(id);
-  queue.add(blob).then((photoId) => {
+  queue.add({ id, blob }).then((photoId) => {
+    if (discarded.has(id)) return; // deleted while uploading
+    const url = localUrls.get(id);
     uploaded.set(id, photoId);
-    localBySrc.set(photoId, localUrls.get(id));
+    blobs.delete(id);
+    localUrls.delete(id);
+    localBySrc.set(photoId, url);
     const next = normalize(zine);
     if (next !== zine) {
       zine = next;
       saver.schedule(strip(zine));
     }
     refresh();
+    // once the real image is loaded, stop using (and free) the local copy
+    Promise.resolve(loadImage(photoId)).then((im) => {
+      if (!im) return;
+      localBySrc.delete(photoId);
+      refresh();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }).catch(() => { /* keep showing the local copy */ });
   }, (err) => {
+    if (discarded.has(id)) return;
     failed.add(id);
     if (err && err.code === 'AUTH') setBadge('auth');
     refresh();
     toast('사진을 올리지 못했어요. 사진을 눌러 다시 시도해 주세요.');
   });
   refresh();
+}
+
+// Pending photos (uploading or failed) anywhere in the zine: their only copy is in memory.
+const unsentPhotos = () => zine.pages.reduce((n, p) => n + p.elements.filter((e) => e.pending).length, 0);
+
+function discardPending(id) {
+  discarded.add(id);
+  failed.delete(id);
+  blobs.delete(id);
+  const url = localUrls.get(id);
+  localUrls.delete(id);
+  if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function deleteElement(id) {
+  stage?.cancel();
+  const el = findEl(id);
+  if (!el) return;
+  commit(M.removeElement(zine, pageIndex, id), { select: null });
+  if (el.pending) discardPending(id);
 }
 
 async function addPhotos(files) {
@@ -252,7 +293,7 @@ const app = {
     const upd = { ...el, text, style: { ...el.style, ...style } };
     commit(M.updateElement(zine, pageIndex, id, { text, style: upd.style, h: fitTextHeight(upd) }));
   },
-  removeElement(id) { commit(M.removeElement(zine, pageIndex, id)); },
+  removeElement: deleteElement,
   setTitle(title, hl) {
     let next = M.setPageTitle(zine, pageIndex, title);
     if (hl) next = M.setTitleHighlight(next, pageIndex, hl);
@@ -353,7 +394,13 @@ function wireUi() {
     const s = $('badge').dataset.state;
     if (s === 'error') saver.flush();
     else if (s === 'conflict') location.reload();
-    else if (s === 'auth') { clearSession(); location.href = 'index.html'; }
+    else if (s === 'auth') {
+      const n = unsentPhotos();
+      if (n > 0 && !window.confirm(`올리지 못한 사진 ${n}장은 다시 골라야 해요. 계속할까요?`)) return;
+      leaving = true;
+      clearSession();
+      location.href = 'index.html';
+    }
   });
 
   const input = $('photoInput');
@@ -380,7 +427,7 @@ function wireUi() {
       case 'forward': commit(M.bringForward(zine, pageIndex, id)); break;
       case 'backward': commit(M.sendBackward(zine, pageIndex, id)); break;
       case 'duplicate': { const next = M.duplicateElement(zine, pageIndex, id); commit(next, { select: newestId(next) }); break; }
-      case 'delete': commit(M.removeElement(zine, pageIndex, id), { select: null }); break;
+      case 'delete': deleteElement(id); break;
       case 'frame': commit(M.updateElement(zine, pageIndex, id, { frame: el.frame === 'polaroid' ? 'none' : 'polaroid' })); break;
       case 'edit': sheets.open('text', el); break;
       case 'retry': startUpload(id); break;
@@ -393,12 +440,12 @@ function wireUi() {
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
     else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
-    else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) { e.preventDefault(); commit(M.removeElement(zine, pageIndex, selectedId), { select: null }); }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) { e.preventDefault(); deleteElement(selectedId); }
     else if (e.key === 'Escape' && selectedId) select(null);
   });
 
   window.addEventListener('beforeunload', (e) => {
-    if (queue.pending() > 0) { e.preventDefault(); e.returnValue = ''; }
+    if (!leaving && (queue.pending() > 0 || unsentPhotos() > 0)) { e.preventDefault(); e.returnValue = ''; }
   });
 
   // keep bottom sheets above the iOS keyboard
@@ -452,7 +499,6 @@ async function main() {
   saver = createSaver({
     save: (z) => call('save', { token: session.token, zine: z }).then((r) => ({ rev: r.rev })),
     backupKey: 'webzine.backup.' + (session.name || 'me'),
-    delay: 1500,
   });
   saver.onStatus((status, info) => {
     if (info && typeof info.rev === 'number') currentRev = info.rev;

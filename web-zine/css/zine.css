@@ -213,7 +213,7 @@ button { cursor: pointer; }
 .ed-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(43, 38, 32, .28); opacity: 0; transition: opacity .2s ease; }
 .ed-backdrop.show { opacity: 1; }
 .ed-sheet { bottom: var(--kb, 0px); max-width: 560px; margin: 0 auto; }
-.ed-sheet-tall { display: flex; flex-direction: column; height: min(64vh, 540px); overflow: hidden; }
+.ed-sheet-tall { display: flex; flex-direction: column; height: 65vh; height: 65dvh; max-height: min(65vh, 560px); max-height: min(65dvh, 560px); overflow: hidden; }
 .sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .sheet-head h2 { margin: 0; font-size: 32px; line-height: 1; }
 .sheet-x { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 2px solid var(--ink); border-radius: 50%; background: var(--white); }
