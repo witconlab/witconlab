@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나만의 진 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="css/zine.css">
+<style>
+  body { display: flex; align-items: center; justify-content: center; padding-top: 24px; padding-bottom: 24px; position: relative; }
+  .frame {
+    position: relative; width: 100%; max-width: 420px; margin: 0 auto; padding: 36px 22px 28px;
+    background: var(--cream); border: 2px solid var(--ink); border-radius: var(--radius-lg);
+    box-shadow: 6px 7px 0 rgba(43, 38, 32, .16);
+  }
+  .frame::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(43, 38, 32, .35); border-radius: 22px; pointer-events: none; }
+  .logo { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+  .logo .stk { width: 44px; height: 44px; }
+  h1 { margin: 6px 0 4px; font-size: 44px; line-height: 1.1; text-align: center; }
+  .sub { margin: 0 0 22px; text-align: center; font-size: 26px; color: var(--ink-soft); line-height: 1.2; }
+  label { display: block; margin: 14px 0 6px; font-weight: 700; font-size: 15px; }
+  label svg { vertical-align: -4px; margin-right: 4px; }
+  .pin { letter-spacing: .5em; text-align: center; font-size: 22px; }
+  .msg { margin: 14px 0 0; padding: 10px 14px; border: 2px solid var(--ink); border-radius: var(--radius); font-size: 15px; background: var(--yellow); }
+  .msg.err { background: #fde0dc; border-color: var(--red); }
+  .go { margin-top: 20px; }
+  .tip { margin: 16px 0 0; font-size: 13px; color: var(--ink-soft); text-align: center; }
+  .deco { position: absolute; pointer-events: none; }
+  .deco svg, .deco canvas { width: 100%; height: 100%; display: block; }
+  .d-face { width: 64px; height: 64px; top: -26px; right: -8px; transform: rotate(10deg); }
+  .d-star { width: 48px; height: 48px; bottom: -20px; left: -8px; transform: rotate(-14deg); }
+  .d-star2 { width: 34px; height: 34px; top: 40px; left: -14px; transform: rotate(18deg); }
+  .d-heart { width: 40px; height: 40px; bottom: 90px; right: -14px; transform: rotate(12deg); }
+</style>
+</head>
+<body class="dot-paper">
+<main class="frame">
+  <div class="deco d-face" id="d-face"></div>
+  <div class="deco d-star" id="d-star"></div>
+  <div class="deco d-star2" id="d-star2"></div>
+  <div class="deco d-heart" id="d-heart"></div>
+
+  <div class="logo" id="logo" aria-hidden="true"></div>
+  <h1 class="hand">나만의 진 만들기</h1>
+  <p class="sub hand">8쪽짜리 미니 잡지</p>
+
+  <form id="form" novalidate>
+    <label for="name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 5-7 8-7s7 2 8 7"/></svg>이름</label>
+    <input class="input" id="name" name="name" type="text" autocomplete="off" autocapitalize="off" maxlength="20" placeholder="내 이름" required>
+
+    <label for="pin"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>비밀번호 (숫자 4자리)</label>
+    <input class="input pin" id="pin" name="pin" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" autocomplete="off" placeholder="••••" required>
+
+    <div class="msg err" id="err" role="alert" hidden></div>
+    <div class="msg" id="info" hidden></div>
+
+    <button class="btn btn-primary btn-block go" id="go" type="submit">들어가기</button>
+  </form>
+  <p class="tip">처음이면 이름과 비밀번호로 새 진이 만들어져요.</p>
+</main>
+
+<script type="module">
+import { call, ApiError, getSession, setSession } from './js/api.js';
+import { API_URL } from './js/config.js';
+import { getSticker } from './js/stickers.js';
+
+if (getSession()) location.replace('edit.html');
+
+const $ = (id) => document.getElementById(id);
+
+function stickerEl(key) {
+  const s = getSticker(key);
+  if (!s) return null;
+  if (s.svg) {
+    const d = document.createElement('div');
+    d.innerHTML = s.svg;
+    return d.firstElementChild;
+  }
+  if (s.draw) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 160;
+    s.draw(c.getContext('2d'), 160, 160);
+    return c;
+  }
+  return null;
+}
+function put(host, key, cls) {
+  const el = stickerEl(key);
+  if (!el) return;
+  if (cls) el.classList.add(cls);
+  host.appendChild(el);
+}
+try {
+  put($('d-face'), 'face-1');
+  put($('d-star'), 'star-red');
+  put($('d-star2'), 'star-green');
+  put($('d-heart'), 'doodle-heart-solid');
+  const tilt = [-6, 5, -3, 7];
+  [...'ZINE'].forEach((ch, i) => {
+    const holder = document.createElement('div');
+    holder.className = 'stk';
+    holder.style.cssText = `width:44px;height:44px;transform:rotate(${tilt[i]}deg)`;
+    put(holder, 'alpha-' + ch);
+    holder.firstElementChild && (holder.firstElementChild.style.cssText = 'width:100%;height:100%;display:block');
+    $('logo').appendChild(holder);
+  });
+} catch (e) { /* decoration is optional */ }
+
+function show(el, text) { el.textContent = text; el.hidden = false; }
+function hh(ms) {
+  const d = new Date(ms);
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+if (!API_URL) {
+  show($('err'), '아직 설치가 끝나지 않았어요. 선생님께 말씀해 주세요.');
+  $('go').disabled = true;
+}
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('err').hidden = true; $('info').hidden = true;
+  const name = $('name').value.trim();
+  const pin = $('pin').value.trim();
+  if (!name) return show($('err'), '이름을 적어 주세요.');
+  if (!/^\d{4}$/.test(pin)) return show($('err'), '비밀번호는 숫자 4자리예요.');
+  const btn = $('go');
+  btn.disabled = true; btn.textContent = '들어가는 중…';
+  try {
+    const res = await call('login', { name, pin });
+    setSession({ token: res.token, name });
+    if (res.created) {
+      show($('info'), '새 진을 만들었어요. 비밀번호를 꼭 기억하세요!');
+      setTimeout(() => location.assign('edit.html'), 1800);
+    } else {
+      location.assign('edit.html');
+    }
+    return;
+  } catch (err) {
+    if (err instanceof ApiError) {
+      const d = err.data || {};
+      if (err.code === 'BAD_PIN') show($('err'), `비밀번호가 맞지 않아요 (남은 기회 ${d.remaining ?? '?'}번)`);
+      else if (err.code === 'LOCKED') show($('err'), `너무 많이 틀렸어요. ${d.until ? hh(d.until) : ''} 이후 다시 시도하거나 선생님께 말씀하세요`);
+      else if (err.code === 'BAD_INPUT') show($('err'), '이름과 비밀번호(숫자 4자리)를 다시 확인해 주세요.');
+      else show($('err'), '문제가 생겼어요. 잠시 후 다시 시도해 주세요.');
+    } else {
+      show($('err'), '인터넷 연결을 확인해 주세요.');
+    }
+  }
+  btn.disabled = false; btn.textContent = '들어가기';
+});
+</script>
+</body>
+</html>
