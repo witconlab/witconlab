@@ -32,8 +32,9 @@ export function createDrive() {
 
   function makeFile(name, bytes, mime) {
     const f = {
-      _id: 'file' + ++seq, _name: name, _bytes: Array.from(bytes, toSigned), _mime: mime,
+      _id: 'file' + ++seq, _name: name, _bytes: Array.from(bytes, toSigned), _mime: mime, _created: seq,
       getId() { return this._id; },
+      getDateCreated() { return new Date(this._created); },
       getName() { return this._name; },
       getBlob() { return makeBlob(this._bytes, this._mime, this._name); },
       getMimeType() { return this._mime; },
@@ -48,8 +49,9 @@ export function createDrive() {
 
   function makeFolder(name) {
     const folder = {
-      _id: 'folder' + ++seq, _name: name, _folders: [], _files: [],
+      _id: 'folder' + ++seq, _name: name, _folders: [], _files: [], _created: seq,
       getId() { return this._id; },
+      getDateCreated() { return new Date(this._created); },
       getName() { return this._name; },
       createFolder(n) { const c = makeFolder(n); c._parent = this; this._folders.push(c); return c; },
       isTrashed() { return !!this._trashed || !!(this._parent && this._parent.isTrashed()); },

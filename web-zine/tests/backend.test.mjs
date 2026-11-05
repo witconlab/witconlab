@@ -225,23 +225,37 @@ test('save and upload take no script lock; stale rev still CONFLICT', () => {
   assert.equal(lockState.locks, before);
 });
 
-test('only the create-new-student branch of login is locked', () => {
+test('login (even creating a new student) takes no script lock', () => {
   const { call, lockState } = setup();
   const before = lockState.locks;
-  call('login', { name: '김민지', pin: '1234' });
-  assert.equal(lockState.locks, before + 1);
+  assert.equal(call('login', { name: '김민지', pin: '1234' }).created, true);
+  assert.equal(call('login', { name: '김민지', pin: '1234' }).ok, true);
+  assert.equal(lockState.locks, before);
 });
 
-test('login create re-checks inside the lock (same name created meanwhile)', () => {
+test('two devices creating the same name at once end up on the earliest folder', () => {
   const g = setup();
-  // while this login waits for the lock, another device creates 김민지 with pin 1111
-  g.lockState.onLock = () => {
-    assert.equal(g.call('login', { name: '김민지', pin: '1111' }).created, true);
-  };
+  const root = g.drive.find('웹진');
+  // the other device's folder was created first (empty, its zine.json not written yet)
+  const first = root.createFolder('김민지');
   const r = g.call('login', { name: '김민지', pin: '2222' });
-  assert.equal(r.error, 'BAD_PIN'); // did not overwrite the other device's zine
+  assert.equal(r.created, true);
+  const alive = root._folders.filter((f) => f._name === '김민지' && !f.isTrashed());
+  assert.equal(alive.length, 1);
+  assert.equal(alive[0], first);
+  assert.ok(g.drive.find('웹진/김민지/zine.json'));
+});
+
+test('if the other device wrote its zine first, the new login checks that pin', () => {
+  const g = setup();
+  assert.equal(g.call('login', { name: '김민지', pin: '1111' }).created, true);
+  // a second zine.json written by a racing request (later) loses to the first one
+  const folder = g.drive.find('웹진/김민지');
+  const late = folder.createFile('zine.json', JSON.stringify({ bogus: true }), 'application/json');
+  g.cache.clear();
+  assert.equal(g.call('login', { name: '김민지', pin: '2222' }).error, 'BAD_PIN');
   assert.equal(g.call('login', { name: '김민지', pin: '1111' }).ok, true);
-  assert.equal(g.drive.find('웹진')._folders.filter((f) => f._name === '김민지').length, 1);
+  assert.ok(late);
 });
 
 test('saves use cached file ids (no name search) and survive stale cache ids', () => {

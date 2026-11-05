@@ -141,6 +141,22 @@ if (!API_URL) {
   $('go').disabled = true;
 }
 
+const LOGIN_RETRY = [2000, 4000, 8000, 12000];
+const NO_RETRY = new Set(['BAD_PIN', 'LOCKED', 'BAD_INPUT', 'AUTH']);
+async function loginWithRetry(name, pin, onRetry) {
+  for (let i = 0; ; i++) {
+    try {
+      return await call('login', { name, pin });
+    } catch (err) {
+      const retryable = !(err instanceof ApiError) || !NO_RETRY.has(err.code);
+      if (!retryable || i >= LOGIN_RETRY.length) throw err;
+      onRetry(i + 1);
+      // 모두가 같은 순간에 다시 몰리지 않도록 0~1.5초를 섞는다
+      await new Promise((r) => setTimeout(r, LOGIN_RETRY[i] + Math.random() * 1500));
+    }
+  }
+}
+
 $('form').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('err').hidden = true; $('info').hidden = true;
@@ -151,7 +167,8 @@ $('form').addEventListener('submit', async (e) => {
   const btn = $('go');
   btn.disabled = true; btn.textContent = '들어가는 중…';
   try {
-    const res = await call('login', { name, pin });
+    // 수업 시작에 여러 명이 한꺼번에 처음 들어오면 서버가 잠깐 밀린다. 그럴 때는 조금씩 기다렸다 다시 시도한다.
+    const res = await loginWithRetry(name, pin, (n) => { btn.textContent = `사람이 많아 다시 시도하는 중… (${n}/${LOGIN_RETRY.length})`; });
     setSession({ token: res.token, name });
     if (res.created) {
       show($('info'), '새 진을 만들었어요. 비밀번호를 꼭 기억하세요!');

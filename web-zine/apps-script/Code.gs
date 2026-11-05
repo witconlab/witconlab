@@ -133,13 +133,28 @@ function rootFolder_() {
   return root;
 }
 
-function child_(parent, name, create) {
-  var it = parent.getFoldersByName(name);
+// 같은 이름이 여러 개면(두 요청이 동시에 만든 경우) 가장 먼저 만들어진 것을 쓴다. 모든 요청이 같은 것을 고르게 된다.
+function older_(a, b) {
+  var ta = a.getDateCreated().getTime(), tb = b.getDateCreated().getTime();
+  return ta !== tb ? ta < tb : String(a.getId()) < String(b.getId());
+}
+function earliest_(it) {
+  var best = null;
   while (it.hasNext()) {
-    var f = it.next();
-    if (alive_(f)) return f;
+    var n = it.next();
+    if (alive_(n) && (!best || older_(n, best))) best = n;
   }
-  return create ? parent.createFolder(name) : null;
+  return best;
+}
+
+function child_(parent, name, create) {
+  var found = earliest_(parent.getFoldersByName(name));
+  if (found || !create) return found;
+  // 잠그지 않고 만든 뒤 다시 찾는다: 다른 요청이 먼저 만든 폴더가 있으면 그것을 쓰고 내 것은 버린다.
+  var mine = parent.createFolder(name);
+  var winner = earliest_(parent.getFoldersByName(name)) || mine;
+  if (winner.getId() !== mine.getId()) mine.setTrashed(true);
+  return winner;
 }
 
 function studentFolder_(name, create) {
@@ -158,15 +173,9 @@ function zineFile_(name, folder) {
   if (file) return file;
   folder = folder || studentFolder_(name, false);
   if (!folder) return null;
-  var it = folder.getFilesByName('zine.json');
-  while (it.hasNext()) {
-    var f = it.next();
-    if (alive_(f)) {
-      idCache_().put(key, f.getId(), ID_TTL);
-      return f;
-    }
-  }
-  return null;
+  var f = earliest_(folder.getFilesByName('zine.json'));
+  if (f) idCache_().put(key, f.getId(), ID_TTL);
+  return f;
 }
 
 function readStudentZine_(name) {
@@ -185,9 +194,8 @@ function writeStudentZine_(name, zine, folder) {
 
 // 관리자 목록처럼 폴더를 차례로 훑을 때 쓴다.
 function readZine_(folder) {
-  var it = folder.getFilesByName('zine.json');
-  if (!it.hasNext()) return null;
-  return JSON.parse(it.next().getBlob().getDataAsString());
+  var f = earliest_(folder.getFilesByName('zine.json'));
+  return f ? JSON.parse(f.getBlob().getDataAsString()) : null;
 }
 
 function publicZine_(zine) {
@@ -259,19 +267,23 @@ function login_(b) {
   var zine = readStudentZine_(name);
 
   if (!zine) {
-    // 새 학생: 같은 이름이 동시에 처음 들어올 수 있으므로 이 부분만 잠그고, 잠근 뒤 다시 확인한다.
-    var made = locked_(function () {
-      var again = readStudentZine_(name);
-      if (again) return { zine: again };
+    // 새 학생. 수업 시작에 여럿이 한꺼번에 들어오므로 반 전체를 줄 세우는 잠금을 쓰지 않는다.
+    // 같은 이름이 동시에 만들어지면 폴더·zine.json 모두 '가장 먼저 만들어진 것'이 이긴다(child_, zineFile_).
+    var made = (function () {
       var folder = studentFolder_(name, true);
-      child_(folder, 'photos', true); // 사진 폴더를 미리 만들어 업로드끼리 겹쳐 만들지 않게 한다
+      var existing = zineFile_(name, folder);
+      if (existing) return { zine: JSON.parse(existing.getBlob().getDataAsString()) };
       var fresh = emptyZine_(name);
       fresh.auth = makeAuth_(b.pin);
       fresh.updatedAt = new Date().toISOString();
       PropertiesService.getScriptProperties().deleteProperty('auth_' + name); // 예전 같은 이름의 리셋 기록 정리
-      writeStudentZine_(name, fresh, folder);
-      return { zine: fresh, created: true };
-    });
+      var mine = folder.createFile('zine.json', JSON.stringify(fresh), 'application/json');
+      var winner = earliest_(folder.getFilesByName('zine.json')) || mine;
+      idCache_().put('id_zine_' + name, winner.getId(), ID_TTL);
+      if (winner.getId() === mine.getId()) return { zine: fresh, created: true };
+      mine.setTrashed(true); // 다른 기기가 한발 먼저 만들었다
+      return { zine: JSON.parse(winner.getBlob().getDataAsString()) };
+    })();
     if (made.created) {
       return { ok: true, token: newToken_('tok_', name), zine: publicZine_(made.zine), created: true };
     }
@@ -355,8 +367,7 @@ function photosFolder_(name) {
   if (photos) return photos;
   var folder = studentFolder_(name, false);
   if (!folder) return null;
-  photos = child_(folder, 'photos', false);
-  if (!photos) photos = locked_(function () { return child_(folder, 'photos', true); });
+  photos = child_(folder, 'photos', true); // 잠금 없이: 동시에 만들어도 가장 먼저 만든 폴더로 모인다
   idCache_().put(key, photos.getId(), ID_TTL);
   return photos;
 }

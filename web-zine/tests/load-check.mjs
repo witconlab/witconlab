@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Manual load check (not part of `node --test`): 30 fake students hit the real web app at the same time.
+// Manual load check (not part of `node --test`): 50 fake students (or argv[3]) hit the real web app at the same time.
 //   node web-zine/tests/load-check.mjs <API_URL>
-// Each student 테스트01..테스트30: login, 3 saves (each using the rev the server returned), one ~200KB photo upload.
+// Each student 테스트01..테스트50: login, 3 saves (each using the rev the server returned), one ~200KB photo upload.
 // Retries follow the app's own rules:
 //   - save: network/server errors retried after 5s, 15s, 30s with the SAME saveId (lost responses are not conflicts);
 //           CONFLICT / AUTH / BAD_INPUT are not retried.
 //   - upload: up to 3 retries after 2s, 5s, 10s, except AUTH / BAD_INPUT.
-//   - login: not retried (a student would just press the button again).
-// Afterwards delete the 테스트01..테스트30 folders from the 웹진 folder in Google Drive.
+//   - login: busy/network errors retried after 2s, 4s, 8s, 12s with jitter (same as index.html).
+// Afterwards delete the 테스트01..테스트50 folders from the 웹진 folder in Google Drive.
 import crypto from 'node:crypto';
 
 const URL_ARG = process.argv[2];
@@ -15,7 +15,7 @@ if (!URL_ARG || !/^https?:\/\//.test(URL_ARG)) {
   console.error('사용법: node web-zine/tests/load-check.mjs <웹 앱 URL (https://script.google.com/macros/s/.../exec)>');
   process.exit(2);
 }
-const STUDENTS = 30;
+const STUDENTS = Number(process.argv[3]) || 50;
 const PIN = '7357';
 const TIMEOUT_MS = 30000;
 const SAVE_DELAYS = [5000, 15000, 30000];
@@ -81,7 +81,11 @@ function fakeJpegBase64(bytes = 200 * 1024) {
 
 async function student(i) {
   const name = '테스트' + String(i).padStart(2, '0');
-  const login = await op('login', () => call('login', { name, pin: PIN }), [], () => false);
+  // Same rule as index.html: retry busy/network errors after 2s, 4s, 8s, 12s (+0~1.5s jitter).
+  const LOGIN_NO_RETRY = new Set(['BAD_PIN', 'LOCKED', 'BAD_INPUT', 'AUTH']);
+  const login = await op('login', () => call('login', { name, pin: PIN }),
+    [2000, 4000, 8000, 12000].map((d) => d + Math.random() * 1500),
+    (e) => !(e instanceof ApiError) || !LOGIN_NO_RETRY.has(e.code));
   const token = login.token;
   let zine = login.zine;
   let rev = zine.rev;
@@ -120,5 +124,5 @@ for (const kind of ['login', 'save', 'upload']) {
   console.log(`${kind.padEnd(8)} ${String(s.ok).padStart(5)} ${String(s.fail).padStart(5)} ${String(s.retries).padStart(6)} ${String(pct(s.ms, 50)).padStart(9)} ${String(pct(s.ms, 95)).padStart(8)}`);
   for (const [k, n] of Object.entries(s.errors)) console.log(`         실패 이유: ${k} × ${n}`);
 }
-console.log('\n확인이 끝나면 구글 드라이브 웹진 폴더에서 테스트01~테스트30 폴더를 지워 주세요.');
+console.log('\n확인이 끝나면 구글 드라이브 웹진 폴더에서 테스트01~테스트50 폴더를 지워 주세요.');
 process.exit(done === STUDENTS ? 0 : 1);
