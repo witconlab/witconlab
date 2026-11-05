@@ -121,6 +121,7 @@ export function loadGas(path) {
   ctx.LockService = {
     getScriptLock: () => ({ waitLock() {}, releaseLock() {}, tryLock: () => true }),
   };
+  ctx.Logger = { log() {} };
   ctx.Utilities = {
     DigestAlgorithm: { SHA_256: 'SHA_256' },
     computeDigest(alg, input) {
