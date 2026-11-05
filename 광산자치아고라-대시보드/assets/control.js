@@ -20,8 +20,11 @@
   $('#mode').textContent = A.MODE === 'live' ? 'LIVE' : 'DEMO · 시뮬레이션';
   $('#mode').classList.toggle('live', A.MODE === 'live');
   if (A.MODE === 'live') $('#sim-card').style.display = 'none';
-  $('#open-screen').onclick = () => window.open('index.html', 'agora-screen');
-  $('#open-vote').onclick = () => window.open('vote.html', 'agora-vote');
+  // 주소에 ?demo 를 붙여 연 관제 패널이면, 스크린·투표·미리보기도 시뮬레이션으로 엽니다(시연용).
+  const demoQs = new URLSearchParams(location.search).has('demo') ? 'demo' : '';
+  $('#open-screen').onclick = () => window.open('index.html' + (demoQs ? '?' + demoQs : ''), 'agora-screen');
+  $('#open-vote').onclick = () => window.open('vote.html' + (demoQs ? '?' + demoQs : ''), 'agora-vote');
+  if (demoQs) $('#preview').src = 'index.html?preview&demo';
   $('#open-settings').onclick = () => { $('#set-api').value = A.LS.get('agora-api', '') || window.AGORA_API || ''; $('#set-key').value = A.adminKey(); $('#settings').showModal(); };
   $('#set-save').onclick = () => { A.LS.set('agora-api', $('#set-api').value.trim()); A.LS.set('agora-admin-key', $('#set-key').value); setTimeout(() => location.reload(), 50); };
   if (A.MODE === 'live' && !A.adminKey()) setTimeout(() => $('#open-settings').click(), 300);
