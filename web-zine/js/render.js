@@ -2,11 +2,11 @@
 import { PAPERS, TEXT_COLORS, HIGHLIGHTS } from './model.js';
 import { getSticker } from './stickers.js';
 
-const HAND = '"Nanum Pen Script", "Gamja Flower", cursive';
+export const HAND = '"Nanum Pen Script", "Gamja Flower", cursive';
 const PAGE_W_MM = 105;
 const PAGE_H_MM = 148;
 const SAFE_MM = 5;
-const LINE_HEIGHT = 1.25;
+export const LINE_HEIGHT = 1.25;
 
 export function wrapText(measure, text, maxWidth) {
   const out = [];
@@ -114,6 +114,32 @@ function drawPhoto(ctx, el, im, w, h) {
   }
 }
 
+// Page title with its highlighter band. Exported so the editor can draw it on its own layer.
+export function drawTitle(ctx, page, width, height) {
+  if ((page.title || '').trim() === '') return;
+  const px = height * 0.06;
+  const step = px * LINE_HEIGHT;
+  const box = page.titleBox || { x: 0.06, y: 0.04, w: 0.88 };
+  const boxW = box.w * width;
+  ctx.font = `${px}px ${HAND}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const lines = wrapText((s) => ctx.measureText(s).width, page.title, boxW);
+  const cx = (box.x + box.w / 2) * width;
+  const pad = width * 0.03;
+  lines.forEach((l, i) => {
+    const y = box.y * height + i * step;
+    const bw = Math.min(boxW, ctx.measureText(l).width) + pad * 2;
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = HIGHLIGHTS[page.titleHighlight] || HIGHLIGHTS.sky;
+    ctx.fillRect(cx - bw / 2, y + step * 0.45, bw, step * 0.5);
+    ctx.restore();
+    ctx.fillStyle = TEXT_COLORS.ink;
+    ctx.fillText(l, cx, y);
+  });
+}
+
 // Resolve what an element needs to be drawn. Returns async () => source|null, or null when nothing to load.
 async function loadSource(el, opts) {
   if (el.type === 'text') return { kind: 'text' };
@@ -198,29 +224,7 @@ export async function renderPage(ctx, page, opts) {
     ctx.restore();
   }
 
-  if ((page.title || '').trim() !== '') {
-    const px = height * 0.06;
-    const step = px * LINE_HEIGHT;
-    const box = page.titleBox || { x: 0.06, y: 0.04, w: 0.88 };
-    const boxW = box.w * width;
-    ctx.font = `${px}px ${HAND}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    const lines = wrapText((s) => ctx.measureText(s).width, page.title, boxW);
-    const cx = (box.x + box.w / 2) * width;
-    const pad = width * 0.03;
-    lines.forEach((l, i) => {
-      const y = box.y * height + i * step;
-      const bw = Math.min(boxW, ctx.measureText(l).width) + pad * 2;
-      ctx.save();
-      ctx.globalAlpha = 0.7;
-      ctx.fillStyle = HIGHLIGHTS[page.titleHighlight] || HIGHLIGHTS.sky;
-      ctx.fillRect(cx - bw / 2, y + step * 0.45, bw, step * 0.5);
-      ctx.restore();
-      ctx.fillStyle = TEXT_COLORS.ink;
-      ctx.fillText(l, cx, y);
-    });
-  }
+  drawTitle(ctx, page, width, height);
 
   if (showSafeArea) {
     ctx.strokeStyle = 'rgba(232,71,58,.8)';
