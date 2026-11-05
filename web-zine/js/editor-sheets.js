@@ -49,7 +49,7 @@ function fontPicker(host, input, onPick) {
 const mark = (host, attr, value) => host.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))));
 
 /**
- * app: { page(), loadImage(src), addSticker(src, aspect, size), myStickers(), makeSticker(file), addText(text, style), updateText(id, text, style),
+ * app: { page(), loadImage(src), addSticker(src, aspect, { size, maxH }), myStickers(), makeSticker(file), addText(text, style), updateText(id, text, style),
  *        removeElement(id), setTitle(title, highlight, { font, size }), setBackground(k), setPattern(p), setFrameLine(on),
  *        call(action, body), toast(msg) }
  */
@@ -129,7 +129,7 @@ export function createSheets(app) {
     return img;
   }
 
-  function cell(src, label, aspect, { size, recent = true } = {}) {
+  function cell(src, label, aspect, { size, maxH, recent = true } = {}) {
     const node = preview(src);
     if (!node) return null;
     const b = document.createElement('button');
@@ -148,7 +148,7 @@ export function createSheets(app) {
       }
       if (recent) pushRecent(src); // made stickers stay out of "최근" (that list is per device, not per student)
       close();
-      app.addSticker(src, a, size);
+      app.addSticker(src, a, { size, maxH });
     });
     return b;
   }
@@ -179,7 +179,7 @@ export function createSheets(app) {
       sub.textContent = '내가 만든 스티커';
       grid.append(sub);
       for (const m of mine) {
-        const c = cell(m.id, '내가 만든 스티커', m.w / m.h, { size: 0.4, recent: false });
+        const c = cell(m.id, '내가 만든 스티커', m.w / m.h, { size: 0.4, maxH: 0.55, recent: false });
         if (c) grid.append(c);
       }
       return;

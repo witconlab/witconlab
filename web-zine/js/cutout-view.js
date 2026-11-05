@@ -92,7 +92,7 @@ export function renderSticker(im, o, max = STICKER_MAX) {
   const long = Math.max(b.w, b.h);
   const border = long * 0.03;
   const blur = long * 0.025;
-  const pad = border + blur * 1.6;
+  const pad = border + blur * 1.9; // room for the shadow so it is not clipped
   const k = Math.min(1, max / (long + pad * 2));
   const cw = Math.max(1, Math.round((b.w + pad * 2) * k)), ch = Math.max(1, Math.round((b.h + pad * 2) * k));
   const place = (ctx) => { ctx.scale(k, k); ctx.translate(pad - b.x, pad - b.y); };
@@ -122,9 +122,9 @@ export function renderSticker(im, o, max = STICKER_MAX) {
   return out;
 }
 
-export async function openCutout({ src }) {
+export async function openCutout({ src, onError }) {
   let im;
-  try { im = await loadImg(src); } catch { return null; }
+  try { im = await loadImg(src); } catch { onError?.(); return null; }
   const iw = im.naturalWidth || 1, ih = im.naturalHeight || 1;
 
   return new Promise((resolve) => {
@@ -182,7 +182,8 @@ export async function openCutout({ src }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, aw, ah);
       ctx.drawImage(im, ox, oy, iw * s, ih * s);
-      const o = current();
+      const drawing = g && g.kind === 'draw';
+      const o = drawing ? null : current();
       if (o) {
         // dim everything outside the outline
         ctx.save();
@@ -213,7 +214,7 @@ export async function openCutout({ src }) {
         ctx.strokeStyle = '#ffe14d'; ctx.lineWidth = 3.5; ctx.stroke();
         ctx.restore();
       }
-      okBtn.disabled = !o || busy;
+      okBtn.disabled = !current() || drawing || busy;
     }
 
     function defaultShape(kind) {
@@ -250,8 +251,7 @@ export async function openCutout({ src }) {
       try { area.setPointerCapture(e.pointerId); } catch { /* ignore */ }
       const p = pt(e);
       if (mode === 'lasso') {
-        lasso = null;
-        pts = [toImg(p)];
+        pts = [toImg(p)]; // the previous outline stays until this stroke turns out to be a real one
         g = { kind: 'draw', id: e.pointerId };
         draw();
         return;
@@ -297,8 +297,7 @@ export async function openCutout({ src }) {
       const b = bboxOf(raw);
       pts = [];
       if (raw.length < 6 || b.w * view.s < 40 || b.h * view.s < 40) {
-        lasso = null;
-        setTip('조금 더 크게, 빙 둘러서 그려 주세요');
+        if (!lasso) setTip('조금 더 크게, 빙 둘러서 그려 주세요'); // a stray tap keeps the outline already drawn
       } else {
         lasso = { kind: 'lasso', pts: smoothClosed(raw) };
         setTip('좋아요! 완성을 누르거나, 다시 그려도 돼요');

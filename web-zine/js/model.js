@@ -154,7 +154,8 @@ export function setPhotoCrop(zine, pageIndex, id, crop, aspect, pageRatio, maxH 
     let w = e.w;
     let h = photoHeight(w, e.frame, aspect, pageRatio);
     if (h > maxH) { w *= maxH / h; h = maxH; }
-    const out = { ...rest, w, h, x: e.x + e.w / 2 - w / 2, y: e.y + e.h / 2 - h / 2 };
+    const clamp = (v, size) => Math.min(Math.max(0, 1 - size), Math.max(0, v));
+    const out = { ...rest, w, h, x: clamp(e.x + e.w / 2 - w / 2, w), y: clamp(e.y + e.h / 2 - h / 2, h) };
     const c = cropOf({ crop });
     if (c) out.crop = c;
     return out;
@@ -166,6 +167,17 @@ export const MY_STICKERS_MAX = 30;
 export function myStickersOf(zine) {
   const a = zine && Array.isArray(zine.myStickers) ? zine.myStickers : [];
   return a.filter((s) => s && typeof s.id === 'string' && s.id && s.w > 0 && s.h > 0);
+}
+// Two lists (e.g. current + an older backup): first list's order wins, deduped by id, capped.
+export function mergeMyStickers(a, b) {
+  const seen = new Set();
+  const out = [];
+  for (const s of [...myStickersOf({ myStickers: a }), ...myStickersOf({ myStickers: b })]) {
+    if (seen.has(s.id) || out.length >= MY_STICKERS_MAX) continue;
+    seen.add(s.id);
+    out.push({ id: s.id, w: s.w, h: s.h });
+  }
+  return out;
 }
 export function addMySticker(zine, s) {
   const list = [{ id: s.id, w: s.w, h: s.h }, ...myStickersOf(zine).filter((x) => x.id !== s.id)].slice(0, MY_STICKERS_MAX);

@@ -271,7 +271,7 @@ async function addPhotos(files) {
     let crop = null;
     if (single) {
       stage?.cancel();
-      const res = await openCrop({ src: url, mode: 'add' });
+      const res = await openCrop({ src: url, mode: 'add', onError: cantOpen });
       if (!res) { URL.revokeObjectURL(url); return; } // cancelled
       crop = res.crop;
       a = res.aspect;
@@ -296,6 +296,9 @@ async function addPhotos(files) {
   }
 }
 
+const MADE_MAX_H = 0.55;
+const cantOpen = () => toast('사진을 열 수 없어요. 다른 사진을 골라 주세요.');
+
 // 자르기 from the element menu: reopen the crop view on the full uploaded photo with the current crop.
 async function recrop(id) {
   const el = findEl(id);
@@ -307,10 +310,10 @@ async function recrop(id) {
     if (!src) { toast('사진을 불러오지 못했어요'); return; }
   }
   const pi = pageIndex;
-  const res = await openCrop({ src, crop: M.cropOf(el), mode: 'edit' });
+  const res = await openCrop({ src, crop: M.cropOf(el), mode: 'edit', onError: cantOpen });
   if (!res || pi !== pageIndex || !findEl(id)) return;
-  const before = JSON.stringify(M.cropOf(el));
-  if (JSON.stringify(res.crop) === before) return;
+  const r4 = (c) => JSON.stringify(c && [c.x, c.y, c.w, c.h].map((v) => Math.round(v * 10000)));
+  if (r4(res.crop) === r4(M.cropOf(el))) return;
   commit(M.setPhotoCrop(zine, pageIndex, id, res.crop, res.aspect, PAGE_RATIO), { select: id });
 }
 
@@ -320,14 +323,14 @@ async function makeSticker(file) {
   try { blob = await resizeImage(file); } catch (e) { toast(e.message || '이 사진 형식은 열 수 없어요'); return; }
   const src = URL.createObjectURL(blob);
   stage?.cancel();
-  const res = await openCutout({ src });
+  const res = await openCutout({ src, onError: cantOpen });
   URL.revokeObjectURL(src);
   if (!res) return;
   const url = URL.createObjectURL(res.blob);
   const aspect = res.w / res.h;
   let w = 0.45;
   let h = (w * PAGE_RATIO) / aspect;
-  if (h > 0.55) { w *= 0.55 / h; h = 0.55; }
+  if (h > MADE_MAX_H) { w *= MADE_MAX_H / h; h = MADE_MAX_H; }
   const next = M.addElement(zine, pageIndex, {
     type: 'sticker', src: '', pending: true, w, h, x: 0.5 - w / 2 + jitter(), y: 0.5 - h / 2 + jitter(),
   });
@@ -366,9 +369,11 @@ const app = {
   },
   myStickers: () => M.myStickersOf(zine),
   makeSticker,
-  addSticker(src, aspect, size = 0.25) {
-    const w = size;
-    const h = Math.min(1.5, (w * PAGE_RATIO) / (aspect || 1));
+  // size: width (page fraction); maxH: shrink so the height stays under it (made stickers use the same 0.55 as makeSticker)
+  addSticker(src, aspect, { size = 0.25, maxH = 1.5 } = {}) {
+    let w = size;
+    let h = (w * PAGE_RATIO) / (aspect || 1);
+    if (h > maxH) { w *= maxH / h; h = maxH; }
     const next = M.addElement(zine, pageIndex, { type: 'sticker', src, w, h, x: 0.5 - w / 2 + jitter(), y: 0.5 - h / 2 + jitter() });
     commit(next, { select: newestId(next) });
   },
@@ -672,7 +677,10 @@ function showStale() {
     bar.hidden = true;
     saver.discardStaleBackup();
     selectedId = null;
-    commit(withMyStickers({ ...stale.zine, rev: currentRev }));
+    const mine = M.mergeMyStickers(zine.myStickers, stale.zine.myStickers);
+    const restored = { ...stale.zine, rev: currentRev };
+    if (mine.length) restored.myStickers = mine; else delete restored.myStickers;
+    commit(restored);
     renderThumbs();
   };
   $('staleDrop').onclick = () => { bar.hidden = true; saver.discardStaleBackup(); };

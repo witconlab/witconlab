@@ -3,7 +3,7 @@
 //   crop: {x, y, w, h} fractions of the source image, or null for the whole photo; aspect: pixel w/h of the result.
 //   Resolves null when cancelled. mode 'add' (adding a new photo) or 'edit' (자르기 from the element menu).
 const RATIOS = [['free', '자유', 0], ['1:1', '1:1', 1], ['4:3', '4:3', 4 / 3], ['3:4', '3:4', 3 / 4], ['16:9', '16:9', 16 / 9]];
-const MIN_PX = 44; // smallest crop box on screen
+const MIN_PX = 72; // smallest crop box on screen (corners + a draggable middle stay hittable)
 const PAD = 22; // room around the photo so corner handles stay reachable
 
 export function loadImg(src) {
@@ -18,9 +18,10 @@ export function loadImg(src) {
 const mk = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html) n.innerHTML = html; return n; };
 const round4 = (v) => Math.round(v * 10000) / 10000;
 
-export async function openCrop({ src, crop = null, mode = 'add' }) {
+// onError(): called (then null is returned) when the image cannot be opened, so callers can tell it from 취소.
+export async function openCrop({ src, crop = null, mode = 'add', onError }) {
   let im;
-  try { im = await loadImg(src); } catch { return null; }
+  try { im = await loadImg(src); } catch { onError?.(); return null; }
   const iw = im.naturalWidth || 1, ih = im.naturalHeight || 1;
 
   return new Promise((resolve) => {
@@ -97,7 +98,8 @@ export async function openCrop({ src, crop = null, mode = 'add' }) {
       if (h) {
         const k = h.dataset.corner;
         const sx = k.includes('e') ? 1 : -1, sy = k.includes('s') ? 1 : -1;
-        g = { kind: 'resize', id: e.pointerId, sx, sy, ax: sx > 0 ? r.l : r.l + r.w, ay: sy > 0 ? r.t : r.t + r.h };
+        const cx = sx > 0 ? r.l + r.w : r.l, cy = sy > 0 ? r.t + r.h : r.t; // the grabbed corner
+        g = { kind: 'resize', id: e.pointerId, sx, sy, ax: sx > 0 ? r.l : r.l + r.w, ay: sy > 0 ? r.t : r.t + r.h, offX: cx - p.x, offY: cy - p.y };
       } else if (p.x >= r.l - 8 && p.x <= r.l + r.w + 8 && p.y >= r.t - 8 && p.y <= r.t + r.h + 8) {
         g = { kind: 'move', id: e.pointerId, start: p, base: r };
       } else return;
@@ -107,6 +109,7 @@ export async function openCrop({ src, crop = null, mode = 'add' }) {
     function onMove(e) {
       if (!g || e.pointerId !== g.id) return;
       const p = pt(e);
+      if (g.kind === 'resize') { p.x += g.offX; p.y += g.offY; } // keep the corner where the finger grabbed it
       if (g.kind === 'move') {
         fromPx({ ...g.base, l: g.base.l + p.x - g.start.x, t: g.base.t + p.y - g.start.y });
       } else {

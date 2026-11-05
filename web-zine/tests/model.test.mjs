@@ -202,3 +202,21 @@ test('myStickers: newest first, deduped, max 30, optional', async () => {
   assert.equal(z.myStickers[0].id, 'p20');
   assert.equal(z.myStickers.filter((s) => s.id === 'p20').length, 1);
 });
+
+test('mergeMyStickers: first list order wins, deduped, capped at 30', async () => {
+  const { mergeMyStickers } = await import('../js/model.js');
+  const s = (id) => ({ id, w: 1, h: 1 });
+  assert.deepEqual(mergeMyStickers([s('a'), s('b')], [s('b'), s('c')]).map((x) => x.id), ['a', 'b', 'c']);
+  assert.deepEqual(mergeMyStickers(undefined, [s('c')]).map((x) => x.id), ['c']);
+  const many = Array.from({ length: 25 }, (_, i) => s('x' + i));
+  const more = Array.from({ length: 25 }, (_, i) => s('y' + i));
+  assert.equal(mergeMyStickers(many, more).length, 30);
+});
+
+test('setPhotoCrop keeps the element on the page', async () => {
+  const { setPhotoCrop } = await import('../js/model.js');
+  const z = addElement(createEmptyZine('t'), 1, { type: 'photo', src: 'p', frame: 'none', x: 0.05, y: 0.6, w: 0.5, h: 0.3 });
+  const id = z.pages[1].elements[0].id;
+  const e = setPhotoCrop(z, 1, id, { x: 0, y: 0, w: 0.2, h: 1 }, 0.3, 0.7).pages[1].elements[0];
+  assert.ok(e.y >= 0 && e.y + e.h <= 1 + 1e-12 && e.x >= 0 && e.x + e.w <= 1 + 1e-12, JSON.stringify(e));
+});
