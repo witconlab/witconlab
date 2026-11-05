@@ -10,6 +10,8 @@ import { renderPage } from './render.js';
 import * as M from './model.js';
 import { createStage, fitTextHeight, PAGE_RATIO } from './editor-stage.js';
 import { createSheets } from './editor-sheets.js';
+import { openCrop } from './crop-view.js';
+import { openCutout } from './cutout-view.js';
 
 const $ = (id) => document.getElementById(id);
 const BADGE = {
@@ -42,6 +44,7 @@ const blobs = new Map(); // element id -> resized Blob (kept for retry)
 const uploaded = new Map(); // element id -> photoId
 const failed = new Set(); // element ids whose upload gave up
 const discarded = new Set(); // pending photos the student deleted: upload skipped, never shown again
+const madeStickers = new Map(); // element id -> { w, h } for a sticker made from a photo (added to myStickers once uploaded)
 let leaving = false; // set when we navigate away on purpose (no unload prompt)
 
 // ---------- helpers ----------
@@ -130,8 +133,11 @@ function commit(next, opts = {}) {
   refresh();
 }
 
+// The "my stickers" list is not part of undo/redo: history snapshots carry whatever list they had, so keep the current one.
+const withMyStickers = (z) => (zine && zine.myStickers && z.myStickers !== zine.myStickers ? { ...z, myStickers: zine.myStickers } : z);
+
 function applyEntry(entry, focusPage) {
-  zine = normalize(entry.zine);
+  zine = normalize(withMyStickers(entry.zine));
   if (focusPage !== pageIndex) setPage(focusPage, false);
   if (selectedId && !findEl(selectedId)) selectedId = null;
   saver.schedule(strip(zine));
@@ -207,7 +213,9 @@ function startUpload(id) {
     blobs.delete(id);
     localUrls.delete(id);
     localBySrc.set(photoId, url);
-    const next = normalize(zine);
+    let next = normalize(zine);
+    const made = madeStickers.get(id);
+    if (made) { madeStickers.delete(id); next = M.addMySticker(next, { id: photoId, w: made.w, h: made.h }); }
     if (next !== zine) {
       zine = next;
       saver.schedule(strip(zine));
@@ -235,6 +243,7 @@ const unsentPhotos = () => zine.pages.reduce((n, p) => n + p.elements.filter((e)
 
 function discardPending(id) {
   discarded.add(id);
+  madeStickers.delete(id);
   failed.delete(id);
   blobs.delete(id);
   const url = localUrls.get(id);
@@ -250,27 +259,84 @@ function deleteElement(id) {
   if (el.pending) discardPending(id);
 }
 
+// One photo: offer the crop view first. Several at once: add them as they are (crop later from the menu).
 async function addPhotos(files) {
+  const single = files.length === 1;
   let k = 0;
   for (const file of files) {
     let blob;
     try { blob = await resizeImage(file); } catch (e) { toast(e.message || '이 사진 형식은 열 수 없어요'); continue; }
     const url = URL.createObjectURL(blob);
-    const a = await imageAspect(url);
+    let a;
+    let crop = null;
+    if (single) {
+      stage?.cancel();
+      const res = await openCrop({ src: url, mode: 'add' });
+      if (!res) { URL.revokeObjectURL(url); return; } // cancelled
+      crop = res.crop;
+      a = res.aspect;
+    } else {
+      a = await imageAspect(url);
+    }
     let w = 0.6;
-    let h = (1.15 * w * PAGE_RATIO) / a; // polaroid: inner 92% x 80% keeps the photo's aspect
+    let h = M.photoHeight(w, 'polaroid', a, PAGE_RATIO); // polaroid: inner 92% x 80% keeps the photo's aspect
     if (h > 0.62) { w *= 0.62 / h; h = 0.62; }
     const off = (k++ % 5) * 0.04 - 0.08;
-    const next = M.addElement(zine, pageIndex, {
+    const partial = {
       type: 'photo', src: '', pending: true, frame: 'polaroid', w, h,
       x: 0.5 - w / 2 + off, y: 0.5 - h / 2 + off,
-    });
+    };
+    if (crop) partial.crop = crop;
+    const next = M.addElement(zine, pageIndex, partial);
     const id = newestId(next);
     localUrls.set(id, url);
     blobs.set(id, blob);
     commit(next, { select: id });
     startUpload(id);
   }
+}
+
+// 자르기 from the element menu: reopen the crop view on the full uploaded photo with the current crop.
+async function recrop(id) {
+  const el = findEl(id);
+  if (!el || el.type !== 'photo' || el.pending) return;
+  stage?.cancel();
+  let src = app.localUrl(el);
+  if (!src) {
+    try { const im = await loadImage(el.src); src = im && im.src; } catch { src = null; }
+    if (!src) { toast('사진을 불러오지 못했어요'); return; }
+  }
+  const pi = pageIndex;
+  const res = await openCrop({ src, crop: M.cropOf(el), mode: 'edit' });
+  if (!res || pi !== pageIndex || !findEl(id)) return;
+  const before = JSON.stringify(M.cropOf(el));
+  if (JSON.stringify(res.crop) === before) return;
+  commit(M.setPhotoCrop(zine, pageIndex, id, res.crop, res.aspect, PAGE_RATIO), { select: id });
+}
+
+// 스티커 > 만들기: cut a sticker out of one of my photos; uploaded as a PNG like any photo.
+async function makeSticker(file) {
+  let blob;
+  try { blob = await resizeImage(file); } catch (e) { toast(e.message || '이 사진 형식은 열 수 없어요'); return; }
+  const src = URL.createObjectURL(blob);
+  stage?.cancel();
+  const res = await openCutout({ src });
+  URL.revokeObjectURL(src);
+  if (!res) return;
+  const url = URL.createObjectURL(res.blob);
+  const aspect = res.w / res.h;
+  let w = 0.45;
+  let h = (w * PAGE_RATIO) / aspect;
+  if (h > 0.55) { w *= 0.55 / h; h = 0.55; }
+  const next = M.addElement(zine, pageIndex, {
+    type: 'sticker', src: '', pending: true, w, h, x: 0.5 - w / 2 + jitter(), y: 0.5 - h / 2 + jitter(),
+  });
+  const id = newestId(next);
+  localUrls.set(id, url);
+  blobs.set(id, res.blob);
+  madeStickers.set(id, { w: res.w, h: res.h });
+  commit(next, { select: id });
+  startUpload(id);
 }
 
 // ---------- app facade for stage & sheets ----------
@@ -298,8 +364,10 @@ const app = {
   onRendered(els) {
     $('outChip').hidden = !els.some(M.outsideSafeArea);
   },
-  addSticker(src, aspect) {
-    const w = 0.25;
+  myStickers: () => M.myStickersOf(zine),
+  makeSticker,
+  addSticker(src, aspect, size = 0.25) {
+    const w = size;
     const h = Math.min(1.5, (w * PAGE_RATIO) / (aspect || 1));
     const next = M.addElement(zine, pageIndex, { type: 'sticker', src, w, h, x: 0.5 - w / 2 + jitter(), y: 0.5 - h / 2 + jitter() });
     commit(next, { select: newestId(next) });
@@ -358,6 +426,7 @@ function refresh() {
     const show = (act, on) => { btns.querySelector(`[data-act="${act}"]`).hidden = !on; };
     const isFailed = el.pending && failed.has(el.id);
     show('frame', el.type === 'photo');
+    show('crop', el.type === 'photo' && !el.pending);
     show('edit', el.type === 'text');
     show('retry', isFailed);
     show('duplicate', !el.pending);
@@ -535,13 +604,14 @@ function wireUi() {
       case 'delete': deleteElement(id); break;
       case 'frame': commit(M.updateElement(zine, pageIndex, id, { frame: el.frame === 'polaroid' ? 'none' : 'polaroid' })); break;
       case 'edit': sheets.open('text', el); break;
+      case 'crop': recrop(id); break;
       case 'retry': startUpload(id); break;
       default:
     }
   });
 
   document.addEventListener('keydown', (e) => {
-    if (sheets.isOpen() || e.target.closest('input, textarea, [contenteditable]')) return;
+    if (sheets.isOpen() || document.body.classList.contains('cv-open') || e.target.closest('input, textarea, [contenteditable]')) return;
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
     else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
@@ -602,7 +672,7 @@ function showStale() {
     bar.hidden = true;
     saver.discardStaleBackup();
     selectedId = null;
-    commit({ ...stale.zine, rev: currentRev });
+    commit(withMyStickers({ ...stale.zine, rev: currentRev }));
     renderThumbs();
   };
   $('staleDrop').onclick = () => { bar.hidden = true; saver.discardStaleBackup(); };

@@ -7,7 +7,7 @@ const $ = (id) => document.getElementById(id);
 const RECENT_KEY = 'webzine.recentStickers';
 const RECENT_MAX = 12;
 const TABS = [
-  ['recent', '최근'], ['face', '얼굴'], ['doodle', '낙서'], ['star', '별'], ['number', '숫자'],
+  ['make', '만들기'], ['recent', '최근'], ['face', '얼굴'], ['doodle', '낙서'], ['star', '별'], ['number', '숫자'],
   ['alpha', '알파벳'], ['letter', '글자'], ['teacher', '선생님'],
 ];
 const TAB_GROUPS = { face: ['face'], doodle: ['doodle', 'tape'], star: ['star'], number: ['number'], alpha: ['alpha'], letter: ['letter'] };
@@ -49,7 +49,7 @@ function fontPicker(host, input, onPick) {
 const mark = (host, attr, value) => host.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))));
 
 /**
- * app: { page(), loadImage(src), addSticker(src, aspect), addText(text, style), updateText(id, text, style),
+ * app: { page(), loadImage(src), addSticker(src, aspect, size), myStickers(), makeSticker(file), addText(text, style), updateText(id, text, style),
  *        removeElement(id), setTitle(title, highlight, { font, size }), setBackground(k), setPattern(p), setFrameLine(on),
  *        call(action, body), toast(msg) }
  */
@@ -129,7 +129,7 @@ export function createSheets(app) {
     return img;
   }
 
-  function cell(src, label, aspect) {
+  function cell(src, label, aspect, { size, recent = true } = {}) {
     const node = preview(src);
     if (!node) return null;
     const b = document.createElement('button');
@@ -146,9 +146,9 @@ export function createSheets(app) {
           a = im ? (im.naturalWidth || 1) / (im.naturalHeight || 1) : 1;
         } catch { app.toast('스티커를 불러오지 못했어요'); return; }
       }
-      pushRecent(src);
+      if (recent) pushRecent(src); // made stickers stay out of "최근" (that list is per device, not per student)
       close();
-      app.addSticker(src, a);
+      app.addSticker(src, a, size);
     });
     return b;
   }
@@ -165,6 +165,25 @@ export function createSheets(app) {
     tabs.querySelectorAll('.stk-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === key)));
     grid.textContent = '';
     grid.scrollTop = 0;
+    if (key === 'make') {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'stk-make';
+      b.textContent = '+ 내 사진으로 스티커 만들기';
+      b.addEventListener('click', () => makeInput.click());
+      grid.append(b);
+      const mine = app.myStickers();
+      if (!mine.length) return note('내 사진에서 오려 낸 스티커가 여기에 모여요.');
+      const sub = document.createElement('p');
+      sub.className = 'stk-sub';
+      sub.textContent = '내가 만든 스티커';
+      grid.append(sub);
+      for (const m of mine) {
+        const c = cell(m.id, '내가 만든 스티커', m.w / m.h, { size: 0.4, recent: false });
+        if (c) grid.append(c);
+      }
+      return;
+    }
     if (key === 'recent') {
       const items = readRecent();
       if (!items.length) return note('아직 쓴 스티커가 없어요. 다른 탭에서 골라 보세요.');
@@ -194,6 +213,15 @@ export function createSheets(app) {
       if (c) grid.append(c);
     }
   }
+
+  const makeInput = $('stickerPhotoInput');
+  makeInput.addEventListener('change', () => {
+    const file = makeInput.files && makeInput.files[0];
+    makeInput.value = '';
+    if (!file) return;
+    close();
+    app.makeSticker(file);
+  });
 
   function openStickers() {
     open('sheet-sticker');

@@ -1,5 +1,5 @@
 // Canvas page renderer shared by editor thumbnails, the e-book and 300dpi PDFs.
-import { PAPERS, TEXT_COLORS, HIGHLIGHTS, fontOf, titleSizeOf } from './model.js';
+import { PAPERS, TEXT_COLORS, HIGHLIGHTS, fontOf, titleSizeOf, cropOf, photoInset } from './model.js';
 import { getSticker } from './stickers.js';
 
 export const HAND = '"Nanum Pen Script", "Gamja Flower", cursive';
@@ -54,12 +54,21 @@ function defaultLoadSvg(svg) {
   return svgCache.get(svg);
 }
 
-function drawCover(ctx, im, dx, dy, dw, dh) {
+// Source rectangle (image px) that cover-fits the crop area (whole image when crop is null) into a dw x dh box.
+// Shared with the editor so the screen shows exactly what the PDF prints.
+export function coverSource(iw, ih, crop, dw, dh) {
+  const c = crop || { x: 0, y: 0, w: 1, h: 1 };
+  const cx = c.x * iw, cy = c.y * ih, cw = c.w * iw, ch = c.h * ih;
+  const s = Math.max(dw / cw, dh / ch);
+  const sw = dw / s, sh = dh / s;
+  return { sx: cx + (cw - sw) / 2, sy: cy + (ch - sh) / 2, sw, sh };
+}
+
+function drawCover(ctx, im, dx, dy, dw, dh, crop = null) {
   const iw = im.naturalWidth || im.width, ih = im.naturalHeight || im.height;
   if (!iw || !ih) { ctx.drawImage(im, dx, dy, dw, dh); return; }
-  const s = Math.max(dw / iw, dh / ih);
-  const sw = dw / s, sh = dh / s;
-  ctx.drawImage(im, (iw - sw) / 2, (ih - sh) / 2, sw, sh, dx, dy, dw, dh);
+  const { sx, sy, sw, sh } = coverSource(iw, ih, crop, dw, dh);
+  ctx.drawImage(im, sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
 function drawContain(ctx, im, w, h, aspect) {
@@ -105,6 +114,7 @@ function drawText(ctx, el, width, height) {
 }
 
 function drawPhoto(ctx, el, im, w, h) {
+  const crop = cropOf(el);
   if (el.frame === 'polaroid') {
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,.15)';
@@ -113,18 +123,13 @@ function drawPhoto(ctx, el, im, w, h) {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, w, h);
     ctx.restore();
-    const ix = w * 0.04, iy = h * 0.04;
-    const iw = w * 0.92, ih = h * 0.8;
-    ctx.save();
-    ctx.beginPath(); ctx.rect(ix, iy, iw, ih); ctx.clip();
-    drawCover(ctx, im, ix, iy, iw, ih);
-    ctx.restore();
-  } else {
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
-    drawCover(ctx, im, 0, 0, w, h);
-    ctx.restore();
   }
+  const k = photoInset(el.frame);
+  const ix = w * k.x, iy = h * k.y, iw = w * k.w, ih = h * k.h;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(ix, iy, iw, ih); ctx.clip();
+  drawCover(ctx, im, ix, iy, iw, ih, crop);
+  ctx.restore();
 }
 
 // Page title with its highlighter band. Exported so the editor can draw it on its own layer.

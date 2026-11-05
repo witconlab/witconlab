@@ -1,6 +1,6 @@
 // Editor page canvas: print-matched background/title layers, element DOM, selection box and gestures.
-import { renderPage, drawTitle, wrapText, canvasFont, fontSpec, LINE_HEIGHT, DEFAULT_TEXT_SIZE } from './render.js';
-import { TEXT_COLORS, TITLE_SIZE, outsideSafeArea, titleSizeOf } from './model.js';
+import { renderPage, drawTitle, wrapText, canvasFont, fontSpec, coverSource, LINE_HEIGHT, DEFAULT_TEXT_SIZE } from './render.js';
+import { TEXT_COLORS, TITLE_SIZE, outsideSafeArea, titleSizeOf, cropOf, photoInset } from './model.js';
 import { getSticker } from './stickers.js';
 import { dragDelta, pinch, applyTransform } from './gestures.js';
 
@@ -127,7 +127,7 @@ export function createStage(host, app) {
 
   function contentKey(el, state) {
     const sized = el.type === 'text' || (el.src || '').startsWith('builtin:') || el.type === 'photo';
-    return JSON.stringify([el.type, el.src, el.frame, el.text, el.style, !!el.pending, state, app.localUrl(el) || '',
+    return JSON.stringify([el.type, el.src, el.frame, el.text, el.style, el.crop, !!el.pending, state, app.localUrl(el) || '',
       sized ? Math.round(el.w * W) : 0, sized ? Math.round(el.h * H) : 0, dpr]);
   }
 
@@ -160,9 +160,27 @@ export function createStage(host, app) {
       const pol = el.frame === 'polaroid';
       const box = mk('div', pol ? 'ed-photo ed-polaroid' : 'ed-photo');
       if (pol) box.style.boxShadow = `0 ${0.012 * el.w * W}px ${0.04 * el.w * W}px rgba(0,0,0,.15)`;
-      const img = mk('img', 'ed-cover');
+      const crop = cropOf(el);
+      const img = mk('img', crop ? '' : 'ed-cover');
       img.alt = ''; img.draggable = false;
-      box.append(img);
+      if (crop) {
+        // Cropped: position the image inside a clipping window with the same maths as render.js (screen = PDF).
+        const k = photoInset(el.frame);
+        const bw = el.w * W * k.w, bh = el.h * H * k.h;
+        const win = mk('div', 'ed-crop-win');
+        win.append(img);
+        box.append(win);
+        img.addEventListener('load', () => {
+          const iw = img.naturalWidth, ih = img.naturalHeight;
+          if (!iw || !ih || !bw || !bh) return;
+          const { sx, sy, sw } = coverSource(iw, ih, crop, bw, bh);
+          const s = bw / sw;
+          Object.assign(img.style, {
+            left: (-sx * s / bw) * 100 + '%', top: (-sy * s / bh) * 100 + '%',
+            width: (iw * s / bw) * 100 + '%', height: (ih * s / bh) * 100 + '%', visibility: 'visible',
+          });
+        });
+      } else box.append(img);
       node.append(box);
       setImg(img, el);
       if (state === 'uploading') node.append(Object.assign(mk('span', 'ed-el-badge'), { textContent: '올리는 중…' }));
@@ -193,6 +211,8 @@ export function createStage(host, app) {
     img.alt = ''; img.draggable = false;
     node.append(img);
     setImg(img, el);
+    if (state === 'uploading') node.append(Object.assign(mk('span', 'ed-el-badge'), { textContent: '올리는 중…' }));
+    if (state === 'failed') node.append(Object.assign(mk('span', 'ed-el-fail'), { textContent: '올리기 실패 · 눌러서 다시' }));
   }
 
   function place(n, el) {

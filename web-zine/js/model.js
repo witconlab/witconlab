@@ -127,6 +127,51 @@ export function movePage(zine, from, to) {
   return { ...zine, pages };
 }
 
+// ---- photo crop (optional el.crop: {x, y, w, h} as fractions of the source image; absent = whole photo) ----
+export function cropOf(el) {
+  const c = el && el.crop;
+  if (!c || typeof c !== 'object') return null;
+  const n = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : NaN);
+  const x = Math.min(1, Math.max(0, n(c.x))), y = Math.min(1, Math.max(0, n(c.y)));
+  const w = Math.min(n(c.w), 1 - x), h = Math.min(n(c.h), 1 - y);
+  if (!(w > 0.001) || !(h > 0.001) || Number.isNaN(x) || Number.isNaN(y)) return null;
+  return { x, y, w, h };
+}
+// Where the picture sits inside a photo element (polaroid: 92% x 80% with a white frame).
+export const photoInset = (frame) => (frame === 'polaroid' ? { x: 0.04, y: 0.04, w: 0.92, h: 0.8 } : { x: 0, y: 0, w: 1, h: 1 });
+// Element height (page fraction) that shows a picture of pixel aspect `aspect` (w/h) uncut at width w.
+// pageRatio = page width / page height.
+export function photoHeight(w, frame, aspect, pageRatio) {
+  const k = photoInset(frame);
+  return (w * k.w * pageRatio) / (k.h * (aspect > 0 ? aspect : 1));
+}
+// Set (crop object) or remove (null) a photo's crop. Width and centre are kept; the height follows the new
+// aspect (frame included). If that is taller than maxH the element shrinks to fit.
+export function setPhotoCrop(zine, pageIndex, id, crop, aspect, pageRatio, maxH = 0.9) {
+  return withElements(zine, pageIndex, (els) => els.map((e) => {
+    if (e.id !== id) return e;
+    const { crop: _old, ...rest } = e;
+    let w = e.w;
+    let h = photoHeight(w, e.frame, aspect, pageRatio);
+    if (h > maxH) { w *= maxH / h; h = maxH; }
+    const out = { ...rest, w, h, x: e.x + e.w / 2 - w / 2, y: e.y + e.h / 2 - h / 2 };
+    const c = cropOf({ crop });
+    if (c) out.crop = c;
+    return out;
+  }));
+}
+
+// ---- stickers the student made from a photo (optional top-level zine.myStickers: [{id, w, h}], newest first) ----
+export const MY_STICKERS_MAX = 30;
+export function myStickersOf(zine) {
+  const a = zine && Array.isArray(zine.myStickers) ? zine.myStickers : [];
+  return a.filter((s) => s && typeof s.id === 'string' && s.id && s.w > 0 && s.h > 0);
+}
+export function addMySticker(zine, s) {
+  const list = [{ id: s.id, w: s.w, h: s.h }, ...myStickersOf(zine).filter((x) => x.id !== s.id)].slice(0, MY_STICKERS_MAX);
+  return { ...zine, myStickers: list };
+}
+
 export const isPageFilled = (page) => (page.title || '').trim() !== '' || page.elements.length > 0;
 export const filledCount = (zine) => zine.pages.filter(isPageFilled).length;
 

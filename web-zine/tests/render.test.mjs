@@ -190,3 +190,46 @@ test('fonts: Pretendard by default, hand font when chosen; title size from the p
   const huge = await render({ ...base, title: '제목', titleSize: 3 });
   assert.match(huge.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^700 12px /);
 });
+
+test('photo crop: draws the cropped source rect (9-arg drawImage), cover-fit into the box', async () => {
+  // 200x100 image, crop = right half (100x100 square at x=100); square 30x30 box
+  const page = pageWith({ type: 'photo', src: 'c', w: 0.3, h: 0.3, frame: 'none', crop: { x: 0.5, y: 0, w: 0.5, h: 1 } });
+  const ctx = await render(page);
+  const d = ctx.calls.find((c) => c.name === 'drawImage');
+  assert.equal(d.args.length, 9);
+  assert.deepEqual(d.args.slice(1).map((v) => Math.round(v * 1000) / 1000), [100, 0, 100, 100, 0, 0, 30, 30]);
+});
+
+test('photo crop: wider box cover-fits inside the crop area', async () => {
+  // crop 100x100 (left half), box 30x15 -> source 100x50 centred vertically in the crop
+  const page = pageWith({ type: 'photo', src: 'c', w: 0.3, h: 0.15, frame: 'none', crop: { x: 0, y: 0, w: 0.5, h: 1 } });
+  const ctx = await render(page);
+  const d = ctx.calls.find((c) => c.name === 'drawImage');
+  assert.deepEqual(d.args.slice(1).map((v) => Math.round(v * 1000) / 1000), [0, 25, 100, 50, 0, 0, 30, 15]);
+});
+
+test('photo crop: polaroid inset still applies', async () => {
+  const page = pageWith({ type: 'photo', src: 'c', w: 1, h: 1, frame: 'polaroid', crop: { x: 0.25, y: 0, w: 0.5, h: 1 } });
+  page.elements[0].x = 0; page.elements[0].y = 0;
+  const ctx = await render(page);
+  const d = ctx.calls.find((c) => c.name === 'drawImage');
+  assert.deepEqual(d.args.slice(-4), [4, 4, 92, 80]);
+  const [sx, sy, sw, sh] = d.args.slice(1, 5);
+  assert.ok(sx >= 50 - 1e-9 && sx + sw <= 150 + 1e-9 && sy >= 0 && sy + sh <= 100 + 1e-9);
+  assert.ok(Math.abs(sw / sh - 92 / 80) < 1e-9);
+});
+
+test('photo without crop is unchanged (centre cover of the whole image)', async () => {
+  const page = pageWith({ type: 'photo', src: 'c', w: 0.3, h: 0.3, frame: 'none' });
+  const ctx = await render(page);
+  const d = ctx.calls.find((c) => c.name === 'drawImage');
+  assert.deepEqual(d.args.slice(1).map((v) => Math.round(v * 1000) / 1000), [50, 0, 100, 100, 0, 0, 30, 30]);
+});
+
+test('made sticker (photoId src) draws via loadImage, contain-fit', async () => {
+  const page = pageWith({ type: 'sticker', src: 'ph123', w: 0.4, h: 0.2 });
+  const ctx = await render(page, { loadImage: async (s) => img(s, 200, 100) });
+  const d = ctx.calls.find((c) => c.name === 'drawImage');
+  assert.equal(d.args[0].tag, 'ph123');
+  assert.deepEqual(d.args.slice(1), [0, 0, 40, 20]);
+});

@@ -161,3 +161,44 @@ test('title font/size: optional with defaults and clamping', async () => {
   assert.equal(setTitleFont(z, 1, 'weird').pages[1].titleFont, 'sans');
   assert.equal(HIGHLIGHTS.white, '#ffffff');
 });
+
+test('cropOf: absent/invalid -> null, otherwise clamped into the image', async () => {
+  const { cropOf } = await import('../js/model.js');
+  assert.equal(cropOf({}), null);
+  assert.equal(cropOf({ crop: { x: 0, y: 0, w: 0, h: 1 } }), null);
+  assert.equal(cropOf({ crop: { x: 'a', y: 0, w: 1, h: 1 } }), null);
+  assert.deepEqual(cropOf({ crop: { x: 0.5, y: -0.2, w: 0.8, h: 0.5 } }), { x: 0.5, y: 0, w: 0.5, h: 0.5 });
+});
+
+test('setPhotoCrop keeps width and centre, height follows aspect (polaroid inset), removes with null', async () => {
+  const { setPhotoCrop, photoHeight } = await import('../js/model.js');
+  let z = addElement(createEmptyZine('t'), 1, { type: 'photo', src: 'p', frame: 'polaroid', x: 0.2, y: 0.2, w: 0.6, h: 0.5 });
+  const id = z.pages[1].elements[0].id;
+  const before = snap(z);
+  const z2 = setPhotoCrop(z, 1, id, { x: 0.1, y: 0.1, w: 0.5, h: 0.5 }, 1, 0.7);
+  assert.equal(snap(z), before);
+  const e = z2.pages[1].elements[0];
+  assert.equal(e.w, 0.6);
+  assert.ok(Math.abs(e.h - (0.6 * 0.92 * 0.7) / 0.8) < 1e-12);
+  assert.ok(Math.abs(e.y + e.h / 2 - 0.45) < 1e-12 && Math.abs(e.x - 0.2) < 1e-12);
+  assert.deepEqual(e.crop, { x: 0.1, y: 0.1, w: 0.5, h: 0.5 });
+  assert.equal(photoHeight(1, 'none', 2, 1), 0.5);
+  const z3 = setPhotoCrop(z2, 1, id, null, 2, 0.7);
+  assert.equal('crop' in z3.pages[1].elements[0], false);
+  // too tall -> shrinks to maxH, width scaled down
+  const z4 = setPhotoCrop(z, 1, id, { x: 0, y: 0, w: 0.1, h: 1 }, 0.1, 0.7);
+  assert.ok(Math.abs(z4.pages[1].elements[0].h - 0.9) < 1e-12 && z4.pages[1].elements[0].w < 0.6);
+});
+
+test('myStickers: newest first, deduped, max 30, optional', async () => {
+  const { addMySticker, myStickersOf, MY_STICKERS_MAX } = await import('../js/model.js');
+  let z = createEmptyZine('t');
+  assert.deepEqual(myStickersOf(z), []);
+  assert.equal('myStickers' in z, false);
+  for (let i = 0; i < 35; i++) z = addMySticker(z, { id: 'p' + i, w: 10, h: 20 });
+  assert.equal(z.myStickers.length, MY_STICKERS_MAX);
+  assert.equal(z.myStickers[0].id, 'p34');
+  z = addMySticker(z, { id: 'p20', w: 10, h: 20 });
+  assert.equal(z.myStickers[0].id, 'p20');
+  assert.equal(z.myStickers.filter((s) => s.id === 'p20').length, 1);
+});

@@ -27,6 +27,7 @@
     <symbol id="i-frame" viewBox="0 0 24 24"><rect x="4.5" y="3" width="15" height="18" rx="1.5"/><rect x="7" y="5.5" width="10" height="10"/></symbol>
     <symbol id="i-edit" viewBox="0 0 24 24"><path d="M15.5 4.5l4 4L9 19l-5 1 1-5z"/></symbol>
     <symbol id="i-retry" viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 4.5V11h-6.5"/></symbol>
+    <symbol id="i-crop" viewBox="0 0 24 24"><path d="M6.5 2.5v15h15"/><path d="M2.5 6.5h15v15"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
   </defs>
 </svg>
@@ -66,6 +67,7 @@
       <button type="button" data-act="backward"><svg><use href="#i-down"/></svg>뒤로</button>
       <button type="button" data-act="duplicate"><svg><use href="#i-copy"/></svg>복제</button>
       <button type="button" data-act="frame"><svg><use href="#i-frame"/></svg><span>폴라로이드 틀</span></button>
+      <button type="button" data-act="crop"><svg><use href="#i-crop"/></svg>자르기</button>
       <button type="button" data-act="edit"><svg><use href="#i-edit"/></svg>고치기</button>
       <button type="button" data-act="retry"><svg><use href="#i-retry"/></svg>다시 올리기</button>
       <button type="button" data-act="delete" class="danger"><svg><use href="#i-trash"/></svg>삭제</button>
@@ -85,6 +87,7 @@
 </div>
 
 <input type="file" id="photoInput" accept="image/*" multiple hidden>
+<input type="file" id="stickerPhotoInput" accept="image/*" hidden>
 
 <div class="ed-backdrop" id="backdrop" hidden></div>
 

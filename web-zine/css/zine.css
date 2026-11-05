@@ -281,3 +281,52 @@ button { cursor: pointer; }
 }
 .ed-loading p { margin: 0; font-size: 16px; }
 .ed-loading p.hand { font-size: 34px; }
+
+/* photo crop: the picture window and the positioned image (editor DOM; same maths as render.js coverSource) */
+.ed-crop-win { position: absolute; inset: 0; overflow: hidden; }
+.ed-polaroid .ed-crop-win { left: 4%; top: 4%; width: 92%; height: 80%; }
+.ed-crop-win img { position: absolute; display: block; max-width: none; visibility: hidden; }
+.ed-el.is-pending .ed-crop-win img, .ed-el.is-pending .ed-contain { opacity: .75; }
+
+/* "made" sticker tab */
+.stk-make {
+  grid-column: 1 / -1; min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 2px dashed var(--ink); border-radius: 16px; background: var(--white); font-size: 17px; font-weight: 800;
+}
+.stk-make:active { background: var(--yellow); }
+.stk-sub { grid-column: 1 / -1; margin: 6px 0 0; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+
+/* full-screen crop / cutout views */
+body.cv-open { overflow: hidden; }
+.cv {
+  position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) 0 calc(10px + env(safe-area-inset-bottom)); background: #1d1915; color: #fff;
+}
+.cv-head { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 8px 12px 4px; }
+.cv-head b { font-size: 30px; line-height: 1; }
+.cv-cancel {
+  justify-self: start; min-height: 44px; padding: 0 16px; border: 2px solid rgba(255, 255, 255, .7); border-radius: 999px;
+  background: transparent; color: #fff; font-size: 16px; font-weight: 700;
+}
+.cv-tip { flex: none; min-height: 20px; margin: 4px 16px 0; font-size: 14px; font-weight: 600; text-align: center; color: #f3e9d2; }
+.cv-area { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.cv-img { position: absolute; display: block; max-width: none; pointer-events: none; }
+.cv-canvas { position: absolute; left: 0; top: 0; display: block; }
+.cv-rect { position: absolute; box-shadow: 0 0 0 9999px rgba(20, 16, 12, .6); outline: 2px solid #fff; cursor: move; }
+.cv-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255,255,255,.45) calc(33.33% - .5px) calc(33.33% + .5px), transparent calc(33.33% + .5px) calc(66.66% - .5px), rgba(255,255,255,.45) calc(66.66% - .5px) calc(66.66% + .5px), transparent calc(66.66% + .5px)),
+    linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255,255,255,.45) calc(33.33% - .5px) calc(33.33% + .5px), transparent calc(33.33% + .5px) calc(66.66% - .5px), rgba(255,255,255,.45) calc(66.66% - .5px) calc(66.66% + .5px), transparent calc(66.66% + .5px));
+}
+.cv-h { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; touch-action: none; }
+.cv-h::before { content: ''; position: absolute; left: 12px; top: 12px; width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--blue); }
+.cv-h-nw { left: 0; top: 0; } .cv-h-ne { left: 100%; top: 0; } .cv-h-sw { left: 0; top: 100%; } .cv-h-se { left: 100%; top: 100%; }
+.cv-chips { flex: none; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px 4px; }
+.cv-chip {
+  min-height: 44px; min-width: 56px; padding: 0 14px; border: 2px solid rgba(255, 255, 255, .75); border-radius: 999px;
+  background: transparent; color: #fff; font-size: 15px; font-weight: 700;
+}
+.cv-chip[aria-pressed="true"] { background: var(--yellow); border-color: var(--yellow); color: var(--ink); }
+.cv-actions { flex: none; display: flex; gap: 10px; padding: 8px 16px 0; }
+.cv-actions .btn { flex: 1; min-height: 52px; padding: 0 12px; }
