@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 진 보기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="css/zine.css">
+<style>
+.vw-body { background: #3a3530; color: var(--cream); padding: 0; overflow: hidden; }
+.vw { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: env(safe-area-inset-top) var(--gutter) env(safe-area-inset-bottom); }
+.vw-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; min-height: 56px; }
+.vw-title { margin: 0; font-size: 28px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vw-top-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.vw .btn { min-height: 44px; padding: 0 16px; font-size: 15px; }
+.vw-stage { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: pan-y; user-select: none; }
+.vw-track { display: flex; align-items: center; justify-content: center; will-change: transform; }
+.vw-track.sliding { transition: transform .3s ease, opacity .3s ease; }
+.vw-spread { display: flex; box-shadow: 0 6px 22px rgba(0, 0, 0, .45); border-radius: 4px; position: relative; background: #fff; }
+.vw-spread canvas { display: block; background: var(--cream); max-width: none; }
+.vw-spread canvas:first-child:not(:last-child) { border-radius: 4px 0 0 4px; box-shadow: inset -8px 0 10px -8px rgba(0,0,0,.25); }
+.vw-spread canvas:last-child:not(:first-child) { border-radius: 0 4px 4px 0; box-shadow: inset 8px 0 10px -8px rgba(0,0,0,.25); }
+.vw-spread canvas:only-child { border-radius: 4px; }
+.vw-spread.two::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(60, 50, 35, .35); pointer-events: none; }
+.vw-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 0 6px; }
+.vw-nav button.vw-arrow { min-width: 88px; min-height: 48px; border: 2px solid rgba(246, 239, 220, .5); border-radius: 999px; background: transparent; color: var(--cream); font-weight: 700; font-size: 15px; }
+.vw-nav button.vw-arrow:disabled { opacity: .3; cursor: default; }
+.vw-nav button.vw-arrow:focus-visible, .vw-stage:focus-visible { outline: 3px solid #8fc1f0; outline-offset: 2px; }
+.vw-count { font-size: 14px; }
+.vw-foot { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 6px 0 14px; }
+.vw-warn { margin: 0; max-width: 560px; font-size: 13px; color: #ffd9a8; text-align: center; }
+.vw-stamp { position: absolute; top: 6px; right: 6px; z-index: 2; transform: rotate(8deg); padding: 4px 14px; border: 3px solid var(--red); border-radius: 12px; background: rgba(255,255,255,.92); color: var(--red); font-size: 24px; pointer-events: none; }
+.vw .btn.vw-done[aria-pressed="true"] { background: var(--lime); }
+.vw-msg { margin: auto; text-align: center; padding: 24px; }
+@media (max-width: 480px) { .vw-title { font-size: 22px; } .vw-nav button.vw-arrow { min-width: 72px; } }
+</style>
+</head>
+<body class="vw-body">
+<div class="vw" id="app">
+  <header class="vw-top">
+    <h1 class="vw-title hand" id="zineTitle"></h1>
+    <div class="vw-top-btns">
+      <a class="btn" id="editBtn" href="edit.html" hidden>편집하기</a>
+      <button class="btn vw-done" id="doneBtn" type="button" aria-pressed="false" hidden>다 만들었어요</button>
+    </div>
+  </header>
+  <main class="vw-stage" id="stage" tabindex="0" aria-label="진 보기. 좌우로 쓸거나 방향키로 넘겨요">
+    <div class="vw-track" id="track"></div>
+  </main>
+  <nav class="vw-nav" aria-label="쪽 넘기기">
+    <button class="vw-arrow" id="prev" type="button" aria-label="이전 쪽">‹ 이전</button>
+    <span class="vw-count" id="count" aria-live="polite"></span>
+    <button class="vw-arrow" id="next" type="button" aria-label="다음 쪽">다음 ›</button>
+  </nav>
+  <footer class="vw-foot">
+    <button class="btn btn-primary" id="pdfBtn" type="button" aria-label="PDF 내려받기">PDF 내려받기</button>
+    <p class="vw-warn" id="pdfWarn" role="status" hidden></p>
+  </footer>
+</div>
+<div class="ed-loading" id="loading"><p class="hand">진을 펼치는 중…</p></div>
+<script type="module" src="js/viewer.js"></script>
+</body>
+</html>
