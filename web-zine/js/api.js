@@ -56,7 +56,12 @@ export async function fetchPhoto(src) {
   } else {
     const adminToken = getAdminToken();
     const session = getSession();
-    res = await call('getPhoto', adminToken ? { photoId: src, adminToken } : { photoId: src, token: session && session.token });
+    const asStudent = () => call('getPhoto', { photoId: src, token: session && session.token });
+    if (adminToken) {
+      try { res = await call('getPhoto', { photoId: src, adminToken }); } catch (e) {
+        if (e.code === 'AUTH' && session && session.token) res = await asStudent(); else throw e;
+      }
+    } else res = await asStudent();
   }
   return { data: res.data, mime: res.mime, url: `data:${res.mime};base64,${res.data}` };
 }

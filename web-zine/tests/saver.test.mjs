@@ -126,6 +126,7 @@ test('stale backup discarded', () => {
   assert.equal(r.title, 'server');
   assert.equal(storage.getItem('bk'), null);
   assert.equal(t.pending().length, 0);
+  assert.equal(s.getStaleBackup().zine.title, 'local');
 });
 
 test('change during save triggers second save', async () => {
@@ -154,4 +155,63 @@ test('flush saves immediately', async () => {
   s.schedule(zine(0, 'a'));
   await s.flush();
   assert.equal(calls.length, 1);
+});
+
+test('in-flight save then reload rebases newer backup', () => {
+  const { s, storage, t } = setup(async (z) => ({ rev: z.rev + 1 }));
+  storage.setItem('bk', JSON.stringify({ zine: zine(4, 'B'), savedAt: 5000 }));
+  const r = s.restore({ ...zine(5, 'A'), updatedAt: new Date(1000).toISOString() });
+  assert.equal(r.title, 'B');
+  assert.equal(r.rev, 5);
+  assert.equal(t.pending().length, 1);
+  assert.equal(s.getStaleBackup(), null);
+});
+
+test('older backup kept as stale not deleted', () => {
+  const { s, storage } = setup(async (z) => ({ rev: z.rev + 1 }));
+  storage.setItem('bk', JSON.stringify({ zine: zine(4, 'old'), savedAt: 500 }));
+  const r = s.restore({ ...zine(5, 'srv'), updatedAt: new Date(1000).toISOString() });
+  assert.equal(r.title, 'srv');
+  assert.equal(storage.getItem('bk'), null);
+  assert.equal(s.getStaleBackup().zine.title, 'old');
+  s.discardStaleBackup();
+  assert.equal(s.getStaleBackup(), null);
+});
+
+test('success with pending edits rewrites backup rev', async () => {
+  let release; const gate = new Promise((r) => { release = r; });
+  let n = 0;
+  const { s, t, storage } = setup(async (z) => {
+    if (++n === 1) { await gate; return { rev: z.rev + 1 }; }
+    return new Promise(() => {}); // second save stays in flight
+  });
+  s.schedule(zine(0, 'a'));
+  t.fire();
+  await tick();
+  s.schedule(zine(0, 'b'));
+  release();
+  await tick(); await tick();
+  const b = JSON.parse(storage.getItem('bk'));
+  assert.equal(b.zine.title, 'b');
+  assert.equal(b.zine.rev, 1);
+});
+
+test('flush resolves to final status', async () => {
+  const ok = setup(async (z) => ({ rev: z.rev + 1 }));
+  ok.s.schedule(zine(0));
+  assert.equal(await ok.s.flush(), 'saved');
+  const bad = setup(async () => { throw err('CONFLICT'); });
+  bad.s.schedule(zine(0));
+  assert.equal(await bad.s.flush(), 'conflict');
+});
+
+test('non-retryable codes stop retrying and keep backup', async () => {
+  const { s, t, statuses, storage } = setup(async () => { throw err('BAD_INPUT'); });
+  s.schedule(zine(0, 'x'));
+  await t.fire();
+  assert.equal(statuses.at(-1), 'error');
+  assert.equal(t.pending().length, 0);
+  assert.ok(storage.getItem('bk'));
+  s.schedule(zine(0, 'y'));
+  assert.equal(t.pending().length, 1);
 });
