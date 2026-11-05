@@ -1,10 +1,22 @@
 // Autosave with local backup. Never silently lose work: the backup stays until the server confirms.
+// Each save attempt carries a saveId. When the outcome of an attempt is unknown (network error, timeout,
+// server error), that exact snapshot is resent with the same saveId first, so a save whose response was
+// lost is recognised by the server instead of turning into a false CONFLICT.
 const RETRY_DELAYS = [5000, 15000, 30000];
+const KNOWN_FAILURES = ['CONFLICT', 'AUTH', 'BAD_INPUT', 'NOT_FOUND']; // server said no: nothing was written
+
+// Local backup key of a student's unsaved editor changes (the viewer checks it too).
+export const backupKeyFor = (name) => 'webzine.backup.' + (name || 'me');
+
+export function newSaveId() {
+  try { if (globalThis.crypto && globalThis.crypto.randomUUID) return globalThis.crypto.randomUUID(); } catch (e) { /* fall through */ }
+  return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 12);
+}
 
 export function createSaver({
   save, backupKey, delay = 3000, now = Date.now,
   setTimer = (fn, ms) => setTimeout(fn, ms), clearTimer = (id) => clearTimeout(id),
-  storage = globalThis.localStorage,
+  storage = globalThis.localStorage, makeId = newSaveId,
 }) {
   const staleKey = backupKey + '.stale';
   const listeners = [];
@@ -16,6 +28,7 @@ export function createSaver({
   let stopped = null;    // 'conflict' | 'auth'
   let failures = 0;
   let lastStatus = 'saved';
+  let unconfirmed = null; // { zine, saveId, source } whose outcome is unknown
 
   const emit = (status, info = {}) => { lastStatus = status; notify(status, info); };
   const notify = (status, info) => listeners.forEach((fn) => fn(status, { rev, ...info }));
@@ -37,11 +50,15 @@ export function createSaver({
       try {
         while (dirty && !stopped) {
           clearT();
-          dirty = false;
-          const snapshot = withRev(latest);
+          // resend an attempt with unknown outcome (same snapshot, same saveId) before anything newer
+          const attempt = unconfirmed && unconfirmed.zine.rev === rev
+            ? unconfirmed
+            : { zine: withRev(latest), saveId: makeId(), source: latest };
+          unconfirmed = null;
+          if (attempt.source === latest) dirty = false;
           emit('saving');
           try {
-            const res = await save(snapshot);
+            const res = await save(attempt.zine, { saveId: attempt.saveId });
             rev = res.rev;
             failures = 0;
             if (dirty) writeBackup(); else dropBackup();
@@ -49,6 +66,7 @@ export function createSaver({
           } catch (err) {
             dirty = true; // backup remains; nothing confirmed
             const code = err && err.code;
+            if (!KNOWN_FAILURES.includes(code)) unconfirmed = attempt;
             if (code === 'CONFLICT') { stopped = 'conflict'; emit('conflict', { error: err }); }
             else if (code === 'AUTH') { stopped = 'auth'; emit('auth', { error: err }); }
             else if (code === 'BAD_INPUT' || code === 'NOT_FOUND') {
@@ -97,6 +115,7 @@ export function createSaver({
     },
     restore(serverZine) {
       stopped = null;
+      unconfirmed = null;
       failures = 0;
       rev = serverZine.rev;
       const b = readBackup();

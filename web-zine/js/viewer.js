@@ -1,13 +1,19 @@
 // E-book viewer (view.html): flip through the zine, mark it done, download the PDF.
 import { call, getSession, clearSession, getAdminToken, fetchPhoto } from './api.js';
 import { createPhotoLoader } from './photo-cache.js';
-import { ensureFonts, buildPagesPdf, JSPDF_URL } from './pdf.js';
+import { ensureFonts, buildPagesPdf, JSPDF_URL, zineText, zineTitle } from './pdf.js';
 import { renderPage } from './render.js';
+import { newSaveId, backupKeyFor } from './saver.js';
 
 export const WIDE_MIN = 768;
 const PAGE_COUNT = 8;
 const RATIO = 105 / 148;
 const SWIPE_PX = 40;
+
+// The editor's unsaved-work backup for this student (see saver.js).
+export function hasUnsavedBackup(storage, name) {
+  try { return !!(storage && storage.getItem(backupKeyFor(name))); } catch (e) { return false; }
+}
 
 export function spreadsFor(wide) {
   if (!wide) return Array.from({ length: PAGE_COUNT }, (_, i) => [i + 1]);
@@ -26,7 +32,8 @@ function main() {
   const adminToken = adminName ? getAdminToken() : null;
   const session = getSession();
   const isAdmin = !!(adminName && adminToken);
-  const loadImage = createPhotoLoader({ fetchPhoto });
+  const loadImage = createPhotoLoader({ fetchPhoto: isAdmin ? (src) => fetchPhoto(src, { name: adminName }) : fetchPhoto });
+  const unsaved = !isAdmin && hasUnsavedBackup(globalThis.localStorage, session && session.name);
 
   let zine = null;
   let spreads = [];
@@ -153,7 +160,7 @@ function main() {
   function paintDone() {
     const b = $('doneBtn');
     b.setAttribute('aria-pressed', String(!!zine.done));
-    $('zineTitle').textContent = zine.title || (isAdmin ? adminName : '내 진');
+    $('zineTitle').textContent = zineTitle(zine);
     let st = $('stage').querySelector('.vw-stamp');
     if (zine.done && !st) {
       st = document.createElement('span'); st.className = 'vw-stamp hand'; st.textContent = '완성!';
@@ -163,10 +170,11 @@ function main() {
 
   async function toggleDone() {
     const b = $('doneBtn');
+    if (unsaved) return;
     b.disabled = true;
     const next = { ...zine, done: !zine.done };
     try {
-      const res = await call('save', { token: session.token, zine: next });
+      const res = await call('save', { token: session.token, zine: next, saveId: newSaveId() });
       zine = { ...next, rev: res.rev };
       paintDone();
     } catch (e) {
@@ -174,7 +182,7 @@ function main() {
       if (e && e.code === 'AUTH') { clearSession(); location.replace('index.html'); return; }
       $('pdfWarn').hidden = false;
       $('pdfWarn').textContent = '저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.';
-    } finally { b.disabled = false; }
+    } finally { b.disabled = unsaved; }
   }
 
   // ----- PDF -----
@@ -204,7 +212,7 @@ function main() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${safeName(zine.name || adminName || '진')}_${safeName(zine.title) || '진'}.pdf`;
+      a.download = `${safeName(zine.name || adminName || '진')}_${safeName(zineTitle(zine)) || '진'}.pdf`;
       document.body.append(a);
       a.click();
       a.remove();
@@ -270,10 +278,30 @@ function main() {
       fatal(e && e.code ? '진을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.' : '인터넷 연결을 확인해 주세요.');
       return;
     }
-    if (!isAdmin) { $('editBtn').hidden = false; $('doneBtn').hidden = false; }
+    if (!isAdmin) {
+      $('editBtn').hidden = false;
+      $('doneBtn').hidden = false;
+      $('who').hidden = false;
+      $('whoName').textContent = (session.name || '나') + '의 진';
+      $('switchUser').addEventListener('click', () => {
+        if (!window.confirm(`지금은 "${session.name || '나'}"(으)로 들어와 있어요.\n다른 이름으로 들어갈까요?`)) return;
+        clearSession();
+        location.href = 'index.html';
+      });
+      if (unsaved) {
+        // the editor still holds changes the server has not confirmed: finish saving there first
+        $('unsaved').hidden = false;
+        $('doneBtn').disabled = true;
+        $('doneBtn').title = '편집기에서 먼저 저장해 주세요';
+      }
+    } else {
+      $('who').hidden = false;
+      $('whoName').textContent = adminName + '의 진';
+      $('switchUser').hidden = true;
+    }
     paintDone();
     bindInput();
-    await Promise.race([ensureFonts().catch(() => {}), new Promise((r) => setTimeout(r, 5000))]);
+    await Promise.race([ensureFonts(document, zineText([zine])).catch(() => {}), new Promise((r) => setTimeout(r, 5000))]);
     await layout(1);
     $('loading').hidden = true;
   })();

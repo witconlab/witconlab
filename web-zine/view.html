@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/zine.css">
 <style>
 .vw-body { background: #3a3530; color: var(--cream); padding: 0; overflow: hidden; }
-.vw { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: env(safe-area-inset-top) var(--gutter) env(safe-area-inset-bottom); }
+.vw { display: flex; flex-direction: column; height: 100vh; height: calc(100dvh - var(--practice-h, 0px)); padding: env(safe-area-inset-top) var(--gutter) env(safe-area-inset-bottom); }
 .vw-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; min-height: 56px; }
 .vw-title { margin: 0; font-size: 28px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vw-top-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -34,6 +34,11 @@
 .vw-warn { margin: 0; max-width: 560px; font-size: 13px; color: #ffd9a8; text-align: center; }
 .vw-stamp { position: absolute; top: 6px; right: 6px; z-index: 2; transform: rotate(8deg); padding: 4px 14px; border: 3px solid var(--red); border-radius: 12px; background: rgba(255,255,255,.92); color: var(--red); font-size: 24px; pointer-events: none; }
 .vw .btn.vw-done[aria-pressed="true"] { background: var(--lime); }
+.vw-head { min-width: 0; }
+.vw-who { margin: 2px 0 0; font-size: 13px; opacity: .9; }
+.vw-who button { margin-left: 4px; padding: 2px 8px; min-height: 28px; border: 1px solid rgba(246, 239, 220, .6); border-radius: 999px; background: transparent; color: var(--cream); font-size: 12px; }
+.vw-unsaved { margin: 0 0 6px; padding: 8px 12px; border-radius: 10px; background: #ffd9a8; color: #3a3530; font-size: 14px; font-weight: 700; text-align: center; }
+.vw-unsaved a { color: inherit; }
 .vw-msg { margin: auto; text-align: center; padding: 24px; }
 @media (max-width: 480px) { .vw-title { font-size: 22px; } .vw-nav button.vw-arrow { min-width: 72px; } }
 </style>
@@ -41,12 +46,16 @@
 <body class="vw-body">
 <div class="vw" id="app">
   <header class="vw-top">
-    <h1 class="vw-title hand" id="zineTitle"></h1>
+    <div class="vw-head">
+      <h1 class="vw-title hand" id="zineTitle"></h1>
+      <p class="vw-who" id="who" hidden><span id="whoName"></span> <button type="button" id="switchUser">다른 이름으로 들어가기</button></p>
+    </div>
     <div class="vw-top-btns">
       <a class="btn" id="editBtn" href="edit.html" hidden>편집하기</a>
       <button class="btn vw-done" id="doneBtn" type="button" aria-pressed="false" hidden>다 만들었어요</button>
     </div>
   </header>
+  <p class="vw-unsaved" id="unsaved" role="alert" hidden>저장 안 된 변경이 있어요 · <a href="edit.html">편집기로</a></p>
   <main class="vw-stage" id="stage" tabindex="0" aria-label="진 보기. 좌우로 쓸거나 방향키로 넘겨요">
     <div class="vw-track" id="track"></div>
   </main>
@@ -61,6 +70,7 @@
   </footer>
 </div>
 <div class="ed-loading" id="loading"><p class="hand">진을 펼치는 중…</p></div>
+<script type="module" src="js/practice-banner.js"></script>
 <script type="module" src="js/viewer.js"></script>
 </body>
 </html>

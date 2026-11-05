@@ -8,11 +8,40 @@ const PAGE_PX = { w: 1240, h: 1748 };   // A6 105x148 at 300dpi
 const PANEL_PX = { w: 1240, h: 1754 };  // 105x148.5 at 300dpi
 const JPEG_Q = 0.92;
 
-export async function ensureFonts(doc = document) {
-  const sample = '가나다진';
-  await doc.fonts.load('40px "Nanum Pen Script"', sample);
-  await doc.fonts.load('700 40px Pretendard', sample);
-  await doc.fonts.load('900 40px Pretendard', sample);
+const BASE_SAMPLE = '가나다진0123456789';
+
+// Every string that gets drawn: zine titles, page titles and text (caption) elements.
+export function zineText(zines) {
+  const out = [];
+  for (const z of [].concat(zines || [])) {
+    if (!z) continue;
+    if (z.title) out.push(z.title);
+    for (const p of z.pages || []) {
+      if (p.title) out.push(p.title);
+      for (const e of p.elements || []) if (e.type === 'text' && e.text) out.push(e.text);
+    }
+  }
+  return out.join('\n');
+}
+
+// Title to show/name files with: zine title, else page 1's title, else '진'.
+export function zineTitle(z) {
+  const t = (z && z.title || '').trim();
+  if (t) return t;
+  const p1 = (z && z.pages && z.pages[0] && z.pages[0].title || '').trim();
+  return p1 || '진';
+}
+
+// Web fonts are split into many unicode-range files (Nanum Pen Script has ~90 for Hangul). The browser only
+// downloads the files covering the text passed to fonts.load(), so pass everything that will be drawn;
+// otherwise syllables outside the sample render in a fallback font and wrap differently.
+export async function ensureFonts(doc = document, text = '') {
+  const sample = [...new Set(BASE_SAMPLE + String(text || '').replace(/\s+/g, ''))].join('');
+  await Promise.all([
+    doc.fonts.load('40px "Nanum Pen Script"', sample),
+    doc.fonts.load('700 40px Pretendard', sample),
+    doc.fonts.load('900 40px Pretendard', sample),
+  ]);
   await doc.fonts.ready;
 }
 
@@ -51,7 +80,7 @@ function rotate180Onto(out, src, w, h) {
 
 export async function buildPagesPdf(zine, opts = {}) {
   const { loadImage, jsPDF, ensureFonts: fonts = ensureFonts, createCanvas = defaultCreateCanvas, onProgress } = opts;
-  await fonts();
+  await fonts(undefined, zineText([zine]));
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [105, 148] });
   const failed = [];
   const total = zine.pages.length;
@@ -68,9 +97,10 @@ export async function buildPagesPdf(zine, opts = {}) {
   return { blob: pdf.output('blob'), failed };
 }
 
+// loaderFor(zine) (optional) gives a photo loader per zine, e.g. one that tells the server whose photos these are.
 export async function buildA3Pdf(zines, opts = {}) {
-  const { loadImage, jsPDF, ensureFonts: fonts = ensureFonts, guides = true, createCanvas = defaultCreateCanvas, onProgress } = opts;
-  await fonts();
+  const { loadImage, loaderFor, jsPDF, ensureFonts: fonts = ensureFonts, guides = true, createCanvas = defaultCreateCanvas, onProgress } = opts;
+  await fonts(undefined, zineText(zines));
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [A3.w, A3.h] });
   const failed = [];
   const total = zines.length * IMPOSITION.length;
@@ -80,9 +110,10 @@ export async function buildA3Pdf(zines, opts = {}) {
   try {
     for (let z = 0; z < zines.length; z++) {
       const zine = zines[z];
+      const load = loaderFor ? loaderFor(zine) : loadImage;
       if (z > 0) pdf.addPage([A3.w, A3.h], 'landscape');
       for (const slot of IMPOSITION) {
-        const f = await renderOnto(canvas, zine.pages[slot.page - 1], PANEL_PX.w, PANEL_PX.h, slot.page, loadImage);
+        const f = await renderOnto(canvas, zine.pages[slot.page - 1], PANEL_PX.w, PANEL_PX.h, slot.page, load);
         for (const x of f) failed.push({ ...x, pageNumber: slot.page, name: zine.name });
         const src = slot.rotate === 180 ? rotate180Onto(rotCanvas, canvas, PANEL_PX.w, PANEL_PX.h) : canvas;
         const r = panelRect(slot);

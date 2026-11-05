@@ -47,6 +47,12 @@
   <h1 class="hand">나만의 진 만들기</h1>
   <p class="sub hand">8쪽짜리 미니 잡지</p>
 
+  <div id="resume" hidden>
+    <p class="msg" id="resumeMsg"></p>
+    <button class="btn btn-primary btn-block go" id="resumeGo" type="button">이어서 만들기</button>
+    <button class="btn btn-block go" id="resumeOther" type="button">다른 이름으로 들어가기</button>
+  </div>
+
   <form id="form" novalidate>
     <label for="name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 5-7 8-7s7 2 8 7"/></svg>이름</label>
     <input class="input" id="name" name="name" type="text" autocomplete="off" autocapitalize="off" maxlength="20" placeholder="내 이름" required>
@@ -62,14 +68,29 @@
   <p class="tip">처음이면 이름과 비밀번호로 새 진이 만들어져요.</p>
 </main>
 
+<script type="module" src="js/practice-banner.js"></script>
 <script type="module">
-import { call, ApiError, getSession, setSession } from './js/api.js';
+import { call, ApiError, getSession, setSession, clearSession } from './js/api.js';
 import { API_URL } from './js/config.js';
 import { getSticker } from './js/stickers.js';
 
-if (getSession()) location.replace('edit.html');
-
 const $ = (id) => document.getElementById(id);
+
+// A shared device may still hold the previous student's session: say whose it is instead of jumping in.
+const prev = getSession();
+if (prev && prev.token) {
+  $('form').hidden = true;
+  $('resume').hidden = false;
+  $('resumeMsg').textContent = prev.name ? `"${prev.name}"(으)로 들어와 있어요.` : '이 기기에 들어와 있는 진이 있어요.';
+  $('resumeGo').textContent = prev.name ? `${prev.name}(으)로 이어서 만들기` : '이어서 만들기';
+  $('resumeGo').addEventListener('click', () => location.assign('edit.html'));
+  $('resumeOther').addEventListener('click', () => {
+    clearSession();
+    $('resume').hidden = true;
+    $('form').hidden = false;
+    $('name').focus();
+  });
+}
 
 function stickerEl(key) {
   const s = getSticker(key);
@@ -123,7 +144,7 @@ if (!API_URL) {
 $('form').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('err').hidden = true; $('info').hidden = true;
-  const name = $('name').value.trim();
+  const name = $('name').value.normalize('NFC').trim();
   const pin = $('pin').value.trim();
   if (!name) return show($('err'), '이름을 적어 주세요.');
   if (!/^\d{4}$/.test(pin)) return show($('err'), '비밀번호는 숫자 4자리예요.');
@@ -142,7 +163,7 @@ $('form').addEventListener('submit', async (e) => {
   } catch (err) {
     if (err instanceof ApiError) {
       const d = err.data || {};
-      if (err.code === 'BAD_PIN') show($('err'), `비밀번호가 맞지 않아요 (남은 기회 ${d.remaining ?? '?'}번)`);
+      if (err.code === 'BAD_PIN') show($('err'), `비밀번호가 맞지 않아요 (남은 기회 ${d.remaining ?? '?'}번). 처음 들어오는 거라면 이름 뒤에 숫자를 붙여 주세요 (예: 김민지2)`);
       else if (err.code === 'LOCKED') show($('err'), `너무 많이 틀렸어요. ${d.until ? hh(d.until) : ''} 이후 다시 시도하거나 선생님께 말씀하세요`);
       else if (err.code === 'BAD_INPUT') show($('err'), '이름과 비밀번호(숫자 4자리)를 다시 확인해 주세요.');
       else show($('err'), '문제가 생겼어요. 잠시 후 다시 시도해 주세요.');

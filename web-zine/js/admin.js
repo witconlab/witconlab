@@ -1,7 +1,7 @@
 // Admin (teacher) page: roster, per-student actions, A3 fold PDF, sticker upload.
 import { call, getAdminToken, setAdminToken, fetchPhoto } from './api.js';
 import { createPhotoLoader } from './photo-cache.js';
-import { ensureFonts, buildPagesPdf, buildA3Pdf, JSPDF_URL } from './pdf.js';
+import { ensureFonts, buildPagesPdf, buildA3Pdf, JSPDF_URL, zineTitle } from './pdf.js';
 
 const PAGE_COUNT = 8;
 const MAX_STICKER = 3 * 1024 * 1024;
@@ -28,7 +28,12 @@ if (typeof document !== 'undefined') main();
 
 function main() {
   const $ = (id) => document.getElementById(id);
-  const loadImage = createPhotoLoader({ fetchPhoto });
+  // One photo loader per student: the server is told whose photos these are and looks there first.
+  const loaders = new Map();
+  const loaderFor = (name) => {
+    if (!loaders.has(name)) loaders.set(name, createPhotoLoader({ fetchPhoto: (src) => fetchPhoto(src, { name }) }));
+    return loaders.get(name);
+  };
   let students = [];
   let busy = false;
   const selected = new Set();
@@ -189,10 +194,10 @@ function main() {
       const zine = (await admin('adminGetZine', { name })).zine;
       const jsPDF = await loadJsPdf();
       const { blob, failed } = await buildPagesPdf(zine, {
-        loadImage, jsPDF, ensureFonts,
+        loadImage: loaderFor(zine.name || name), jsPDF, ensureFonts,
         onProgress: (d, t) => show($('a3Msg'), `쪽 PDF 만드는 중… ${name} (${d}/${t})`),
       });
-      download(blob, `${safeName(zine.name || name)}_${safeName(zine.title) || '진'}.pdf`);
+      download(blob, `${safeName(zine.name || name)}_${safeName(zineTitle(zine)) || '진'}.pdf`);
       if (failed.length) show($('a3Warn'), `${name}: 사진 ${failed.length}장을 불러오지 못해 빠졌어요. (${[...new Set(failed.map((f) => f.pageNumber))].join(', ')}쪽)`);
     } catch (e) {
       if (!(e && e.handled)) show($('a3Warn'), 'PDF를 만들지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.');
@@ -213,7 +218,7 @@ function main() {
       const jsPDF = await loadJsPdf();
       let cur = 0;
       const { blob, failed } = await buildA3Pdf(zines, {
-        loadImage, jsPDF, ensureFonts, guides: $('guides').checked,
+        loaderFor: (z) => loaderFor(z.name), jsPDF, ensureFonts, guides: $('guides').checked,
         onProgress: (d, t) => {
           cur = Math.min(zines.length - 1, Math.floor((d - 1) / (t / zines.length)));
           show($('a3Msg'), `A3 만드는 중… ${zines[cur].name || names[cur]} (${cur + 1}/${names.length})`);
@@ -279,7 +284,9 @@ function main() {
       $('pw').value = '';
       enter();
     } catch (e) {
-      show($('loginErr'), e && e.code === 'AUTH' ? '비밀번호가 달라요.' : e && e.code ? errText(e) : '인터넷 연결을 확인해 주세요.');
+      const left = e && e.data && e.data.remaining;
+      show($('loginErr'), e && e.code === 'AUTH' ? `비밀번호가 달라요.${left ? ` (${left}번 더 틀리면 10분 동안 잠겨요)` : ''}`
+        : e && e.code ? errText(e) : '인터넷 연결을 확인해 주세요.');
     } finally { $('loginBtn').disabled = false; }
   });
   $('reload').addEventListener('click', refresh);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPagesPdf, buildA3Pdf, ensureFonts } from '../js/pdf.js';
+import { buildPagesPdf, buildA3Pdf, ensureFonts, zineText, zineTitle } from '../js/pdf.js';
 import { createEmptyZine, addElement } from '../js/model.js';
 
 function setup() {
@@ -45,11 +45,64 @@ test('ensureFonts called before first render', async () => {
   assert.ok(order.includes('canvas'));
 });
 
-test('ensureFonts loads fonts and waits ready', async () => {
+test('ensureFonts loads every font with the text to draw and waits ready', async () => {
   const loads = []; let ready = false;
-  await ensureFonts({ fonts: { load: async (f, t) => { loads.push(f + '|' + t); }, get ready() { ready = true; return Promise.resolve(); } } });
-  assert.deepEqual(loads, ['40px "Nanum Pen Script"|가나다진', '700 40px Pretendard|가나다진', '900 40px Pretendard|가나다진']);
+  const doc = { fonts: { load: async (f, t) => { loads.push([f, t]); }, get ready() { ready = true; return Promise.resolve(); } } };
+  await ensureFonts(doc, '봄 소풍\n햇살 가득');
+  assert.deepEqual(loads.map((l) => l[0]), ['40px "Nanum Pen Script"', '700 40px Pretendard', '900 40px Pretendard']);
+  for (const [, t] of loads) {
+    for (const ch of '가나다진봄소풍햇살득') assert.ok(t.includes(ch), `missing ${ch}`);
+    assert.equal(new Set(t).size, t.length); // de-duplicated
+    assert.ok(!/\s/.test(t));
+  }
   assert.ok(ready);
+});
+
+function textZine(name, title, pageTitle, caption) {
+  let z = createEmptyZine(name);
+  z = { ...z, title, pages: z.pages.map((p, i) => (i === 2 ? { ...p, title: pageTitle } : p)) };
+  return addElement(z, 4, { type: 'text', text: caption, w: 0.8, h: 0.1, x: 0.1, y: 0.5 });
+}
+
+test('zineText collects zine title, page titles and captions', () => {
+  const z = textZine('a', '우리 동네', '골목길', '할머니 가게 앞에서');
+  const t = zineText([z]);
+  for (const s of ['우리 동네', '골목길', '할머니 가게 앞에서']) assert.ok(t.includes(s));
+});
+
+test('pages pdf passes the zine text to ensureFonts', async () => {
+  const s = setup();
+  const seen = [];
+  await buildPagesPdf(textZine('a', '우리 동네', '골목길', '할머니 가게 앞에서'), {
+    jsPDF: s.FakePdf, loadImage: s.loadImage, createCanvas: s.createCanvas,
+    ensureFonts: async (doc, text) => { seen.push(text); },
+  });
+  assert.equal(seen.length, 1);
+  for (const x of ['우리 동네', '골목길', '할머니 가게 앞에서']) assert.ok(seen[0].includes(x), x);
+});
+
+test('A3 pdf passes all zines\' text to ensureFonts and uses loaderFor per zine', async () => {
+  const s = setup();
+  const seen = [];
+  const used = [];
+  const zines = [textZine('가', '첫째 진', '바다', '파도 소리'), textZine('나', '둘째 진', '숲', '새 울음')];
+  zines[1] = addElement(zines[1], 1, { type: 'photo', src: 'ph1', w: 0.3, h: 0.3, x: 0.1, y: 0.1 });
+  await buildA3Pdf(zines, {
+    jsPDF: s.FakePdf, createCanvas: s.createCanvas,
+    loaderFor: (z) => async (src) => { used.push([z.name, src]); return { width: 10, height: 10 }; },
+    ensureFonts: async (doc, text) => { seen.push(text); },
+  });
+  for (const x of ['첫째 진', '바다', '파도 소리', '둘째 진', '숲', '새 울음']) assert.ok(seen[0].includes(x), x);
+  assert.deepEqual(used, [['나', 'ph1']]);
+});
+
+test('zineTitle falls back to page 1 title, then 진', () => {
+  const z = createEmptyZine('a');
+  assert.equal(zineTitle(z), '진');
+  const p1 = { ...z, pages: z.pages.map((p, i) => (i === 0 ? { ...p, title: '표지 제목' } : p)) };
+  assert.equal(zineTitle(p1), '표지 제목');
+  assert.equal(zineTitle({ ...p1, title: '진 제목' }), '진 제목');
+  assert.equal(zineTitle({ ...p1, title: '   ' }), '표지 제목');
 });
 
 test('pages pdf has 8 pages of 105x148', async () => {

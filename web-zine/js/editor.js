@@ -1,11 +1,11 @@
 // Zine editor (edit.html?page=N): state, history, autosave, photo uploads, thumbnails, toolbar.
 import { call, getSession, clearSession, fetchPhoto } from './api.js';
-import { createSaver } from './saver.js';
+import { createSaver, backupKeyFor } from './saver.js';
 import { createUploadQueue } from './upload-queue.js';
 import { resizeImage } from './image-resize.js';
 import { createPhotoLoader } from './photo-cache.js';
 import { createHistory } from './history.js';
-import { ensureFonts } from './pdf.js';
+import { ensureFonts, zineText } from './pdf.js';
 import { renderPage } from './render.js';
 import * as M from './model.js';
 import { createStage, fitTextHeight, PAGE_RATIO } from './editor-stage.js';
@@ -106,6 +106,18 @@ function newestId(z) {
 
 const jitter = () => (Math.random() - 0.5) * 0.06;
 
+// Load the font files for newly typed text before measuring it (the hand font is split per syllable range).
+// Capped so a slow network never blocks editing; the text then wraps with whatever font is available.
+// If the student switched pages meanwhile, go back to the page the text belongs to.
+async function fontsFor(text) {
+  const pi = pageIndex;
+  await Promise.race([
+    ensureFonts(document, text).catch(() => {}),
+    new Promise((r) => setTimeout(r, 3000)),
+  ]);
+  if (pageIndex !== pi) setPage(pi);
+}
+
 // ---------- state changes ----------
 function commit(next, opts = {}) {
   zine = normalize(next);
@@ -161,7 +173,9 @@ const queue = createUploadQueue({
   upload: async ({ id, blob }) => {
     if (discarded.has(id)) throw cancelled(); // deleted before its turn came
     const data = await blobToBase64(blob);
-    const res = await call('uploadPhoto', { token: session.token, data, mime: blob.type || 'image/jpeg' });
+    const mime = blob.type || 'image/jpeg';
+    const res = await call('uploadPhoto', { token: session.token, data, mime });
+    loadImage.prime(res.photoId, { data, mime }); // we have the bytes already: never download our own photo
     return res.photoId;
   },
   shouldRetry: (err) => !(err && ['AUTH', 'BAD_INPUT', 'CANCELLED'].includes(err.code)),
@@ -279,7 +293,8 @@ const app = {
     const next = M.addElement(zine, pageIndex, { type: 'sticker', src, w, h, x: 0.5 - w / 2 + jitter(), y: 0.5 - h / 2 + jitter() });
     commit(next, { select: newestId(next) });
   },
-  addText(text, style) {
+  async addText(text, style) {
+    await fontsFor(text);
     const w = 0.8;
     const el = { type: 'text', text, style: { ...style }, w, x: 0.1 };
     el.h = fitTextHeight(el);
@@ -287,14 +302,16 @@ const app = {
     const next = M.addElement(zine, pageIndex, el);
     commit(next, { select: newestId(next) });
   },
-  updateText(id, text, style) {
+  async updateText(id, text, style) {
+    await fontsFor(text);
     const el = findEl(id);
     if (!el) return;
     const upd = { ...el, text, style: { ...el.style, ...style } };
     commit(M.updateElement(zine, pageIndex, id, { text, style: upd.style, h: fitTextHeight(upd) }));
   },
   removeElement: deleteElement,
-  setTitle(title, hl) {
+  async setTitle(title, hl) {
+    await fontsFor(title);
     let next = M.setPageTitle(zine, pageIndex, title);
     if (hl) next = M.setTitleHighlight(next, pageIndex, hl);
     if (JSON.stringify(next.pages[pageIndex]) !== JSON.stringify(page())) commit(next);
@@ -394,13 +411,12 @@ function wireUi() {
     const s = $('badge').dataset.state;
     if (s === 'error') saver.flush();
     else if (s === 'conflict') location.reload();
-    else if (s === 'auth') {
-      const n = unsentPhotos();
-      if (n > 0 && !window.confirm(`올리지 못한 사진 ${n}장은 다시 골라야 해요. 계속할까요?`)) return;
-      leaving = true;
-      clearSession();
-      location.href = 'index.html';
-    }
+    else if (s === 'auth') leave('index.html', { switchUser: true });
+  });
+  $('backLink').addEventListener('click', (e) => { e.preventDefault(); leave('view.html'); });
+  $('whoBtn').addEventListener('click', () => {
+    if (!window.confirm(`지금은 "${session.name || '나'}"(으)로 들어와 있어요.\n다른 이름으로 들어갈까요?`)) return;
+    leave('index.html', { switchUser: true });
   });
 
   const input = $('photoInput');
@@ -426,7 +442,7 @@ function wireUi() {
     switch (b.dataset.act) {
       case 'forward': commit(M.bringForward(zine, pageIndex, id)); break;
       case 'backward': commit(M.sendBackward(zine, pageIndex, id)); break;
-      case 'duplicate': { const next = M.duplicateElement(zine, pageIndex, id); commit(next, { select: newestId(next) }); break; }
+      case 'duplicate': { if (el.pending) break; const next = M.duplicateElement(zine, pageIndex, id); commit(next, { select: newestId(next) }); break; }
       case 'delete': deleteElement(id); break;
       case 'frame': commit(M.updateElement(zine, pageIndex, id, { frame: el.frame === 'polaroid' ? 'none' : 'polaroid' })); break;
       case 'edit': sheets.open('text', el); break;
@@ -455,6 +471,37 @@ function wireUi() {
     vv.addEventListener('resize', fit);
     vv.addEventListener('scroll', fit);
   }
+}
+
+// Leave the editor on purpose: warn about photos that only exist on this device, then make sure the
+// latest changes reached the server. If they did not, stay and show the red badge.
+let leavingNow = false;
+async function leave(href, { switchUser = false } = {}) {
+  if (leavingNow) return;
+  stage?.cancel();
+  const n = unsentPhotos();
+  if (n > 0 || queue.pending() > 0) {
+    const msg = n > 0
+      ? `아직 올라가지 않은 사진 ${n}장은 사라져요. 그래도 나갈까요?`
+      : '사진을 올리는 중이에요. 그래도 나갈까요?';
+    if (!window.confirm(msg)) return;
+  }
+  leavingNow = true;
+  try {
+    const status = await saver.flush();
+    // a dead session (auth) cannot save anyway; its work stays in this device's backup for that name
+    const ok = status === 'saved' || (switchUser && status === 'auth');
+    if (!ok) {
+      setBadge(status === 'saving' ? 'error' : status);
+      toast(status === 'conflict' ? '다른 곳에서 고친 내용이 있어요. 새로고침해 주세요.'
+        : status === 'auth' ? '다시 입장해야 저장돼요. 위의 빨간 단추를 눌러 주세요.'
+          : '저장하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.');
+      return;
+    }
+    leaving = true;
+    if (switchUser) clearSession();
+    location.href = href;
+  } finally { leavingNow = false; }
 }
 
 function showStale() {
@@ -497,8 +544,8 @@ async function main() {
   }
 
   saver = createSaver({
-    save: (z) => call('save', { token: session.token, zine: z }).then((r) => ({ rev: r.rev })),
-    backupKey: 'webzine.backup.' + (session.name || 'me'),
+    save: (z, { saveId } = {}) => call('save', { token: session.token, zine: z, saveId }).then((r) => ({ rev: r.rev })),
+    backupKey: backupKeyFor(session.name),
   });
   saver.onStatus((status, info) => {
     if (info && typeof info.rev === 'number') currentRev = info.rev;
@@ -513,8 +560,10 @@ async function main() {
   currentEntry = { zine, page: pageIndex };
   history.push(currentEntry);
 
-  // Fonts first so on-screen text wraps exactly like the PDF; don't hang forever offline.
-  await Promise.race([ensureFonts().catch(() => {}), new Promise((r) => setTimeout(r, 5000))]);
+  // Fonts (for all text in this zine) first so on-screen text wraps exactly like the PDF; don't hang forever offline.
+  await Promise.race([ensureFonts(document, zineText([zine])).catch(() => {}), new Promise((r) => setTimeout(r, 5000))]);
+  $('whoBtn').textContent = session.name || '나';
+  $('whoBtn').setAttribute('aria-label', `${session.name || '나'} · 다른 이름으로 들어가기`);
 
   sheets = createSheets(app);
   stage = createStage($('stageInner'), app);

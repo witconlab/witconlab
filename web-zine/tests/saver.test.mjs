@@ -215,3 +215,54 @@ test('non-retryable codes stop retrying and keep backup', async () => {
   s.schedule(zine(0, 'y'));
   assert.equal(t.pending().length, 1);
 });
+
+// ---------- saveId (idempotent resend after a lost response) ----------
+
+function setupIds(saveImpl) {
+  const storage = fakeStorage();
+  const t = fakeTimers();
+  const calls = [];
+  let n = 0;
+  const save = async (z, opts) => { calls.push({ z, saveId: opts && opts.saveId }); return saveImpl(z, calls.length); };
+  const s = createSaver({ save, backupKey: 'bk', storage, setTimer: t.setTimer, clearTimer: t.clearTimer, now: () => 111, makeId: () => 'sid' + ++n });
+  return { s, t, calls };
+}
+
+test('saveId is reused across retries of the same snapshot', async () => {
+  const { s, t, calls } = setupIds(async (z, n) => { if (n < 3) throw err(); return { rev: z.rev + 1 }; });
+  s.schedule(zine(0, 'a'));
+  await t.fire(); // fails (network)
+  await t.fire(); // retry fails
+  await t.fire(); // retry ok
+  assert.equal(calls.length, 3);
+  assert.deepEqual(calls.map((c) => c.saveId), ['sid1', 'sid1', 'sid1']);
+  assert.ok(calls.every((c) => c.z.title === 'a' && c.z.rev === 0));
+});
+
+test('each new snapshot gets a new saveId', async () => {
+  const { s, t, calls } = setupIds(async (z) => ({ rev: z.rev + 1 }));
+  s.schedule(zine(0, 'a'));
+  await t.fire();
+  s.schedule(zine(0, 'b'));
+  await t.fire();
+  assert.deepEqual(calls.map((c) => c.saveId), ['sid1', 'sid2']);
+  assert.deepEqual(calls.map((c) => c.z.rev), [0, 1]);
+});
+
+test('lost response then more edits: old snapshot resent first with its saveId, then the new one', async () => {
+  const { s, t, calls } = setupIds(async (z, n) => { if (n === 1) throw err(); return { rev: z.rev + 1 }; });
+  s.schedule(zine(0, 'a'));
+  await t.fire(); // outcome unknown
+  s.schedule(zine(0, 'b')); // student kept editing
+  await t.fire();
+  assert.deepEqual(calls.map((c) => [c.z.title, c.z.rev, c.saveId]), [['a', 0, 'sid1'], ['a', 0, 'sid1'], ['b', 1, 'sid2']]);
+});
+
+test('a known refusal (BAD_INPUT) does not pin the old saveId', async () => {
+  const { s, t, calls } = setupIds(async (z, n) => { if (n === 1) throw err('BAD_INPUT'); return { rev: z.rev + 1 }; });
+  s.schedule(zine(0, 'a'));
+  await t.fire();
+  s.schedule(zine(0, 'b'));
+  await t.fire();
+  assert.deepEqual(calls.map((c) => [c.z.title, c.saveId]), [['a', 'sid1'], ['b', 'sid2']]);
+});
