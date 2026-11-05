@@ -49,7 +49,7 @@ test('ensureFonts loads every font with the text to draw and waits ready', async
   const loads = []; let ready = false;
   const doc = { fonts: { load: async (f, t) => { loads.push([f, t]); }, get ready() { ready = true; return Promise.resolve(); } } };
   await ensureFonts(doc, '봄 소풍\n햇살 가득');
-  assert.deepEqual(loads.map((l) => l[0]), ['40px "Nanum Pen Script"', '700 40px Pretendard', '900 40px Pretendard']);
+  assert.deepEqual(loads.map((l) => l[0]), ['40px "Nanum Pen Script"', '500 40px Pretendard', '600 40px Pretendard', '700 40px Pretendard', '900 40px Pretendard']);
   for (const [, t] of loads) {
     for (const ch of '가나다진봄소풍햇살득') assert.ok(t.includes(ch), `missing ${ch}`);
     assert.equal(new Set(t).size, t.length); // de-duplicated

@@ -3,7 +3,10 @@ export const PAGE_COUNT = 8;
 export const PAPERS = { cream: '#f6efdc', yellow: '#ffe9a8', sky: '#dbeefa', lime: '#e4f1d0', white: '#ffffff' };
 export const TEXT_COLORS = { ink: '#2b2620', red: '#e8473a', blue: '#2f6fb3', white: '#ffffff' };
 export const PATTERNS = ['dots', 'grid', 'none'];
-export const HIGHLIGHTS = { lavender: '#c9b8e8', sky: '#a9cdf2', lemon: '#fbe58a', pink: '#f6b8c4' };
+export const HIGHLIGHTS = { lavender: '#c9b8e8', sky: '#a9cdf2', lemon: '#fbe58a', pink: '#f6b8c4', white: '#ffffff' };
+export const FONTS = ['sans', 'hand']; // 'sans' = Pretendard (default when absent), 'hand' = Nanum Pen Script
+// Optional page fields (absent in older zines and in the server's empty zine): titleFont, titleSize.
+export const TITLE_SIZE = { def: 0.06, min: 0.04, max: 0.12 }; // fraction of page height
 export const PAGE_LABELS = ['표지', '2', '3', '4', '5', '6', '7', '뒷표지'];
 
 const PAGE_W_MM = 105;
@@ -106,6 +109,23 @@ export const setBackground = (zine, i, paperKey) => withPage(zine, i, (p) => ({ 
 export const setPattern = (zine, i, pattern) => withPage(zine, i, (p) => ({ ...p, pattern }));
 export const setFrameLine = (zine, i, on) => withPage(zine, i, (p) => ({ ...p, frameLine: !!on }));
 export const setTitleHighlight = (zine, i, key) => withPage(zine, i, (p) => ({ ...p, titleHighlight: key }));
+export const fontOf = (f) => (f === 'hand' ? 'hand' : 'sans');
+export const titleSizeOf = (page) => {
+  const s = Number(page && page.titleSize);
+  return Number.isFinite(s) && s > 0 ? Math.min(TITLE_SIZE.max, Math.max(TITLE_SIZE.min, s)) : TITLE_SIZE.def;
+};
+export const setTitleFont = (zine, i, font) => withPage(zine, i, (p) => ({ ...p, titleFont: fontOf(font) }));
+export const setTitleSize = (zine, i, size) => withPage(zine, i, (p) => ({ ...p, titleSize: titleSizeOf({ titleSize: size }) }));
+
+// Reorder inner pages (indexes 1..6, i.e. pages 2-7). Cover and back cover never move.
+export function movePage(zine, from, to) {
+  const ok = (n) => Number.isInteger(n) && n >= 1 && n <= PAGE_COUNT - 2;
+  if (!ok(from) || !ok(to) || from === to) return zine;
+  const pages = [...zine.pages];
+  const [p] = pages.splice(from, 1);
+  pages.splice(to, 0, p);
+  return { ...zine, pages };
+}
 
 export const isPageFilled = (page) => (page.title || '').trim() !== '' || page.elements.length > 0;
 export const filledCount = (zine) => zine.pages.filter(isPageFilled).length;

@@ -1,8 +1,20 @@
 // Canvas page renderer shared by editor thumbnails, the e-book and 300dpi PDFs.
-import { PAPERS, TEXT_COLORS, HIGHLIGHTS } from './model.js';
+import { PAPERS, TEXT_COLORS, HIGHLIGHTS, fontOf, titleSizeOf } from './model.js';
 import { getSticker } from './stickers.js';
 
 export const HAND = '"Nanum Pen Script", "Gamja Flower", cursive';
+export const SANS = 'Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+// The one place that decides how page text looks (canvas, editor DOM and measuring all use these).
+// kind: 'title' | 'caption'; font: 'sans' (default) | 'hand'.
+const WEIGHT = { title: 700, caption: 500 };
+export function fontSpec(kind, font) {
+  return fontOf(font) === 'hand' ? { family: HAND, weight: 400 } : { family: SANS, weight: WEIGHT[kind] || 500 };
+}
+export function canvasFont(kind, font, px) {
+  const f = fontSpec(kind, font);
+  return `${f.weight} ${px}px ${f.family}`;
+}
+export const PAGE_NUMBER_FONT = (px) => `600 ${px}px ${SANS}`;
 const PAGE_W_MM = 105;
 const PAGE_H_MM = 148;
 const SAFE_MM = 5;
@@ -82,7 +94,7 @@ function drawBackground(ctx, page, width, height) {
 function drawText(ctx, el, width, height) {
   const px = (el.style?.size ?? DEFAULT_TEXT_SIZE) * height;
   const boxW = el.w * width;
-  ctx.font = `${px}px ${HAND}`;
+  ctx.font = canvasFont('caption', el.style?.font, px);
   ctx.fillStyle = TEXT_COLORS[el.style?.color] || el.style?.color || TEXT_COLORS.ink;
   ctx.textBaseline = 'top';
   const align = el.style?.align || 'center';
@@ -118,11 +130,11 @@ function drawPhoto(ctx, el, im, w, h) {
 // Page title with its highlighter band. Exported so the editor can draw it on its own layer.
 export function drawTitle(ctx, page, width, height) {
   if ((page.title || '').trim() === '') return;
-  const px = height * 0.06;
+  const px = height * titleSizeOf(page);
   const step = px * LINE_HEIGHT;
   const box = page.titleBox || { x: 0.06, y: 0.04, w: 0.88 };
   const boxW = box.w * width;
-  ctx.font = `${px}px ${HAND}`;
+  ctx.font = canvasFont('title', page.titleFont, px);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   const lines = wrapText((s) => ctx.measureText(s).width, page.title, boxW);
@@ -155,7 +167,7 @@ async function loadSource(el, opts) {
 }
 
 /**
- * Draws one page. Callers must await font loading ("Nanum Pen Script" and 900 Pretendard)
+ * Draws one page. Callers must await font loading (ensureFonts in pdf.js: "Nanum Pen Script" and Pretendard 500/600/700)
  * before calling, or text is measured/drawn with fallback fonts.
  * Resolves to { failed: [{id, src, error}] } for elements that could not be loaded (skipped).
  */
@@ -190,23 +202,16 @@ export async function renderPage(ctx, page, opts) {
     ctx.strokeRect(sx, sy, width - 2 * sx, height - 2 * sy);
   }
 
-  if (pageNumber >= 2 && pageNumber <= 7) {
-    const px = height * 0.07;
-    ctx.font = `${px}px ${HAND}`;
+  if (pageNumber >= 2 && pageNumber <= 7) { // bottom-right, inside the frame line
+    const px = height * 0.045;
+    ctx.save();
+    ctx.font = PAGE_NUMBER_FONT(px);
     ctx.fillStyle = TEXT_COLORS.ink;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    const label = String(pageNumber);
-    const nx = sx + width * 0.05, ny = sy + height * 0.03;
-    ctx.fillText(label, nx, ny);
-    const tw = ctx.measureText(label).width;
-    ctx.strokeStyle = TEXT_COLORS.ink;
-    ctx.lineWidth = width * 0.004;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(nx - width * 0.01, ny + px * 1.0);
-    ctx.lineTo(nx + tw + width * 0.01, ny + px * 1.0);
-    ctx.stroke();
+    ctx.globalAlpha = 0.7;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(String(pageNumber), width - sx - width * 0.035, height - sy - height * 0.018);
+    ctx.restore();
   }
 
   const sorted = [...page.elements].sort((a, b) => a.z - b.z);

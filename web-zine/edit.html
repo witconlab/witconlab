@@ -34,7 +34,11 @@
 <div class="ed" id="app">
   <header class="ed-top">
     <a class="ed-back" id="backLink" href="view.html" aria-label="내 진 보기로 돌아가기">← 내 진</a>
-    <b class="ed-pagename hand" id="pageName"></b>
+    <span class="ed-pagewrap">
+      <button type="button" class="ed-move" id="moveLeft" aria-label="앞으로 옮기기" hidden>◀</button>
+      <b class="ed-pagename hand" id="pageName"></b>
+      <button type="button" class="ed-move" id="moveRight" aria-label="뒤로 옮기기" hidden>▶</button>
+    </span>
     <button class="ed-who" id="whoBtn" type="button" title="다른 이름으로 들어가기"></button>
     <button class="badge ed-badge" id="badge" type="button" data-state="saved">저장됨</button>
   </header>
@@ -92,7 +96,10 @@
 
 <section class="sheet ed-sheet" id="sheet-text" aria-label="자막" inert>
   <div class="sheet-head"><h2 class="hand" id="textHead">자막 넣기</h2><button type="button" class="sheet-x" data-close aria-label="닫기"><svg><use href="#i-close"/></svg></button></div>
-  <textarea class="input ed-textarea hand" id="textInput" rows="3" maxlength="200" placeholder="사진에 대한 이야기를 적어 보세요"></textarea>
+  <textarea class="input ed-textarea" id="textInput" rows="3" maxlength="200" placeholder="사진에 대한 이야기를 적어 보세요"></textarea>
+  <div class="ed-row"><span class="ed-label">글씨체</span>
+    <div class="seg" id="textFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button></div>
+  </div>
   <div class="ed-row"><span class="ed-label">크기</span>
     <div class="seg" id="textSize">
       <button type="button" data-size="0.04">작게</button><button type="button" data-size="0.055">보통</button><button type="button" data-size="0.075">크게</button>
@@ -104,9 +111,15 @@
 
 <section class="sheet ed-sheet" id="sheet-title" aria-label="제목" inert>
   <div class="sheet-head"><h2 class="hand">쪽 제목</h2><button type="button" class="sheet-x" data-close aria-label="닫기"><svg><use href="#i-close"/></svg></button></div>
-  <input class="input hand ed-title-input" id="titleInput" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="이 쪽의 제목 (20자까지)">
+  <input class="input ed-title-input" id="titleInput" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="이 쪽의 제목 (20자까지)">
+  <div class="ed-row"><span class="ed-label">글씨체</span>
+    <div class="seg" id="titleFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button></div>
+  </div>
+  <div class="ed-row"><span class="ed-label">크기</span>
+    <div class="ed-range"><span aria-hidden="true">작게</span><input type="range" id="titleSize" min="0.04" max="0.12" step="0.005" aria-label="제목 크기"><span aria-hidden="true">크게</span></div>
+  </div>
   <div class="ed-row"><span class="ed-label">형광펜</span><div class="swatches" id="titleHl"></div></div>
-  <p class="ed-note">제목은 쪽 위에서 끌어서 옮길 수 있어요.</p>
+  <p class="ed-note">제목은 쪽 위에서 끌어서 옮기고, 모서리 점을 끌어서 크기를 바꿀 수 있어요.</p>
   <div class="ed-row2">
     <button type="button" class="btn" id="titleClear">지우기</button>
     <button type="button" class="btn btn-primary" id="titleOk">확인</button>

@@ -1,4 +1,4 @@
-// API client for the Apps Script backend (or the localStorage mock when API_URL === 'mock').
+// API client for the Apps Script backend (or the localStorage mock when API_URL === 'mock', or the dev switch below).
 import { API_URL } from './config.js';
 import { createMock } from './api-mock.js';
 
@@ -52,9 +52,17 @@ export async function post(url, payload, { fetchImpl = globalThis.fetch, timeout
   }
 }
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+// Dev switch: on the teacher's own computer, localStorage['webzine.devMock'] = '1' uses the mock even when
+// config.js points at the real server (so the editor can be tried without touching real data).
+export function useMock(apiUrl = API_URL, hostname = globalThis.location && globalThis.location.hostname) {
+  if (apiUrl === 'mock') return true;
+  return LOCAL_HOSTS.has(String(hostname || '')) && safe(() => ls().getItem('webzine.devMock')) === '1';
+}
+
 export async function call(action, body = {}) {
   let res;
-  if (API_URL === 'mock') {
+  if (useMock()) {
     mock ||= createMock();
     res = await mock({ action, ...body });
   } else {

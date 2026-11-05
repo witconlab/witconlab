@@ -27,3 +27,18 @@ test('post: JSON reply is returned, body is text/plain JSON', async () => {
   assert.equal(seen.headers['Content-Type'], 'text/plain;charset=utf-8');
   assert.deepEqual(JSON.parse(seen.body), { action: 'save' });
 });
+
+test('useMock: config "mock" always; dev switch only on localhost', async () => {
+  const { useMock } = await import('../js/api.js');
+  const store = {};
+  const prev = globalThis.localStorage;
+  globalThis.localStorage = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } };
+  try {
+    assert.equal(useMock('mock', 'example.github.io'), true);
+    assert.equal(useMock('https://script.google.com/x', 'localhost'), false);
+    store['webzine.devMock'] = '1';
+    assert.equal(useMock('https://script.google.com/x', 'localhost'), true);
+    assert.equal(useMock('https://script.google.com/x', '127.0.0.1'), true);
+    assert.equal(useMock('https://script.google.com/x', 'example.github.io'), false);
+  } finally { globalThis.localStorage = prev; }
+});

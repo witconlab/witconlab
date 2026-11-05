@@ -32,6 +32,7 @@ export function zineTitle(z) {
   return p1 || '진';
 }
 
+// Page text: Pretendard 700 (titles), 500 (captions), 600 (page numbers), or Nanum Pen Script (손글씨 choice).
 // Web fonts are split into many unicode-range files (Nanum Pen Script has ~90 for Hangul). The browser only
 // downloads the files covering the text passed to fonts.load(), so pass everything that will be drawn;
 // otherwise syllables outside the sample render in a fallback font and wrap differently.
@@ -39,6 +40,8 @@ export async function ensureFonts(doc = document, text = '') {
   const sample = [...new Set(BASE_SAMPLE + String(text || '').replace(/\s+/g, ''))].join('');
   await Promise.all([
     doc.fonts.load('40px "Nanum Pen Script"', sample),
+    doc.fonts.load('500 40px Pretendard', sample),
+    doc.fonts.load('600 40px Pretendard', sample),
     doc.fonts.load('700 40px Pretendard', sample),
     doc.fonts.load('900 40px Pretendard', sample),
   ]);

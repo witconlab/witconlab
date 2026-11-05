@@ -122,6 +122,7 @@ async function fontsFor(text) {
 function commit(next, opts = {}) {
   zine = normalize(next);
   currentEntry = { zine, page: pageIndex };
+  if ('undoPage' in opts) currentEntry.undoPage = opts.undoPage; // page to show when this change is undone
   history.push(currentEntry);
   if ('select' in opts) selectedId = opts.select;
   if (selectedId && !findEl(selectedId)) selectedId = null;
@@ -142,7 +143,7 @@ function undo() {
   stage?.cancel();
   const prev = history.undo();
   if (!prev) return;
-  const changedPage = currentEntry.page; // the change being undone happened on this page
+  const changedPage = currentEntry.undoPage ?? currentEntry.page; // the change being undone happened on this page
   currentEntry = prev;
   applyEntry(prev, changedPage);
 }
@@ -165,6 +166,15 @@ function setPage(i, rerender = true) {
   selectedId = null;
   try { window.history.replaceState(null, '', `edit.html?page=${pageIndex + 1}`); } catch { /* file:// etc. */ }
   if (rerender) { refresh(); renderThumbs(); }
+}
+
+// Move the content of inner page `from` to position `to` (both 1..6); the moved page stays the one being edited.
+function movePageTo(from, to) {
+  const next = M.movePage(zine, from, to);
+  if (next === zine) return;
+  setPage(to, false);
+  commit(next, { undoPage: from });
+  renderThumbs();
 }
 
 // ---------- uploads ----------
@@ -277,6 +287,7 @@ const app = {
   uploadState: (el) => (el.pending ? (failed.has(el.id) ? 'failed' : 'uploading') : null),
   commitElement(id, patch) { commit(M.updateElement(zine, pageIndex, id, patch)); },
   commitTitleBox(box) { commit(M.moveTitle(zine, pageIndex, box)); },
+  commitTitleSize(size) { commit(M.setTitleSize(zine, pageIndex, size)); },
   tapTitle() { sheets.open('title'); },
   tapElement(id) {
     const el = findEl(id);
@@ -310,10 +321,14 @@ const app = {
     commit(M.updateElement(zine, pageIndex, id, { text, style: upd.style, h: fitTextHeight(upd) }));
   },
   removeElement: deleteElement,
-  async setTitle(title, hl) {
+  async setTitle(title, hl, { font, size } = {}) {
     await fontsFor(title);
     let next = M.setPageTitle(zine, pageIndex, title);
     if (hl) next = M.setTitleHighlight(next, pageIndex, hl);
+    // only store font/size once they differ from the defaults, so untouched pages keep the server's shape
+    const p0 = page();
+    if (font && (p0.titleFont !== undefined || M.fontOf(font) !== 'sans')) next = M.setTitleFont(next, pageIndex, font);
+    if (size && (p0.titleSize !== undefined || Math.abs(M.titleSizeOf({ titleSize: size }) - M.TITLE_SIZE.def) > 1e-6)) next = M.setTitleSize(next, pageIndex, size);
     if (JSON.stringify(next.pages[pageIndex]) !== JSON.stringify(page())) commit(next);
   },
   setBackground(k) { if (page().background !== k) commit(M.setBackground(zine, pageIndex, k)); },
@@ -350,6 +365,10 @@ function refresh() {
     fb.setAttribute('aria-pressed', String(el.frame === 'polaroid'));
     fb.querySelector('span').textContent = el.frame === 'polaroid' ? '틀 빼기' : '폴라로이드 틀';
   }
+  const inner = pageIndex >= 1 && pageIndex <= M.PAGE_COUNT - 2;
+  $('moveLeft').hidden = $('moveRight').hidden = !inner;
+  $('moveLeft').disabled = pageIndex <= 1;
+  $('moveRight').disabled = pageIndex >= M.PAGE_COUNT - 2;
   $('undo').disabled = !history.canUndo();
   $('redo').disabled = !history.canRedo();
   const t = (page().title || '').trim();
@@ -360,6 +379,7 @@ function refresh() {
 // Thumbnails: each rendered off-screen then copied, so a slow photo load cannot overwrite a newer one.
 const thumbKeys = [];
 const thumbTokens = [];
+const thumbBtns = [];
 function buildThumbs() {
   const host = $('thumbs');
   M.PAGE_LABELS.forEach((label, i) => {
@@ -374,13 +394,80 @@ function buildThumbs() {
     b.append(cv, tag);
     b.addEventListener('click', () => { if (i !== pageIndex) setPage(i); });
     host.append(b);
+    thumbBtns.push(b);
   });
+  wireThumbSort(host);
+}
+
+// Long-press (350 ms) an inner page's thumbnail, then drag it left/right; a dashed slot shows where it lands.
+const LONG_PRESS_MS = 350;
+function wireThumbSort(host) {
+  let s = null; // { id, from, btn, x0, y0, timer, sorting, slots, to, slot, dx }
+  let swallowClick = false;
+  const inner = (i) => i >= 1 && i <= M.PAGE_COUNT - 2;
+
+  function lift() {
+    s.sorting = true;
+    stage?.cancel();
+    const rects = thumbBtns.map((b) => b.getBoundingClientRect());
+    s.slots = rects.slice(1, M.PAGE_COUNT - 1).map((r) => r.left + r.width / 2); // centers of positions 1..6
+    const r = rects[s.from];
+    s.dx = s.x0 - r.left;
+    s.slot = document.createElement('span');
+    s.slot.className = 'ed-thumb-slot';
+    host.insertBefore(s.slot, s.btn);
+    Object.assign(s.btn.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+    s.btn.classList.add('is-lifted');
+    host.classList.add('is-sorting');
+    s.to = s.from;
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch { /* ignore */ }
+  }
+  function place(x) {
+    s.btn.style.left = x - s.dx + 'px';
+    let best = 0;
+    s.slots.forEach((c, k) => { if (Math.abs(c - x) < Math.abs(s.slots[best] - x)) best = k; });
+    s.to = best + 1;
+    const others = thumbBtns.slice(1, M.PAGE_COUNT - 1).filter((b) => b !== s.btn);
+    host.insertBefore(s.slot, others[s.to - 1] || thumbBtns[M.PAGE_COUNT - 1]);
+  }
+  function end(commitMove) {
+    if (!s) return;
+    clearTimeout(s.timer);
+    const done = s;
+    s = null;
+    if (!done.sorting) return;
+    done.slot.remove();
+    done.btn.classList.remove('is-lifted');
+    Object.assign(done.btn.style, { left: '', top: '', width: '', height: '' });
+    host.classList.remove('is-sorting');
+    swallowClick = true;
+    setTimeout(() => { swallowClick = false; }, 400);
+    if (commitMove && done.to !== done.from) movePageTo(done.from, done.to);
+  }
+
+  host.addEventListener('pointerdown', (e) => {
+    if (s || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const i = thumbBtns.indexOf(e.target.closest('.ed-thumb'));
+    if (!inner(i)) return;
+    s = { id: e.pointerId, from: i, btn: thumbBtns[i], x0: e.clientX, y0: e.clientY, sorting: false };
+    s.timer = setTimeout(() => { if (s && !s.sorting) { lift(); try { host.setPointerCapture(s.id); } catch { /* ignore */ } } }, LONG_PRESS_MS);
+  });
+  host.addEventListener('pointermove', (e) => {
+    if (!s || e.pointerId !== s.id) return;
+    if (!s.sorting) { if (Math.hypot(e.clientX - s.x0, e.clientY - s.y0) > 8) end(false); return; }
+    place(e.clientX);
+  });
+  host.addEventListener('pointerup', (e) => { if (s && e.pointerId === s.id) end(true); });
+  host.addEventListener('pointercancel', (e) => { if (s && e.pointerId === s.id) end(false); });
+  // while dragging, the strip must not scroll (and iOS must not show its long-press menu)
+  host.addEventListener('touchmove', (e) => { if (s && s.sorting && e.cancelable) e.preventDefault(); }, { passive: false });
+  host.addEventListener('contextmenu', (e) => e.preventDefault());
+  host.addEventListener('click', (e) => { if (swallowClick) { e.stopPropagation(); e.preventDefault(); swallowClick = false; } }, true);
 }
 function renderThumbs() {
   const z = strip(zine);
-  const btns = $('thumbs').children;
   for (let i = 0; i < M.PAGE_COUNT; i++) {
-    const b = btns[i];
+    const b = thumbBtns[i];
     b.classList.toggle('on', i === pageIndex);
     if (i === pageIndex) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     const key = JSON.stringify(z.pages[i]);
@@ -402,7 +489,7 @@ function renderThumbs() {
   b0ScrollIntoView();
 }
 function b0ScrollIntoView() {
-  const cur = $('thumbs').children[pageIndex];
+  const cur = thumbBtns[pageIndex];
   if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
@@ -431,6 +518,8 @@ function wireUi() {
     else if (t === 'text') sheets.open('text', null);
     else sheets.open(t);
   }));
+  $('moveLeft').addEventListener('click', () => movePageTo(pageIndex, pageIndex - 1));
+  $('moveRight').addEventListener('click', () => movePageTo(pageIndex, pageIndex + 1));
   $('undo').addEventListener('click', undo);
   $('redo').addEventListener('click', redo);
 

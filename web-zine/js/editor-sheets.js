@@ -1,6 +1,6 @@
 // Editor bottom sheets: stickers, caption text, page title, background.
 import { BUILTIN_STICKERS, getSticker } from './stickers.js';
-import { PAPERS, TEXT_COLORS, HIGHLIGHTS } from './model.js';
+import { PAPERS, TEXT_COLORS, HIGHLIGHTS, fontOf, titleSizeOf } from './model.js';
 import { DEFAULT_TEXT_SIZE } from './render.js';
 
 const $ = (id) => document.getElementById(id);
@@ -13,7 +13,7 @@ const TABS = [
 const TAB_GROUPS = { face: ['face'], doodle: ['doodle', 'tape'], star: ['star'], number: ['number'], alpha: ['alpha'], letter: ['letter'] };
 const PAPER_NAMES = { cream: '크림', yellow: '노랑', sky: '하늘', lime: '연두', white: '흰색' };
 const COLOR_NAMES = { ink: '검정', red: '빨강', blue: '파랑', white: '흰색' };
-const HL_NAMES = { lavender: '보라', sky: '하늘', lemon: '레몬', pink: '분홍' };
+const HL_NAMES = { lavender: '보라', sky: '하늘', lemon: '레몬', pink: '분홍', white: '흰색' };
 const DEFAULT_SIZE = DEFAULT_TEXT_SIZE;
 
 function readRecent() {
@@ -41,11 +41,16 @@ function swatches(host, entries, name, onPick) {
     host.append(b);
   }
 }
+// Font pills ("기본" / "손글씨"): the input previews the chosen font.
+function fontPicker(host, input, onPick) {
+  host.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => onPick(b.dataset.font)));
+  return (font) => { mark(host, 'font', fontOf(font)); input.classList.toggle('hand', fontOf(font) === 'hand'); };
+}
 const mark = (host, attr, value) => host.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))));
 
 /**
  * app: { page(), loadImage(src), addSticker(src, aspect), addText(text, style), updateText(id, text, style),
- *        removeElement(id), setTitle(title, highlight), setBackground(k), setPattern(p), setFrameLine(on),
+ *        removeElement(id), setTitle(title, highlight, { font, size }), setBackground(k), setPattern(p), setFrameLine(on),
  *        call(action, body), toast(msg) }
  */
 export function createSheets(app) {
@@ -53,6 +58,10 @@ export function createSheets(app) {
   let openId = null;
   let lastFocus = null;
 
+  // A tap on the page opens a sheet on pointerup; the browser then fires that tap's click at the same spot,
+  // which is now the (just shown) backdrop. So the backdrop only closes for a press that started on it, and the
+  // slide-in frame checks the sheet is still the open one (a close before that frame left it shown but inert).
+  let pressOnBackdrop = false;
   function open(id) {
     if (openId) close();
     openId = id;
@@ -60,8 +69,10 @@ export function createSheets(app) {
     const s = $(id);
     s.removeAttribute('inert');
     backdrop.hidden = false;
-    requestAnimationFrame(() => { backdrop.classList.add('show'); s.classList.add('open'); });
+    pressOnBackdrop = false;
+    requestAnimationFrame(() => { if (openId !== id) return; backdrop.classList.add('show'); s.classList.add('open'); });
   }
+  const focusLater = (id, input) => setTimeout(() => { if (openId === id) input.focus(); }, 240);
   function close() {
     if (!openId) return;
     const s = $(openId);
@@ -73,7 +84,8 @@ export function createSheets(app) {
     if (document.activeElement && s.contains(document.activeElement)) document.activeElement.blur();
     if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
   }
-  backdrop.addEventListener('click', close);
+  backdrop.addEventListener('pointerdown', () => { pressOnBackdrop = true; });
+  backdrop.addEventListener('click', () => { if (pressOnBackdrop) close(); pressOnBackdrop = false; });
   document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', close));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openId) { e.stopPropagation(); close(); } }, true);
 
@@ -194,6 +206,7 @@ export function createSheets(app) {
   const textColor = $('textColor');
   let textEditing = null;
   let textStyle = { size: DEFAULT_SIZE, color: 'ink', align: 'center' };
+  const showTextFont = fontPicker($('textFont'), textInput, (f) => { textStyle = { ...textStyle, font: f }; showTextFont(f); });
   swatches(textColor, Object.entries(TEXT_COLORS).map(([k, c]) => [k, c, COLOR_NAMES[k] || k]), 'color', (k) => {
     textStyle = { ...textStyle, color: k };
     mark(textColor, 'color', k);
@@ -204,6 +217,7 @@ export function createSheets(app) {
   }));
   function syncTextUi() {
     mark(textColor, 'color', textStyle.color);
+    showTextFont(textStyle.font);
     const sizes = [...textSize.querySelectorAll('button')].map((b) => Number(b.dataset.size));
     const nearest = sizes.reduce((a, b) => (Math.abs(b - textStyle.size) < Math.abs(a - textStyle.size) ? b : a));
     mark(textSize, 'size', Math.abs(nearest - textStyle.size) < 0.004 ? nearest : '');
@@ -216,7 +230,7 @@ export function createSheets(app) {
     $('textOk').textContent = el ? '고치기' : '넣기';
     syncTextUi();
     open('sheet-text');
-    setTimeout(() => textInput.focus(), 240);
+    focusLater('sheet-text', textInput);
   }
   $('textOk').addEventListener('click', () => {
     const text = textInput.value.replace(/\s+$/, '');
@@ -229,17 +243,27 @@ export function createSheets(app) {
   // ---- title ----
   const titleInput = $('titleInput');
   const titleHl = $('titleHl');
+  const titleSize = $('titleSize');
   let hl = 'sky';
+  let tFont = 'sans';
+  const showTitleFont = fontPicker($('titleFont'), titleInput, (f) => { tFont = f; showTitleFont(f); });
   swatches(titleHl, Object.entries(HIGHLIGHTS).map(([k, c]) => [k, c, HL_NAMES[k] || k]), 'hl', (k) => { hl = k; mark(titleHl, 'hl', k); });
   function openTitle() {
     const p = app.page();
     titleInput.value = p.title || '';
     hl = p.titleHighlight || 'sky';
     mark(titleHl, 'hl', hl);
+    tFont = fontOf(p.titleFont);
+    showTitleFont(tFont);
+    titleSize.value = String(titleSizeOf(p));
     open('sheet-title');
-    setTimeout(() => titleInput.focus(), 240);
+    focusLater('sheet-title', titleInput);
   }
-  const commitTitle = () => { const t = titleInput.value.trim().slice(0, 20); close(); app.setTitle(t, hl); };
+  const commitTitle = () => {
+    const t = titleInput.value.trim().slice(0, 20);
+    close();
+    app.setTitle(t, hl, { font: tFont, size: Number(titleSize.value) });
+  };
   $('titleOk').addEventListener('click', commitTitle);
   titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); commitTitle(); } });
   $('titleClear').addEventListener('click', () => { titleInput.value = ''; titleInput.focus(); });

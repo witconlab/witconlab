@@ -163,7 +163,30 @@ test('tape outline is a monotone loop; svgs have explicit size; number sits insi
   const ys = [...d.split('H98')[1].split('H2')[0].matchAll(/L[\d.]+ ([\d.]+)/g)].map((m) => +m[1]);
   assert.deepEqual(ys, [...ys].sort((a, b) => a - b));
   for (const s of BUILTIN_STICKERS.filter((s) => s.svg)) assert.match(s.svg, /<svg[^>]* width="\d+" height="\d+"/);
+});
+
+test('page number: bottom-right inside the frame, Pretendard 600, 70% ink, no underline', async () => {
   const ctx = await render(pageWith(), { pageNumber: 3 });
   const t = ctx.calls.find((c) => c.name === 'fillText' && c.args[0] === '3');
-  assert.ok(t.args[1] > (5 / 105) * W + 0.03 * W && t.args[2] > (5 / 148) * H + 0.02 * H);
+  const sx = (5 / 105) * W, sy = (5 / 148) * H;
+  assert.ok(t.args[1] > W / 2 && t.args[1] < W - sx, 'x inside right frame');
+  assert.ok(t.args[2] > H / 2 && t.args[2] < H - sy, 'y inside bottom frame');
+  assert.match(t.font, /^600 4\.5px Pretendard/);
+  assert.equal(t.alpha, 0.7);
+  // only the frame stroke: no underline stroke
+  assert.equal(ctx.calls.filter((c) => c.name === 'stroke').length, 0);
+});
+
+test('fonts: Pretendard by default, hand font when chosen; title size from the page', async () => {
+  const base = pageWith({ type: 'text', text: '가', w: 0.5, h: 0.1 });
+  const ctx = await render({ ...base, title: '제목' });
+  assert.match(ctx.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^700 6px Pretendard/);
+  assert.match(ctx.calls.find((c) => c.name === 'fillText' && c.args[0] === '가').font, /^500 5\.5px Pretendard/);
+  const hand = { ...base, title: '제목', titleFont: 'hand', titleSize: 0.1,
+    elements: base.elements.map((e) => ({ ...e, style: { font: 'hand' } })) };
+  const ctx2 = await render(hand);
+  assert.match(ctx2.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^400 10px "Nanum Pen Script"/);
+  assert.match(ctx2.calls.find((c) => c.name === 'fillText' && c.args[0] === '가').font, /^400 5\.5px "Nanum Pen Script"/);
+  const huge = await render({ ...base, title: '제목', titleSize: 3 });
+  assert.match(huge.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^700 12px /);
 });

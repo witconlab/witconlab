@@ -134,3 +134,30 @@ test('setPageTitle', () => {
   assert.equal(setPageTitle(z, 1, '제목').pages[1].title, '제목');
   assert.equal(snap(z), b);
 });
+
+test('movePage moves inner pages only, immutably', async () => {
+  const { movePage } = await import('../js/model.js');
+  let z = createEmptyZine('a');
+  z = { ...z, pages: z.pages.map((p, i) => ({ ...p, title: 'p' + (i + 1) })) };
+  const before = snap(z);
+  const m = movePage(z, 1, 4);
+  assert.deepEqual(m.pages.map((p) => p.title), ['p1', 'p3', 'p4', 'p5', 'p2', 'p6', 'p7', 'p8']);
+  assert.equal(snap(z), before);
+  assert.equal(m.pages[0], z.pages[0]);
+  assert.equal(m.pages[7], z.pages[7]);
+  assert.deepEqual(movePage(z, 6, 1).pages.map((p) => p.title), ['p1', 'p7', 'p2', 'p3', 'p4', 'p5', 'p6', 'p8']);
+  for (const [f, t] of [[0, 2], [2, 0], [7, 3], [3, 7], [-1, 2], [2, 2], [1.5, 2], [2, 9]]) assert.equal(movePage(z, f, t), z);
+});
+
+test('title font/size: optional with defaults and clamping', async () => {
+  const { setTitleFont, setTitleSize, titleSizeOf, fontOf, TITLE_SIZE } = await import('../js/model.js');
+  const z = createEmptyZine('a');
+  assert.equal(titleSizeOf(z.pages[1]), TITLE_SIZE.def);
+  assert.equal(fontOf(z.pages[1].titleFont), 'sans');
+  assert.equal(setTitleSize(z, 1, 0.5).pages[1].titleSize, 0.12);
+  assert.equal(setTitleSize(z, 1, 0.01).pages[1].titleSize, 0.04);
+  assert.equal(setTitleSize(z, 1, 0.08).pages[1].titleSize, 0.08);
+  assert.equal(setTitleFont(z, 1, 'hand').pages[1].titleFont, 'hand');
+  assert.equal(setTitleFont(z, 1, 'weird').pages[1].titleFont, 'sans');
+  assert.equal(HIGHLIGHTS.white, '#ffffff');
+});
