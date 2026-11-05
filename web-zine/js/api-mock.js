@@ -20,7 +20,7 @@ function hash(salt, pin) { // not secure; dev only
 }
 function validName(name) {
   if (typeof name !== 'string') return null;
-  const n = name.trim();
+  const n = name.normalize('NFC').trim();
   if (!n || n.length > 20 || /[\/\\]/.test(n) || n === 'stickers') return null;
   return n;
 }
@@ -29,7 +29,7 @@ const publicZine = (z) => { const { auth, ...rest } = z; return clone(rest); };
 const filled = (z) => z.pages.filter((p) => p.title || (p.elements && p.elements.length)).length;
 
 export function createMock({ storage = globalThis.localStorage, now = Date.now } = {}) {
-  const mem = { students: {}, photos: {}, stickers: [], tokens: {}, admins: {} };
+  const mem = { students: {}, photos: {}, stickers: [], tokens: {}, admins: {}, adminFail: { count: 0, until: 0 } };
   const load = () => {
     try { const raw = storage && storage.getItem(KEY); return raw ? JSON.parse(raw) : clone(mem); } catch (e) { return clone(mem); }
   };
@@ -79,8 +79,14 @@ export function createMock({ storage = globalThis.localStorage, now = Date.now }
       if (!z || typeof z !== 'object' || !Array.isArray(z.pages) || z.pages.length !== PAGE_COUNT || typeof z.rev !== 'number') {
         return fail('BAD_INPUT', '저장할 내용이 올바르지 않아요.');
       }
-      if (z.rev !== s.zine.rev) return fail('CONFLICT', '다른 곳에서 먼저 저장했어요. 새로고침해 주세요.', { rev: s.zine.rev });
-      s.zine = { ...clone(z), name, rev: s.zine.rev + 1, updatedAt: new Date(now()).toISOString() };
+      const saveId = typeof b.saveId === 'string' && b.saveId ? b.saveId.slice(0, 64) : null;
+      if (z.rev !== s.zine.rev) {
+        if (saveId && s.lastSaveId === saveId) return { ok: true, rev: s.zine.rev }; // same save resent
+        return fail('CONFLICT', '다른 곳에서 먼저 저장했어요. 새로고침해 주세요.', { rev: s.zine.rev });
+      }
+      const { lastSaveId, ...rest } = clone(z);
+      s.zine = { ...rest, name, rev: s.zine.rev + 1, updatedAt: new Date(now()).toISOString() };
+      s.lastSaveId = saveId;
       return { ok: true, rev: s.zine.rev };
     },
     uploadPhoto(st, b) {
@@ -96,7 +102,9 @@ export function createMock({ storage = globalThis.localStorage, now = Date.now }
       let found = null;
       if (name) found = (st.photos[name] || {})[b.photoId];
       else if (st.admins[b.adminToken]) {
-        for (const p of Object.values(st.photos)) if (p[b.photoId]) found = p[b.photoId];
+        const hint = validName(b.name);
+        found = hint && (st.photos[hint] || {})[b.photoId];
+        if (!found) for (const p of Object.values(st.photos)) if (p[b.photoId]) found = p[b.photoId];
       }
       return found ? { ok: true, data: found.data, mime: found.mime } : AUTH();
     },
@@ -106,7 +114,21 @@ export function createMock({ storage = globalThis.localStorage, now = Date.now }
       return s ? { ok: true, data: s.data, mime: s.mime } : fail('NOT_FOUND', '스티커를 찾을 수 없어요.');
     },
     adminLogin(st, b) {
-      if (b.password !== ADMIN_PASSWORD) return fail('AUTH', '관리자 비밀번호가 달라요.');
+      const t0 = now();
+      let f = st.adminFail || { count: 0, until: 0 };
+      if (f.until && f.until > t0) return fail('LOCKED', '관리자 비밀번호를 여러 번 틀려서 잠겼어요. 10분 뒤에 다시 해 보세요.', { until: f.until });
+      if (f.until) f = { count: 0, until: 0 };
+      if (b.password !== ADMIN_PASSWORD) {
+        f.count += 1;
+        if (f.count >= MAX_FAILS) {
+          const until = t0 + LOCK_MS;
+          st.adminFail = { count: 0, until };
+          return fail('LOCKED', '관리자 비밀번호를 5번 틀려서 10분 동안 잠겼어요.', { until });
+        }
+        st.adminFail = f;
+        return fail('AUTH', '관리자 비밀번호가 달라요.', { remaining: MAX_FAILS - f.count });
+      }
+      st.adminFail = { count: 0, until: 0 };
       const t = 'adm_' + uid(); st.admins[t] = 1;
       return { ok: true, adminToken: t };
     },

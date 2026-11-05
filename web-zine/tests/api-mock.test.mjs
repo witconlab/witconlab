@@ -88,3 +88,42 @@ test('admin list, zine, reset pin, unlock, stickers', async () => {
   assert.equal((await mock({ action: 'getSticker', id: ls.stickers[0].id })).data, 'RA==');
   assert.equal((await mock({ action: 'getSticker', id: 'nope' })).error, 'NOT_FOUND');
 });
+
+test('same saveId resent after a lost response is ok, not CONFLICT', async () => {
+  const { mock } = mk();
+  const { token, zine } = await mock({ action: 'login', name: 'a', pin: '1111' });
+  const z = { ...zine, title: 'one' };
+  assert.deepEqual((await mock({ action: 'save', token, zine: z, saveId: 'id-1' })).rev, 1);
+  const again = await mock({ action: 'save', token, zine: z, saveId: 'id-1' });
+  assert.deepEqual([again.ok, again.rev], [true, 1]);
+  assert.equal((await mock({ action: 'save', token, zine: z, saveId: 'id-2' })).error, 'CONFLICT');
+  assert.equal((await mock({ action: 'save', token, zine: z })).error, 'CONFLICT');
+  assert.equal((await mock({ action: 'load', token })).zine.lastSaveId, undefined);
+});
+
+test('admin getPhoto with a name hint, and fallback scan', async () => {
+  const { mock } = mk();
+  const a = await mock({ action: 'login', name: 'a', pin: '1111' });
+  await mock({ action: 'login', name: 'b', pin: '2222' });
+  const up = await mock({ action: 'uploadPhoto', token: a.token, mime: 'image/png', data: 'QUJD' });
+  const { adminToken } = await mock({ action: 'adminLogin', password: 'admin' });
+  assert.equal((await mock({ action: 'getPhoto', adminToken, photoId: up.photoId, name: 'a' })).data, 'QUJD');
+  assert.equal((await mock({ action: 'getPhoto', adminToken, photoId: up.photoId, name: 'b' })).data, 'QUJD');
+});
+
+test('admin password locks after 5 failures for 10 minutes', async () => {
+  const { mock, clock } = mk();
+  assert.equal((await mock({ action: 'adminLogin', password: 'x' })).remaining, 4);
+  for (let i = 0; i < 3; i++) await mock({ action: 'adminLogin', password: 'x' });
+  assert.equal((await mock({ action: 'adminLogin', password: 'x' })).error, 'LOCKED');
+  assert.equal((await mock({ action: 'adminLogin', password: 'admin' })).error, 'LOCKED');
+  clock.t += 600001;
+  assert.ok((await mock({ action: 'adminLogin', password: 'admin' })).adminToken);
+});
+
+test('names are NFC-normalized', async () => {
+  const { mock } = mk();
+  await mock({ action: 'login', name: '김민지', pin: '1234' });
+  const r = await mock({ action: 'login', name: '김민지'.normalize('NFD'), pin: '1234' });
+  assert.equal(r.created, false);
+});

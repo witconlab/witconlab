@@ -28,7 +28,7 @@ function iterator(items) {
 export function createDrive() {
   let seq = 0;
   const byId = new Map();
-  const drive = { sharingCalls: [], byId };
+  const drive = { sharingCalls: [], byId, counts: { getFilesByName: 0, getFoldersByName: 0 } };
 
   function makeFile(name, bytes, mime) {
     const f = {
@@ -37,6 +37,8 @@ export function createDrive() {
       getName() { return this._name; },
       getBlob() { return makeBlob(this._bytes, this._mime, this._name); },
       getMimeType() { return this._mime; },
+      isTrashed() { return !!this._trashed || !!(this._parent && this._parent.isTrashed()); },
+      setTrashed(v) { this._trashed = !!v; return this; },
       setContent(s) { this._bytes = Array.from(Buffer.from(s, 'utf8'), toSigned); return this; },
       setSharing(...a) { drive.sharingCalls.push(['file', f._name, ...a]); return this; },
     };
@@ -49,15 +51,18 @@ export function createDrive() {
       _id: 'folder' + ++seq, _name: name, _folders: [], _files: [],
       getId() { return this._id; },
       getName() { return this._name; },
-      createFolder(n) { const c = makeFolder(n); this._folders.push(c); return c; },
+      createFolder(n) { const c = makeFolder(n); c._parent = this; this._folders.push(c); return c; },
+      isTrashed() { return !!this._trashed || !!(this._parent && this._parent.isTrashed()); },
+      setTrashed(v) { this._trashed = !!v; return this; },
       getFolders() { return iterator(this._folders); },
-      getFoldersByName(n) { return iterator(this._folders.filter((x) => x._name === n)); },
+      getFoldersByName(n) { drive.counts.getFoldersByName++; return iterator(this._folders.filter((x) => x._name === n)); },
       getFiles() { return iterator(this._files); },
-      getFilesByName(n) { return iterator(this._files.filter((x) => x._name === n)); },
+      getFilesByName(n) { drive.counts.getFilesByName++; return iterator(this._files.filter((x) => x._name === n)); },
       createFile(a, b, c) {
         let f;
         if (typeof a === 'string') f = makeFile(a, Buffer.from(b, 'utf8'), c || 'text/plain');
         else f = makeFile(a.getName(), a.getBytes(), a.getContentType());
+        f._parent = this;
         this._files.push(f);
         return f;
       },
@@ -118,8 +123,12 @@ export function loadGas(path) {
       remove(k) { cache.delete(k); },
     }),
   };
+  // locks: how many times a script lock was taken. onLock: test hook run when a lock is acquired
+  // (simulates another execution that finished while this one waited for the lock).
+  const lockState = { locks: 0, onLock: null };
+  const acquire = () => { lockState.locks++; const h = lockState.onLock; lockState.onLock = null; if (h) h(); };
   ctx.LockService = {
-    getScriptLock: () => ({ waitLock() {}, releaseLock() {}, tryLock: () => true }),
+    getScriptLock: () => ({ waitLock() { acquire(); }, releaseLock() {}, tryLock: () => { acquire(); return true; } }),
   };
   ctx.Logger = { log() {} };
   ctx.Utilities = {
@@ -160,5 +169,5 @@ export function loadGas(path) {
     const out = ctx.doPost({ postData: { contents: JSON.stringify({ action, ...body }) } });
     return JSON.parse(out.getContent());
   }
-  return { ctx, call, drive, props };
+  return { ctx, call, drive, props, cache, lockState };
 }

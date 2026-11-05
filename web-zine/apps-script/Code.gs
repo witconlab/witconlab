@@ -10,6 +10,8 @@ var PAGE_COUNT = 8;
 var TOKEN_TTL = 6 * 60 * 60; // 초
 var MAX_FAILS = 5;
 var LOCK_MS = 10 * 60 * 1000;
+var ID_TTL = 6 * 60 * 60; // 폴더·파일 ID 캐시 (초, CacheService 최대값)
+var ADMIN_FAIL_KEY = 'admin_fail'; // 학생 이름은 'fail_' + 이름이므로 겹치지 않는 키
 var MIMES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'image/gif': 1 };
 
 // ---------- 설치 ----------
@@ -56,6 +58,7 @@ function doPost(e) {
     var body = JSON.parse(e.postData.contents);
     res = dispatch_(body || {});
   } catch (err) {
+    console.error(err);
     res = fail_('SERVER', '서버에 문제가 생겼어요. 잠시 뒤에 다시 해 보세요.');
   }
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
@@ -65,16 +68,19 @@ function doGet() {
   return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
 }
 
+// 학생 요청(login/load/save/uploadPhoto/getPhoto)은 스크립트 전체 잠금을 쓰지 않는다.
+// 30명이 동시에 저장해도 줄 서지 않게 하기 위해서다. 저장은 rev 비교와 saveId(같은 저장의 재전송)로 지킨다.
+// 잠금은 새 학생 만들기와 관리자 변경(드묾)에만 쓴다.
 function dispatch_(b) {
   switch (b.action) {
-    case 'login': return locked_(function () { return login_(b); });
+    case 'login': return login_(b);
     case 'load': return load_(b);
-    case 'save': return locked_(function () { return save_(b); });
-    case 'uploadPhoto': return locked_(function () { return uploadPhoto_(b); });
+    case 'save': return save_(b);
+    case 'uploadPhoto': return uploadPhoto_(b);
     case 'getPhoto': return getPhoto_(b);
     case 'listStickers': return listStickers_();
     case 'getSticker': return getSticker_(b);
-    case 'adminLogin': return adminLogin_(b);
+    case 'adminLogin': return locked_(function () { return adminLogin_(b); });
     case 'adminList': return adminList_(b);
     case 'adminGetZine': return adminGetZine_(b);
     case 'adminResetPin': return locked_(function () { return adminResetPin_(b); });
@@ -98,38 +104,95 @@ function locked_(fn) {
 
 // ---------- 드라이브 도우미 ----------
 
+// 폴더·파일 ID는 CacheService에 둔다. 이름으로 찾기(getFoldersByName/getFilesByName)는 느리기 때문.
+// 캐시가 비었거나 ID가 낡았으면(지워짐·휴지통) 이름으로 다시 찾는다.
+function idCache_() { return CacheService.getScriptCache(); }
+
+function alive_(node) {
+  return !(node && typeof node.isTrashed === 'function' && node.isTrashed());
+}
+
+function cachedNode_(key, getById) {
+  var id = idCache_().get(key);
+  if (!id) return null;
+  try {
+    var node = getById(id);
+    if (alive_(node)) return node;
+  } catch (err) { /* 낡은 ID */ }
+  idCache_().remove(key);
+  return null;
+}
+
 function rootFolder_() {
+  var root = cachedNode_('id_root', function (id) { return DriveApp.getFolderById(id); });
+  if (root) return root;
   var id = PropertiesService.getScriptProperties().getProperty('ROOT_FOLDER_ID');
   if (!id) throw new Error('setup() 을 먼저 실행하세요.');
-  return DriveApp.getFolderById(id);
+  root = DriveApp.getFolderById(id);
+  idCache_().put('id_root', id, ID_TTL);
+  return root;
 }
 
 function child_(parent, name, create) {
   var it = parent.getFoldersByName(name);
-  if (it.hasNext()) return it.next();
+  while (it.hasNext()) {
+    var f = it.next();
+    if (alive_(f)) return f;
+  }
   return create ? parent.createFolder(name) : null;
 }
 
 function studentFolder_(name, create) {
-  return child_(rootFolder_(), name, create);
+  var key = 'id_dir_' + name;
+  var folder = cachedNode_(key, function (id) { return DriveApp.getFolderById(id); });
+  if (folder) return folder;
+  folder = child_(rootFolder_(), name, create);
+  if (folder) idCache_().put(key, folder.getId(), ID_TTL);
+  return folder;
 }
 
+// 학생의 zine.json 파일 (캐시된 ID → getFileById, 없으면 폴더에서 이름으로 찾기)
+function zineFile_(name, folder) {
+  var key = 'id_zine_' + name;
+  var file = cachedNode_(key, function (id) { return DriveApp.getFileById(id); });
+  if (file) return file;
+  folder = folder || studentFolder_(name, false);
+  if (!folder) return null;
+  var it = folder.getFilesByName('zine.json');
+  while (it.hasNext()) {
+    var f = it.next();
+    if (alive_(f)) {
+      idCache_().put(key, f.getId(), ID_TTL);
+      return f;
+    }
+  }
+  return null;
+}
+
+function readStudentZine_(name) {
+  var file = zineFile_(name);
+  return file ? JSON.parse(file.getBlob().getDataAsString()) : null;
+}
+
+function writeStudentZine_(name, zine, folder) {
+  var json = JSON.stringify(zine);
+  var file = zineFile_(name, folder);
+  if (file) { file.setContent(json); return; }
+  folder = folder || studentFolder_(name, true);
+  file = folder.createFile('zine.json', json, 'application/json');
+  idCache_().put('id_zine_' + name, file.getId(), ID_TTL);
+}
+
+// 관리자 목록처럼 폴더를 차례로 훑을 때 쓴다.
 function readZine_(folder) {
   var it = folder.getFilesByName('zine.json');
   if (!it.hasNext()) return null;
   return JSON.parse(it.next().getBlob().getDataAsString());
 }
 
-function writeZine_(folder, zine) {
-  var json = JSON.stringify(zine);
-  var it = folder.getFilesByName('zine.json');
-  if (it.hasNext()) it.next().setContent(json);
-  else folder.createFile('zine.json', json, 'application/json');
-}
-
 function publicZine_(zine) {
   var out = {};
-  for (var k in zine) if (k !== 'auth') out[k] = zine[k];
+  for (var k in zine) if (k !== 'auth' && k !== 'lastSaveId') out[k] = zine[k];
   return out;
 }
 
@@ -152,7 +215,7 @@ function makeAuth_(pin) {
 
 function validName_(name) {
   if (typeof name !== 'string') return null;
-  var n = name.replace(/^\s+|\s+$/g, '');
+  var n = name.normalize('NFC').replace(/^\s+|\s+$/g, '');
   if (!n || n.length > 20 || /[\/\\]/.test(n) || n === STICKER_FOLDER) return null;
   return n;
 }
@@ -193,16 +256,25 @@ function login_(b) {
   if (!name) return fail_('BAD_INPUT', '이름을 확인해 주세요.');
   if (!validPin_(b.pin)) return fail_('BAD_INPUT', '비밀번호는 숫자 4자리예요.');
 
-  var folder = studentFolder_(name, false);
-  var zine = folder ? readZine_(folder) : null;
+  var zine = readStudentZine_(name);
 
   if (!zine) {
-    folder = studentFolder_(name, true);
-    zine = emptyZine_(name);
-    zine.auth = makeAuth_(b.pin);
-    zine.updatedAt = new Date().toISOString();
-    writeZine_(folder, zine);
-    return { ok: true, token: newToken_('tok_', name), zine: publicZine_(zine), created: true };
+    // 새 학생: 같은 이름이 동시에 처음 들어올 수 있으므로 이 부분만 잠그고, 잠근 뒤 다시 확인한다.
+    var made = locked_(function () {
+      var again = readStudentZine_(name);
+      if (again) return { zine: again };
+      var folder = studentFolder_(name, true);
+      child_(folder, 'photos', true); // 사진 폴더를 미리 만들어 업로드끼리 겹쳐 만들지 않게 한다
+      var fresh = emptyZine_(name);
+      fresh.auth = makeAuth_(b.pin);
+      fresh.updatedAt = new Date().toISOString();
+      writeStudentZine_(name, fresh, folder);
+      return { zine: fresh, created: true };
+    });
+    if (made.created) {
+      return { ok: true, token: newToken_('tok_', name), zine: publicZine_(made.zine), created: true };
+    }
+    zine = made.zine; // 그 사이 다른 기기가 먼저 만들었다: 비밀번호를 확인한다
   }
 
   var now = Date.now();
@@ -231,8 +303,7 @@ function login_(b) {
 function load_(b) {
   var name = studentOf_(b);
   if (!name) return AUTH_FAIL();
-  var folder = studentFolder_(name, false);
-  var zine = folder ? readZine_(folder) : null;
+  var zine = readStudentZine_(name);
   if (!zine) return AUTH_FAIL();
   return { ok: true, zine: publicZine_(zine) };
 }
@@ -244,10 +315,12 @@ function save_(b) {
   if (!z || typeof z !== 'object' || !Array.isArray(z.pages) || z.pages.length !== PAGE_COUNT || typeof z.rev !== 'number') {
     return fail_('BAD_INPUT', '저장할 내용이 올바르지 않아요.');
   }
-  var folder = studentFolder_(name, false);
-  var stored = folder ? readZine_(folder) : null;
+  var saveId = typeof b.saveId === 'string' && b.saveId ? b.saveId.slice(0, 64) : null;
+  var stored = readStudentZine_(name);
   if (!stored) return AUTH_FAIL();
   if (z.rev !== stored.rev) {
+    // 같은 저장을 다시 보낸 것(앞 응답이 중간에 사라짐)이면 이미 저장된 것이다.
+    if (saveId && stored.lastSaveId === saveId) return { ok: true, rev: stored.rev };
     return fail_('CONFLICT', '다른 곳에서 먼저 저장했어요. 새로고침해 주세요.', { rev: stored.rev });
   }
   var next = {};
@@ -256,7 +329,8 @@ function save_(b) {
   next.rev = stored.rev + 1;
   next.updatedAt = new Date().toISOString();
   next.auth = stored.auth;
-  writeZine_(folder, next);
+  next.lastSaveId = saveId;
+  writeStudentZine_(name, next);
   return { ok: true, rev: next.rev };
 }
 
@@ -264,23 +338,38 @@ function uploadPhoto_(b) {
   var name = studentOf_(b);
   if (!name) return AUTH_FAIL();
   if (!MIMES[b.mime] || typeof b.data !== 'string' || !b.data) return fail_('BAD_INPUT', '사진 파일이 올바르지 않아요.');
-  var folder = studentFolder_(name, false);
-  if (!folder) return AUTH_FAIL();
-  var photos = child_(folder, 'photos', true);
+  var photos = photosFolder_(name);
+  if (!photos) return AUTH_FAIL();
   var id = Utilities.getUuid();
   var blob = Utilities.newBlob(Utilities.base64Decode(b.data), b.mime, id);
   photos.createFile(blob);
   return { ok: true, photoId: id };
 }
 
+// 학생의 photos 폴더 (캐시). 보통 처음 들어올 때 만들어진다. 없으면(예전 학생) 잠근 뒤 만든다.
+function photosFolder_(name) {
+  var key = 'id_photos_' + name;
+  var photos = cachedNode_(key, function (id) { return DriveApp.getFolderById(id); });
+  if (photos) return photos;
+  var folder = studentFolder_(name, false);
+  if (!folder) return null;
+  photos = child_(folder, 'photos', false);
+  if (!photos) photos = locked_(function () { return child_(folder, 'photos', true); });
+  idCache_().put(key, photos.getId(), ID_TTL);
+  return photos;
+}
+
 function readPhoto_(folder, photoId) {
   if (typeof photoId !== 'string' || !/^[0-9a-f\-]{8,64}$/.test(photoId)) return null;
-  var photos = child_(folder, 'photos', false);
-  if (!photos) return null;
-  var it = photos.getFilesByName(photoId);
-  if (!it.hasNext()) return null;
-  var blob = it.next().getBlob();
-  return { ok: true, data: Utilities.base64Encode(blob.getBytes()), mime: blob.getContentType() };
+  var dirs = folder.getFoldersByName('photos');
+  while (dirs.hasNext()) {
+    var it = dirs.next().getFilesByName(photoId);
+    if (it.hasNext()) {
+      var blob = it.next().getBlob();
+      return { ok: true, data: Utilities.base64Encode(blob.getBytes()), mime: blob.getContentType() };
+    }
+  }
+  return null;
 }
 
 function getPhoto_(b) {
@@ -290,8 +379,16 @@ function getPhoto_(b) {
     var folder = studentFolder_(name, false);
     if (folder) found = readPhoto_(folder, b.photoId);
   } else if (isAdmin_(b)) {
-    var it = rootFolder_().getFolders();
-    while (!found && it.hasNext()) found = readPhoto_(it.next(), b.photoId);
+    // 관리자: 이름을 알려 주면 그 학생 폴더부터 보고, 없을 때만 전체를 훑는다.
+    var hint = validName_(b.name);
+    var first = hint ? studentFolder_(hint, false) : null;
+    if (first) found = readPhoto_(first, b.photoId);
+    var it = found ? null : rootFolder_().getFolders();
+    while (!found && it.hasNext()) {
+      var f = it.next();
+      if (first && f.getId() === first.getId()) continue;
+      found = readPhoto_(f, b.photoId);
+    }
   }
   return found || AUTH_FAIL();
 }
@@ -335,9 +432,28 @@ function adminAddSticker_(b) {
 
 // ---------- 관리자 ----------
 
+// 학생과 같은 규칙: 5번 틀리면 10분 잠금.
 function adminLogin_(b) {
-  var pw = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD');
-  if (!pw || typeof b.password !== 'string' || b.password !== pw) return fail_('AUTH', '관리자 비밀번호가 달라요.');
+  var props = PropertiesService.getScriptProperties();
+  var raw = props.getProperty(ADMIN_FAIL_KEY);
+  var f = raw ? JSON.parse(raw) : { count: 0, until: 0 };
+  var now = Date.now();
+  if (f.until && f.until > now) {
+    return fail_('LOCKED', '관리자 비밀번호를 여러 번 틀려서 잠겼어요. 10분 뒤에 다시 해 보세요.', { until: f.until });
+  }
+  if (f.until) f = { count: 0, until: 0 };
+  var pw = props.getProperty('ADMIN_PASSWORD');
+  if (!pw || typeof b.password !== 'string' || b.password !== pw) {
+    f.count += 1;
+    if (f.count >= MAX_FAILS) {
+      var until = now + LOCK_MS;
+      props.setProperty(ADMIN_FAIL_KEY, JSON.stringify({ count: 0, until: until }));
+      return fail_('LOCKED', '관리자 비밀번호를 5번 틀려서 10분 동안 잠겼어요.', { until: until });
+    }
+    props.setProperty(ADMIN_FAIL_KEY, JSON.stringify(f));
+    return fail_('AUTH', '관리자 비밀번호가 달라요.', { remaining: MAX_FAILS - f.count });
+  }
+  props.deleteProperty(ADMIN_FAIL_KEY);
   return { ok: true, adminToken: newToken_('adm_', 'admin') };
 }
 
@@ -357,7 +473,7 @@ function adminList_(b) {
   var students = [];
   while (it.hasNext()) {
     var folder = it.next();
-    if (folder.getName() === STICKER_FOLDER) continue;
+    if (folder.getName() === STICKER_FOLDER || !alive_(folder)) continue;
     var zine = readZine_(folder);
     if (!zine) continue;
     var f = getFail_(folder.getName());
@@ -392,7 +508,7 @@ function adminResetPin_(b) {
   var zine = folder ? readZine_(folder) : null;
   if (!zine) return fail_('NOT_FOUND', '그 학생을 찾을 수 없어요.');
   zine.auth = makeAuth_(b.pin);
-  writeZine_(folder, zine);
+  writeStudentZine_(folder.getName(), zine, folder);
   PropertiesService.getScriptProperties().deleteProperty('fail_' + folder.getName());
   return { ok: true };
 }

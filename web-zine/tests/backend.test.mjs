@@ -185,3 +185,130 @@ test('emptyZine_ shape', () => {
     background: 'cream', pattern: 'dots', frameLine: true, elements: [],
   });
 });
+
+// ---------- concurrency (no global lock for student traffic) ----------
+
+test('save and upload take no script lock; stale rev still CONFLICT', () => {
+  const { call, lockState } = setup();
+  const { token, zine } = call('login', { name: '김민지', pin: '1234' });
+  const before = lockState.locks;
+  // two devices both based on rev 0: the first wins, the second must not overwrite it
+  const a = call('save', { token, zine: { ...zine, title: 'A' }, saveId: 'sa' });
+  const b = call('save', { token, zine: { ...zine, title: 'B' }, saveId: 'sb' });
+  assert.deepEqual([a.ok, a.rev], [true, 1]);
+  assert.equal(b.error, 'CONFLICT');
+  assert.equal(call('load', { token }).zine.title, 'A');
+  call('uploadPhoto', { token, data: Buffer.from('x').toString('base64'), mime: 'image/png' });
+  call('login', { name: '김민지', pin: '1234' }); // existing student: no lock either
+  assert.equal(lockState.locks, before);
+});
+
+test('only the create-new-student branch of login is locked', () => {
+  const { call, lockState } = setup();
+  const before = lockState.locks;
+  call('login', { name: '김민지', pin: '1234' });
+  assert.equal(lockState.locks, before + 1);
+});
+
+test('login create re-checks inside the lock (same name created meanwhile)', () => {
+  const g = setup();
+  // while this login waits for the lock, another device creates 김민지 with pin 1111
+  g.lockState.onLock = () => {
+    assert.equal(g.call('login', { name: '김민지', pin: '1111' }).created, true);
+  };
+  const r = g.call('login', { name: '김민지', pin: '2222' });
+  assert.equal(r.error, 'BAD_PIN'); // did not overwrite the other device's zine
+  assert.equal(g.call('login', { name: '김민지', pin: '1111' }).ok, true);
+  assert.equal(g.drive.find('웹진')._folders.filter((f) => f._name === '김민지').length, 1);
+});
+
+test('saves use cached file ids (no name search) and survive stale cache ids', () => {
+  const { call, drive, cache } = setup();
+  const { token, zine } = call('login', { name: '김민지', pin: '1234' });
+  const n0 = drive.counts.getFilesByName + drive.counts.getFoldersByName;
+  const s = call('save', { token, zine: { ...zine, title: 'x' } });
+  assert.equal(s.ok, true);
+  assert.equal(drive.counts.getFilesByName + drive.counts.getFoldersByName, n0);
+  // stale ids (e.g. cache from before a folder was replaced) fall back to name search
+  for (const k of [...cache.keys()]) if (k.startsWith('id_')) cache.set(k, { v: 'gone', exp: Infinity });
+  assert.equal(call('load', { token }).zine.title, 'x');
+  assert.equal(call('save', { token, zine: { ...zine, rev: 1, title: 'y' } }).rev, 2);
+});
+
+test('trashed student folder is not reused from cache', () => {
+  const { call, drive } = setup();
+  call('login', { name: '테스트01', pin: '1234' });
+  drive.find('웹진/테스트01').setTrashed(true);
+  const r = call('login', { name: '테스트01', pin: '9999' });
+  assert.equal(r.created, true);
+});
+
+// ---------- idempotent save (lost response) ----------
+
+test('resending the same save (same saveId) is not a CONFLICT', () => {
+  const { call } = setup();
+  const { token, zine } = call('login', { name: '김민지', pin: '1234' });
+  const z = { ...zine, title: 'one' };
+  const first = call('save', { token, zine: z, saveId: 'id-1' });
+  assert.deepEqual([first.ok, first.rev], [true, 1]);
+  // response was lost; client retries the same snapshot with the same saveId
+  const again = call('save', { token, zine: z, saveId: 'id-1' });
+  assert.deepEqual([again.ok, again.rev], [true, 1]);
+  assert.equal(call('load', { token }).zine.rev, 1);
+  assert.equal(call('load', { token }).zine.lastSaveId, undefined); // internal, not exposed
+  // a different save based on the old rev is still a conflict
+  assert.equal(call('save', { token, zine: z, saveId: 'id-2' }).error, 'CONFLICT');
+  assert.equal(call('save', { token, zine: z }).error, 'CONFLICT');
+});
+
+// ---------- admin photo lookup by name ----------
+
+test('admin getPhoto with name checks that folder first, falls back to scan', () => {
+  const { call } = setup();
+  const a = call('login', { name: '김민지', pin: '1234' });
+  call('login', { name: '이서준', pin: '5678' });
+  const up = call('uploadPhoto', { token: a.token, data: Buffer.from('p').toString('base64'), mime: 'image/png' });
+  const { adminToken } = call('adminLogin', { password: 'teacher-pw' });
+  assert.equal(call('getPhoto', { adminToken, photoId: up.photoId, name: '김민지' }).ok, true);
+  assert.equal(call('getPhoto', { adminToken, photoId: up.photoId, name: '이서준' }).ok, true); // wrong hint: scan
+  assert.equal(call('getPhoto', { adminToken, photoId: up.photoId }).ok, true);
+  assert.equal(call('getPhoto', { adminToken, photoId: 'deadbeef00' , name: '김민지' }).error, 'AUTH');
+});
+
+// ---------- admin password throttle ----------
+
+test('admin password: 5 failures lock 10 minutes', () => {
+  const { call, ctx } = setup();
+  const r1 = call('adminLogin', { password: 'x' });
+  assert.equal(r1.error, 'AUTH');
+  assert.equal(r1.remaining, 4);
+  for (let i = 0; i < 3; i++) call('adminLogin', { password: 'x' });
+  assert.equal(call('adminLogin', { password: 'x' }).error, 'LOCKED');
+  assert.equal(call('adminLogin', { password: 'teacher-pw' }).error, 'LOCKED');
+  ctx.__now += 10 * MIN + 1;
+  assert.ok(call('adminLogin', { password: 'teacher-pw' }).adminToken);
+  // success resets the counter
+  for (let i = 0; i < 4; i++) call('adminLogin', { password: 'x' });
+  assert.ok(call('adminLogin', { password: 'teacher-pw' }).adminToken);
+  assert.equal(call('adminLogin', { password: 'x' }).remaining, 4);
+});
+
+test('a student named admin does not share the admin fail counter', () => {
+  const { call } = setup();
+  call('login', { name: 'admin', pin: '1234' });
+  for (let i = 0; i < 5; i++) call('login', { name: 'admin', pin: '0000' });
+  assert.ok(call('adminLogin', { password: 'teacher-pw' }).adminToken);
+});
+
+// ---------- NFC ----------
+
+test('names are NFC-normalized (NFD input reaches the same zine)', () => {
+  const { call } = setup();
+  const nfc = '김민지';
+  const nfd = nfc.normalize('NFD');
+  assert.notEqual(nfd, nfc);
+  assert.equal(call('login', { name: nfc, pin: '1234' }).created, true);
+  const r = call('login', { name: nfd, pin: '1234' });
+  assert.equal(r.created, false);
+  assert.equal(r.zine.name, nfc);
+});
