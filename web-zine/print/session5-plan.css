@@ -1,4 +1,4 @@
-/* 3차시 원페이퍼 A3 가로 · 흑백 (session3-plan.html / session3-plan-sample.html) */
+/* 5차시 원페이퍼 A3 가로 · 흑백 (session5-plan.html / session5-plan-sample.html) */
 @page { size: A3 landscape; margin: 0; }
 * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 body { margin: 0; background: #8a8a8a; font-family: Pretendard, 'Apple SD Gothic Neo', sans-serif; color: #111; word-break: keep-all; overflow-wrap: anywhere; }

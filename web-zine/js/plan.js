@@ -1,5 +1,5 @@
-// 3차시 "내년 기록화 사업 원페이퍼": questions, sample answers, answer -> plan mapping, and the web question flow.
-// The data + buildPlan() are pure (imported by tests and by print/session3-print.js); the UI only starts on plan.html.
+// 5차시 "내년 기록화 사업 원페이퍼": questions, sample answers, answer -> plan mapping, and the web question flow.
+// The data + buildPlan() are pure (imported by tests and by print/session5-print.js); the UI only starts on plan.html.
 
 export const PH = '(적어 주세요)';
 export const STORE_KEY = 'webzine.plan';
@@ -78,7 +78,7 @@ export const QUESTIONS = [
     example: '간판 찍고, 사장님 이야기 듣기',
     parts: [
       { type: 'multi', key: 'methods', label: '해 볼 방법 (여러 개)', options: [
-        ['eye', '눈으로 찍기', '간판·골목 색·바닥 무늬·풀꽃'], ['hand', '손으로 남기기', '문질러 본뜨기·그리기'],
+        ['eye', '눈으로 찍기', '간판·골목 색·바닥 무늬·풀꽃'], ['hand', '손으로 그리기', '지금 모습·걸은 길 그리기'],
         ['ear', '귀로 듣기', '동네 소리·동네 말·이웃 이야기'], ['body', '몸으로 느끼기', '걸은 길·볕과 그늘·고양이'],
         ['find', '찾아서 담기', '옛 신문·옛 하늘사진·예전 사진'],
       ] },
@@ -292,7 +292,7 @@ export function planSheetHtml(plan, { sample = false } = {}) {
       <p class="sh-kicker">내년 기록화 사업 원페이퍼</p>
       <h2 class="${plan.title === PH ? 'ph' : ''}">${esc(plan.title)}</h2>
       <p class="sh-sum ${plan.summary === PH ? 'ph' : ''}">${esc(plan.summary)}</p>
-      <p class="sh-by">작성 ${plan.name ? esc(plan.name) : '__________'} · 시민기록교육 3차시</p>
+      <p class="sh-by">작성 ${plan.name ? esc(plan.name) : '__________'} · 시민기록교육 5차시</p>
     </header>
     <div class="sh-grid">
       ${box('background')}${box('purpose')}
@@ -340,7 +340,7 @@ export function startApp(root) {
   function intro() {
     const any = QUESTIONS.some((q) => answered(q, A()));
     root.innerHTML = `<section class="screen intro">
-      <p class="kicker">시민기록교육 3차시</p>
+      <p class="kicker">시민기록교육 5차시</p>
       <h1>내년 기록화 사업<br>원페이퍼 만들기</h1>
       <p class="lead">쉬운 질문 ${total}개에 답하면<br>한 장짜리 사업계획서가 만들어져요.</p>
       <ol class="steps"><li>${icon('pen', 26)} 질문에 답하기</li><li>${icon('arrow', 26)} 계획서로 옮겨지기</li><li>${icon('book', 26)} 인쇄해서 발표</li></ol>

@@ -1,4 +1,4 @@
-// Renders the 3차시 A3 sheets (질문지 + 원페이퍼 사업계획서) from the same questions as plan.html.
+// Renders the 5차시 A3 sheets (질문지 + 원페이퍼 사업계획서) from the same questions as plan.html.
 // <body data-mode="sample"> fills both pages with SAMPLE answers in handwriting.
 import { QUESTIONS, FIELDS, SAMPLE, buildPlan, icon, partOf, won } from '../js/plan.js';
 
@@ -45,7 +45,7 @@ function qBlock(q) {
 function page1() {
   return `<div class="scale"><div class="sheet p1">
     <header class="top">
-      <div><p class="kicker">시민기록교육 3차시 · 내년 기록화 사업 원페이퍼 ①</p><h1>질문지 <span>— 쉬운 질문에 답해 보세요</span></h1></div>
+      <div><p class="kicker">시민기록교육 5차시 · 내년 기록화 사업 원페이퍼 ①</p><h1>질문지 <span>— 쉬운 질문에 답해 보세요</span></h1></div>
       <div class="who">${line('이름 / 테이블', sample ? `${SAMPLE.name} / 3번 테이블` : '')}</div>
     </header>
     <p class="howto">${icon('check', 22, 2.4)} 해당하는 칸에 <b>✓</b> 표시하고, 밑줄에 짧게 적어요. &nbsp; ${icon('arrow', 22, 2)} 다 쓰면 뒷면 <b>계획서</b>로 옮겨 적어요. &nbsp; <span class="exn">회색 글씨는 예시예요.</span></p>
@@ -71,7 +71,7 @@ function planBox(f) {
 function page2() {
   return `<div class="scale"><div class="sheet p2">
     <header class="top">
-      <div><p class="kicker">시민기록교육 3차시 · 내년 기록화 사업 원페이퍼 ②</p><h1>원페이퍼 사업계획서</h1></div>
+      <div><p class="kicker">시민기록교육 5차시 · 내년 기록화 사업 원페이퍼 ②</p><h1>원페이퍼 사업계획서</h1></div>
       <div class="who">${line('작성', sample ? `${SAMPLE.name} 외 9명 (3번 테이블)` : '')}</div>
     </header>
     <div class="headrow">
