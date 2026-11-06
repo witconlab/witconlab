@@ -150,8 +150,14 @@
   }
   async function setState(patch) {
     const next = Object.assign({}, state, patch, { updated: Date.now() });
-    applyState(next);
-    if (MODE === 'live') await apiPost({ action: 'setState', key: adminKey(), state: next });
+    // LIVE는 서버가 받아들인 뒤에만 바꿉니다. 비밀번호가 틀리면 화면도 그대로 두어야
+    // 관제반이 "바뀐 줄" 착각하지 않습니다.
+    if (MODE === 'live') {
+      const r = await apiPost({ action: 'setState', key: adminKey(), state: next });
+      applyState(r.state || next);
+    } else {
+      applyState(next);
+    }
   }
   async function pullState() {
     if (MODE !== 'live') return state;

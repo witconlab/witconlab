@@ -9,11 +9,25 @@
   function toast(msg, err) {
     const t = $('#toast');
     t.textContent = msg; t.className = 'toast on' + (err ? ' err' : '');
-    clearTimeout(toast.t); toast.t = setTimeout(() => { t.className = 'toast'; }, 2600);
+    clearTimeout(toast.t); toast.t = setTimeout(() => { t.className = 'toast'; }, err ? 7000 : 2600);
   }
+  let pending = 0;
   async function act(fn, okMsg) {
-    try { await fn(); if (okMsg) toast(okMsg); return true; }
-    catch (e) { toast(e.message || String(e), true); return false; }
+    if (A.MODE === 'live') { pending++; $('#sync').textContent = '서버에 보내는 중…'; }
+    try {
+      await fn();
+      $('#auth-warn').hidden = true;
+      if (okMsg) toast(okMsg);
+      return true;
+    } catch (e) {
+      const msg = e.message || String(e);
+      // 비밀번호 오류는 사라지지 않는 경고 줄로 알림 (버튼은 서버 상태 그대로 되돌림)
+      if (/비밀번호/.test(msg)) $('#auth-warn').hidden = false;
+      toast(msg, true);
+      return false;
+    } finally {
+      if (A.MODE === 'live' && --pending === 0) renderState();
+    }
   }
 
   // ── 상단 ──
@@ -26,6 +40,7 @@
   $('#open-vote').onclick = () => window.open('vote.html' + (demoQs ? '?' + demoQs : ''), 'agora-vote');
   if (demoQs) $('#preview').src = 'index.html?preview&demo';
   $('#open-settings').onclick = () => { $('#set-api').value = A.LS.get('agora-api', '') || window.AGORA_API || ''; $('#set-key').value = A.adminKey(); $('#settings').showModal(); };
+  $('#auth-fix').onclick = () => $('#open-settings').click();
   $('#set-save').onclick = () => { A.LS.set('agora-api', $('#set-api').value.trim()); A.LS.set('agora-admin-key', $('#set-key').value); setTimeout(() => location.reload(), 50); };
   if (A.MODE === 'live' && !A.adminKey()) setTimeout(() => $('#open-settings').click(), 300);
 
