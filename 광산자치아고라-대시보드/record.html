@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>광산자치아고라 기록자 입장</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root { --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b; --line: #e2e8f0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
+  header { padding: 28px 16px 20px; background: linear-gradient(135deg, #0284c7, #16a34a 60%, #ea580c); color: #fff; }
+  header small { font-size: 14px; font-weight: 700; opacity: .9; }
+  header h1 { font-size: 26px; font-weight: 900; margin-top: 6px; line-height: 1.3; }
+  header p { font-size: 15px; margin-top: 8px; opacity: .95; line-height: 1.5; }
+  main { padding: 16px 16px 40px; max-width: 720px; margin: 0 auto; }
+  h2 { font-size: 17px; font-weight: 800; margin: 24px 0 10px; }
+  .mine { display: none; margin-bottom: 8px; }
+  .mine.on { display: block; }
+  .mine a { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 16px; background: var(--c); color: #fff; text-decoration: none; }
+  .mine a b { font-size: 34px; font-weight: 900; line-height: 1; }
+  .mine a span { flex: 1; font-size: 15px; line-height: 1.45; }
+  .mine a span strong { display: block; font-size: 18px; }
+  .mine a em { font-style: normal; font-weight: 800; background: rgba(0, 0, 0, .2); padding: 8px 12px; border-radius: 10px; white-space: nowrap; }
+  .group { margin-top: 16px; }
+  .group h3 { font-size: 14px; font-weight: 800; color: var(--c); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .group h3 i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .t { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); border-left: 6px solid var(--c); color: inherit; text-decoration: none; }
+  .t b { font-size: 20px; font-weight: 900; }
+  .t span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .t.off { opacity: .45; pointer-events: none; }
+  .t:active { transform: scale(.98); }
+  .cheat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .cheat table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .cheat td { padding: 7px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cheat tr:last-child td { border-bottom: 0; }
+  .tag { display: inline-block; font-weight: 800; font-family: ui-monospace, Menlo, monospace; font-size: 14px; padding: 1px 7px; border-radius: 6px; background: #e7e5e4; white-space: nowrap; }
+  .t-pain { background: #fee2e2; } .t-idea { background: #fef3c7; } .t-action { background: #d1fae5; } .t-admin { background: #dbeafe; }
+  .tips { margin-top: 10px; padding-left: 18px; font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .links a { flex: 1; min-width: 150px; text-align: center; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-weight: 800; text-decoration: none; }
+  .msg { padding: 16px; border-radius: 12px; background: #fff7ed; color: #9a3412; font-size: 14px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<header>
+  <small>2026 광산자치아고라 · 테이블 기록자</small>
+  <h1>내 테이블 번호를 눌러<br>기록 문서를 여세요</h1>
+  <p>문서에 한 줄씩 적으면 5~10초 뒤 무대 화면에 올라가요. 오른쪽 위에 "편집"이 보이는지 확인해 주세요.</p>
+</header>
+<main>
+  <div class="mine" id="mine"></div>
+  <div id="tables"><p class="msg">테이블 목록을 불러오는 중…</p></div>
+
+  <h2>줄 앞에 붙이는 표시</h2>
+  <div class="cheat">
+    <table>
+      <tr><td><span class="tag">[경험]</span></td><td>이용하면서 겪은 일</td></tr>
+      <tr><td><span class="tag t-pain">[불편]</span></td><td>불편한 점, 고칠 점</td></tr>
+      <tr><td><span class="tag">[자원]</span></td><td>이미 있는 모임·시설·사람</td></tr>
+      <tr><td><span class="tag t-idea">[아이디어]</span></td><td>함께 해 보면 좋을 방법</td></tr>
+      <tr><td><span class="tag t-action">[실천]</span></td><td>주민이 직접 할 일 <b>(15:15 꼭!)</b></td></tr>
+      <tr><td><span class="tag t-admin">[협력]</span></td><td>행정에 요청할 일 <b>(15:15 꼭!)</b></td></tr>
+    </table>
+    <ul class="tips">
+      <li>예) <span class="tag">[불편] 임곡: 가로등이 없어 밤에 무서워요</span></li>
+      <li>한 줄에 발언 하나 · 이름·연락처는 적지 않기 · 이미 쓴 줄은 고치지 않기</li>
+    </ul>
+  </div>
+
+  <div class="links">
+    <a href="기록자-가이드.html">기록자 가이드 전체 보기</a>
+    <a href="기록자-가이드.pdf">PDF로 받기</a>
+  </div>
+</main>
+
+<script src="config.js?v=20261106b"></script>
+<script src="assets/app.js?v=20261106b"></script>
+<script>
+(async function () {
+  const A = window.Agora;
+  const esc = A.esc;
+  const docUrl = t => t.docId ? 'https://docs.google.com/document/d/' + encodeURIComponent(t.docId) + '/edit' : '';
+  try { await A.loadTables(); } catch (e) { /* 마지막으로 받은 목록 사용 */ }
+  const tables = A.tables;
+  const mineNo = Number(A.LS.get('agora-my-table', 0));
+
+  function card(t) {
+    const url = docUrl(t);
+    return '<a class="t' + (url ? '' : ' off') + '" data-no="' + t.no + '" href="' + esc(url || '#') + '" target="_blank" rel="noopener" style="--c:' + A.CATS[t.cat].deep + '">' +
+      '<b>테이블 ' + t.no + '</b><span>' + esc(t.dongs) + '</span></a>';
+  }
+  function renderMine(no) {
+    const t = tables.find(x => x.no === no);
+    const box = document.getElementById('mine');
+    if (!t || !docUrl(t)) { box.classList.remove('on'); return; }
+    box.innerHTML = '<h2>내 테이블</h2><a href="' + esc(docUrl(t)) + '" target="_blank" rel="noopener" style="--c:' + A.CATS[t.cat].deep + '"><b>' + t.no + '</b>' +
+      '<span><strong>' + esc(A.CATS[t.cat].name) + '</strong>' + esc(t.dongs) + '</span><em>문서 열기</em></a>';
+    box.classList.add('on');
+  }
+
+  const hasDocs = tables.some(t => t.docId);
+  document.getElementById('tables').innerHTML = (hasDocs ? '' : '<p class="msg">아직 기록 문서가 연결되지 않았어요. 관제반에 문의해 주세요.</p>') +
+    A.CAT_ORDER.map(c => {
+      const ts = tables.filter(t => t.cat === c);
+      if (!ts.length) return '';
+      return '<div class="group" style="--c:' + A.CATS[c].deep + '"><h3><i></i>' + esc(A.CATS[c].name) + '</h3><div class="grid">' + ts.map(card).join('') + '</div></div>';
+    }).join('');
+
+  // 한 번 고른 테이블은 다음에 열 때 맨 위에 크게 보여 줌
+  document.getElementById('tables').addEventListener('click', e => {
+    const a = e.target.closest('a.t'); if (!a) return;
+    const no = Number(a.dataset.no);
+    A.LS.set('agora-my-table', no);
+    renderMine(no);
+  });
+  renderMine(mineNo);
+})();
+</script>
+</body>
+</html>
