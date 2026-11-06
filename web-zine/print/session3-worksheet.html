@@ -16,8 +16,8 @@
     body { background: #fff; }
     .bar { display: none; }
     .scale { margin: 0; height: auto !important; overflow: visible; }
-    .sheet { transform: none !important; page-break-after: always; break-after: page; }
-    .scale:last-child .sheet { page-break-after: auto; break-after: auto; }
+    .sheet { transform: none !important;  }
+    
   }
   h1 { font-size: 30pt; margin: 0; font-weight: 800; letter-spacing: -.5px; }
   .kicker { font-size: 14pt; font-weight: 600; }
@@ -67,38 +67,99 @@
   body.sample .starred .star { display: block; }
   .v { display: none; position: absolute; left: .6mm; top: -2.8mm; font-size: 15pt; font-weight: 900; }
   body.sample .on .v { display: block; }
+
+  /* 단면 한 장 배치 */
+  .sheet { padding: 10mm 12mm; font-size: 13.5pt; line-height: 1.35; }
+  h1 { font-size: 25pt; }
+  .top { padding-bottom: 3mm; }
+  .name { font-size: 14pt; padding: 2mm 5mm; min-width: 75mm; }
+  .flow { margin: 3mm 0 3mm; font-size: 14pt; }
+  .flow .st { padding: 1mm 4mm; }
+  .quote { font-size: 12pt; }
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.02fr) minmax(0,1fr); gap: 5mm; height: 222mm; }
+  .col { display: flex; flex-direction: column; gap: 4mm; min-height: 0; }
+  .box { padding: 3.5mm 4mm; }
+  .h { font-size: 16.5pt; margin-bottom: 1.5mm; }
+  .num { width: 9mm; height: 9mm; font-size: 13.5pt; }
+  .sub { font-size: 12pt; margin: -0.5mm 0 2mm; }
+  .frag { border: 1.5px solid #111; border-radius: 3mm; padding: 1.5mm 3mm 2mm; margin-top: 2.5mm; }
+  .frag.ex { border-style: dashed; color: #444; }
+  .frag .r { display: flex; gap: 2mm; align-items: flex-end; min-height: 12mm; border-bottom: 1.2px solid #999; padding-bottom: .8mm; }
+  .frag .r:last-child { border-bottom: 0; }
+  .frag .k { flex: 0 0 auto; font-weight: 800; width: 15mm; font-size: 12.5pt; }
+  .frag .k.big { font-size: 17pt; text-align: center; }
+  .frag.ex .r { font-style: italic; font-size: 12.5pt; }
+  .pick { grid-template-columns: 1fr 1fr; gap: 2.5mm; }
+  .grp { padding: 2.5mm 3mm; }
+  .grp b { font-size: 13.5pt; }
+  .item { font-size: 13pt; margin: 2.2mm 0; }
+  .item small { font-size: 10.5pt; }
+  .o { flex-basis: 5.5mm; height: 5.5mm; }
+  svg.ic { width: 6.5mm; height: 6.5mm; }
+  .pages { gap: 2.5mm; }
+  .pg { font-size: 10.5pt; padding: 1.5mm 2mm; }
+  .pg .t { font-size: 11.5pt; }
+  .pg .hint { font-size: 10pt; }
+  .pg .no { right: 2mm; bottom: 1mm; font-size: 10pt; }
+  .line { min-height: 9.5mm; }
+  .card { padding: 4.5mm 4mm 3mm; flex: 1; }
+  .card::before { font-size: 11pt; top: -3.8mm; }
+  .chk { font-size: 12.5pt; margin: .6mm 3.5mm .6mm 0; }
+  .sq { width: 5.5mm; height: 5.5mm; }
+  .talk { font-size: 11.5pt; margin-top: 2mm; }
+  .tip { font-size: 11pt; }
+  .fill { font-size: 17pt; }
+  body.sample .pg .fill { font-size: 14pt; }
 </style></head>
 <body>
 <div class="bar">
-  <b>3차시 활동지</b> · A3 가로 양면 · 흑백 인쇄 (인쇄 시 실제 크기)
+  <b>3차시 활동지</b> · A3 가로 단면 · 흑백 인쇄 (인쇄 시 실제 크기)
   <a href="?">빈 활동지</a> <a href="?sample">예시로 채운 활동지</a>
   <button onclick="print()">인쇄 / PDF 저장</button>
 </div>
 
-<!-- 앞면 -->
 <div class="scale"><div class="sheet">
   <div class="top">
     <div><div class="kicker">우리 동네 기록 노트 · 3차시 · 복합커뮤니티 송정다누리</div><h1>내 주변에서 물음표(?)와 느낌표(!) 찾기</h1></div>
     <div class="name">이름 : <span class="fill">김순자</span></div>
   </div>
   <div class="flow">
-    <span class="st">경험</span><span class="ar">→</span><span class="st">수집</span><span class="ar">→</span><span class="st">물음표 ?</span><span class="ar">→</span><span class="st">느낌표 !</span>
+    <span class="st">경험</span><span class="ar">→</span><span class="st">수집</span><span class="ar">→</span><span class="st">물음표 ?</span><span class="ar">→</span><span class="st">느낌표 !</span><span class="ar">→</span><span class="st">내 책</span>
     <span class="quote">"사소한 것들을 발견하는 힘" — 『매일의 영감 수집』</span>
   </div>
 
-  <div class="grid" style="grid-template-columns: minmax(0,1fr) minmax(0,2.3fr)">
-    <div class="box">
-      <div class="h"><span class="num">1</span>나의 조각 3개</div>
-      <div class="sub">휴대폰 사진첩에서 지난 한 달 사진 3장을 골라요. 어떤 장면인지 한 줄로 적어요.</div>
-      <div class="lab">①</div><div class="line"><span class="fill">시장 입구 국밥집 간판</span></div>
-      <div class="lab">②</div><div class="line"><span class="fill">손주가 그려 준 우리 집 대문</span></div>
-      <div class="lab">③</div><div class="line"><span class="fill">경로당 앞 화분에 핀 국화</span></div>
-      <div class="talk">테이블 이야기 · 옆 사람에게 사진 한 장을 보여 주며 "왜 찍었는지" 말해 봐요.</div>
-    </div>
+  <div class="cols">
+    <!-- 1열: 경험 + 물음표·느낌표 -->
+    <div class="col"><div class="box" style="flex:1">
+      <div class="h"><span class="num">1</span>나의 조각에 ? 와 ! 붙이기</div>
+      <div class="sub">휴대폰 사진첩에서 지난 한 달 사진 3장을 골라요. 왜 눈에 띄었는지 묻고(?), "아하, ~구나"로 답해요(!).</div>
+      <div class="frag ex">
+        <div class="r"><span class="k">예) 조각</span>시장 입구 국밥집</div>
+        <div class="r"><span class="k big">?</span>왜 40년째 같은 자리에 있을까?</div>
+        <div class="r"><span class="k big">!</span>아하, 동네 사람들 사랑방이었구나!</div>
+      </div>
+      <div class="frag">
+        <div class="r"><span class="k">① 조각</span><span class="fill">우리 집 초록 대문</span></div>
+        <div class="r"><span class="k big">?</span><span class="fill">대문 색은 왜 다 초록일까?</span></div>
+        <div class="r"><span class="k big">!</span><span class="fill">새마을 때 같이 칠했구나!</span></div>
+      </div>
+      <div class="frag">
+        <div class="r"><span class="k">② 조각</span><span class="fill">경로당 앞 국화</span></div>
+        <div class="r"><span class="k big">?</span><span class="fill">누가 매년 심을까?</span></div>
+        <div class="r"><span class="k big">!</span><span class="fill">총무님이 30년째 가꾸셨구나!</span></div>
+      </div>
+      <div class="frag">
+        <div class="r"><span class="k">③ 조각</span></div>
+        <div class="r"><span class="k big">?</span></div>
+        <div class="r"><span class="k big">!</span></div>
+      </div>
+      <div class="talk">테이블 이야기 · 사진 한 장을 보여 주며 내 물음표를 읽어 주고, 다른 분들의 "아하!"를 들어 봐요.</div>
+    </div></div>
 
-    <div class="box">
+    <!-- 2열: 수집 방법 -->
+    <div class="col"><div class="box" style="flex:1">
       <div class="h"><span class="num">2</span>나는 이렇게 모아 보고 싶어요</div>
-      <div class="sub">해 보고 싶은 것에 ○, 가장 해 보고 싶은 하나에 ★ 를 그려요. 같은 ★ 를 고른 분과 4차시 산책 짝이 돼요.</div>
+      <div class="sub">해 보고 싶은 것에 ○, 가장 해 보고 싶은 하나에 ★. 같은 ★ 를 고른 분과 4차시 산책 짝이 돼요.</div>
       <div class="pick">
         <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l2-3h4l2 3"/></svg>눈으로 찍기</b>
           <div class="item on starred"><span class="o"><span class="mark"></span></span><span class="star">★</span><div>오래된 간판<small>가게 이름·글씨체</small></div></div>
@@ -107,93 +168,67 @@
           <div class="item"><span class="o"><span class="mark"></span></span><div>틈새 풀꽃<small>담장 틈 작은 풀</small></div></div>
           <div class="item on"><span class="o"><span class="mark"></span></span><div>집 앞 화분<small>이웃이 가꾸는 꽃</small></div></div>
         </div>
-        <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>손으로 그리기</b>
-          <div class="item on"><span class="o"><span class="mark"></span></span><div>걸은 길 그리기<small>오늘 걸은 길 지도</small></div></div>
-          <div class="item"><span class="o"><span class="mark"></span></span><div>지금 모습 그리기<small>골목을 간단히 스케치</small></div></div>
-          <div class="tip">잘 그리지 않아도 괜찮아요. 그린 것은 사진으로 찍어 진에 넣어요.</div>
+        <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>찾아서 담기</b>
+          <div class="item on"><span class="o"><span class="mark"></span></span><div>옛 신문·기사<small>휴대폰 검색 → 화면 캡처</small></div></div>
+          <div class="item"><span class="o"><span class="mark"></span></span><div>옛 하늘 사진<small>예전 항공사진과 비교</small></div></div>
+          <div class="item"><span class="o"><span class="mark"></span></span><div>예전 모습 사진<small>"그때"와 "지금"</small></div></div>
         </div>
         <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><path d="M6 15a6 6 0 1 1 12 0c0 3-3 3-3 6"/><path d="M9 11a3 3 0 0 1 6 0"/></svg>귀로 듣기</b>
           <div class="item"><span class="o"><span class="mark"></span></span><div>동네 소리<small>들린 소리를 글로 적기</small></div></div>
           <div class="item"><span class="o"><span class="mark"></span></span><div>동네 말<small>여기서만 쓰는 이름·말</small></div></div>
           <div class="item on"><span class="o"><span class="mark"></span></span><div>이웃 이야기<small>만난 분께 한 가지 묻기</small></div></div>
         </div>
-        <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-6-3-3 2-5 4 3 3 1M7 12l2-3"/></svg>몸으로 느끼기</b>
-          <div class="item"><span class="o"><span class="mark"></span></span><div>볕·바람·그늘<small>시원한 곳, 따뜻한 곳</small></div></div>
-          <div class="item"><span class="o"><span class="mark"></span></span><div>고양이·새 따라가기<small>어디로 다니나</small></div></div>
+        <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>손으로 그리기</b>
+          <div class="item"><span class="o"><span class="mark"></span></span><div>지금 모습 그리기<small>골목을 간단히 스케치</small></div></div>
+          <div class="item on"><span class="o"><span class="mark"></span></span><div>걸은 길 그리기<small>오늘 걸은 길 지도</small></div></div>
+          <div class="tip">그린 것은 사진으로 찍어 진에 넣어요.</div>
         </div>
-        <div class="grp"><b><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>찾아서 담기</b>
-          <div class="item on"><span class="o"><span class="mark"></span></span><div>옛 신문·기사<small>휴대폰 검색 → 화면 캡처</small></div></div>
-          <div class="item"><span class="o"><span class="mark"></span></span><div>옛 하늘 사진<small>예전 항공사진과 비교</small></div></div>
-          <div class="item"><span class="o"><span class="mark"></span></span><div>예전 모습 사진<small>"그때"와 "지금"</small></div></div>
+        <div class="grp" style="grid-column: 1 / -1"><b><svg class="ic" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-6-3-3 2-5 4 3 3 1M7 12l2-3"/></svg>몸으로 느끼기</b>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 3mm">
+            <div class="item"><span class="o"><span class="mark"></span></span><div>볕·바람·그늘<small>시원한 곳, 따뜻한 곳</small></div></div>
+            <div class="item"><span class="o"><span class="mark"></span></span><div>고양이·새 따라가기<small>어디로 다니나</small></div></div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </div></div>
 
-  <div class="box" style="margin-top: 6mm">
-    <div class="h"><span class="num">3</span>물음표를 붙이고, 느낌표를 찾아요</div>
-    <div class="qa">
-      <div class="qh">나의 조각</div><div></div><div class="qh">? 왜 눈에 띄었을까?</div><div></div><div class="qh">! 아하, ~구나</div>
-      <div class="c ex">예) 시장 입구 국밥집</div><div class="sym">?</div><div class="c ex">왜 40년째 같은 자리에 있을까?</div><div class="sym">!</div><div class="c ex">아하, 동네 사람들 사랑방이었구나!</div>
-      <div class="c">① <span class="fill">&nbsp;우리 집 대문</span></div><div class="sym">?</div><div class="c"><span class="fill">대문 색은 왜 다 초록일까?</span></div><div class="sym">!</div><div class="c"><span class="fill">새마을 때 같이 칠했구나!</span></div>
-      <div class="c">② <span class="fill">&nbsp;경로당 국화</span></div><div class="sym">?</div><div class="c"><span class="fill">누가 매년 심을까?</span></div><div class="sym">!</div><div class="c"><span class="fill">총무님이 30년째 가꾸셨구나!</span></div>
-      <div class="c">③</div><div class="sym">?</div><div class="c"></div><div class="sym">!</div><div class="c"></div>
-    </div>
-    <div class="talk">테이블 이야기 · 내 물음표 하나를 읽어 주고, 다른 분들의 "아하!"를 들어 봐요.</div>
-  </div>
-</div></div>
-
-<!-- 뒷면 -->
-<div class="scale"><div class="sheet">
-  <div class="top">
-    <div><div class="kicker">우리 동네 기록 노트 · 3차시 (뒷면)</div><h1>나의 작은 책, 미리 그려 보기</h1></div>
-    <div class="name">진 제목(가안) : <span class="fill">초록 대문 골목</span></div>
-  </div>
-
-  <div class="grid" style="grid-template-columns: minmax(0,2.1fr) minmax(0,1fr); margin-top: 6mm">
-    <div class="box">
-      <div class="h"><span class="num">4</span>8쪽 그림판</div>
-      <div class="sub">4차시에 휴대폰으로 만들 책이에요. 쪽마다 넣고 싶은 것을 간단히 적거나 그려요.</div>
-      <div class="pages">
-        <div class="pg"><div class="t">표지</div><div class="hint">제목과 대표 사진 한 장</div><span class="fill">초록 대문 사진 + 제목</span></div>
-        <div class="pg"><div class="t">2쪽</div><div class="hint">나의 물음표 ?</div><span class="fill">대문 색은 왜 다 초록일까?</span><span class="no">2</span></div>
-        <div class="pg"><div class="t">3쪽</div><div class="hint">왜 궁금했나</div><span class="fill">손주 그림 속 대문</span><span class="no">3</span></div>
-        <div class="pg"><div class="t">4쪽</div><div class="hint">산책에서 모은 것 ①</div><span class="fill">골목 초록 대문 6개</span><span class="no">4</span></div>
-        <div class="pg"><div class="t">5쪽</div><div class="hint">모은 것 ②</div><span class="fill">대문 손잡이 무늬 사진</span><span class="no">5</span></div>
-        <div class="pg"><div class="t">6쪽</div><div class="hint">예전과 지금</div><span class="fill">옛 신문 기사 캡처</span><span class="no">6</span></div>
-        <div class="pg"><div class="t">7쪽</div><div class="hint">나의 느낌표 !</div><span class="fill">같이 칠한 마음이 남았구나!</span><span class="no">7</span></div>
-        <div class="pg"><div class="t">뒷표지</div><div class="hint">나의 한 줄 · 이름 · 날짜</div><span class="fill">김순자 · 2026. 11.</span></div>
-      </div>
-    </div>
-    <div class="grid" style="grid-template-rows: auto 1fr">
+    <!-- 3열: 내 책 + 미션 카드 -->
+    <div class="col">
       <div class="box">
-        <div class="h"><span class="num">5</span>내 책 한 줄 소개</div>
-        <div class="sub">5차시 공유회에서 이 문장으로 내 책을 소개해요.</div>
+        <div class="h"><span class="num">3</span>내 책 미리 그려 보기</div>
+        <div style="font-weight:700">제목(가안) : <span class="fill">초록 대문 골목</span></div>
+        <div class="sub" style="margin-top:1.5mm">4차시에 휴대폰으로 만들 8쪽 책이에요. 쪽마다 넣고 싶은 것을 짧게 적어요.</div>
+        <div class="pages">
+          <div class="pg"><div class="t">표지</div><div class="hint">제목·대표 사진</div><span class="fill">초록 대문</span></div>
+          <div class="pg"><div class="t">2쪽</div><div class="hint">나의 물음표</div><span class="fill">왜 다 초록?</span><span class="no">2</span></div>
+          <div class="pg"><div class="t">3쪽</div><div class="hint">왜 궁금했나</div><span class="fill">손주 그림</span><span class="no">3</span></div>
+          <div class="pg"><div class="t">4쪽</div><div class="hint">모은 것 ①</div><span class="fill">초록 대문 6개</span><span class="no">4</span></div>
+          <div class="pg"><div class="t">5쪽</div><div class="hint">모은 것 ②</div><span class="fill">손잡이 무늬</span><span class="no">5</span></div>
+          <div class="pg"><div class="t">6쪽</div><div class="hint">예전과 지금</div><span class="fill">옛 신문</span><span class="no">6</span></div>
+          <div class="pg"><div class="t">7쪽</div><div class="hint">나의 느낌표</div><span class="fill">같이 칠한 마음!</span><span class="no">7</span></div>
+          <div class="pg"><div class="t">뒷표지</div><div class="hint">한 줄·이름</div><span class="fill">김순자</span></div>
+        </div>
+        <div style="font-weight:700;margin-top:2.5mm">내 책 한 줄 소개 <span style="font-weight:500;font-size:11pt;color:#333">(5차시 공유회에서 읽어요)</span></div>
         <div class="line"><span class="fill">초록 대문에 담긴 우리 골목 이야기예요.</span></div>
-        <div class="line"></div>
       </div>
       <div class="card">
-        <div class="h" style="margin-top: 1mm"><span class="num">6</span>산책 미션 카드</div>
-        <div style="font-weight: 700">이름 : <span class="fill">김순자</span></div>
-        <div class="lab">내가 들고 나갈 물음표</div>
+        <div class="h" style="margin-top:.5mm"><span class="num">4</span>산책 미션 카드 <span style="font-size:12pt;font-weight:600;margin-left:auto">이름 : <span class="fill">김순자</span></span></div>
+        <div style="font-weight:700">들고 나갈 물음표</div>
         <div class="line"><span class="fill">대문 색은 왜 다 초록일까?</span></div>
         <div class="line"><span class="fill">언제부터 이 색이었을까?</span></div>
-        <div class="line"></div>
-        <div class="lab" style="margin-top: 4mm">이렇게 모아 올게요</div>
+        <div style="font-weight:700;margin-top:2mm">이렇게 모아 올게요</div>
         <div>
-          <span class="chk on"><span class="sq"><span class="v">✓</span></span>사진</span><span class="chk"><span class="sq"><span class="v">✓</span></span>그리기</span><span class="chk"><span class="sq"><span class="v">✓</span></span>소리 적기</span><br>
-          <span class="chk on"><span class="sq"><span class="v">✓</span></span>이웃 이야기</span><span class="chk"><span class="sq"><span class="v">✓</span></span>느낌 적기</span><span class="chk"><span class="sq"><span class="v">✓</span></span>캡처</span>
+          <span class="chk on"><span class="sq"><span class="v">✓</span></span>사진</span><span class="chk"><span class="sq"><span class="v">✓</span></span>그리기</span><span class="chk"><span class="sq"><span class="v">✓</span></span>소리 적기</span>
+          <span class="chk on"><span class="sq"><span class="v">✓</span></span>이웃 이야기</span><span class="chk"><span class="sq"><span class="v">✓</span></span>느낌 적기</span><span class="chk on"><span class="sq"><span class="v">✓</span></span>캡처</span>
         </div>
-        <div class="lab" style="margin-top: 4mm">꼭 찾아올 것 3가지</div>
+        <div style="font-weight:700;margin-top:2mm">꼭 찾아올 것</div>
         <div class="line">1. <span class="fill">&nbsp;초록 대문</span></div>
-        <div class="line">2. <span class="fill">&nbsp;대문 손잡이 무늬</span></div>
-        <div class="line">3. <span class="fill">&nbsp;대문 집 어르신 이야기</span></div>
+        <div class="line">2. <span class="fill">&nbsp;대문 집 어르신 이야기</span></div>
         <div class="tip">준비물 · 휴대폰(충전) · 편한 신발 · 이 카드</div>
       </div>
     </div>
   </div>
 </div></div>
-
 <script>
   if (/[?&]sample/.test(location.search)) { document.body.classList.add('sample'); document.title = '3차시 활동지 (예시)'; }
   function fit() {
