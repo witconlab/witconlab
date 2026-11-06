@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광산자치아고라 관제 가이드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="assets/guide.css">
+</head>
+<body>
+
+<!-- ───────── 1쪽: 준비 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+  <div class="eyebrow">2026 광산자치아고라 · 관제 담당자 가이드</div>
+  <h1>관제 패널 하나로<br>무대 화면을 넘깁니다</h1>
+  <p class="lead">관제반(1~2명)은 대형 스크린의 단계를 넘기고, AI 요약을 검수하고, 우선순위 투표를 열고 닫습니다. 두 명이면 한 명은 단계·투표, 한 명은 기록 현황 확인과 AI 요약 검수를 맡으면 좋습니다.</p>
+
+  <h2><b>1</b>주소와 준비물</h2>
+  <table>
+    <tr><th style="width:24%">화면</th><th style="width:22%">어디서</th><th>주소 (witconlab.github.io/witconlab/광산자치아고라-대시보드/ 뒤에)</th></tr>
+    <tr><td><b>대형 스크린</b></td><td>스크린 연결 PC</td><td class="url">(아무것도 안 붙임)</td></tr>
+    <tr><td><b>관제 패널</b></td><td>관제 노트북</td><td class="url">control.html</td></tr>
+    <tr><td>투표 페이지</td><td>참가자 휴대폰</td><td class="url">vote.html (스크린·안내문 QR)</td></tr>
+    <tr><td>시연·연습</td><td>아무 노트북</td><td class="url">control.html?demo (실제 서버에 안 남음)</td></tr>
+  </table>
+  <ul style="margin-top:2mm">
+    <li>준비물: 관제 노트북 · 스크린 연결 PC(HDMI) · 충전기 · 테더링용 휴대폰 · 인쇄 안내문(테이블마다 참가자용 1장)</li>
+    <li><b>관제 비밀번호</b> = Apps Script 편집기 → ⚙ 프로젝트 설정 → 스크립트 속성의 <span class="tag">ADMIN_KEY</span> 값. 관제반만 알고, 메신저 단체방에 올리지 않습니다.</li>
+  </ul>
+
+  <h2><b>2</b>행사 전날까지</h2>
+  <ul class="check">
+    <li>관제 스프레드시트 <span class="tag">tables</span> 시트에서 테이블별 분야·동·대상 공간이 실제 배치와 같은지 확인</li>
+    <li>E열의 문서 링크 12개를 기록자에게 <b>편집 가능</b>으로 공유하고 각자 전달</li>
+    <li>리허설: 기록자 몇 명과 휴대폰 여러 대로 실제 모드에서 처음부터 구호까지 한 번</li>
+  </ul>
+
+  <h2><b>3</b>행사 당일 오전 (13:00 전)</h2>
+  <ol>
+    <li><b>리허설 기록 지우기</b>: Apps Script 편집기에서 <span class="tag">resetForEvent</span> 실행. 문서 12개가 양식만 남고, 요약·수동 발언·투표·화면 상태가 비워집니다. <b>행사 시작 뒤에는 절대 실행하지 않습니다.</b></li>
+    <li><b>스크린 PC</b>: 대형 스크린 주소를 열고 화면을 두 번 클릭해 전체화면. 오른쪽 위 빨간 <span class="tag">LIVE</span> 확인. 절전·화면보호기 끄기.</li>
+    <li><b>관제 노트북</b>: 관제 패널을 열고 <span class="btn">연결 설정</span>에 비밀번호 입력 → <span class="btn">저장 후 새로고침</span>.</li>
+    <li>비밀번호 확인: <span class="btn">참석 등록</span>을 눌러 스크린이 대기 화면이 되고, 위쪽에 빨간 경고 줄이 <b>없으면</b> 정상.</li>
+    <li>대기 화면의 <b>기록 12/12</b>가 모두 초록인지 확인. 빠진 번호는 그 테이블 문서 공유·링크 확인.</li>
+    <li>휴대폰 한 대로 안내문 QR을 열어 "아직 투표가 열리지 않았어요"가 보이는지 확인.</li>
+  </ol>
+  <div class="box" style="margin-top:3mm"><p><b>빨간 경고 줄</b> "관제 비밀번호가 맞지 않아 화면이 바뀌지 않았어요"가 뜨면 버튼이 하나도 반영되지 않은 것입니다. <span class="btn">비밀번호 다시 입력</span>을 눌러 고치세요. 버튼을 누르면 위쪽에 "서버에 보내는 중…"이 잠깐 보였다가 "마지막 변경 시각"으로 바뀌면 반영된 것입니다.</p></div>
+
+  <div class="foot"><span>2026. 11. 19.(목) 14:00–16:00 · 광산구청 7층 윤상원홀</span><span>관제 가이드 1/3</span></div>
+</section>
+
+<!-- ───────── 2쪽: 진행 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+
+  <h2 style="margin-top:0"><b>4</b>시간대별로 누를 버튼</h2>
+  <table>
+    <tr><th style="width:11%">시간</th><th style="width:24%">순서</th><th>관제 패널에서</th></tr>
+    <tr><td>13:30</td><td>참석 등록</td><td><span class="btn">참석 등록</span> · 기록 12/12 확인</td></tr>
+    <tr><td>14:00</td><td>1부 여는마당</td><td><span class="btn">1부 여는마당</span></td></tr>
+    <tr><td>14:20</td><td>주제 발제</td><td><span class="btn">주제 발제</span></td></tr>
+    <tr><td>14:30</td><td>의제공론화</td><td><span class="btn">의제공론화</span> → 세부 <span class="btn">1. 주제 및 사례공유</span></td></tr>
+    <tr><td>14:40</td><td></td><td>세부 <span class="btn">2. 이용 경험 나누기</span></td></tr>
+    <tr><td>14:55</td><td></td><td>세부 <span class="btn">3. 공동 활용방안 논의</span></td></tr>
+    <tr class="hi"><td>15:15</td><td><b>우선 실천과제</b></td><td>세부 <span class="btn">4. 우선 실천과제 선정</span> · <b><span class="btn">AI 요약 실행</span> 1차</b> (미리 받아 두기)</td></tr>
+    <tr class="hi"><td>15:25</td><td><b>결과 정리</b></td><td>세부 <span class="btn">5. 결과 정리</span> · <b><span class="btn">AI 요약 실행</span> 2차</b> → 검수 (5번 참고)</td></tr>
+    <tr><td>15:30</td><td>결과 공유</td><td><span class="btn">분야별 모아보기</span> → 발표 때 <span class="btn">테이블 발표 집중</span> + 번호 또는 <span class="btn">다음 ▶</span></td></tr>
+    <tr><td>15:45</td><td>우선순위 투표</td><td><span class="btn">후보 만들기</span> → 후보 확인 → <span class="btn">투표 열기</span> (6번 참고)</td></tr>
+    <tr><td>15:51</td><td>투표 결과</td><td><span class="btn">투표 마감</span> → <span class="btn">투표 결과</span> (3위→2위→1위 자동 공개, 약 5초)</td></tr>
+    <tr><td>15:55</td><td>구호</td><td>진행자 신호에 <span class="btn">3 · 2 · 1 구호 외치기</span> (카운트다운 3초 + 연출 약 7초)</td></tr>
+  </table>
+  <p class="note">진행표와 실제 진행이 어긋나면 시간보다 <b>진행자 멘트</b>에 맞춰 누르세요. <span class="btn">타임테이블 자동 전환</span>을 켜면 단계와 세부 단계는 시계대로 넘어가지만, AI 요약·투표 열기·마감·구호는 자동이 아니라 직접 눌러야 합니다.</p>
+
+  <h2><b>5</b>AI 요약 실행과 검수</h2>
+  <ol>
+    <li><span class="btn">AI 요약 실행</span>을 누르면 "정리하는 중… 보통 1~3분"이 뜹니다. 그동안 다른 버튼은 그대로 써도 됩니다. (11/6 시험: 40초~약 3분)</li>
+    <li>끝나면 오른쪽 <b>AI 요약 · 검수</b> 칸이 채워지고 위에 "Gemini (모델 이름)"이 표시됩니다. <b>이 결과는 바로 결과 화면에 쓰입니다.</b></li>
+    <li>15:25~15:30 사이에 테이블별 칸을 훑어보고 어색한 문장, 기록에 없는 내용, 개인정보를 고친 뒤 <span class="btn">검수 내용 저장</span>. 저장하면 스크린에 바로 반영됩니다.</li>
+    <li>실패하거나 3분이 넘으면: 1차(15:15) 결과를 그대로 쓰거나, 실패 알림 뒤 나오는 "태그로 대신 정리할까요?"에 <b>확인</b> → 기록자의 [실천]·[협력] 줄로 즉시 정리됩니다.</li>
+  </ol>
+  <p class="note">AI 요약을 다시 실행하면 그전에 검수·저장한 내용도 새 결과로 바뀝니다. 그래서 꼼꼼한 검수는 2차(15:25) 결과를 받은 뒤에 하세요.</p>
+
+  <div class="foot"><span>문의: 위트콘텐츠연구소</span><span>관제 가이드 2/3</span></div>
+</section>
+
+<!-- ───────── 3쪽: 투표·문제 대응·마무리 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+
+  <h2 style="margin-top:0"><b>6</b>우선순위 투표 운영</h2>
+  <ol>
+    <li><span class="btn">후보 만들기 (테이블당 1개)</span>: 테이블마다 AI가 정리한 첫 번째 실천과제가 후보가 됩니다. 2개씩 하려면 <span class="btn">테이블당 2개</span>.</li>
+    <li>후보 목록에서 줄을 누르면 빼거나 다시 넣을 수 있어요(중복·어색한 후보 정리). <b>투표를 연 뒤에는 바꿀 수 없습니다.</b></li>
+    <li>1인 선택 수 확인(기본 3개) → <span class="btn">투표 열기</span>. 스크린이 QR과 실시간 순위로 바뀌고, 미리 QR을 열어 둔 휴대폰도 10초쯤 안에 저절로 투표 화면이 됩니다.</li>
+    <li>참여 인원이 더 늘지 않으면 진행자와 눈을 맞추고 <span class="btn">투표 마감</span>.</li>
+  </ol>
+  <div class="warn" style="margin-top:2mm"><p><span class="btn">투표 초기화</span>는 <b>모든 표를 지웁니다.</b> 리허설 때만 쓰고 행사 중에는 누르지 마세요. (11/6 시험: 150대 동시 투표 150/150, 300대 300/300 정상 저장)</p></div>
+
+  <h2><b>7</b>문제가 생기면</h2>
+  <table>
+    <tr><th style="width:36%">이럴 때</th><th>이렇게</th></tr>
+    <tr><td>위쪽에 빨간 경고 줄</td><td>비밀번호 오류 → <span class="btn">비밀번호 다시 입력</span>. 그 전에 누른 버튼은 반영 안 됨</td></tr>
+    <tr><td>스크린이 안 바뀌거나 멈춤</td><td>스크린 PC에서 새로고침(F5 / ⌘R) 후 두 번 클릭해 전체화면. 화면 단계는 서버에 있어 그대로 돌아와요</td></tr>
+    <tr><td>기록 n/12에 회색 점</td><td>그 테이블 문서 링크·공유 확인 (<span class="tag">tables</span> 시트 E열)</td></tr>
+    <tr><td>한 테이블 기록이 멈춤</td><td><b>테이블 기록 현황</b>에서 마지막 기록 시각 확인 → 기록자에게 가서 확인. 급하면 <b>수동 발언 푸시</b>로 대신 올리기</td></tr>
+    <tr><td>개인정보 등 잘못 올라감</td><td>기록자가 문서에서 그 줄을 지움 → 스크린 PC 새로고침. 수동 푸시로 올린 줄이면 관제 시트 <span class="tag">manual</span>에서 그 행 삭제 후 새로고침</td></tr>
+    <tr><td>AI 요약이 3분 넘게 / 실패</td><td>5번의 4 참고 (1차 결과 사용 또는 태그 정리)</td></tr>
+    <tr><td>Wi‑Fi 끊김</td><td>관제 노트북·스크린 PC를 테더링으로. 끊긴 동안 스크린은 마지막 화면 유지</td></tr>
+    <tr><td>휴대폰에 "투표 시간이 아니에요"</td><td><span class="btn">투표 열기</span>가 눌렸는지(투표 카드 "진행 중") 확인</td></tr>
+  </table>
+
+  <h2><b>8</b>행사가 끝나면</h2>
+  <ul class="check">
+    <li><span class="btn">투표 마감</span>이 되어 있는지 확인</li>
+    <li>Apps Script 편집기에서 <span class="tag">exportVotes</span> 실행 → <span class="tag">votes</span> 시트에 후보별 득표가 기록됩니다</li>
+    <li><span class="tag">summary</span> 시트(검수한 요약)와 기록 문서 12개는 결과 보고 자료로 보관. <span class="tag">resetForEvent</span>는 실행하지 않습니다</li>
+  </ul>
+
+  <div class="foot"><span>대시보드 설치·설정 안내는 저장소 README 참고</span><span>관제 가이드 3/3</span></div>
+</section>
+
+<button class="printbtn noprint" onclick="window.print()">인쇄 / PDF 저장</button>
+</body>
+</html>
