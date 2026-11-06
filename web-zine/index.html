@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<script>try{if(localStorage.getItem('webzine.bigText')!=='0')document.documentElement.dataset.big='1'}catch(e){document.documentElement.dataset.big='1'}</script>
 <link rel="stylesheet" href="css/zine.css">
 <style>
   body { display: flex; align-items: center; justify-content: center; padding-top: 24px; padding-bottom: 24px; position: relative; }
@@ -28,6 +29,12 @@
   .msg.err { background: #fde0dc; border-color: var(--red); }
   .go { margin-top: 20px; }
   .tip { margin: 16px 0 0; font-size: 13px; color: var(--ink-soft); text-align: center; }
+  .bigtext-row { margin: 16px 0 0; text-align: center; }
+  :root[data-big] label { font-size: 20px; }
+  :root[data-big] label svg { width: 22px; height: 22px; }
+  :root[data-big] .pin { font-size: 26px; }
+  :root[data-big] .msg { font-size: 19px; }
+  :root[data-big] .tip { font-size: 18px; color: var(--ink); }
   .deco { position: absolute; pointer-events: none; }
   .deco svg, .deco canvas { width: 100%; height: 100%; display: block; }
   .d-face { width: 64px; height: 64px; top: -26px; right: -8px; transform: rotate(10deg); }
@@ -66,8 +73,10 @@
     <button class="btn btn-primary btn-block go" id="go" type="submit">들어가기</button>
   </form>
   <p class="tip">처음이면 이름과 비밀번호로 새 진이 만들어져요.</p>
+  <p class="bigtext-row"><button type="button" class="bigtext" data-bigtext aria-pressed="true"><span class="bigtext-ga" aria-hidden="true">가</span><span class="bigtext-label">큰 글씨</span><span class="bigtext-state" aria-hidden="true">켜짐</span></button></p>
 </main>
 
+<script type="module" src="js/bigtext.js"></script>
 <script type="module" src="js/practice-banner.js"></script>
 <script type="module">
 import { call, ApiError, getSession, setSession, clearSession } from './js/api.js';
