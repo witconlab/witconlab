@@ -34,3 +34,22 @@ pre { font-family: ui-monospace, Menlo, monospace; font-size: 9.5pt; line-height
 .url { font-family: ui-monospace, Menlo, monospace; font-size: 9pt; word-break: break-all; }
 .foot { margin-top: auto; padding-top: 4mm; font-size: 9pt; color: var(--muted); display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
 .printbtn { position: fixed; right: 16px; bottom: 16px; padding: 12px 18px; border: 0; border-radius: 12px; background: #111; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+
+/* 문서 → 화면 그림 */
+.demo { display: grid; grid-template-columns: 1fr 9mm 1fr; align-items: center; gap: 3mm; margin-top: 2mm; }
+.doc { border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .08); overflow: hidden; }
+.doc .bar2 { display: flex; justify-content: space-between; align-items: center; padding: 1.5mm 3mm; background: #f1f5f9; font-size: 8.5pt; color: var(--muted); }
+.doc .bar2 b { color: #fff; background: #1a73e8; padding: 0 6px; border-radius: 4px; font-size: 8pt; }
+.doc pre { background: none; color: var(--ink); padding: 2.5mm 3mm; font-size: 9pt; line-height: 1.75; }
+.doc pre i { font-style: normal; color: #94a3b8; }
+.doc pre u { text-decoration: none; border-right: 2px solid #1a73e8; }
+.arrow { text-align: center; font-size: 18pt; font-weight: 900; color: var(--muted); }
+.card { border-radius: 8px; background: #171a20; color: #f5f5f4; padding: 3mm; border: 1.5px solid #f97316; }
+.card .meta { display: flex; gap: 5px; align-items: center; font-size: 8pt; color: #a1a1aa; margin-bottom: 1.5mm; }
+.card .meta b { background: rgba(249, 115, 22, .35); color: #fff; padding: 0 5px; border-radius: 4px; }
+.card .meta span.k { background: rgba(248, 113, 113, .25); color: #fca5a5; padding: 0 5px; border-radius: 4px; font-weight: 800; }
+.card p { font-size: 11pt; font-weight: 700; line-height: 1.4; }
+.steps2 { counter-reset: s; display: grid; gap: 2mm; }
+.steps2 > div { display: grid; grid-template-columns: 7mm 1fr; gap: 2mm; align-items: start; }
+.steps2 > div::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 6mm; height: 6mm; border-radius: 50%; background: var(--river); color: #fff; font-weight: 900; font-size: 9.5pt; }
+.steps2 p { font-size: 10pt; }

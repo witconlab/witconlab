@@ -240,6 +240,9 @@
     return { docs, manual: LS.get('agora-manual', []) };
   }
 
+  const SETTLE_MS = 8000;
+  const lastLine = {};
+
   /** 피드 전체를 [{id,table,cat,dong,type,text,time,isNew}] 로. 새로 들어온 항목은 isNew=true */
   async function loadFeed() {
     const raw = await loadFeedRaw();
@@ -249,10 +252,19 @@
       const d = raw.docs[t.no] || { ok: false, text: '' };
       docOk[t.no] = d.ok;
       const counts = {};
-      parseDoc(d.text).forEach(it => {
+      const parsed = parseDoc(d.text);
+      parsed.forEach((it, i) => {
         const base = t.no + '|' + it.text;
         counts[base] = (counts[base] || 0) + 1;
         const id = hash(base + '|' + counts[base]);
+        // 문서 맨 끝 줄은 기록자가 아직 치는 중일 수 있어(Docs는 치는 도중에도 저장됨),
+        // 처음 본 뒤 SETTLE_MS 동안 글자가 그대로일 때만 화면에 올립니다.
+        // 그 아래에 새 줄이 생기면 끝 줄이 아니므로 바로 올라갑니다.
+        if (MODE === 'live' && i === parsed.length - 1 && !seen[id]) {
+          const p = lastLine[t.no];
+          if (!p || p.id !== id) { lastLine[t.no] = { id, since: now }; return; }
+          if (now - p.since < SETTLE_MS) return;
+        }
         let isNew = false;
         if (!seen[id]) { seen[id] = now; isNew = true; seenDirty = true; }
         items.push(Object.assign({ id, table: t.no, cat: t.cat, time: seen[id], isNew }, it));
