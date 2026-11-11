@@ -1,0 +1,84 @@
+/* 차시 안내 페이지(앞 화면 16:9용). 색은 zine.css 팔레트에 흰색·검정만 더함. */
+:root {
+  --ink: #111; --white: #fff;
+  --cream: #f6efdc; --yellow: #ffe9a8; --sky: #dbeefa; --lime: #e4f1d0;
+  --red: #e8473a; --blue: #2f6fb3;
+  --font-body: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-hand: 'Nanum Pen Script', 'Pretendard', cursive;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --font-num: 'Space Grotesk', 'Pretendard', sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font-body); color: var(--ink); background: var(--white);
+  display: grid; grid-template-rows: auto auto 1fr auto; height: 100dvh; overflow: hidden;
+  -webkit-font-smoothing: antialiased; word-break: keep-all;
+}
+.mono { font-family: var(--font-mono); letter-spacing: .06em; }
+.hand { font-family: var(--font-hand); font-weight: 400; }
+
+.bar { background: var(--ink); color: var(--white); display: flex; align-items: center; justify-content: space-between; padding: 1.4vh 3vw; }
+.bar__title { margin: 0; font-size: clamp(18px, 2.2vw, 34px); font-weight: 900; letter-spacing: -.05em; }
+.bar__title .q { font-family: var(--font-num); color: var(--red); }
+.bar__title .e { font-family: var(--font-num); color: var(--yellow); }
+.bar__meta { display: flex; align-items: center; gap: 1.6vw; font-size: clamp(11px, 1vw, 16px); color: var(--yellow); }
+.bar__btn { font: inherit; color: var(--white); background: none; border: 1px solid #555; padding: .4em .8em; cursor: pointer; }
+
+.progress { display: flex; gap: 4px; padding: 2.2vh 3vw 0; }
+.progress span { flex: 1; height: 6px; background: #e5e5e5; }
+.progress span.on { background: var(--ink); }
+
+.stage { position: relative; padding: 2.4vh 3vw 0; min-height: 0; }
+.meta { display: flex; justify-content: space-between; font-size: clamp(12px, 1.2vw, 20px); font-weight: 700; margin-bottom: 1.6vh; }
+.step {
+  display: none; position: relative; overflow: hidden; height: calc(100% - 4vh);
+  padding: 5vh 4vw; border: 3px solid var(--ink); box-shadow: 12px 12px 0 var(--ink);
+  background: var(--white);
+}
+.step.on { display: flex; flex-direction: column; justify-content: center; }
+.step::after {
+  content: attr(data-n); position: absolute; right: -.04em; bottom: -.22em;
+  font-family: var(--font-num); font-weight: 700; font-size: 32vh; line-height: 1; letter-spacing: -.06em; opacity: .1; pointer-events: none;
+}
+.step > * { position: relative; z-index: 1; max-width: 72vw; }
+.kick { margin: 0 0 2vh; font-size: clamp(12px, 1.3vw, 22px); font-weight: 700; }
+.step h2 { margin: 0 0 3vh; font-size: clamp(32px, 5.4vw, 104px); font-weight: 900; letter-spacing: -.05em; line-height: 1.12; }
+.step.cover h2 { font-size: clamp(36px, 6.4vw, 124px); }
+.step:has(.list) h2 { font-size: clamp(28px, min(4.4vw, 7.4vh), 84px); margin-bottom: 2vh; }
+.step:has(.list) .say { font-size: clamp(22px, min(2.8vw, 4.6vh), 54px); }
+.body { margin: 0 0 2vh; font-size: clamp(18px, 2.3vw, 42px); font-weight: 600; line-height: 1.5; letter-spacing: -.02em; }
+.say { margin: 1vh 0 0; font-size: clamp(26px, 3.4vw, 64px); line-height: 1.15; }
+.list { margin: 0; padding: 0; list-style: none; font-size: clamp(16px, min(2.1vw, 3.6vh), 40px); font-weight: 700; line-height: 1.45; letter-spacing: -.02em; }
+.list li { display: flex; gap: .6em; padding: .35em 0; border-top: 2px solid currentColor; }
+.list li:last-child { border-bottom: 2px solid currentColor; }
+.list b { font-family: var(--font-num); min-width: 1.4em; }
+.qe { display: grid; grid-template-columns: auto 1fr; gap: .4em .8em; font-size: clamp(18px, 2.3vw, 42px); font-weight: 700; line-height: 1.35; margin: 0 0 2vh; }
+.qe dt { font-family: var(--font-num); font-weight: 700; width: 1.6em; height: 1.6em; display: grid; place-items: center; background: var(--ink); color: var(--white); }
+.qe dd { margin: 0; align-self: center; }
+.ex { display: grid; grid-template-columns: auto 1fr 1fr; gap: 0 1.6vw; font-size: clamp(15px, min(1.8vw, 3.2vh), 34px); font-weight: 700; line-height: 1.35; letter-spacing: -.02em; margin-bottom: 1vh; }
+.ex p { margin: 0; padding: .45em 0; border-top: 2px solid var(--ink); }
+.ex p:nth-last-child(-n+3) { border-bottom: 2px solid var(--ink); }
+.ex__what { font-weight: 900; }
+.ex i { font-style: normal; font-family: var(--font-num); display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; margin-right: .4em; background: var(--ink); color: var(--white); }
+.ex__e i { background: var(--red); }
+.step:has(.ex) h2 { font-size: clamp(28px, min(4.4vw, 7.4vh), 84px); margin-bottom: 2vh; }
+.step:has(.ex) .say { font-size: clamp(22px, min(2.8vw, 4.6vh), 54px); }
+.link { display: inline-block; align-self: flex-start; margin-top: 2vh; padding: .5em .9em; background: var(--ink); color: var(--white); font-size: clamp(16px, 1.8vw, 32px); font-weight: 800; text-decoration: none; }
+.link .mono { font-size: .7em; font-weight: 400; margin-left: .6em; color: var(--yellow); }
+
+.bg-yellow { background: var(--yellow); }
+.bg-sky { background: var(--sky); }
+.bg-lime { background: var(--lime); }
+.bg-cream { background: var(--cream); }
+.bg-red { background: var(--red); color: var(--white); }
+.bg-ink { background: var(--ink); color: var(--white); box-shadow: 12px 12px 0 var(--red); }
+.bg-red .link, .bg-ink .link { background: var(--white); color: var(--ink); }
+.bg-red .qe dt, .bg-ink .qe dt { background: var(--white); color: var(--ink); }
+
+.nav { display: flex; gap: 10px; padding: 3.4vh 3vw 3vh; }
+.nav button { font-family: var(--font-body); border: 0; border-radius: 0; cursor: pointer; font-weight: 800; letter-spacing: -.03em; min-height: 7vh; font-size: clamp(16px, 1.8vw, 30px); }
+.nav .prev { background: var(--white); color: var(--ink); border: 3px solid var(--ink); padding: 0 2.4vw; }
+.nav .next { flex: 1; background: var(--ink); color: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 2vw; }
+.nav button:disabled { opacity: .3; cursor: default; }
+button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-offset: 3px; }

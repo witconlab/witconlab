@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>3차시 · 기획 — 우리 동네 기록 노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<link rel="stylesheet" href="../css/guide.css">
+</head>
+<body>
+<header class="bar">
+  <h1 class="bar__title">우리 동네 기록 노트 <span class="q">?</span><span class="e">!</span></h1>
+  <div class="bar__meta mono"><span>SESSION 03 / 05</span><button class="bar__btn" id="full" type="button">전체 화면 (F)</button></div>
+</header>
+<div class="progress" aria-hidden="true"></div>
+
+<main class="stage">
+  <div class="meta mono"><span id="pos"></span><span id="min"></span></div>
+
+  <section class="step cover bg-ink">
+    <p class="kick mono">SESSION 03 · 기획</p>
+    <h2>내 주변에서<br>물음표(?)와 느낌표(!)<br>찾기</h2>
+    <p class="body">복합커뮤니티 송정다누리 · 14:00 – 16:00</p>
+  </section>
+
+  <section class="step bg-yellow" data-min="15분">
+    <p class="kick mono">OPENING</p>
+    <h2>오늘은 잘 찍는 법이 아니라,<br>내 눈에 뭐가 걸렸는지<br>찾아보는 날이에요.</h2>
+    <p class="body">경험 → 수집 → 물음표 ? → 느낌표 !</p>
+    <p class="say hand">"사소한 것들을 발견하는 힘" — 『매일의 영감 수집』</p>
+  </section>
+
+  <section class="step bg-sky" data-min="20분">
+    <p class="kick mono">EXPERIENCE · 경험</p>
+    <h2>사진첩에서<br>3장 고르기.</h2>
+    <p class="body">지난 한 달 사진 중 마음이 가서 찍은 것 3장.<br>짝에게 "왜 찍었는지" 1분씩 말해요.<br>활동지 ① 조각 칸에 적어요.</p>
+    <p class="say hand">음식 사진도 좋아요.</p>
+  </section>
+
+  <section class="step bg-lime" data-min="25분">
+    <p class="kick mono">COLLECT · 수집</p>
+    <h2>○ 여러 개,<br>★ 딱 하나.</h2>
+    <p class="body">눈으로 찍기 · 손으로 그리기 · 귀로 듣기 · 몸으로 느끼기 · 찾아서 담기<br>같은 ★를 고른 분과 4차시 산책 짝이 돼요.</p>
+    <p class="say hand">활동지 ② 에 표시해요.</p>
+  </section>
+
+  <section class="step bg-cream" data-min="10분">
+    <p class="kick mono">BREAK</p>
+    <h2>쉬는 시간.</h2>
+    <p class="body">차 한 잔, 물 한 잔 하고 오세요.</p>
+  </section>
+
+  <section class="step" data-min="25분">
+    <p class="kick mono">? → !</p>
+    <h2>왜 눈에 띄었을까?</h2>
+    <dl class="qe">
+      <dt>?</dt><dd>시장 입구 국밥집, 왜 40년째 같은 자리에 있을까?</dd>
+      <dt>!</dt><dd>아하, 동네 사람들 사랑방이었구나!</dd>
+    </dl>
+    <p class="body">조각마다 물음표를 붙이고, "아하, ~구나"로 느낌표를 달아요.<br>3장 중 1장만 해도 괜찮아요.</p>
+  </section>
+
+  <section class="step bg-sky">
+    <p class="kick mono">? 물음표 · 이렇게 시작해요</p>
+    <h2>물음표는<br>네 마디면 돼요.</h2>
+    <ul class="list">
+      <li><b>왜</b>대문 색은 왜 다 초록일까?</li>
+      <li><b>언제</b>이 나무는 언제부터 여기 있었을까?</li>
+      <li><b>누가</b>경로당 앞 국화는 누가 심을까?</li>
+      <li><b>어디</b>골목 고양이는 낮에 어디서 잘까?</li>
+    </ul>
+    <p class="say hand">"어? 이건 왜 이럴까?" 하고 한 번만 물어보면 돼요.</p>
+  </section>
+
+  <section class="step bg-lime">
+    <p class="kick mono">? → ! · 우리 동네에서는</p>
+    <h2>이런 것도<br>물음표가 돼요.</h2>
+    <div class="ex">
+      <p class="ex__what">우리 집 초록 대문</p><p class="ex__q"><i>?</i>대문 색은 왜 다 초록일까?</p><p class="ex__e"><i>!</i>새마을 때 같이 칠했구나!</p>
+      <p class="ex__what">경로당 앞 국화</p><p class="ex__q"><i>?</i>누가 매년 심을까?</p><p class="ex__e"><i>!</i>총무님이 30년째 가꾸셨구나!</p>
+      <p class="ex__what">골목 끝 평상</p><p class="ex__q"><i>?</i>왜 저기에만 평상이 있을까?</p><p class="ex__e"><i>!</i>여름 그늘이 동네 쉼터였구나!</p>
+      <p class="ex__what">마을 쓰레기통</p><p class="ex__q"><i>?</i>왜 늘 잘못 버려질까?</p><p class="ex__e"><i>!</i>버리기 재밌으면 먼저 움직이는구나!</p>
+    </div>
+    <p class="say hand">잘 쓰고 못 쓰고는 없어요. 내 눈에 띈 것이 재료예요.</p>
+  </section>
+
+  <section class="step bg-yellow" data-min="20분">
+    <p class="kick mono">PLAN · 내 책 기획</p>
+    <h2>내 책 8쪽<br>미리 그리기.</h2>
+    <ul class="list">
+      <li><b>01</b>제목 (가안)</li>
+      <li><b>02</b>쪽마다 넣고 싶은 것</li>
+      <li><b>03</b>내 책 한 줄 소개</li>
+      <li><b>04</b>산책 미션 카드 — 점선 따라 오리기</li>
+    </ul>
+    <p class="say hand">그림이 아니라 글자 몇 개만 적어도 돼요. 4차시에 바꿀 수 있어요.</p>
+  </section>
+
+  <section class="step bg-red" data-min="5분">
+    <p class="kick mono">NEXT TIME</p>
+    <h2>다음 시간엔<br>밖으로 나가요.</h2>
+    <p class="body">휴대폰 충전 · 편한 신발 · 산책 미션 카드</p>
+    <p class="say hand">4차시 · 신흥동행정복지센터 2층</p>
+  </section>
+</main>
+
+<nav class="nav">
+  <button class="prev" type="button" aria-label="이전">←</button>
+  <button class="next" type="button" data-last="처음으로"><span>다음</span><span aria-hidden="true">→</span></button>
+</nav>
+<script src="../js/guide.js"></script>
+</body>
+</html>
