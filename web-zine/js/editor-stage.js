@@ -6,7 +6,7 @@ import { dragDelta, pinch, applyTransform } from './gestures.js';
 
 export const PAGE_RATIO = 105 / 148; // width / height
 const MIN = 0.05;
-const MAX = 1.5;
+const MAX = 1; // up to the page size: bigger elements covered the whole page and every tap selected them
 const TAP_SLOP = 6;
 
 // Measures with the exact canvas font render.js draws with (canvasFont), so DOM text wraps like the PDF.

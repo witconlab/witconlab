@@ -107,7 +107,6 @@ export const setPageTitle = (zine, i, title) => withPage(zine, i, (p) => ({ ...p
 export const moveTitle = (zine, i, { x, y }) => withPage(zine, i, (p) => ({ ...p, titleBox: { ...p.titleBox, x, y } }));
 export const setBackground = (zine, i, paperKey) => withPage(zine, i, (p) => ({ ...p, background: paperKey }));
 export const setPattern = (zine, i, pattern) => withPage(zine, i, (p) => ({ ...p, pattern }));
-export const setFrameLine = (zine, i, on) => withPage(zine, i, (p) => ({ ...p, frameLine: !!on }));
 export const setTitleHighlight = (zine, i, key) => withPage(zine, i, (p) => ({ ...p, titleHighlight: key }));
 export const fontOf = (f) => (FONTS.includes(f) ? f : 'sans');
 export const titleSizeOf = (page) => {

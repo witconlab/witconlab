@@ -4,7 +4,7 @@ import { loadGas } from './gas-harness.mjs';
 import {
   PAGE_COUNT, PAPERS, TEXT_COLORS, PATTERNS, HIGHLIGHTS, PAGE_LABELS,
   createEmptyZine, addElement, updateElement, removeElement, bringForward, sendBackward,
-  duplicateElement, setPageTitle, moveTitle, setBackground, setPattern, setFrameLine,
+  duplicateElement, setPageTitle, moveTitle, setBackground, setPattern,
   setTitleHighlight, isPageFilled, filledCount, outsideSafeArea,
 } from '../js/model.js';
 
@@ -112,11 +112,6 @@ test('outsideSafeArea', () => {
 test('setPattern', () => {
   const z = createEmptyZine('a'); const b = snap(z);
   assert.equal(setPattern(z, 1, 'grid').pages[1].pattern, 'grid');
-  assert.equal(snap(z), b);
-});
-test('setFrameLine', () => {
-  const z = createEmptyZine('a'); const b = snap(z);
-  assert.equal(setFrameLine(z, 1, false).pages[1].frameLine, false);
   assert.equal(snap(z), b);
 });
 test('setTitleHighlight', () => {

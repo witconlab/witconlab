@@ -96,6 +96,7 @@ button { cursor: pointer; }
 .ed-body { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; overscroll-behavior: none; }
 .ed {
   display: flex; flex-direction: column; height: 100%; height: calc(100% - var(--practice-h, 0px)); max-width: 560px; margin: 0 auto;
+  overflow: hidden; overflow: clip; /* a selection box bigger than the page must not widen the page (phones then slide sideways) */
   padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
 }
 .ed button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -131,6 +132,7 @@ button { cursor: pointer; }
 .ed-mini { min-height: 34px; padding: 0 14px; border: 2px solid var(--ink); border-radius: 999px; background: var(--white); font-size: 14px; font-weight: 700; }
 .ed-mini-ghost { background: transparent; }
 
+.ed-thumbs { position: relative; z-index: 6; } /* above selection handles that stick out of the page, so a thumbnail tap always changes page */
 .ed-thumbs { flex: none; display: flex; justify-content: center; gap: 6px; padding: 4px 2px 6px; overflow-x: auto; scrollbar-width: none; }
 .ed-thumbs::-webkit-scrollbar { display: none; }
 .ed-thumb {

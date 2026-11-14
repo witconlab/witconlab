@@ -204,14 +204,7 @@ export async function renderPage(ctx, page, opts) {
 
   const sx = (SAFE_MM / PAGE_W_MM) * width;
   const sy = (SAFE_MM / PAGE_H_MM) * height;
-  if (page.frameLine) {
-    ctx.strokeStyle = TEXT_COLORS.ink;
-    ctx.lineWidth = width * 0.004;
-    ctx.lineJoin = 'round';
-    ctx.strokeRect(sx, sy, width - 2 * sx, height - 2 * sy);
-  }
-
-  if (pageNumber >= 2 && pageNumber <= 7) { // bottom-right, inside the frame line
+  if (pageNumber >= 2 && pageNumber <= 7) { // bottom-right, inside the safe margin
     const px = height * 0.045;
     ctx.save();
     ctx.font = PAGE_NUMBER_FONT(px);

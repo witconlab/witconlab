@@ -406,7 +406,6 @@ const app = {
   },
   setBackground(k) { if (page().background !== k) commit(M.setBackground(zine, pageIndex, k)); },
   setPattern(p) { if (page().pattern !== p) commit(M.setPattern(zine, pageIndex, p)); },
-  setFrameLine(on) { if (!!page().frameLine !== !!on) commit(M.setFrameLine(zine, pageIndex, on)); },
 };
 
 // ---------- UI ----------

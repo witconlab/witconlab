@@ -8,7 +8,7 @@ const RECENT_KEY = 'webzine.recentStickers';
 const RECENT_MAX = 12;
 const TABS = [
   ['make', '만들기'], ['recent', '최근'], ['face', '얼굴'], ['doodle', '낙서'], ['star', '별'], ['number', '숫자'],
-  ['alpha', '알파벳'], ['letter', '글자'], ['teacher', '선생님'],
+  ['alpha', '알파벳'], ['letter', '글자'],
 ];
 const TAB_GROUPS = { face: ['face'], doodle: ['doodle', 'tape'], star: ['star'], number: ['number'], alpha: ['alpha'], letter: ['letter'] };
 const PAPER_NAMES = { cream: '크림', yellow: '노랑', sky: '하늘', lime: '연두', white: '흰색' };
@@ -50,7 +50,7 @@ const mark = (host, attr, value) => host.querySelectorAll('button').forEach((b) 
 
 /**
  * app: { page(), loadImage(src), addSticker(src, aspect, { size, maxH }), myStickers(), makeSticker(file), addText(text, style), updateText(id, text, style),
- *        removeElement(id), setTitle(title, highlight, { font, size }), setBackground(k), setPattern(p), setFrameLine(on),
+ *        removeElement(id), setTitle(title, highlight, { font, size }), setBackground(k), setPattern(p),
  *        call(action, body), toast(msg) }
  */
 export function createSheets(app) {
@@ -93,7 +93,6 @@ export function createSheets(app) {
   const tabs = $('stkTabs');
   const grid = $('stkGrid');
   let tab = null;
-  let teacher = null; // cached listStickers result
 
   for (const [key, label] of TABS) {
     const b = document.createElement('button');
@@ -194,20 +193,6 @@ export function createSheets(app) {
       }
       return;
     }
-    if (key === 'teacher') {
-      if (!teacher) {
-        note('불러오는 중…');
-        try { teacher = (await app.call('listStickers')).stickers || []; } catch {
-          if (tab === key) { grid.textContent = ''; note('선생님 스티커를 불러오지 못했어요.'); }
-          return;
-        }
-        if (tab !== key) return;
-        grid.textContent = '';
-      }
-      if (!teacher.length) return note('아직 선생님 스티커가 없어요.');
-      for (const s of teacher) grid.append(cell('custom:' + s.id, s.name || '선생님 스티커', 0));
-      return;
-    }
     for (const st of BUILTIN_STICKERS.filter((s) => TAB_GROUPS[key].includes(s.group))) {
       const c = cell('builtin:' + st.key, st.label, st.aspect);
       if (c) grid.append(c);
@@ -299,15 +284,12 @@ export function createSheets(app) {
   // ---- background ----
   const bgPaper = $('bgPaper');
   const bgPattern = $('bgPattern');
-  const bgFrame = $('bgFrame');
   swatches(bgPaper, Object.entries(PAPERS).map(([k, c]) => [k, c, PAPER_NAMES[k] || k]), 'paper', (k) => { app.setBackground(k); syncBg(); });
   bgPattern.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { app.setPattern(b.dataset.pattern); syncBg(); }));
-  bgFrame.addEventListener('change', () => { app.setFrameLine(bgFrame.checked); syncBg(); });
   function syncBg() {
     const p = app.page();
     mark(bgPaper, 'paper', p.background);
     mark(bgPattern, 'pattern', p.pattern);
-    bgFrame.checked = !!p.frameLine;
   }
   function openBg() { syncBg(); open('sheet-bg'); }
 
