@@ -527,7 +527,7 @@ function wireThumbSort(host) {
   });
   host.addEventListener('pointermove', (e) => {
     if (!s || e.pointerId !== s.id) return;
-    if (!s.sorting) { if (Math.hypot(e.clientX - s.x0, e.clientY - s.y0) > 8) end(false); return; }
+    if (!s.sorting) { if (Math.hypot(e.clientX - s.x0, e.clientY - s.y0) > (e.pointerType === 'touch' ? 14 : 8)) end(false); return; } // a held finger wobbles
     place(e.clientX);
   });
   host.addEventListener('pointerup', (e) => { if (s && e.pointerId === s.id) end(true); });
