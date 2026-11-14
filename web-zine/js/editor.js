@@ -627,10 +627,15 @@ function wireUi() {
     if (!leaving && (queue.pending() > 0 || unsentPhotos() > 0)) { e.preventDefault(); e.returnValue = ''; }
   });
 
-  // keep bottom sheets above the iOS keyboard
+  // keep bottom sheets above the on-screen keyboard (iOS and Android) and no taller than the space left
   const vv = window.visualViewport;
   if (vv) {
-    const fit = () => document.documentElement.style.setProperty('--kb', Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + 'px');
+    const root = document.documentElement.style;
+    const fit = () => {
+      root.setProperty('--kb', Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + 'px');
+      root.setProperty('--vvh', vv.height + 'px');
+    };
+    fit();
     vv.addEventListener('resize', fit);
     vv.addEventListener('scroll', fit);
   }
