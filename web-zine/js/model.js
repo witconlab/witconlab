@@ -4,7 +4,7 @@ export const PAPERS = { cream: '#f6efdc', yellow: '#ffe9a8', sky: '#dbeefa', lim
 export const TEXT_COLORS = { ink: '#2b2620', red: '#e8473a', blue: '#2f6fb3', white: '#ffffff' };
 export const PATTERNS = ['dots', 'grid', 'none'];
 export const HIGHLIGHTS = { lavender: '#c9b8e8', sky: '#a9cdf2', lemon: '#fbe58a', pink: '#f6b8c4', white: '#ffffff' };
-export const FONTS = ['sans', 'hand']; // 'sans' = Pretendard (default when absent), 'hand' = Nanum Pen Script
+export const FONTS = ['sans', 'hand', 'serif']; // 'sans' = Pretendard (default when absent), 'hand' = Nanum Pen Script, 'serif' = Nanum Myeongjo
 // Optional page fields (absent in older zines and in the server's empty zine): titleFont, titleSize.
 export const TITLE_SIZE = { def: 0.06, min: 0.04, max: 0.12 }; // fraction of page height
 export const PAGE_LABELS = ['표지', '2', '3', '4', '5', '6', '7', '뒷표지'];
@@ -20,9 +20,9 @@ export function createEmptyZine(name) {
       title: '',
       titleBox: { x: 0.06, y: 0.04, w: 0.88 },
       titleHighlight: 'sky',
-      background: i === 0 ? 'yellow' : 'cream',
-      pattern: 'dots',
-      frameLine: true,
+      background: 'white',
+      pattern: 'none',
+      frameLine: false,
       elements: [],
     });
   }
@@ -109,7 +109,7 @@ export const setBackground = (zine, i, paperKey) => withPage(zine, i, (p) => ({ 
 export const setPattern = (zine, i, pattern) => withPage(zine, i, (p) => ({ ...p, pattern }));
 export const setFrameLine = (zine, i, on) => withPage(zine, i, (p) => ({ ...p, frameLine: !!on }));
 export const setTitleHighlight = (zine, i, key) => withPage(zine, i, (p) => ({ ...p, titleHighlight: key }));
-export const fontOf = (f) => (f === 'hand' ? 'hand' : 'sans');
+export const fontOf = (f) => (FONTS.includes(f) ? f : 'sans');
 export const titleSizeOf = (page) => {
   const s = Number(page && page.titleSize);
   return Number.isFinite(s) && s > 0 ? Math.min(TITLE_SIZE.max, Math.max(TITLE_SIZE.min, s)) : TITLE_SIZE.def;

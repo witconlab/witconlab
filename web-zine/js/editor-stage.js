@@ -102,7 +102,7 @@ export function createStage(host, app) {
   function drawBg(p, n) {
     const { cw, ch } = sizeCanvas(bg);
     renderPage(bg.getContext('2d'), { ...p, title: '', elements: [] },
-      { width: cw, height: ch, pageNumber: n, showSafeArea: true, loadImage: async () => null }).catch(() => {});
+      { width: cw, height: ch, pageNumber: n, loadImage: async () => null }).catch(() => {});
   }
 
   function drawTitleLayer(p) {

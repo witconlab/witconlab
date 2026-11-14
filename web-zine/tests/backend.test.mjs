@@ -200,11 +200,11 @@ test('emptyZine_ shape', () => {
   assert.equal(z.rev, 0);
   assert.equal(z.updatedAt, null);
   assert.equal(z.pages.length, 8);
-  assert.equal(z.pages[0].background, 'yellow');
-  assert.equal(z.pages[1].background, 'cream');
+  assert.equal(z.pages[0].background, 'white');
+  assert.equal(z.pages[1].background, 'white');
   assert.deepEqual(z.pages[3], {
     title: '', titleBox: { x: 0.06, y: 0.04, w: 0.88 }, titleHighlight: 'sky',
-    background: 'cream', pattern: 'dots', frameLine: true, elements: [],
+    background: 'white', pattern: 'none', frameLine: false, elements: [],
   });
 });
 

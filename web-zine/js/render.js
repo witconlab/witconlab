@@ -4,11 +4,15 @@ import { getSticker } from './stickers.js';
 
 export const HAND = '"Nanum Pen Script", "Gamja Flower", cursive';
 export const SANS = 'Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+export const SERIF = '"Nanum Myeongjo", "AppleMyungjo", "Batang", serif';
 // The one place that decides how page text looks (canvas, editor DOM and measuring all use these).
-// kind: 'title' | 'caption'; font: 'sans' (default) | 'hand'.
+// kind: 'title' | 'caption'; font: 'sans' (default) | 'hand' | 'serif'.
 const WEIGHT = { title: 700, caption: 500 };
 export function fontSpec(kind, font) {
-  return fontOf(font) === 'hand' ? { family: HAND, weight: 400 } : { family: SANS, weight: WEIGHT[kind] || 500 };
+  const f = fontOf(font);
+  if (f === 'hand') return { family: HAND, weight: 400 };
+  if (f === 'serif') return { family: SERIF, weight: kind === 'title' ? 800 : 700 };
+  return { family: SANS, weight: WEIGHT[kind] || 500 };
 }
 export function canvasFont(kind, font, px) {
   const f = fontSpec(kind, font);

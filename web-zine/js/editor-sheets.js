@@ -41,10 +41,10 @@ function swatches(host, entries, name, onPick) {
     host.append(b);
   }
 }
-// Font pills ("기본" / "손글씨"): the input previews the chosen font.
+// Font pills ("기본" / "손글씨" / "명조"): the input previews the chosen font.
 function fontPicker(host, input, onPick) {
   host.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => onPick(b.dataset.font)));
-  return (font) => { mark(host, 'font', fontOf(font)); input.classList.toggle('hand', fontOf(font) === 'hand'); };
+  return (font) => { mark(host, 'font', fontOf(font)); input.classList.toggle('hand', fontOf(font) === 'hand'); input.classList.toggle('serif', fontOf(font) === 'serif'); };
 }
 const mark = (host, attr, value) => host.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))));
 

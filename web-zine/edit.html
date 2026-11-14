@@ -6,9 +6,8 @@
 <title>내 진 꾸미기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
-<script>try{if(localStorage.getItem('webzine.bigText')!=='0')document.documentElement.dataset.big='1'}catch(e){document.documentElement.dataset.big='1'}</script>
 <link rel="stylesheet" href="css/zine.css">
 </head>
 <body class="dot-paper ed-body">
@@ -43,7 +42,6 @@
     </span>
     <button class="ed-who" id="whoBtn" type="button" title="다른 이름으로 들어가기"></button>
     <button class="badge ed-badge" id="badge" type="button" data-state="saved">저장됨</button>
-    <button type="button" class="bigtext" title="큰 글씨" data-bigtext aria-pressed="true"><span class="bigtext-ga" aria-hidden="true">가</span><span class="bigtext-label">큰 글씨</span><span class="bigtext-state" aria-hidden="true">켜짐</span></button>
   </header>
 
   <div class="ed-banner" id="stale" role="status" hidden>
@@ -103,7 +101,7 @@
   <div class="sheet-head"><h2 class="hand" id="textHead">자막 넣기</h2><button type="button" class="sheet-x" data-close aria-label="닫기"><svg><use href="#i-close"/></svg></button></div>
   <textarea class="input ed-textarea" id="textInput" rows="3" maxlength="200" placeholder="사진에 대한 이야기를 적어 보세요"></textarea>
   <div class="ed-row"><span class="ed-label">글씨체</span>
-    <div class="seg" id="textFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button></div>
+    <div class="seg" id="textFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button><button type="button" data-font="serif" class="serif">명조</button></div>
   </div>
   <div class="ed-row"><span class="ed-label">크기</span>
     <div class="seg" id="textSize">
@@ -118,7 +116,7 @@
   <div class="sheet-head"><h2 class="hand">쪽 제목</h2><button type="button" class="sheet-x" data-close aria-label="닫기"><svg><use href="#i-close"/></svg></button></div>
   <input class="input ed-title-input" id="titleInput" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="이 쪽의 제목 (20자까지)">
   <div class="ed-row"><span class="ed-label">글씨체</span>
-    <div class="seg" id="titleFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button></div>
+    <div class="seg" id="titleFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button><button type="button" data-font="serif" class="serif">명조</button></div>
   </div>
   <div class="ed-row"><span class="ed-label">크기</span>
     <div class="ed-range"><span aria-hidden="true">작게</span><input type="range" id="titleSize" min="0.04" max="0.12" step="0.005" aria-label="제목 크기"><span aria-hidden="true">크게</span></div>
@@ -145,7 +143,6 @@
 <div class="ed-toast" id="toast" role="status" hidden></div>
 <div class="ed-loading" id="loading"><p class="hand">진을 펼치는 중…</p></div>
 
-<script type="module" src="js/bigtext.js"></script>
 <script type="module" src="js/practice-banner.js"></script>
 <script type="module" src="js/editor.js"></script>
 </body>

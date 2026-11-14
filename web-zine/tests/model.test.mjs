@@ -10,12 +10,12 @@ import {
 
 const snap = (o) => JSON.stringify(o);
 
-test('empty zine has 8 pages, cover yellow', () => {
+test('empty zine has 8 pages, plain white paper', () => {
   const z = createEmptyZine('김민지');
   assert.equal(PAGE_COUNT, 8);
   assert.equal(z.pages.length, 8);
-  assert.equal(z.pages[0].background, 'yellow');
-  assert.equal(z.pages[1].background, 'cream');
+  assert.equal(z.pages[0].background, 'white');
+  assert.equal(z.pages[1].background, 'white');
   assert.equal(z.name, '김민지');
   assert.equal(z.rev, 0);
   assert.equal(PAGE_LABELS.length, 8);

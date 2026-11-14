@@ -6,9 +6,8 @@
 <title>내 진 보기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
-<script>try{if(localStorage.getItem('webzine.bigText')!=='0')document.documentElement.dataset.big='1'}catch(e){document.documentElement.dataset.big='1'}</script>
 <link rel="stylesheet" href="css/zine.css">
 <style>
 .vw-body { background: #3a3530; color: var(--cream); padding: 0; overflow: hidden; }
@@ -59,19 +58,6 @@
 .vw-unsaved a { color: inherit; }
 .vw-msg { margin: auto; text-align: center; padding: 24px; }
 .vw-foot-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; }
-/* 큰 글씨 */
-:root[data-big] .vw .btn { min-height: 52px; padding: 0 18px; font-size: 19px; }
-:root[data-big] .vw-top-btns { gap: 6px; }
-:root[data-big] .vw-nav button.vw-arrow { min-width: 96px; min-height: 56px; font-size: 20px; border-color: rgba(246, 239, 220, .85); }
-:root[data-big] .vw-count { font-size: 20px; font-weight: 700; }
-:root[data-big] .vw-who { font-size: 17px; }
-:root[data-big] .vw-top { flex-wrap: wrap; }
-:root[data-big] .vw-head { flex: 1 1 auto; }
-:root[data-big] .vw-who button { min-height: 48px; padding: 0 14px; font-size: 17px; white-space: nowrap; border: 2px solid rgba(246, 239, 220, .85); }
-:root[data-big] .vw-top-btns { margin-left: auto; }
-:root[data-big] .vw-unsaved { font-size: 18px; }
-:root[data-big] .vw-warn { font-size: 18px; }
-:root[data-big] .ed-loading p { color: var(--ink); }
 @media (max-width: 480px) { .vw-title { font-size: 22px; } .vw-nav button.vw-arrow { min-width: 72px; } }
 </style>
 </head>
@@ -99,13 +85,11 @@
   <footer class="vw-foot">
     <div class="vw-foot-row">
       <button class="btn btn-primary" id="pdfBtn" type="button" aria-label="PDF 내려받기">PDF 내려받기</button>
-      <button type="button" class="bigtext" data-bigtext aria-pressed="true"><span class="bigtext-ga" aria-hidden="true">가</span><span class="bigtext-label">큰 글씨</span><span class="bigtext-state" aria-hidden="true">켜짐</span></button>
     </div>
     <p class="vw-warn" id="pdfWarn" role="status" hidden></p>
   </footer>
 </div>
 <div class="ed-loading" id="loading"><p class="hand">진을 펼치는 중…</p></div>
-<script type="module" src="js/bigtext.js"></script>
 <script type="module" src="js/practice-banner.js"></script>
 <script type="module" src="js/viewer.js"></script>
 </body>

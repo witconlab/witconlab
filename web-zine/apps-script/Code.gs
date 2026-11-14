@@ -41,9 +41,9 @@ function emptyZine_(name) {
       title: '',
       titleBox: { x: 0.06, y: 0.04, w: 0.88 },
       titleHighlight: 'sky',
-      background: i === 0 ? 'yellow' : 'cream',
-      pattern: 'dots',
-      frameLine: true,
+      background: 'white',
+      pattern: 'none',
+      frameLine: false,
       elements: []
     });
   }

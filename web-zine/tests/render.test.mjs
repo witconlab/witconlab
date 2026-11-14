@@ -233,3 +233,10 @@ test('made sticker (photoId src) draws via loadImage, contain-fit', async () => 
   assert.equal(d.args[0].tag, 'ph123');
   assert.deepEqual(d.args.slice(1), [0, 0, 40, 20]);
 });
+
+test('fontSpec: 명조 (serif) choice, unknown falls back to sans', async () => {
+  const { fontSpec, SERIF, SANS } = await import('../js/render.js');
+  assert.deepEqual(fontSpec('caption', 'serif'), { family: SERIF, weight: 700 });
+  assert.deepEqual(fontSpec('title', 'serif'), { family: SERIF, weight: 800 });
+  assert.equal(fontSpec('caption', 'comic').family, SANS);
+});
