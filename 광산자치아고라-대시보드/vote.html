@@ -3,111 +3,117 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>광산자치아고라 우선순위 투표</title>
+<title>광산자치아고라 공감·응원</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-  :root { --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b; --line: #e2e8f0; --primary: #0284c7; --ok: #059669; }
+  :root { --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b; --line: #e2e8f0; --heart: #e11d48; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; padding-bottom: 110px; }
-  header { padding: 28px 16px 18px; background: linear-gradient(135deg, #0284c7, #16a34a 60%, #ea580c); color: #fff; }
-  header small { font-size: 14px; font-weight: 700; opacity: .9; }
-  header h1 { font-size: 25px; font-weight: 900; margin-top: 6px; line-height: 1.3; }
-  header p { font-size: 15px; margin-top: 8px; opacity: .95; }
-  main { padding: 16px; max-width: 560px; margin: 0 auto; }
-  .note { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+  body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; padding-bottom: 40px; }
+  header { padding: 26px 18px 18px; background: linear-gradient(135deg, #0284c7, #0d9488 45%, #db2777); color: #fff; }
+  header small { font-size: 15px; font-weight: 700; opacity: .9; }
+  header h1 { font-size: 27px; font-weight: 900; margin-top: 6px; line-height: 1.3; }
+  header p { font-size: 17px; margin-top: 8px; opacity: .95; line-height: 1.5; }
+  main { padding: 14px 14px; max-width: 600px; margin: 0 auto; }
+  .tabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 6px; overflow-x: auto; padding: 10px 14px; background: rgba(248, 250, 252, .96); border-bottom: 1px solid var(--line); }
+  .tabs a { flex: none; font-size: 16px; font-weight: 800; text-decoration: none; color: var(--text); padding: 8px 14px; border-radius: 999px; border: 2px solid var(--c); }
+  h2 { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 900; margin: 22px 2px 10px; scroll-margin-top: 70px; }
+  h2 i { width: 16px; height: 16px; border-radius: 5px; background: var(--c); }
   .list { display: flex; flex-direction: column; gap: 10px; }
-  .opt { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; background: var(--card); border: 2px solid var(--line); border-left: 6px solid var(--c); border-radius: 14px; padding: 14px; font: inherit; color: inherit; cursor: pointer; transition: border-color .15s, background .15s; }
-  .opt .box { flex: none; width: 26px; height: 26px; border-radius: 8px; border: 2px solid #cbd5e1; display: grid; place-items: center; font-weight: 900; color: #fff; margin-top: 1px; }
-  .opt b { display: block; font-size: 17px; line-height: 1.4; }
-  .opt small { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .opt.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, #fff); }
-  .opt.on .box { background: var(--c); border-color: var(--c); }
-  .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .96); border-top: 1px solid var(--line); }
-  .bar button { width: 100%; max-width: 560px; display: block; margin: 0 auto; border: 0; border-radius: 14px; padding: 16px; font: inherit; font-size: 18px; font-weight: 900; color: #fff; background: var(--primary); cursor: pointer; }
-  .bar button:disabled { background: #94a3b8; }
+  .opt { display: flex; gap: 14px; align-items: center; width: 100%; text-align: left; background: var(--card); border: 2px solid var(--line); border-left: 8px solid var(--c); border-radius: 16px; padding: 16px; font: inherit; color: inherit; cursor: pointer; transition: border-color .15s, background .15s; -webkit-tap-highlight-color: transparent; }
+  .opt span { flex: 1; }
+  .opt small { display: block; font-size: 15px; color: var(--muted); font-weight: 700; }
+  .opt b { display: block; font-size: 21px; line-height: 1.35; margin-top: 2px; }
+  .opt em { display: block; font-style: normal; font-size: 16px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .opt .h { flex: none; width: 58px; height: 58px; border-radius: 50%; border: 2px solid #fecdd3; display: grid; place-items: center; color: #fda4af; transition: all .2s; }
+  .opt .h svg { width: 30px; height: 30px; }
+  .opt.on { border-color: var(--heart); background: #fff1f2; }
+  .opt.on .h { background: var(--heart); border-color: var(--heart); color: #fff; animation: pop .35s cubic-bezier(.2, 1.6, .4, 1); }
+  @keyframes pop { 50% { transform: scale(1.25); } }
   .state { text-align: center; padding: 60px 16px; }
-  .state .big { font-size: 56px; }
-  .state h2 { font-size: 22px; margin-top: 14px; }
-  .state p { color: var(--muted); margin-top: 8px; line-height: 1.6; }
-  .state button { margin-top: 20px; border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 12px 18px; font: inherit; font-weight: 700; cursor: pointer; }
-  .err { color: #b91c1c; font-size: 14px; text-align: center; margin-top: 10px; min-height: 20px; }
+  .state .big { font-size: 60px; }
+  .state h2 { justify-content: center; font-size: 24px; margin-top: 14px; }
+  .state p { color: var(--muted); margin-top: 8px; line-height: 1.6; font-size: 17px; }
+  .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #0f172a; color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; font-size: 16px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .toast.on { opacity: 1; }
+  .toast.err { background: #b91c1c; }
 </style>
 </head>
 <body>
 <header>
-  <small>2026 광산자치아고라 · 우선순위 투표</small>
-  <h1>가장 먼저 함께 실천하고 싶은 과제를 골라 주세요</h1>
-  <p id="sub"></p>
+  <small>2026 광산자치아고라 · ⑦ 공감·응원</small>
+  <h1>함께 실천되기를 바라는 제안에 ♥를 눌러 주세요</h1>
+  <p>여러 개 눌러도 돼요. 다시 누르면 취소돼요.<br>순위를 정하지 않아요. 응원을 나누는 시간이에요.</p>
 </header>
-<main id="main"><div class="state"><p>투표 정보를 불러오는 중…</p></div></main>
-<div class="bar" id="bar" hidden><button id="submit" disabled>투표하기</button><div class="err" id="err"></div></div>
+<nav class="tabs" id="tabs" hidden></nav>
+<main id="main"><div class="state"><p>불러오는 중…</p></div></main>
+<div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261111a"></script>
-<script src="assets/app.js?v=20261111a"></script>
+<script src="config.js?v=20261116b"></script>
+<script src="assets/app.js?v=20261116b"></script>
 <script>
 (function () {
   const A = window.Agora;
+  const { TOPICS, TOPIC_ORDER, esc } = A;
   const $ = s => document.querySelector(s);
-  let picks = A.LS.get('agora-my-picks', []);
-  let voted = A.LS.get('agora-voted', 0);
-  let editing = false;
+  let mine = new Set(A.LS.get('agora-my-likes', []));
+  let round = A.LS.get('agora-like-round', 0);
+  let lastKey = '';
+
+  function toast(msg, err) {
+    const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (err ? ' err' : '');
+    clearTimeout(toast.t); toast.t = setTimeout(() => { t.className = 'toast'; }, 2200);
+  }
 
   function render() {
     const st = A.state;
-    const max = st.votePicks || 3;
-    const cands = st.candidates || [];
-    if (st.voteRound && voted && voted < st.voteRound) { voted = 0; picks = []; A.LS.set('agora-voted', 0); }
-    $('#sub').textContent = '최대 ' + max + '개까지 고를 수 있어요 · 다시 투표하면 이전 선택이 바뀝니다';
-    if (!st.voteOpen) {
-      $('#bar').hidden = true;
-      $('#main').innerHTML = '<div class="state"><div class="big">' + (voted ? '🙌' : '⏳') + '</div><h2>' + (voted ? '투표에 참여해 주셔서 고맙습니다' : '아직 투표가 열리지 않았어요') + '</h2><p>' + (voted ? '결과는 앞 화면에서 함께 확인해요.' : '진행자 안내가 있으면 이 화면이 자동으로 바뀝니다.') + '</p></div>';
+    if ((st.likeRound || 0) > round) { round = st.likeRound; mine = new Set(); A.LS.set('agora-my-likes', []); A.LS.set('agora-like-round', round); }
+    const cards = st.cards || [];
+    const key = st.likeOpen + '|' + cards.map(c => c.id + c.text).join(',') + '|' + [...mine].join(',');
+    if (key === lastKey) return;
+    lastKey = key;
+    if (!st.likeOpen) {
+      $('#tabs').hidden = true;
+      $('#main').innerHTML = mine.size
+        ? '<div class="state"><div class="big">💗</div><h2>응원해 주셔서 고맙습니다</h2><p>' + mine.size + '개 제안에 공감했어요.<br>대형 화면의 마무리를 함께해 주세요.</p></div>'
+        : '<div class="state"><div class="big">⏳</div><h2>공감 시간이 되면 여기서 바로 눌러요</h2><p>이 화면을 켜 두세요. 다시 QR을 찍지 않아도<br>시간이 되면 제안 카드가 자동으로 나타나요.</p></div>';
       return;
     }
-    if (voted && !editing) {
-      $('#bar').hidden = true;
-      const mine = cands.filter(c => picks.includes(c.id)).map(c => '<li>' + A.esc(c.text) + '</li>').join('');
-      $('#main').innerHTML = '<div class="state"><div class="big">✅</div><h2>투표가 접수되었어요</h2><p>내가 고른 과제</p><ol style="text-align:left;display:inline-block;margin-top:8px;line-height:1.8">' + mine + '</ol><br><button id="again">선택 바꾸기</button></div>';
-      $('#again').onclick = () => { editing = true; render(); };
-      return;
-    }
-    picks = picks.filter(id => cands.some(c => c.id === id));
-    $('#bar').hidden = false;
-    $('#main').innerHTML = '<p class="note">' + cands.length + '개 테이블 실천과제 중에서 골라 주세요.</p><div class="list">' + cands.map(c => {
-      const t = A.tableByNo(c.table);
-      const on = picks.includes(c.id);
-      return '<button class="opt' + (on ? ' on' : '') + '" data-id="' + c.id + '" style="--c:' + A.CATS[c.cat].deep + '"><span class="box">' + (on ? '✓' : '') + '</span><span><b>' + A.esc(c.text) + '</b><small>' + A.CATS[c.cat].name + ' · 테이블 ' + t.no + ' (' + A.esc(t.dongs) + ')</small></span></button>';
-    }).join('') + '</div>';
-    $('#submit').disabled = !picks.length;
-    $('#submit').textContent = picks.length ? picks.length + '개 선택 · 투표하기' : '과제를 골라 주세요';
+    const valid = new Set(cards.map(c => c.id));
+    mine = new Set([...mine].filter(id => valid.has(id)));
+    const topics = TOPIC_ORDER.filter(k => cards.some(c => c.topic === k));
+    $('#tabs').hidden = false;
+    $('#tabs').innerHTML = topics.map(k => '<a href="#tp-' + k + '" style="--c:' + TOPICS[k].color + '">' + TOPICS[k].name + '</a>').join('');
+    $('#main').innerHTML = topics.map(k => '<h2 id="tp-' + k + '" style="--c:' + TOPICS[k].color + '"><i></i>' + TOPICS[k].name + '</h2><div class="list">' +
+      cards.filter(c => c.topic === k).map(c => '<button class="opt' + (mine.has(c.id) ? ' on' : '') + '" data-id="' + c.id + '" style="--c:' + TOPICS[k].color + '" aria-pressed="' + mine.has(c.id) + '"><span><small>테이블 ' + c.table + '</small><b>' + esc(c.text) + '</b>' + (c.sub ? '<em>' + esc(c.sub) + '</em>' : '') + '</span><i class="h">' + A.ICONS.heart + '</i></button>').join('') + '</div>').join('');
   }
 
+  // 누르면 바로 바뀌고, 0.8초 모아서 서버로 (빠르게 여러 개 눌러도 한 번만 보냄)
+  let sendTimer = 0, sending = false, again = false;
   $('#main').addEventListener('click', e => {
     const b = e.target.closest('.opt'); if (!b) return;
-    const id = b.dataset.id, max = A.state.votePicks || 3;
-    if (picks.includes(id)) picks = picks.filter(x => x !== id);
-    else if (picks.length < max) picks.push(id);
-    else { $('#err').textContent = '최대 ' + max + '개까지 고를 수 있어요'; setTimeout(() => { $('#err').textContent = ''; }, 2000); return; }
-    render();
+    const id = b.dataset.id;
+    if (mine.has(id)) mine.delete(id); else { mine.add(id); if (navigator.vibrate) navigator.vibrate(15); }
+    A.LS.set('agora-my-likes', [...mine]);
+    b.classList.toggle('on', mine.has(id)); b.setAttribute('aria-pressed', mine.has(id));
+    lastKey = '';
+    clearTimeout(sendTimer); sendTimer = setTimeout(send, 800);
   });
-
-  $('#submit').onclick = async () => {
-    const btn = $('#submit');
-    btn.disabled = true; btn.textContent = '보내는 중…';
-    try {
-      await A.vote(picks);
-      voted = Date.now(); editing = false;
-      A.LS.set('agora-my-picks', picks); A.LS.set('agora-voted', voted);
-      render();
-    } catch (e) {
-      $('#err').textContent = e.message || '전송에 실패했어요. 다시 눌러 주세요.';
-      btn.disabled = false; btn.textContent = '다시 투표하기';
-    }
-  };
+  async function send() {
+    if (sending) { again = true; return; }
+    sending = true;
+    try { await A.like([...mine]); toast(mine.size ? '♥ 공감이 전해졌어요' : '공감을 모두 취소했어요'); }
+    catch (e) { toast(e.message || '전송 실패. 잠시 후 다시 눌러 주세요', true); }
+    sending = false;
+    if (again) { again = false; send(); }
+  }
 
   A.onState(render);
-  A.pullState().catch(() => {}).then(render);
-  // 150명이 동시에 접속하므로 8~12초 간격으로 분산
-  if (A.MODE === 'live') (function poll() { setTimeout(() => A.pullState().catch(() => {}).then(poll), 8000 + Math.random() * 4000); })();
+  (async function loop() {
+    try { await A.pullState(); } catch (e) { /* 다음 회차 */ }
+    render();
+    // 150명이 동시에 묻지 않도록 간격을 흩뜨림
+    setTimeout(loop, A.MODE === 'live' ? 8000 + Math.random() * 4000 : 1500);
+  })();
 })();
 </script>
 </body>

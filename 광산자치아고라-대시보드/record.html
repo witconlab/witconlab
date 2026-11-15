@@ -47,25 +47,24 @@
 <header>
   <small>2026 광산자치아고라 · 테이블 기록자</small>
   <h1>내 테이블 번호를 눌러<br>기록 문서를 여세요</h1>
-  <p>한 줄을 다 쓰고 Enter를 누르면 10~15초 뒤 무대 화면에 올라가요. 오른쪽 위에 "편집"이 보이는지 확인해 주세요.</p>
+  <p>표의 「우리 테이블 답」 칸에 쓰면 10~15초 뒤 대형 화면에 올라가요. 오른쪽 위에 "편집"이 보이는지 확인해 주세요.</p>
 </header>
 <main>
   <div class="mine" id="mine"></div>
   <div id="tables"><p class="msg">테이블 목록을 불러오는 중…</p></div>
 
-  <h2>줄 앞에 붙이는 표시</h2>
+  <h2>문서에 쓰는 방법</h2>
   <div class="cheat">
     <table>
-      <tr><td><span class="tag">[경험]</span></td><td>이용하면서 겪은 일</td></tr>
-      <tr><td><span class="tag t-pain">[불편]</span></td><td>불편한 점, 고칠 점</td></tr>
-      <tr><td><span class="tag">[자원]</span></td><td>이미 있는 모임·시설·사람</td></tr>
-      <tr><td><span class="tag t-idea">[아이디어]</span></td><td>함께 해 보면 좋을 방법</td></tr>
-      <tr><td><span class="tag t-action">[실천]</span></td><td>주민이 직접 할 일 <b>(15:15 꼭!)</b></td></tr>
-      <tr><td><span class="tag t-admin">[협력]</span></td><td>행정에 요청할 일 <b>(15:15 꼭!)</b></td></tr>
+      <tr><td><span class="tag">어디에?</span></td><td>표의 맨 오른쪽 <b>「우리 테이블 답 ✍️」</b> 칸에만 써요. 가운데 예시를 보고 비슷하게 쓰면 돼요.</td></tr>
+      <tr><td><span class="tag t-idea">엔터</span></td><td>칸 안에서 엔터를 치면 화면 카드가 한 장 더 생겨요. 한 줄에 의견 하나.</td></tr>
+      <tr><td><span class="tag t-action">③ 선정</span></td><td>선정 과제 끝에 <b>(우리)</b> 또는 <b>(외부)</b>를 붙여요. 외부만 2개는 안 돼요.</td></tr>
+      <tr><td><span class="tag t-admin">④ 5칸</span></td><td>못 정한 칸은 <b>추후 협의</b>라고 써요.</td></tr>
+      <tr><td><span class="tag t-pain">⑤ 제출</span></td><td>모두 동의하면 「최종 제출」 칸에 <b>제출</b>이라고 써요.</td></tr>
     </table>
     <ul class="tips">
-      <li>예) <span class="tag">[불편] 임곡: 가로등이 없어 밤에 무서워요</span></li>
-      <li>한 줄에 발언 하나 · 이름·연락처는 적지 않기 · 이미 쓴 줄은 고치지 않기</li>
+      <li>쓰고 10~15초 뒤 대형 화면에 떠요 · 잘못 쓴 글은 그냥 고치면 화면도 고쳐져요</li>
+      <li>이름·전화번호는 쓰지 않기 · 표의 첫 칸(항목 이름)은 지우거나 바꾸지 않기</li>
     </ul>
   </div>
 
@@ -76,8 +75,8 @@
   </div>
 </main>
 
-<script src="config.js?v=20261111a"></script>
-<script src="assets/app.js?v=20261111a"></script>
+<script src="config.js?v=20261116b"></script>
+<script src="assets/app.js?v=20261116b"></script>
 <script>
 (async function () {
   const A = window.Agora;
@@ -89,24 +88,24 @@
 
   function card(t) {
     const url = docUrl(t);
-    return '<a class="t' + (url ? '' : ' off') + '" data-no="' + t.no + '" href="' + esc(url || '#') + '" target="_blank" rel="noopener" style="--c:' + A.CATS[t.cat].deep + '">' +
-      '<b>테이블 ' + t.no + '</b><span>' + esc(t.dongs) + '</span></a>';
+    return '<a class="t' + (url ? '' : ' off') + '" data-no="' + t.no + '" href="' + esc(url || '#') + '" target="_blank" rel="noopener" style="--c:' + A.TOPICS[t.topic].color + '">' +
+      '<b>테이블 ' + t.no + '</b><span>' + esc(A.TOPICS[t.topic].name + (t.dongs ? ' · ' + t.dongs : '')) + '</span></a>';
   }
   function renderMine(no) {
     const t = tables.find(x => x.no === no);
     const box = document.getElementById('mine');
     if (!t || !docUrl(t)) { box.classList.remove('on'); return; }
-    box.innerHTML = '<h2>내 테이블</h2><a href="' + esc(docUrl(t)) + '" target="_blank" rel="noopener" style="--c:' + A.CATS[t.cat].deep + '"><b>' + t.no + '</b>' +
-      '<span><strong>' + esc(A.CATS[t.cat].name) + '</strong>' + esc(t.dongs) + '</span><em>문서 열기</em></a>';
+    box.innerHTML = '<h2>내 테이블</h2><a href="' + esc(docUrl(t)) + '" target="_blank" rel="noopener" style="--c:' + A.TOPICS[t.topic].color + '"><b>' + t.no + '</b>' +
+      '<span><strong>' + esc(A.TOPICS[t.topic].name) + '</strong>' + esc(t.dongs) + '</span><em>문서 열기</em></a>';
     box.classList.add('on');
   }
 
   const hasDocs = tables.some(t => t.docId);
   document.getElementById('tables').innerHTML = (hasDocs ? '' : '<p class="msg">아직 기록 문서가 연결되지 않았어요. 관제반에 문의해 주세요.</p>') +
-    A.CAT_ORDER.map(c => {
-      const ts = tables.filter(t => t.cat === c);
+    A.TOPIC_ORDER.map(c => {
+      const ts = tables.filter(t => t.topic === c);
       if (!ts.length) return '';
-      return '<div class="group" style="--c:' + A.CATS[c].deep + '"><h3><i></i>' + esc(A.CATS[c].name) + '</h3><div class="grid">' + ts.map(card).join('') + '</div></div>';
+      return '<div class="group" style="--c:' + A.TOPICS[c].color + '"><h3><i></i>' + esc(A.TOPICS[c].name) + '</h3><div class="grid">' + ts.map(card).join('') + '</div></div>';
     }).join('');
 
   // 한 번 고른 테이블은 다음에 열 때 맨 위에 크게 보여 줌

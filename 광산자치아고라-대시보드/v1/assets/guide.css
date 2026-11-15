@@ -1,0 +1,55 @@
+/* 인쇄용 가이드 공통 (A4) — 안내문.html 과 같은 모양 */
+:root { --ink: #111; --muted: #555; --line: #ddd; --river: #0284c7; --park: #16a34a; --road: #ea580c; --common: #9333ea; --soft: #f5f5f4; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; color: var(--ink); background: #e7e5e4; word-break: keep-all; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+@page { size: A4; margin: 0; }
+.page { width: 210mm; min-height: 297mm; margin: 10mm auto; background: #fff; padding: 13mm 15mm 10mm; position: relative; display: flex; flex-direction: column; }
+@media print { body { background: #fff; } .page { margin: 0; height: 297mm; overflow: hidden; page-break-after: always; } .noprint { display: none; } }
+@media screen and (max-width: 820px) { .page { width: auto; min-height: 0; margin: 0 0 12px; padding: 24px 16px; } .grid2 { grid-template-columns: 1fr; } table { font-size: 10pt; } }
+
+.bar { display: flex; gap: 4px; margin-bottom: 6mm; }
+.bar i { flex: 1; height: 5px; border-radius: 3px; }
+.eyebrow { font-size: 12pt; font-weight: 700; color: var(--muted); }
+h1 { font-size: 22pt; font-weight: 900; letter-spacing: -.02em; line-height: 1.25; margin: 1.5mm 0 2.5mm; }
+.lead { font-size: 10.5pt; color: var(--muted); line-height: 1.6; }
+h2 { font-size: 13pt; font-weight: 800; margin: 5mm 0 2.5mm; display: flex; align-items: center; gap: 8px; }
+h2 b { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 11pt; flex: none; }
+p, li { font-size: 10pt; line-height: 1.55; }
+ul, ol { padding-left: 18px; }
+ul.check { list-style: none; padding-left: 0; }
+ul.check li { padding-left: 22px; position: relative; margin-bottom: .6mm; }
+ul.check li::before { content: ''; position: absolute; left: 2px; top: 4px; width: 11px; height: 11px; border: 1.5px solid var(--ink); border-radius: 3px; }
+.note { margin-top: 2mm; font-size: 9.5pt; color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+th, td { text-align: left; padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+th { font-size: 9.5pt; color: var(--muted); font-weight: 700; }
+tr.hi td { background: #f0fdf4; }
+.tag { display: inline-block; font-weight: 800; font-family: ui-monospace, Menlo, monospace; font-size: 9.5pt; padding: 0 6px; border-radius: 5px; background: #e7e5e4; white-space: nowrap; }
+.t-pain { background: #fee2e2; } .t-idea { background: #fef3c7; } .t-action { background: #d1fae5; } .t-admin { background: #dbeafe; }
+.btn { display: inline-block; font-weight: 800; font-size: 9.5pt; padding: 0 7px; border-radius: 5px; border: 1.5px solid var(--ink); white-space: nowrap; }
+pre { font-family: ui-monospace, Menlo, monospace; font-size: 9.5pt; line-height: 1.6; background: #1c1917; color: #fafaf9; border-radius: 10px; padding: 4mm 5mm; white-space: pre-wrap; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.box { background: var(--soft); border-radius: 10px; padding: 3.5mm 4.5mm; }
+.warn { border-left: 4px solid var(--road); background: #fff7ed; padding: 3mm 4mm; border-radius: 0 8px 8px 0; }
+.url { font-family: ui-monospace, Menlo, monospace; font-size: 9pt; word-break: break-all; }
+.foot { margin-top: auto; padding-top: 4mm; font-size: 9pt; color: var(--muted); display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
+.printbtn { position: fixed; right: 16px; bottom: 16px; padding: 12px 18px; border: 0; border-radius: 12px; background: #111; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+
+/* 문서 → 화면 그림 */
+.demo { display: grid; grid-template-columns: 1fr 9mm 1fr; align-items: center; gap: 3mm; margin-top: 2mm; }
+.doc { border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .08); overflow: hidden; }
+.doc .bar2 { display: flex; justify-content: space-between; align-items: center; padding: 1.5mm 3mm; background: #f1f5f9; font-size: 8.5pt; color: var(--muted); }
+.doc .bar2 b { color: #fff; background: #1a73e8; padding: 0 6px; border-radius: 4px; font-size: 8pt; }
+.doc pre { background: none; color: var(--ink); padding: 2.5mm 3mm; font-size: 9pt; line-height: 1.75; }
+.doc pre i { font-style: normal; color: #94a3b8; }
+.doc pre u { text-decoration: none; border-right: 2px solid #1a73e8; }
+.arrow { text-align: center; font-size: 18pt; font-weight: 900; color: var(--muted); }
+.card { border-radius: 8px; background: #171a20; color: #f5f5f4; padding: 3mm; border: 1.5px solid #f97316; }
+.card .meta { display: flex; gap: 5px; align-items: center; font-size: 8pt; color: #a1a1aa; margin-bottom: 1.5mm; }
+.card .meta b { background: rgba(249, 115, 22, .35); color: #fff; padding: 0 5px; border-radius: 4px; }
+.card .meta span.k { background: rgba(248, 113, 113, .25); color: #fca5a5; padding: 0 5px; border-radius: 4px; font-weight: 800; }
+.card p { font-size: 11pt; font-weight: 700; line-height: 1.4; }
+.steps2 { counter-reset: s; display: grid; gap: 2mm; }
+.steps2 > div { display: grid; grid-template-columns: 7mm 1fr; gap: 2mm; align-items: start; }
+.steps2 > div::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 6mm; height: 6mm; border-radius: 50%; background: var(--river); color: #fff; font-weight: 900; font-size: 9.5pt; }
+.steps2 p { font-size: 10pt; }

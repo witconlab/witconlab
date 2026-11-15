@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>광산자치아고라 대형 스크린</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/display.css?v=20261111a">
+<link rel="stylesheet" href="assets/display.css?v=20261116b">
 </head>
 <body>
 <div id="viewport">
@@ -15,7 +15,7 @@
         <div class="hd-mark" id="hd-mark"></div>
         <div>
           <div class="hd-title">2026 광산자치아고라</div>
-          <div class="hd-sub">하천·공원·맨발길, 동네를 잇고 변화를 만들다</div>
+          <div class="hd-sub">함께 걷고, 함께 가꾸는 광산</div>
         </div>
       </div>
       <ol class="hd-steps" id="hd-steps"></ol>
@@ -30,7 +30,7 @@
       <!-- 대기 -->
       <section class="scene" data-scene="wait">
         <div class="wait-hero">
-          <div class="eyebrow">주민총회 의제로 함께 만드는 공론장</div>
+          <div class="eyebrow">하천·공원·길 생활권 의제를 잇는 공론장</div>
           <h1 class="wait-title">함께 걷고,<br>함께 가꾸는 <em>광산</em></h1>
           <p class="wait-meta" id="wait-meta"></p>
           <div class="wait-count" id="wait-count"></div>
@@ -46,14 +46,8 @@
         <div class="open-wrap">
           <div class="eyebrow">1부 · 여는마당</div>
           <h1 class="open-title">함께 걷고, 함께 가꾸는 광산</h1>
-          <p class="open-theme">하천 · 공원 · 맨발길, 동네를 잇고 변화를 만들다</p>
+          <p class="open-theme">하천 · 공원 · 길, 생활권 의제를 잇고 함께 해결해요</p>
           <div class="open-icons" id="open-icons"></div>
-          <div class="open-stats">
-            <div><b>21</b><span>개 동</span></div>
-            <div><b>122</b><span>건 주민총회 의제</span></div>
-            <div><b>12</b><span>개 테이블</span></div>
-            <div><b>150</b><span>명 주민·전문가·행정</span></div>
-          </div>
         </div>
       </section>
 
@@ -64,81 +58,48 @@
             <div class="eyebrow">2부 · 주민공론장 · 주제 발제</div>
             <h1 class="key-title">“생활공간을 잇고,<br>함께 만드는 변화”</h1>
             <p class="key-speaker">더가능연구소 엄관용 연구실장</p>
+            <p class="key-q" id="key-q"></p>
           </div>
           <div class="key-cats" id="key-cats"></div>
         </div>
       </section>
 
-      <!-- 의제공론화 (실시간 피드) -->
+      <!-- 의제공론화 ①~⑤ -->
       <section class="scene" data-scene="talk">
         <div class="talk-steps" id="talk-steps"></div>
-        <div class="talk-body">
-          <div class="lanes" id="lanes"></div>
-          <aside class="talk-side">
-            <div class="spot" id="spot">
-              <div class="spot-label"><i></i>방금 올라온 이야기</div>
-              <div class="spot-card" id="spot-card"><p class="spot-empty">테이블 기록을 기다리고 있어요</p></div>
-              <div class="spot-bar" id="spot-bar"></div>
-            </div>
-            <div class="side-box">
-              <div class="side-hd">테이블별 기록 <span id="feed-total"></span></div>
-              <div class="heat" id="heat"></div>
-            </div>
-          </aside>
-        </div>
+        <div class="qbar" id="qbar"></div>
+        <div class="talk-body" id="talk-body"></div>
         <div class="ai-overlay" id="ai-overlay">
           <div class="ai-box">
             <div class="ai-orb"><span></span><span></span><span></span></div>
-            <h2>AI가 12개 테이블의 이야기를 정리하고 있어요</h2>
-            <p>주민 공동 실천과제 1~2개 · 행정 협력 요청사항 1개</p>
-            <div class="ai-grid" id="ai-grid"></div>
-            <div class="ai-cloud"><div class="side-hd">오늘 많이 나온 말</div><div class="cloud" id="cloud"></div></div>
+            <h2>AI가 표현을 다듬고 있어요</h2>
+            <p>길거나 모호한 문장을 짧고 분명하게 · 없는 내용은 더하지 않아요</p>
           </div>
         </div>
       </section>
 
-      <!-- 결과 공유 -->
+      <!-- ⑥ 주제별 결과 공유 -->
       <section class="scene" data-scene="share">
-        <div class="share-hd">
-          <div>
-            <div class="eyebrow">공론 결과 공유</div>
-            <h2 class="share-title" id="share-title">생활공간별로 모은 우리의 실천과제</h2>
-          </div>
-          <div class="share-legend">
-            <span><i class="lg-action"></i>주민 공동 실천과제</span>
-            <span><i class="lg-admin"></i>행정 협력 요청</span>
-          </div>
-        </div>
+        <div class="qbar" id="share-bar"></div>
         <div class="share-body" id="share-body"></div>
       </section>
 
-      <!-- 우선순위 투표 -->
-      <section class="scene" data-scene="vote">
-        <div class="vote-wrap">
-          <div class="vote-left">
-            <div class="eyebrow">우선순위 투표</div>
-            <h2 class="vote-title">가장 먼저 함께<br>실천하고 싶은 과제는?</h2>
+      <!-- ⑦ 공감·응원 -->
+      <section class="scene" data-scene="like">
+        <div class="like-wrap">
+          <div class="like-left">
+            <div class="eyebrow">⑦ 공감 · 응원 나누기</div>
+            <h2 class="like-title">함께 실천되기를<br>바라는 제안에<br><em>♥</em>를 눌러 주세요</h2>
             <div class="qr" id="qr"></div>
-            <p class="vote-how">휴대폰 카메라로 QR을 비추고<br><b id="vote-picks">3</b>개까지 골라 주세요</p>
-            <div class="vote-count"><b id="vote-voters">0</b><span>명 참여</span></div>
-            <div class="vote-closed" id="vote-closed">투표가 마감되었습니다</div>
+            <p class="like-how">휴대폰 카메라로 QR을 비추면<br>한 번 들어와서 모든 제안에 누를 수 있어요</p>
+            <p class="like-note">순위를 정하지 않아요 · 응원을 나누는 시간</p>
+            <div class="like-closed" id="like-closed">공감 나누기를 마쳤어요. 고맙습니다!</div>
           </div>
-          <div class="vote-bars" id="vote-bars"></div>
+          <div class="like-board" id="like-board"></div>
         </div>
       </section>
 
-      <!-- 투표 결과 -->
-      <section class="scene" data-scene="result">
-        <div class="res-hd">
-          <div class="eyebrow">투표 결과</div>
-          <h2 class="res-title">우리가 함께 고른 우선 실천과제</h2>
-          <p class="res-sub" id="res-sub"></p>
-        </div>
-        <div class="podium" id="podium"></div>
-        <div class="res-rest" id="res-rest"></div>
-      </section>
-
-      <!-- 슬로건 (모션그래픽) -->
+      <!-- 구호 (모션그래픽) -->
       <section class="scene" data-scene="slogan">
         <svg class="slo-lines" id="slo-lines" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
         <div class="slo-dongs" id="slo-dongs" aria-hidden="true"></div>
@@ -146,7 +107,7 @@
         <div class="slo-rings" id="slo-rings"></div>
         <div class="slo-wrap">
           <h1 class="slo" id="slo"></h1>
-          <p class="slo-sub" id="slo-sub">하천 · 공원 · 맨발길, 동네를 잇고 변화를 만들다</p>
+          <p class="slo-sub" id="slo-sub">하천 · 공원 · 길, 생활권 의제를 잇고 함께 해결해요</p>
           <div class="slo-icons" id="slo-icons"></div>
         </div>
         <div class="slo-count" id="slo-count">
@@ -160,8 +121,8 @@
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="config.js?v=20261111a"></script>
-<script src="assets/app.js?v=20261111a"></script>
-<script src="assets/display.js?v=20261111a"></script>
+<script src="config.js?v=20261116b"></script>
+<script src="assets/app.js?v=20261116b"></script>
+<script src="assets/display.js?v=20261116b"></script>
 </body>
 </html>

@@ -6,230 +6,217 @@
 <title>광산자치아고라 기록 연습장</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-  :root { --bg: #eef1f5; --card: #fff; --text: #0f172a; --muted: #64748b; --line: #dfe3ea; --ok: #059669; --warn: #b45309; --bad: #b91c1c; }
+  :root { --bg: #eef1f5; --card: #fff; --text: #0f172a; --muted: #64748b; --line: #dfe3ea; --ok: #059669; --warn: #b45309; --bad: #b91c1c; --c: #38bdf8; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
-  header { padding: 22px 16px 18px; background: linear-gradient(135deg, #0284c7, #16a34a 60%, #ea580c); color: #fff; }
-  header small { font-size: 13px; font-weight: 700; opacity: .9; }
+  header { padding: 22px 16px 16px; background: linear-gradient(135deg, #0284c7, #0d9488 50%, #db2777); color: #fff; }
+  header .in { max-width: 1240px; margin: 0 auto; }
+  header small { font-size: 14px; font-weight: 700; opacity: .9; }
   header h1 { font-size: 24px; font-weight: 900; margin-top: 4px; }
-  header p { font-size: 14px; margin-top: 6px; opacity: .95; line-height: 1.5; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 14px 16px 40px; display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "doc stage" "check stage" "foot foot"; align-items: start; gap: 16px; }
-  .p-doc { grid-area: doc; } .p-check { grid-area: check; } .p-stage { grid-area: stage; } .foot { grid-area: foot; }
-  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; grid-template-areas: "doc" "stage" "check" "foot"; } }
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+  header p { font-size: 15px; margin-top: 6px; opacity: .95; line-height: 1.5; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-areas: "doc stage" "doc check"; align-items: start; gap: 16px; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; grid-template-areas: "doc" "stage" "check"; } }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; min-width: 0; }
   .ph { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 800; flex-wrap: wrap; }
   .ph .sp { flex: 1; }
-  select, button { font: inherit; }
-  select { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: #fff; font-size: 14px; }
-  .btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .doc { position: relative; }
-  .docbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: #f8fafc; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
-  .docbar b { background: #1a73e8; color: #fff; font-size: 12px; padding: 1px 8px; border-radius: 5px; }
-  textarea { display: block; width: 100%; min-height: 300px; border: 0; outline: none; resize: vertical; padding: 14px 16px; font: 16px/1.9 ui-monospace, 'D2Coding', Menlo, monospace; color: var(--text); background: #fff; }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--line); background: #f8fafc; }
-  .chips span { font-size: 12px; color: var(--muted); align-self: center; }
-  .chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 11px; font-size: 14px; font-weight: 800; cursor: pointer; }
-  .chip.pain { background: #fee2e2; } .chip.idea { background: #fef3c7; } .chip.action { background: #d1fae5; } .chip.admin { background: #dbeafe; }
-  .checks { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
-  .checks .row { display: flex; gap: 8px; font-size: 13.5px; line-height: 1.45; padding: 7px 10px; border-radius: 10px; background: #f8fafc; }
-  .row i { font-style: normal; font-weight: 900; flex: none; width: 18px; text-align: center; }
-  .row.ok i { color: var(--ok); } .row.info { background: #eff6ff; } .row.info i { color: #1d4ed8; }
-  .row.warn { background: #fffbeb; } .row.warn i { color: var(--warn); }
-  .row.bad { background: #fef2f2; } .row.bad i { color: var(--bad); }
-  .row code { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: #334155; }
-  .empty { color: var(--muted); font-size: 14px; padding: 10px 2px; }
+  select { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: #fff; font-size: 14px; font: inherit; }
+  .btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .doc { grid-area: doc; }
+  .paper { padding: 16px 16px 24px; }
+  .paper h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+  .paper .guide { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
+  .paper h3 { font-size: 16px; font-weight: 800; margin: 22px 0 8px; scroll-margin-top: 10px; }
+  .paper h3 small { font-weight: 600; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+  th, td { border: 1px solid #cbd5e1; padding: 6px 8px; vertical-align: top; text-align: left; }
+  th { background: #1f2937; color: #fff; font-weight: 800; }
+  th:nth-child(1) { width: 26%; } th:nth-child(2) { width: 30%; }
+  td.l { background: #f3f4f6; font-weight: 800; }
+  td.ex { color: #6b7280; font-style: italic; font-size: 13px; }
+  td.ans { padding: 0; background: #fffef5; }
+  td.ans textarea { display: block; width: 100%; min-height: 54px; border: 0; outline: none; resize: none; padding: 7px 8px; font: 15px/1.6 inherit; font-family: inherit; background: transparent; color: var(--text); overflow: hidden; }
+  td.ans:focus-within { box-shadow: inset 0 0 0 2px #0284c7; }
+  td .h { display: block; font-size: 12px; font-weight: 700; padding: 0 8px 6px; }
+  td .h.warn { color: var(--warn); } td .h.bad { color: var(--bad); } td .h.ok { color: var(--ok); }
+  @media (max-width: 560px) { th:nth-child(2), td.ex { display: none; } th:nth-child(1) { width: 34%; } td.l::after { content: attr(data-ex); display: block; font-weight: 500; font-style: italic; color: #6b7280; font-size: 12px; margin-top: 4px; } }
 
-  .stage { background: #000; flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 360px; }
-  .stage .lbl { font-size: 12px; color: #a1a1aa; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-  .stage .lbl i { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
-  .card { background: #171a20; border-radius: 12px; padding: 11px 13px; border: 1.5px solid transparent; }
-  .card.new { border-color: var(--c); background: color-mix(in srgb, var(--c) 16%, #171a20); animation: up .5s cubic-bezier(.2, .9, .25, 1.15) both; }
-  @keyframes up { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
-  .meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #a1a1aa; margin-bottom: 5px; }
-  .tno { font-weight: 800; color: #fff; background: color-mix(in srgb, var(--c) 40%, transparent); padding: 1px 7px; border-radius: 5px; }
-  .tag { font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 5px; background: rgba(148, 163, 184, .2); color: #cbd5e1; }
-  .tag.pain { background: rgba(248, 113, 113, .22); color: #fca5a5; } .tag.idea { background: rgba(251, 191, 36, .22); color: #fcd34d; }
-  .tag.action { background: rgba(52, 211, 153, .22); color: #6ee7b7; } .tag.admin { background: rgba(96, 165, 250, .22); color: #93c5fd; }
-  .time { margin-left: auto; }
-  .card p { color: #f5f5f4; font-size: 17px; font-weight: 700; line-height: 1.42; }
-  .stage .empty { color: #6b6b74; }
+  .stage { grid-area: stage; background: #000; color: #f5f5f4; border-color: #000; position: sticky; top: 12px; }
+  @media (max-width: 900px) { .stage { position: static; } }
+  .stage .ph { border-color: #222; }
+  .steps { display: flex; gap: 4px; }
+  .steps button { border: 1px solid #333; background: #111; color: #a1a1aa; border-radius: 8px; padding: 5px 9px; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+  .steps button.on { background: #f5f5f4; color: #000; }
+  .scr { padding: 14px; min-height: 340px; }
+  .q { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+  .q small { display: block; font-size: 13px; color: #a1a1aa; font-weight: 600; margin-top: 2px; }
+  .cols { display: grid; gap: 8px; }
+  .cols.c3 { grid-template-columns: repeat(3, 1fr); } .cols.c2 { grid-template-columns: repeat(2, 1fr); }
+  .colh { font-size: 14px; font-weight: 900; padding: 6px 8px; border-bottom: 3px solid var(--k); margin-bottom: 6px; }
+  .cd { background: #171a20; border-radius: 10px; padding: 8px 10px 8px 14px; margin-bottom: 6px; position: relative; font-size: 14px; line-height: 1.4; }
+  .cd::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 10px 0 0 10px; background: var(--c); }
+  .cd.new { animation: pop .6s ease; box-shadow: 0 0 0 2px var(--c); }
+  @keyframes pop { from { transform: translateY(-8px); opacity: 0; } }
+  .none { color: #6b6b74; font-size: 13px; }
+  .pick { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+  .pick i { color: #fbbf24; font-style: normal; margin-right: 6px; }
+  .kind { font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 5px; margin-left: 6px; color: #000; }
+  .kind.us { background: #34d399; } .kind.ext { background: #60a5fa; }
+  dl.f5 > div { display: grid; grid-template-columns: 120px 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px solid #222; font-size: 14px; }
+  dl.f5 dt { color: var(--c); font-weight: 800; font-size: 13px; }
+  dl.f5 > div.off dt { color: #6b6b74; }
+  .sheet { border-top: 5px solid var(--c); background: #101216; border-radius: 12px; padding: 12px; }
+  .sheet b.t { font-size: 18px; color: var(--c); }
+  .done { float: right; background: #34d399; color: #000; font-size: 12px; font-weight: 900; padding: 2px 8px; border-radius: 999px; }
 
-  .mission { padding: 12px 14px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .m { display: flex; gap: 8px; align-items: center; font-size: 13.5px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); }
-  .m b { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: #e2e8f0; color: #475569; }
-  .m.done { border-color: #a7f3d0; background: #ecfdf5; }
-  .m.done b { background: var(--ok); color: #fff; }
-  .all { display: none; margin: 0 14px 14px; padding: 12px; border-radius: 12px; background: #ecfdf5; color: #065f46; font-weight: 800; text-align: center; }
-  .all.on { display: block; }
-  .foot { font-size: 13px; color: var(--muted); line-height: 1.6; text-align: center; }
-  .foot a { color: #0369a1; font-weight: 700; }
+  .check { grid-area: check; }
+  .missions { list-style: none; padding: 12px 14px; display: grid; gap: 8px; }
+  .missions li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; }
+  .missions li i { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 900; color: #fff; margin-top: 1px; }
+  .missions li.ok i { background: var(--ok); border-color: var(--ok); }
+  .missions li.ok { color: var(--muted); }
+  .score { font-size: 14px; }
+  .foot { padding: 0 14px 14px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .foot a { color: #0284c7; font-weight: 700; }
 </style>
 </head>
 <body>
-<header>
+<header><div class="in">
   <small>2026 광산자치아고라 · 기록자 연습장</small>
-  <h1>써 보고, 화면에서 바로 확인하기</h1>
-  <p>여기에 쓴 내용은 진짜 무대 화면에 올라가지 않아요. 마음껏 연습하세요. 실제로는 한 줄을 다 쓰고 10~15초 뒤에 올라갑니다.</p>
-</header>
+  <h1>표에 써 보고, 대형 화면에 어떻게 뜨는지 바로 보기</h1>
+  <p>여기서 쓴 내용은 진짜 화면에 올라가지 않아요. 실제 문서와 같은 표예요. <b>오른쪽 칸</b>에만 쓰면 됩니다.</p>
+</div></header>
 
 <div class="wrap">
-  <section class="panel p-doc">
-    <div class="ph">✍️ 내 기록 문서 (연습)
-      <span class="sp"></span>
+  <section class="panel doc">
+    <div class="ph">📄 연습용 기록 문서 <span class="sp"></span>
       <select id="table" aria-label="테이블"></select>
-      <button class="btn" id="sample">예시 넣기</button>
-      <button class="btn" id="clear">지우기</button>
+      <button class="btn" id="fill">예시로 채워 보기</button>
+      <button class="btn" id="clear">모두 지우기</button>
     </div>
-    <div class="doc">
-      <div class="docbar"><span id="doctitle"></span><b>편집</b></div>
-      <textarea id="ta" spellcheck="false" placeholder="[경험] 도산: 저녁마다 제방길을 걸어요&#10;&#10;← 이런 모양으로 한 줄 쓰고 Enter"></textarea>
-    </div>
-    <div class="chips"><span>표시 넣기</span>
-      <button class="chip" data-t="경험">[경험]</button>
-      <button class="chip pain" data-t="불편">[불편]</button>
-      <button class="chip" data-t="자원">[자원]</button>
-      <button class="chip idea" data-t="아이디어">[아이디어]</button>
-      <button class="chip action" data-t="실천">[실천]</button>
-      <button class="chip admin" data-t="협력">[협력]</button>
-    </div>
+    <div class="paper" id="paper"></div>
   </section>
 
-  <section class="panel p-check">
-    <div class="ph">🔎 줄마다 확인</div>
-    <div class="checks" id="checks"><p class="empty">한 줄 써 보면 여기에서 바로 알려 드려요.</p></div>
+  <section class="panel stage">
+    <div class="ph">🖥 대형 화면에서는 <span class="sp"></span><div class="steps" id="steps"></div></div>
+    <div class="scr" id="scr"></div>
   </section>
 
-  <section class="panel p-stage">
-    <div class="ph">📺 무대 화면에는 이렇게 보여요</div>
-    <div class="stage" id="stage"><div class="lbl"><i></i>새 기록이 위로 올라와요</div><p class="empty">아직 화면에 올라간 기록이 없어요.</p></div>
-    <div class="ph" style="border-top:1px solid var(--line)">🎯 연습 미션 <span class="sp"></span><span id="mcount" style="color:var(--muted)">0 / 6</span></div>
-    <div class="mission" id="mission"></div>
-    <div class="all" id="all">🎉 미션 완료! 당일에도 이렇게 쓰면 됩니다.</div>
+  <section class="panel check">
+    <div class="ph">✅ 연습 미션 <span class="sp"></span><span class="score" id="score"></span></div>
+    <ul class="missions" id="missions"></ul>
+    <p class="foot">실제 기록은 <a href="record.html">기록자 입장 페이지</a>에서 내 테이블 문서를 열어 같은 방법으로 쓰면 돼요. · <a href="기록자-가이드.html">기록자 가이드</a></p>
   </section>
-
-  <p class="foot">실제 기록은 <a href="record.html">기록자 입장 페이지</a>에서 내 테이블 번호를 눌러 엽니다 · 자세한 내용은 <a href="기록자-가이드.html">기록자 가이드</a></p>
 </div>
 
-<script src="config.js?v=20261115a"></script>
-<script src="assets/app.js?v=20261115a"></script>
+<script src="config.js?v=20261116b"></script>
+<script src="assets/app.js?v=20261116b"></script>
 <script>
 (function () {
   const A = window.Agora;
-  const { esc, CATS, TYPES } = A;
+  const { TEMPLATE, TOPICS, FIELDS, TASK_FIELDS, SUBSTEPS, esc } = A;
   const $ = s => document.querySelector(s);
-  const ta = $('#ta'), sel = $('#table');
-  const TAG_RE = /^[\[【(]([^\]】)]{1,8})[\]】)]\s*(.*)$/;
+  const saved = A.LS.get('agora-practice-v2', {});
+  let cells = saved.cells || {};
+  let tableNo = saved.table || Number(A.LS.get('agora-my-table', 0)) || 1;
+  let step = 0, seen = new Set();
 
-  sel.innerHTML = A.tables.map(t => '<option value="' + t.no + '">테이블 ' + t.no + ' · ' + esc(CATS[t.cat].short) + '</option>').join('');
-  sel.value = String(A.LS.get('agora-practice-table', 1));
-  ta.value = A.LS.get('agora-practice-text', '');
+  const keyOf = (key, s) => /^pick/.test(key) ? key : FIELDS[key].step === 3 ? key + s.task : key + '0';
+  const stepOf = s => '①②③④⑤'.indexOf(s.head[0]);
 
-  const SAMPLE = [
-    '[경험] 도산: 저녁마다 제방길을 걷는데 걷는 사람이 정말 많아요',
-    '[불편] 임곡: 산막동 구간은 가로등이 없어서 밤에 무서워요',
-    '[자원] 걷기 동아리가 매주 화요일 저녁에 모여요',
-    '[아이디어] 두 동이 같이 하천 줍깅 데이를 정하면 좋겠어요',
-    '[실천] 매월 셋째 토요일 도산·임곡 합동 하천 줍깅하기',
-    '[협력] 산막동 구간 가로등과 CCTV 설치 요청'
-  ].join('\n') + '\n';
+  $('#table').innerHTML = A.DEFAULT_TABLES.map(t => '<option value="' + t.no + '">테이블 ' + t.no + ' · ' + TOPICS[t.topic].name + '</option>').join('');
+  $('#table').value = tableNo;
 
-  // 미션: 당일에 꼭 필요한 여섯 가지를 직접 써 보기
-  const MISSIONS = [
-    ['[경험] 한 줄 쓰기', items => items.some(i => i.type === 'exp')],
-    ['동 이름 붙이기 (도산:)', items => items.some(i => i.dong)],
-    ['[불편] 한 줄 쓰기', items => items.some(i => i.type === 'pain')],
-    ['[아이디어] 한 줄 쓰기', items => items.some(i => i.type === 'idea')],
-    ['[실천] "~하기"로 쓰기', items => items.some(i => i.type === 'action' && /하기\.?$/.test(i.text))],
-    ['[협력] "~요청"으로 쓰기', items => items.some(i => i.type === 'admin' && /요청\.?$/.test(i.text))]
-  ];
+  function buildPaper() {
+    const t = A.tableByNo(tableNo);
+    $('#paper').innerHTML = '<h2>테이블 ' + t.no + ' · ' + TOPICS[t.topic].name + ' 기록지</h2>' +
+      '<p class="guide">✍️ 맨 오른쪽 「우리 테이블 답」 칸에만 쓰세요. 칸 안에서 엔터를 치면 화면 카드가 한 장 더 생겨요.<br>⏱ 실제 문서는 10~15초 뒤 화면에 떠요. 이름·전화번호는 쓰지 않아요.</p>' +
+      TEMPLATE.map(s => '<h3 data-step="' + stepOf(s) + '">' + esc(s.head) + ' <small>— ' + esc(s.q) + '</small></h3><table><thead><tr><th>' + esc(s.head) + '</th><th>예시 (이렇게 쓰면 돼요)</th><th>우리 테이블 답 ✍️</th></tr></thead><tbody>' +
+        s.rows.map(([key, label, ex]) => { const k = keyOf(key, s); return '<tr><td class="l" data-ex="' + esc(ex ? '예) ' + ex : '') + '">' + esc(label) + '</td><td class="ex">' + esc(ex) + '</td><td class="ans"><textarea data-k="' + k + '" data-step="' + stepOf(s) + '" rows="2" aria-label="' + esc(s.head + ' ' + label) + '">' + esc((cells[k] || []).join('\n')) + '</textarea><span class="h" data-h="' + k + '"></span></td></tr>'; }).join('') +
+        '</tbody></table>').join('');
+    document.querySelectorAll('textarea').forEach(grow);
+  }
+  function grow(ta) { ta.style.height = 'auto'; ta.style.height = Math.max(54, ta.scrollHeight) + 'px'; }
 
-  // 줄 하나가 화면에 어떻게 되는지: 앞줄까지와 이 줄까지를 각각 읽어 비교 (실제 화면과 같은 규칙)
-  function analyze(text) {
-    const lines = text.split('\n');
-    const rows = [];
-    let prevCount = 0;
-    lines.forEach((raw, i) => {
-      const line = raw.trim();
-      const upto = A.parseDoc(lines.slice(0, i + 1).join('\n'));
-      const made = upto.length > prevCount ? upto[upto.length - 1] : null;
-      prevCount = upto.length;
-      if (!line) return;
-      const n = i + 1, show = esc(line.length > 28 ? line.slice(0, 27) + '…' : line);
-      const tag = line.match(TAG_RE);
-      if (!made) {
-        if (/^(※|#|\/\/)/.test(line)) rows.push(['info', n, show, '※·#으로 시작하는 줄은 메모용이라 화면에 안 나가요.']);
-        else if (/\(예시\)/.test(line)) rows.push(['info', n, show, '(예시)가 들어간 줄은 화면에 안 나가요.']);
-        else if (tag && !tag[2]) rows.push(['info', n, show, '표시만 있는 줄이에요. 아래 줄들이 이 표시로 올라가요.']);
-        else rows.push(['warn', n, show, '너무 짧아서 화면에 안 나가요.']);
-        return;
-      }
-      const label = TYPES[made.type].label;
-      if (/^[\[【(]/.test(made.text)) {
-        rows.push(['bad', n, show, /^[\[【(][^\]】)]*$/.test(line.split(/\s/)[0]) && !/[\]】)]/.test(line)
-          ? '괄호가 안 닫혔어요. [실천]처럼 ] 로 닫아 주세요.'
-          : '표시를 못 알아들었어요. [경험] [불편] [자원] [아이디어] [실천] [협력] 중 하나로 써 주세요.']);
-        return;
-      }
-      if (/01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/.test(line)) { rows.push(['bad', n, show, '전화번호처럼 보여요! 개인정보는 적지 않아요.']); return; }
-      if (!made.dong && /^[가-힣]{1,4}\d?동?\s+[가-힣]+\s*[:：]/.test(made.text)) rows.push(['warn', n, show, '동 이름은 "도산:"처럼 붙여 써야 카드에 표시돼요.']);
-      else if (made.text.length > 60) rows.push(['warn', n, show, '한 줄이 길어요. 두 줄로 나누면 화면에서 읽기 쉬워요.']);
-      else if (!tag) rows.push(['info', n, show, '표시가 없어서 바로 위 표시를 이어 [' + label + '] 카드가 돼요.']);
-      else rows.push(['ok', n, show, '화면에 [' + label + '] 카드로 올라가요' + (made.dong ? ' · 동: ' + esc(made.dong) : '') + '.']);
-    });
-    return rows;
+  function save() { A.LS.set('agora-practice-v2', { cells, table: tableNo }); }
+
+  // 칸별 알림
+  const PHONE = /01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/;
+  function hint(k, lines) {
+    const all = lines.join(' ');
+    if (PHONE.test(all)) return ['bad', '전화번호는 쓰지 않아요. 지워 주세요.'];
+    if (lines.some(l => l.length > 60)) return ['warn', '한 줄이 길어요. 엔터로 나누거나 짧게 써 주세요.'];
+    if (/^pick/.test(k) && lines.length && !/\((우리|주민|외부)/.test(all)) return ['warn', '끝에 (우리) 또는 (외부)를 붙여 주세요.'];
+    if (k === 'pick1' && /외부/.test(all) && /외부/.test((cells.pick0 || []).join(' '))) return ['bad', '외부 협력만 2개는 고르지 않아요. 하나는 (우리) 과제로!'];
+    if (k === 'done0' && lines.length && !/제출/.test(all)) return ['warn', '모두 동의하면 ‘제출’이라고 써요.'];
+    if (/^(bg|want|prop|first|with)0$/.test(k) && !lines.length) return ['', '못 정하면 ‘추후 협의’라고 써요.'];
+    if (lines.length > 1) return ['ok', '카드 ' + lines.length + '장으로 올라가요'];
+    return ['', ''];
   }
 
-  let shown = new Set();
+  // 화면 미리보기 (실제 스크린과 같은 파서로 읽음)
   function render() {
-    const t = A.tableByNo(Number(sel.value));
-    const c = CATS[t.cat].color;
-    $('#doctitle').textContent = '테이블 ' + t.no + ' 기록 · ' + CATS[t.cat].name + ' · ' + t.dongs;
-    const items = A.parseDoc(ta.value);
+    const items = A.parseDoc(A.rowsFromCells(cells)).map(it => Object.assign({ table: tableNo, id: it.cell + '|' + it.text }, it));
+    const t = A.tableByNo(tableNo);
+    const color = TOPICS[t.topic].color;
+    $('#scr').style.setProperty('--c', color);
+    const isNew = it => !seen.has(it.id);
+    const card = it => '<div class="cd' + (isNew(it) ? ' new' : '') + '">' + esc(it.text) + '</div>';
+    const of = f => items.filter(i => i.field === f);
+    const d = A.tableData(items, tableNo);
+    const kind = k => k === 'us' ? '<span class="kind us">우리</span>' : k === 'ext' ? '<span class="kind ext">외부</span>' : '';
+    let html = '<div class="q">“' + esc(SUBSTEPS[step].q) + '”<small>' + TOPICS[t.topic].name + ' · 테이블 ' + t.no + '</small></div>';
+    if (step === 0) html += '<div class="cols c3">' + [['good', '😊 좋았던 점', '#34d399'], ['bad', '😣 불편한 점', '#f87171'], ['better', '💡 개선점', '#fbbf24']].map(([f, l, k]) => '<div><div class="colh" style="--k:' + k + '">' + l + '</div>' + (of(f).map(card).join('') || '<p class="none">아직 없음</p>') + '</div>').join('') + '</div>';
+    if (step === 1) html += '<div class="cols c2">' + [['us', '🟢 우리 (주민 실천)', '#34d399'], ['ext', '🔵 외부 협력·지원', '#60a5fa']].map(([f, l, k]) => '<div><div class="colh" style="--k:' + k + '">' + l + '</div>' + (of(f).map(card).join('') || '<p class="none">아직 없음</p>') + '</div>').join('') + '</div>';
+    if (step === 2) html += (d.picks.map(p => '<div class="pick"><i>★</i>' + esc(p.text) + kind(p.kind) + '</div>').join('') || '<p class="none">선정 과제를 쓰면 ★로 떠요</p>') +
+      (d.tally.length ? '<p class="none" style="margin:6px 0">🗳 ' + esc(d.tally.map(i => i.text).join(' ')) + '</p>' : '') + d.rest.map(card).join('');
+    if (step === 3) html += [0, 1].filter(i => i === 0 || d.picks[1] || A.filled(d.tasks[1])).map(i => '<div class="pick"><i>★</i>과제 ' + (i + 1) + ' · ' + esc(d.picks[i] ? d.picks[i].text : '') + '</div><dl class="f5">' +
+      TASK_FIELDS.map(f => '<div class="' + (d.tasks[i][f] ? '' : 'off') + '"><dt>' + FIELDS[f].label + '</dt><dd>' + (esc(d.tasks[i][f]) || '…') + '</dd></div>').join('') + '</dl>').join('<br>');
+    if (step === 4) {
+      const ps = A.proposals(tableNo, items, null, false);
+      html += '<div class="sheet">' + (d.done ? '<span class="done">✓ 제출</span>' : '') + '<b class="t">테이블 ' + t.no + ' · 의제 제안서</b>' +
+        (ps.map(p => '<div class="pick" style="margin-top:10px"><i>★</i>' + esc(p.title) + kind(p.kind) + '</div><dl class="f5">' + TASK_FIELDS.map(f => '<div class="' + (p[f] ? '' : 'off') + '"><dt>' + FIELDS[f].label + '</dt><dd>' + (esc(p[f]) || '추후 협의') + '</dd></div>').join('') + '</dl>').join('') || '<p class="none">④를 채우면 제안서가 돼요</p>') +
+        '<p class="none" style="margin-top:10px">관제반이 AI로 문장을 다듬으면 ✨ 표시와 함께 짧고 분명한 문장으로 바뀌어요.</p></div>';
+    }
+    $('#scr').innerHTML = html;
+    items.forEach(it => seen.add(it.id));
 
-    const rows = analyze(ta.value);
-    const icon = { ok: '✓', info: 'i', warn: '!', bad: '✕' };
-    $('#checks').innerHTML = rows.length ? rows.map(r => '<div class="row ' + r[0] + '"><i>' + icon[r[0]] + '</i><span><code>' + r[1] + '줄 ' + r[2] + '</code><br>' + r[3] + '</span></div>').join('')
-      : '<p class="empty">한 줄 써 보면 여기에서 바로 알려 드려요.</p>';
+    document.querySelectorAll('[data-h]').forEach(el => { const [c, m] = hint(el.dataset.h, cells[el.dataset.h] || []); el.className = 'h ' + c; el.textContent = m; });
 
-    const now = new Date(), hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-    const next = new Set();
-    const cards = items.slice().reverse().slice(0, 8).map((it, k) => {
-      const key = it.type + '|' + it.dong + '|' + it.text + '|' + (items.length - k);
-      next.add(key);
-      return '<div class="card' + (shown.has(key) ? '' : ' new') + '" style="--c:' + c + '"><div class="meta"><span class="tno">T' + t.no + '</span><span>' + esc(it.dong || t.dongs.split('·')[0]) + '</span><span class="tag ' + it.type + '">' + TYPES[it.type].label + '</span><span class="time">' + hhmm + '</span></div><p>' + esc(it.text) + '</p></div>';
-    }).join('');
-    shown = next;
-    $('#stage').innerHTML = '<div class="lbl"><i></i>새 기록이 위로 올라와요 · 테이블 ' + t.no + '</div>' + (cards || '<p class="empty">아직 화면에 올라간 기록이 없어요.</p>');
-
-    let done = 0;
-    $('#mission').innerHTML = MISSIONS.map(([label, test], i) => { const ok = test(items); if (ok) done++; return '<div class="m' + (ok ? ' done' : '') + '"><b>' + (ok ? '✓' : i + 1) + '</b>' + label + '</div>'; }).join('');
-    $('#mcount').textContent = done + ' / ' + MISSIONS.length;
-    $('#all').classList.toggle('on', done === MISSIONS.length);
-
-    A.LS.set('agora-practice-text', ta.value);
-    A.LS.set('agora-practice-table', Number(sel.value));
+    const fill = k => (cells[k] || []).length > 0;
+    const M = [
+      ['① 좋았던 점·불편한 점·개선점에 한 줄씩', fill('good0') && fill('bad0') && fill('better0')],
+      ['② 「우리가 함께 할 일」과 「외부 협력」에 한 줄씩', fill('us0') && fill('ext0')],
+      ['③ 선정 과제 1에 (우리)/(외부) 표시 + 투표 결과', /\((우리|주민|외부)/.test((cells.pick0 || []).join(' ')) && fill('tally0')],
+      ['④ 과제 1의 다섯 칸 모두 (못 정하면 ‘추후 협의’)', TASK_FIELDS.every(f => fill(f + '0'))],
+      ['⑤ 「최종 제출」에 ‘제출’', /제출/.test((cells.done0 || []).join(' '))]
+    ];
+    $('#missions').innerHTML = M.map(([l, ok]) => '<li class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✓' : '') + '</i>' + l + '</li>').join('');
+    const n = M.filter(m => m[1]).length;
+    $('#score').textContent = n === M.length ? '🎉 모두 완료!' : n + ' / ' + M.length;
   }
 
-  let timer = 0;
-  ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 350); });
-  sel.addEventListener('change', render);
-  $('#sample').onclick = () => { ta.value = SAMPLE; render(); };
-  $('#clear').onclick = () => { if (!ta.value || confirm('연습한 내용을 지울까요?')) { ta.value = ''; render(); ta.focus(); } };
-  // 표시 버튼: 지금 줄 맨 앞에 [표시] 넣기 (휴대폰에서 대괄호 치기 어려운 사람용)
-  document.querySelector('.chips').addEventListener('click', e => {
-    const b = e.target.closest('.chip'); if (!b) return;
-    const v = ta.value, pos = ta.selectionStart;
-    const start = v.lastIndexOf('\n', pos - 1) + 1;
-    const lineEnd = v.indexOf('\n', pos) === -1 ? v.length : v.indexOf('\n', pos);
-    const rest = v.slice(start, lineEnd).replace(TAG_RE, (m, a, body) => body);
-    const ins = '[' + b.dataset.t + '] ';
-    ta.value = v.slice(0, start) + ins + rest + v.slice(lineEnd);
-    ta.focus();
-    const caret = start + ins.length + rest.length;
-    ta.setSelectionRange(caret, caret);
-    render();
+  $('#steps').innerHTML = SUBSTEPS.map((s, i) => '<button data-i="' + i + '">' + s.label[0] + '</button>').join('');
+  function setStep(i) { step = i; document.querySelectorAll('#steps button').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === i)); render(); }
+  $('#steps').onclick = e => { const b = e.target.closest('button'); if (b) setStep(Number(b.dataset.i)); };
+
+  $('#paper').addEventListener('input', e => {
+    const ta = e.target.closest('textarea'); if (!ta) return;
+    grow(ta);
+    cells[ta.dataset.k] = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+    save(); render();
   });
-  render();
+  // 쓰는 칸의 단계로 미리보기를 맞춤
+  $('#paper').addEventListener('focusin', e => { const ta = e.target.closest('textarea'); if (ta && Number(ta.dataset.step) !== step) setStep(Number(ta.dataset.step)); });
+  $('#table').onchange = e => { tableNo = Number(e.target.value); save(); buildPaper(); render(); };
+  $('#clear').onclick = () => { if (!confirm('연습 내용을 모두 지울까요?')) return; cells = {}; seen = new Set(); save(); buildPaper(); render(); };
+  $('#fill').onclick = () => {
+    cells = {};
+    TEMPLATE.forEach(s => s.rows.forEach(([key, , ex]) => { if (ex) cells[keyOf(key, s)] = [ex]; }));
+    cells.done0 = ['제출'];
+    save(); buildPaper(); render();
+  };
+
+  buildPaper(); setStep(0);
 })();
 </script>
 </body>

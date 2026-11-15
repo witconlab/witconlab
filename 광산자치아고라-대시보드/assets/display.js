@@ -1,57 +1,73 @@
-/* 대형 스크린 동작 */
+/* 대형 스크린 V2 — 진행흐름도 「화면에 담을 내용과 구성」 기준 */
 (function () {
   'use strict';
   const A = window.Agora;
-  const { CATS, CAT_ORDER, TYPES, STAGES, SUBSTEPS, esc, hhmm, pad, toMin, nowMin, catIcon } = A;
+  const { TOPICS, TOPIC_ORDER, FIELDS, TASK_FIELDS, STAGES, SUBSTEPS, esc, pad, toMin, nowMin, topicIcon, ICONS } = A;
   const $ = s => document.querySelector(s);
   const qs = new URLSearchParams(location.search);
-  const PREVIEW = qs.has('preview'); // 관제 패널 안의 미리보기(시뮬레이터를 돌리지 않음)
+  const PREVIEW = qs.has('preview');
 
-  // ── 화면 맞춤 ──
   const stage = $('#stage');
-  function fit() {
-    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
-    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
-  }
+  function fit() { stage.style.transform = 'translate(-50%, -50%) scale(' + Math.min(innerWidth / 1920, innerHeight / 1080) + ')'; }
   addEventListener('resize', fit); fit();
   if (!PREVIEW) document.addEventListener('dblclick', () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); });
 
-  const catVar = cat => '--c:' + CATS[cat].color;
+  const tv = k => '--c:' + TOPICS[k].color;
+  const tLabel = t => t.no + ' · ' + TOPICS[t.topic].name;
 
   // ── 정적 요소 ──
-  $('#hd-mark').innerHTML = CAT_ORDER.map(c => '<i style="background:' + CATS[c].color + '"></i>').join('');
+  $('#hd-mark').innerHTML = TOPIC_ORDER.map(k => '<i style="background:' + TOPICS[k].color + '"></i>').join('');
   $('#hd-steps').innerHTML = STAGES.map(s => '<li data-k="' + s.key + '">' + s.label + '</li>').join('');
   $('#wait-meta').innerHTML = esc(A.EVENT.dateLabel) + '<br>' + esc(A.EVENT.place) + ' · 주최 ' + esc(A.EVENT.host);
-  $('#open-icons').innerHTML = [['river', '하천', '풍영정천·황룡강'], ['park', '공원', '근린공원·쉼터'], ['road', '맨발길', '산책길·골목길'], ['common', '공동공간', '함께 쓰는 마당']]
-    .map(([c, n, s]) => '<div class="oi" style="' + catVar(c) + '"><div class="ic">' + catIcon(c) + '</div><b>' + n + '</b><small>' + s + '</small></div>').join('');
-  // 참고3 공론 의제 분류 건수
-  const AGENDA = { river: 5, park: 10, road: 11, common: 9 };
-  $('#key-cats').innerHTML = CAT_ORDER.map(c => '<div class="kc" style="' + catVar(c) + '"><div class="ic">' + catIcon(c) + '</div><div><b>' + CATS[c].name + '</b><small>' + A.tables.filter(t => t.cat === c).length + '개 테이블</small></div><div class="n">' + AGENDA[c] + '<span>건</span></div></div>').join('');
-  $('#slo-icons').innerHTML = CAT_ORDER.map(c => '<span style="' + catVar(c) + '">' + catIcon(c) + '</span>').join('');
-  $('#talk-steps').innerHTML = SUBSTEPS.map((s, i) => '<div class="ts" data-i="' + i + '"><div class="fill"></div><b>' + (i + 1) + '. ' + s.label + '</b><small>' + s.min + '분 · ' + s.start + '</small></div>').join('');
+  $('#slo-icons').innerHTML = TOPIC_ORDER.map(k => '<span style="' + tv(k) + '">' + topicIcon(k) + '</span>').join('');
+  $('#key-q').textContent = '공통질문 · “' + A.EVENT.question + '”';
+  $('#talk-steps').innerHTML = SUBSTEPS.map((s, i) => '<div class="ts" data-i="' + i + '"><div class="fill"></div><b>' + s.label + '</b><small>' + s.min + '분 · ' + s.start + '</small></div>').join('');
   const live = $('#hd-live');
   if (A.MODE === 'demo') { live.classList.add('demo'); live.innerHTML = '<i></i>DEMO'; }
   $('#mode-badge').textContent = A.MODE === 'demo' ? '시뮬레이션 모드 · 화면을 두 번 누르면 전체화면' : '';
 
-  function buildLanes() {
-    $('#lanes').innerHTML = CAT_ORDER.map(c => '<div class="lane" data-cat="' + c + '" style="' + catVar(c) + '"><div class="lane-hd"><div class="ic">' + catIcon(c) + '</div><b>' + CATS[c].lane + '</b><span class="cnt">0</span></div><div class="lane-list"></div></div>').join('');
-    $('#heat').innerHTML = A.tables.map(t => '<div class="hc" data-no="' + t.no + '" style="' + catVar(t.cat) + '"><small>T' + t.no + '</small><b>0</b></div>').join('');
-    $('#ai-grid').innerHTML = A.tables.map(t => '<div class="ai-t" data-no="' + t.no + '" style="' + catVar(t.cat) + '">테이블 ' + t.no + '<small>정리 중…</small></div>').join('');
-    $('#wait-grid').innerHTML = A.tables.map(t => '<div class="wt" data-no="' + t.no + '" style="' + catVar(t.cat) + '"><b>' + t.no + '</b><span>' + esc(CATS[t.cat].short + ' · ' + t.dongs) + '</span><i></i></div>').join('');
+  function buildStatic() {
+    $('#open-icons').innerHTML = TOPIC_ORDER.map(k => '<div class="oi" style="' + tv(k) + '"><div class="ic">' + topicIcon(k) + '</div><b>' + TOPICS[k].name + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join('·') + '</small></div>').join('');
+    $('#key-cats').innerHTML = TOPIC_ORDER.map(k => '<div class="kc" style="' + tv(k) + '"><div class="ic">' + topicIcon(k) + '</div><div><b>' + TOPICS[k].name + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join(' · ') + '</small></div></div>').join('');
+    $('#wait-grid').innerHTML = A.tables.map(t => '<div class="wt" data-no="' + t.no + '" style="' + tv(t.topic) + '"><b>' + t.no + '</b><span>' + esc(TOPICS[t.topic].name + (t.dongs ? ' · ' + t.dongs : '')) + '</span><i></i></div>').join('');
   }
-  buildLanes();
+  buildStatic();
+
+  // ── 상태 ──
+  let cur = { stage: null };
+  let items = [];
+  let summary = { tables: {}, topics: {}, at: 0 };
+  let likeCounts = null;
+
+  // 보여 줄 주제: null = 전체, 'auto' = 15초마다 돌아가며
+  const ROTATE_MS = 15000;
+  const rotIdx = () => Math.floor(Date.now() / ROTATE_MS) % TOPIC_ORDER.length;
+  function viewTopic() {
+    const t = cur.topic || 'all';
+    if (t === 'all') return null;
+    if (t === 'auto') return TOPIC_ORDER[rotIdx()];
+    return TOPICS[t] ? t : null;
+  }
+  const viewTables = () => { const k = viewTopic(); return k ? A.tablesOf(k) : A.tables; };
+
+  function qbarHtml(question, k) {
+    const dots = cur.topic === 'auto' ? '<div class="rot">' + TOPIC_ORDER.map(x => '<i class="' + (x === k ? 'on' : '') + '" style="' + tv(x) + '"></i>').join('') + '</div>' : '';
+    const who = k
+      ? '<div class="qb-topic" style="' + tv(k) + '"><span class="ic">' + topicIcon(k) + '</span><b>' + TOPICS[k].name + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join(' · ') + '</small></div>'
+      : '<div class="qb-topic all"><b>12개 테이블</b><small>' + TOPIC_ORDER.map(x => '<i style="background:' + TOPICS[x].color + '"></i>' + TOPICS[x].name).join(' ') + '</small></div>';
+    return who + '<div class="qb-q"><b>“' + esc(question) + '”</b><small>공통질문 · ' + esc(A.EVENT.question) + '</small></div>' + dots;
+  }
 
   // ── 시계 · 헤더 ──
+  let lastRot = -1;
   function tick() {
     const d = new Date();
     $('#hd-clock').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
-    const left = toMin('14:00') * 60 - (nowMin() * 60);
-    $('#wait-count').innerHTML = left > 0 && left < 3 * 3600
-      ? '시작까지<b>' + pad(Math.floor(left / 60)) + ':' + pad(Math.floor(left % 60)) + '</b>'
-      : '';
+    const left = toMin('14:00') * 60 - nowMin() * 60;
+    $('#wait-count').innerHTML = left > 0 && left < 3 * 3600 ? '시작까지<b>' + pad(Math.floor(left / 60)) + ':' + pad(Math.floor(left % 60)) + '</b>' : '';
     if (cur.stage === 'talk') renderSubsteps();
+    if (cur.topic === 'auto' && rotIdx() !== lastRot) { lastRot = rotIdx(); renderBody(true); }
   }
-
   function renderDocs() {
     const ok = A.tables.filter(t => A.docOk[t.no]).length;
     $('#hd-docs').innerHTML = '<div class="dots">' + A.tables.map(t => '<i class="' + (A.docOk[t.no] ? 'ok' : '') + '"></i>').join('') + '</div>기록 <b>' + ok + '/' + A.tables.length + '</b>';
@@ -60,306 +76,247 @@
   }
 
   // ── 장면 전환 ──
-  let cur = { stage: null };
   function render() {
     const st = A.effective();
     const changed = st.stage !== cur.stage;
-    const prev = cur;
     cur = st;
     document.querySelectorAll('.scene').forEach(el => el.classList.toggle('on', el.dataset.scene === st.stage));
     const idx = STAGES.findIndex(s => s.key === st.stage);
     document.querySelectorAll('#hd-steps li').forEach((li, i) => { li.className = i === idx ? 'on' : i < idx ? 'done' : ''; });
     stage.classList.toggle('full', st.stage === 'slogan' || st.stage === 'open');
-
-    if (st.stage === 'talk') { renderSubsteps(); applyDim(); $('#ai-overlay').classList.toggle('on', st.sub === SUBSTEPS.length - 1); }
-    if (st.stage === 'share') renderShare(changed || prev.view !== st.view || prev.focus !== st.focus);
-    if (st.stage === 'vote') renderVote();
-    if (st.stage === 'result' && changed) revealResult();
+    if (st.stage === 'talk') renderSubsteps();
+    renderBody(true);
     if (st.stage === 'slogan') runSlogan(changed); else if (changed) sloStop();
     if (changed) refreshSlow();
   }
   A.onState(render);
 
-  // ── 의제공론화 세부단계 ──
   let subChangedAt = Date.now(), lastSub = -1;
   function renderSubsteps() {
-    if (cur.sub !== lastSub) { lastSub = cur.sub; subChangedAt = Date.now(); applyDim(); }
+    if (cur.sub !== lastSub) { lastSub = cur.sub; subChangedAt = Date.now(); }
     document.querySelectorAll('.ts').forEach((el, i) => {
       el.classList.toggle('on', i === cur.sub);
       el.classList.toggle('done', i < cur.sub);
       let p = i < cur.sub ? 100 : 0;
+      const s = SUBSTEPS[i];
       if (i === cur.sub) {
-        const s = SUBSTEPS[i];
         const elapsed = cur.auto ? (nowMin() - toMin(s.start)) : (Date.now() - subChangedAt) / 60000;
         p = Math.max(0, Math.min(100, elapsed / s.min * 100));
         const remain = Math.max(0, s.min - elapsed);
         el.querySelector('small').textContent = remain > 0 ? '남은 시간 약 ' + Math.ceil(remain) + '분' : s.min + '분 · 마무리 중';
-      } else {
-        el.querySelector('small').textContent = SUBSTEPS[i].min + '분 · ' + SUBSTEPS[i].start;
-      }
+      } else el.querySelector('small').textContent = s.min + '분 · ' + s.start;
       el.querySelector('.fill').style.width = p + '%';
     });
   }
-  function applyDim() {
-    const types = (SUBSTEPS[cur.sub] || SUBSTEPS[0]).types;
-    document.querySelectorAll('.lane-list .card').forEach(el => el.classList.toggle('dim', cur.stage === 'talk' && cur.sub >= 2 && !types.includes(el.dataset.type)));
+
+  // 같은 내용이면 다시 그리지 않음(애니메이션 유지)
+  let lastSig = '';
+  function renderBody() {
+    const sig = [cur.stage, cur.sub, viewTopic(), cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || [])].join('|');
+    if (sig === lastSig) return;
+    lastSig = sig;
+    if (cur.stage === 'talk') renderTalk();
+    if (cur.stage === 'share') renderShare();
+    if (cur.stage === 'like') renderLike();
   }
 
-  // ── 실시간 피드 ──
-  let items = [];
-  const shown = new Set();
-  const spotQueue = [];
-  let spotTimer = 0, spotCurrent = null;
-  const MAX_PER_LANE = 10;
+  // ── 의제공론화 ──
+  const enter = it => it.isNew && Date.now() - it.time < 6000 ? ' enter' : '';
+  const card = (it, withTable = true) => { const t = A.tableByNo(it.table); return '<div class="cd' + enter(it) + '" style="' + tv(t.topic) + '">' + (withTable ? '<span class="cd-t">' + tLabel(t) + '</span>' : '') + '<p>' + esc(it.text) + '</p></div>'; };
+  const ofField = (f, ts) => { const nos = new Set(ts.map(t => t.no)); return items.filter(i => i.field === f && nos.has(i.table)).slice().reverse(); };
 
-  function cardHtml(it) {
-    const t = A.tableByNo(it.table);
-    return '<div class="meta"><span class="tno">T' + t.no + '</span><span>' + esc(it.dong || t.dongs.split('·')[0]) + '</span><span class="tag ' + it.type + '">' + TYPES[it.type].label + '</span><span class="time">' + hhmm(it.time) + '</span></div><p>' + esc(it.text) + '</p>';
+  function renderTalk() {
+    const k = viewTopic(), ts = viewTables();
+    $('#qbar').innerHTML = qbarHtml(SUBSTEPS[cur.sub].q, k);
+    const body = $('#talk-body');
+    body.className = 'talk-body s' + cur.sub + (k ? ' one' : ' all');
+    const renderers = [step1, step2, step3, step4, step5];
+    body.innerHTML = renderers[cur.sub](ts, k);
+    $('#ai-overlay').classList.toggle('on', cur.sub === 4 && !!(summary.job && summary.job.status === 'running' && Date.now() - summary.job.started < 8 * 60000));
   }
 
-  async function pollFeed() {
-    try {
-      items = await A.loadFeed();
-    } catch (e) { console.warn('feed', e); return; }
-    renderDocs();
-    const firstLoad = shown.size === 0 && items.length > 0;
-    const fresh = items.filter(it => !shown.has(it.id));
-    const pinged = new Set();
-    fresh.forEach(it => {
-      shown.add(it.id);
-      const list = document.querySelector('.lane[data-cat="' + it.cat + '"] .lane-list');
-      if (!list) return;
-      const el = document.createElement('div');
-      el.className = 'card' + (firstLoad ? '' : ' enter');
-      el.dataset.type = it.type;
-      el.style.cssText = catVar(it.cat);
-      el.innerHTML = cardHtml(it);
-      list.prepend(el);
-      while (list.children.length > MAX_PER_LANE) list.lastElementChild.remove();
-      if (!firstLoad) { setTimeout(() => el.classList.remove('enter'), 4500); spotQueue.push(it); pinged.add(it.table); }
-    });
-    if (firstLoad && items.length) spotQueue.push(items[items.length - 1]);
-    // 많이 밀려 있으면 최근 것만 보여 줌
-    while (spotQueue.length > 6) spotQueue.shift();
-
-    CAT_ORDER.forEach(c => { const n = items.filter(i => i.cat === c).length; const el = document.querySelector('.lane[data-cat="' + c + '"] .cnt'); if (el) el.textContent = n; });
-    A.tables.forEach(t => {
-      const el = document.querySelector('.hc[data-no="' + t.no + '"]');
-      if (!el) return;
-      el.querySelector('b').textContent = items.filter(i => i.table === t.no).length;
-      if (pinged.has(t.no)) { el.classList.remove('ping'); void el.offsetWidth; el.classList.add('ping'); }
-    });
-    $('#feed-total').textContent = '총 ' + items.length + '건';
-    if (fresh.length) { renderCloud(); applyDim(); }
-    if (!spotTimer) nextSpot();
+  // ① 좋았던 점 · 불편한 점 · 개선점
+  function step1(ts, k) {
+    const max = k ? 9 : 8;
+    return '<div class="cols3">' + [['good', '좋았던 점', '😊'], ['bad', '불편한 점', '😣'], ['better', '개선점', '💡']].map(([f, label, ic]) => {
+      const list = ofField(f, ts);
+      return '<div class="col3 ' + f + '"><div class="col3-hd"><span>' + ic + '</span><b>' + label + '</b><em>' + list.length + '</em></div><div class="col3-list">' +
+        (list.slice(0, max).map(it => card(it, !k || ts.length > 1)).join('') || '<div class="empty">기록을 기다리고 있어요</div>') + '</div></div>';
+    }).join('') + '</div>';
   }
 
-  function nextSpot() {
-    spotTimer = 0;
-    const it = spotQueue.shift();
-    if (it) {
-      spotCurrent = it;
-      const t = A.tableByNo(it.table);
-      const card = $('#spot-card');
-      card.style.cssText = catVar(it.cat);
-      card.innerHTML = '<div class="spot-who"><span class="ic">' + catIcon(it.cat) + '</span>테이블 ' + t.no + ' · ' + esc(it.dong || t.dongs) + ' <span class="tag ' + it.type + '">' + TYPES[it.type].label + '</span></div><div class="spot-text">' + esc(it.text) + '</div>';
-      card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap');
-      const hold = spotQueue.length > 2 ? 3000 : 4800;
-      const bar = $('#spot-bar');
-      bar.style.background = CATS[it.cat].color;
-      bar.animate([{ width: '0%' }, { width: '100%' }], { duration: hold, easing: 'linear', fill: 'forwards' });
-      spotTimer = setTimeout(nextSpot, hold);
+  // ② 테이블·주제 | 우리 | 외부 협력
+  function step2(ts, k) {
+    const n = k ? 6 : 2;
+    const chips = (list, cls) => list.slice(0, n).map(it => '<span class="chip ' + cls + enter(it) + '">' + esc(it.text) + '</span>').join('') + (list.length > n ? '<span class="more">+' + (list.length - n) + '</span>' : '');
+    return '<div class="tbl2"><div class="tr th"><div>테이블 · 주제</div><div><i class="dot us"></i>우리 (주민 실천)</div><div><i class="dot ext"></i>외부 협력 · 지원</div></div>' +
+      ts.map(t => { const d = A.tableData(items, t.no); return '<div class="tr" style="' + tv(t.topic) + '"><div class="tn"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div><div class="cl">' + (chips(d.us.slice().reverse(), 'us') || '<span class="wait">…</span>') + '</div><div class="cl">' + (chips(d.ext.slice().reverse(), 'ext') || '<span class="wait">…</span>') + '</div></div>'; }).join('') + '</div>';
+  }
+
+  // ③ 테이블별 제안 목록 + 선정 과제
+  const kindTag = kd => kd === 'us' ? '<span class="kind us">우리</span>' : kd === 'ext' ? '<span class="kind ext">외부</span>' : '';
+  function step3(ts, k) {
+    return '<div class="grid3 n' + ts.length + '">' + ts.map(t => {
+      const d = A.tableData(items, t.no);
+      const picked = new Set(d.picks.map(p => p.text));
+      const others = d.us.map(i => ['us', i]).concat(d.ext.map(i => ['ext', i])).filter(([, i]) => !picked.has(i.text));
+      return '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + (d.picks.length ? '<span class="ok">선정 ' + d.picks.length + '</span>' : '') + '</div>' +
+        (d.picks.map((p, i) => '<div class="pick"><i>★</i><span>' + esc(p.text) + '</span>' + kindTag(p.kind) + '</div>').join('') || '<div class="empty">투표로 1~2개를 고르는 중</div>') +
+        (d.tally.length ? '<div class="tally">🗳 ' + esc(d.tally.map(i => i.text).join(' ')) + '</div>' : '') +
+        '<div class="others">' + others.slice(0, k ? 8 : 4).map(([kd, i]) => '<span class="o ' + kd + '">' + esc(i.text) + '</span>').join('') +
+        d.rest.slice(0, 2).map(i => '<span class="o rest">' + esc(i.text) + '</span>').join('') + '</div></div>';
+    }).join('') + '</div>';
+  }
+
+  // ④ 실행방법 5개 항목
+  const LABELS = { bg: '현황·제안배경', want: '우리가 바라는 모습', prop: '우리의 제안', first: '우리가 시작할 첫걸음', with: '함께하고 싶은 이웃' };
+  function fieldsHtml(task, compact) {
+    return '<dl class="f5' + (compact ? ' c' : '') + '">' + TASK_FIELDS.map(f => '<div class="' + (task[f] ? 'on' : '') + '"><dt>' + LABELS[f] + '</dt><dd>' + (task[f] ? esc(task[f]) : '<span class="wait">…</span>') + '</dd></div>').join('') + '</dl>';
+  }
+  function step4(ts, k) {
+    if (!k) {
+      return '<div class="grid4">' + ts.map(t => {
+        const d = A.tableData(items, t.no), task = d.tasks[0], pick = d.picks[0];
+        return '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '<span class="prog">' + TASK_FIELDS.map(f => '<i class="' + (task[f] ? 'on' : '') + '"></i>').join('') + '</span></div>' +
+          '<div class="pick"><i>★</i><span>' + esc(pick ? pick.text : '선정 과제') + '</span>' + kindTag(pick && pick.kind) + '</div>' +
+          (task.prop ? '<p class="line"><b>제안</b>' + esc(task.prop) + '</p>' : '') + (task.first ? '<p class="line"><b>첫걸음</b>' + esc(task.first) + '</p>' : '') +
+          (d.picks[1] ? '<p class="t2">+ 과제 2 · ' + esc(d.picks[1].text) + ' (' + A.filled(d.tasks[1]) + '/5)</p>' : '') + '</div>';
+      }).join('') + '</div>';
+    }
+    return '<div class="sheets n' + ts.length + '">' + ts.map(t => {
+      const d = A.tableData(items, t.no);
+      const tasks = [0, 1].filter(i => i === 0 || d.picks[1] || A.filled(d.tasks[1]));
+      return '<div class="sheet" style="' + tv(t.topic) + '"><div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span></div>' +
+        tasks.map(i => '<div class="sh-task"><div class="pick"><i>★</i><span>과제 ' + (i + 1) + ' · ' + esc(d.picks[i] ? d.picks[i].text : '') + '</span>' + kindTag(d.picks[i] && d.picks[i].kind) + '</div>' + fieldsHtml(d.tasks[i], tasks.length > 1) + '</div>').join('') + '</div>';
+    }).join('') + '</div>';
+  }
+
+  // ⑤ 테이블별 의제 제안서 (AI 다듬은 문장 적용 가능)
+  const CHECKS = ['정리내용 함께 읽기', '누락·오해 확인', '역할·협력 확인', '표현 다듬기', '최종 확인·제출'];
+  function propSheet(t, compact) {
+    const d = A.tableData(items, t.no);
+    const ps = A.proposals(t.no, items, summary, cur.polished);
+    const head = '<div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + ' · 의제 제안서</span>' + (d.done ? '<em class="done">✓ 제출</em>' : '') + (ps.some(p => p.polished) ? '<em class="ai">✨ 표현 다듬음</em>' : '') + '</div>';
+    if (!ps.length) return '<div class="sheet" style="' + tv(t.topic) + '">' + head + '<div class="empty">④에서 정리한 내용이 여기에 모여요</div></div>';
+    return '<div class="sheet" style="' + tv(t.topic) + '">' + head + ps.map(p =>
+      '<div class="sh-task"><h3>' + esc(p.title) + kindTag(p.kind) + '</h3>' +
+      (compact ? '<p class="line"><b>제안</b>' + esc(p.prop || '추후 협의') + '</p><p class="line"><b>첫걸음</b>' + esc(p.first || '추후 협의') + '</p>'
+        : fieldsHtml(p, ps.length > 1) + ((p.us || p.ext) ? '<div class="roles">' + (p.us ? '<span class="chip us">우리 · ' + esc(p.us) + '</span>' : '') + (p.ext ? '<span class="chip ext">외부 · ' + esc(p.ext) + '</span>' : '') + '</div>' : '')) +
+      '</div>').join('') + '</div>';
+  }
+  function step5(ts, k) {
+    return '<div class="checks">' + CHECKS.map((c, i) => '<span><b>' + (i + 1) + '</b>' + c + '</span>').join('') + '</div>' +
+      (k ? '<div class="sheets n' + ts.length + '">' + ts.map(t => propSheet(t, false)).join('') + '</div>'
+         : '<div class="grid4 props">' + ts.map(t => propSheet(t, true)).join('') + '</div>');
+  }
+
+  // ── ⑥ 주제별 결과 공유 ──
+  function renderShare() {
+    const k = viewTopic();
+    $('#share-bar').innerHTML = qbarHtml('같은 공간에 대해 어떤 의견이 나왔을까요?', k);
+    const body = $('#share-body');
+    const tsum = x => (summary.topics || {})[x];
+    if (!k) {
+      body.className = 'share-body all';
+      body.innerHTML = '<div class="topics6">' + TOPIC_ORDER.map(x => {
+        const s = tsum(x);
+        const titles = A.tablesOf(x).flatMap(t => A.proposals(t.no, items, summary, cur.polished).map(p => ({ t: t.no, p })));
+        return '<div class="tp" style="' + tv(x) + '"><div class="tp-hd"><span class="ic">' + topicIcon(x) + '</span><b>' + TOPICS[x].name + '</b><small>테이블 ' + A.tablesOf(x).map(t => t.no).join('·') + '</small></div>' +
+          (s && s.summary ? '<p class="tp-sum">' + esc(s.summary) + '</p>' : '') +
+          '<ul>' + (titles.slice(0, 4).map(({ t, p }) => '<li><small>T' + t + '</small>' + esc(p.title) + kindTag(p.kind) + '</li>').join('') || '<li class="empty">결과를 기다리고 있어요</li>') + '</ul></div>';
+      }).join('') + '</div>';
+      return;
+    }
+    const s = tsum(k);
+    body.className = 'share-body one';
+    body.style.cssText = tv(k);
+    body.innerHTML = '<div class="tf-hd">' +
+      (s && s.summary ? '<div class="tf-sum"><small>✨ 주제별 결과 요약</small><p>' + esc(s.summary) + '</p>' + (s.points && s.points.length ? '<div class="tf-pts">' + s.points.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' : '') + '</div>' : '<div class="tf-sum"><p class="dim">주제별 요약은 관제반이 AI 정리 후 띄워요</p></div>') + '</div>' +
+      '<div class="sheets n' + A.tablesOf(k).length + '">' + A.tablesOf(k).map(t => propSheet(t, false)).join('') + '</div>';
+  }
+
+  // ── ⑦ 공감·응원 ──
+  let qrUrl = '';
+  function renderLike() {
+    const url = new URL('vote.html', location.href).href;
+    if (url !== qrUrl && window.QRCode) { qrUrl = url; $('#qr').innerHTML = ''; new QRCode($('#qr'), { text: url, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M }); }
+    $('.like-left').classList.toggle('closed', !cur.likeOpen && (cur.cards || []).length > 0 && likeCounts != null && Object.keys(likeCounts).length > 0);
+    const cards = cur.cards || [];
+    $('#like-board').innerHTML = TOPIC_ORDER.map(x => {
+      const mine = cards.filter(c => c.topic === x);
+      return '<div class="lb" style="' + tv(x) + '"><div class="lb-hd"><span class="ic">' + topicIcon(x) + '</span><b>' + TOPICS[x].name + '</b></div>' +
+        (mine.map(c => '<div class="lc" data-id="' + c.id + '"><small>T' + c.table + '</small><b>' + esc(c.text) + '</b>' + (c.sub ? '<p>' + esc(c.sub) + '</p>' : '') + '<span class="hb"></span></div>').join('') || '<div class="empty">제안 카드 준비 중</div>') + '</div>';
+    }).join('');
+  }
+  // 숫자 없이 하트만 떠오르게
+  function burst(id, n) {
+    const el = document.querySelector('.lc[data-id="' + id + '"]');
+    if (!el) return;
+    el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+    for (let i = 0; i < Math.min(n, 6); i++) {
+      const h = document.createElement('i');
+      h.className = 'heart'; h.innerHTML = ICONS.heart;
+      h.style.left = (15 + Math.random() * 70) + '%';
+      h.style.animationDelay = (i * 160) + 'ms';
+      h.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+      el.querySelector('.hb').appendChild(h);
+      setTimeout(() => h.remove(), 2600 + i * 160);
     }
   }
 
-  function renderCloud() {
-    const kws = A.keywords(items, 16);
-    if (!kws.length) { $('#cloud').innerHTML = '<span style="font-size:20px;color:var(--dim)">기록이 쌓이면 키워드가 나타나요</span>'; return; }
-    const max = kws[0][1];
-    // 키워드가 많이 나온 분야 색으로
-    const catOf = w => { const c = {}; items.forEach(i => { if (i.text.includes(w)) c[i.cat] = (c[i.cat] || 0) + 1; }); return Object.entries(c).sort((a, b) => b[1] - a[1])[0][0]; };
-    $('#cloud').innerHTML = kws.map(([w, n]) => {
-      const size = 18 + Math.round((n / max) * 24);
-      return '<span style="font-size:' + size + 'px;color:' + CATS[catOf(w)].color + ';opacity:' + (0.55 + 0.45 * n / max).toFixed(2) + '">' + esc(w) + '</span>';
-    }).join('');
+  // ── 데이터 ──
+  async function pollFeed() {
+    try { items = await A.loadFeed(); } catch (e) { console.warn('feed', e); return; }
+    renderDocs();
+    renderBody(false);
   }
-
-  // ── 요약 · 투표 데이터 ──
-  let summary = { tables: {}, at: 0 };
-  let ballots = {};
   async function refreshSlow() {
     const s = cur.stage;
     try {
-      if (s === 'share' || s === 'vote' || s === 'result' || (s === 'talk' && cur.sub === SUBSTEPS.length - 1)) {
+      if (s === 'share' || s === 'like' || (s === 'talk' && cur.sub === 4)) {
         const next = await A.loadSummary();
-        const changed = JSON.stringify(next.tables) !== JSON.stringify(summary.tables);
+        const changed = next.at !== summary.at || JSON.stringify(next.job) !== JSON.stringify(summary.job);
         summary = next;
-        if (changed) { if (s === 'share') renderShare(true); renderAi(); }
+        if (changed) renderBody(true);
       }
-      if (s === 'vote' || s === 'result') {
-        const v = await A.loadVotes();
-        const changed = JSON.stringify(v.ballots) !== JSON.stringify(ballots);
-        ballots = v.ballots || {};
-        if (changed && s === 'vote') renderVote();
+      if (s === 'like') {
+        const r = await A.loadLikes();
+        const counts = r.counts || {};
+        if (likeCounts) Object.keys(counts).forEach(id => { const d = counts[id] - (likeCounts[id] || 0); if (d > 0) burst(id, d); });
+        likeCounts = counts;
       }
     } catch (e) { console.warn('slow', e); }
   }
-  function renderAi() {
-    document.querySelectorAll('.ai-t').forEach(el => {
-      const s = summary.tables[el.dataset.no];
-      const done = s && (s.actions.length || s.admin);
-      el.classList.toggle('done', !!done);
-      el.querySelector('small').textContent = done ? '정리 완료' : '정리 중…';
-    });
-  }
-  const candidates = () => (cur.candidates && cur.candidates.length) ? cur.candidates : A.buildCandidates(summary);
 
-  // ── 결과 공유 ──
-  const seenFocus = new Set();
-  function tableBlock(t, opts = {}) {
-    const s = summary.tables[t.no];
-    const acts = s ? s.actions.filter(Boolean) : [];
-    const body = s && (acts.length || s.admin)
-      ? acts.map(a => '<div class="li action"><i>✓</i><span>' + esc(a) + '</span></div>').join('') +
-        (s.admin ? '<div class="li admin"><i>行</i><span>' + esc(s.admin) + '</span></div>' : '') +
-        (opts.kw && s.keywords.length ? '<div class="kw">' + s.keywords.slice(0, 4).map(k => '<span>#' + esc(k) + '</span>').join('') + '</div>' : '')
-      : '<div class="empty">AI 정리 결과를 기다리고 있어요</div>';
-    return '<div class="st" style="' + catVar(t.cat) + '"><div class="st-hd"><b>테이블 ' + t.no + '</b><span>' + esc(t.dongs) + '</span></div>' + body + '</div>';
-  }
-  function renderShare(force) {
-    if (!force) return;
-    const body = $('#share-body');
-    const view = cur.view || 'category';
-    if (view === 'category') {
-      $('#share-title').textContent = '생활공간별로 모은 우리의 실천과제';
-      body.innerHTML = '<div class="sc-cols">' + CAT_ORDER.map(c => {
-        const ts = A.tables.filter(t => t.cat === c);
-        return '<div class="sc-col" style="' + catVar(c) + '"><div class="sc-col-hd"><span class="ic">' + catIcon(c) + '</span><b>' + CATS[c].name + '</b><span>' + ts.length + '개 테이블</span></div>' + ts.map(t => tableBlock(t)).join('') + '</div>';
-      }).join('') + '</div>';
-    } else if (view === 'table') {
-      $('#share-title').textContent = '12개 테이블이 제안하는 실천과제';
-      body.innerHTML = '<div class="sg">' + A.tables.map(t => tableBlock(t, { kw: true })).join('') + '</div>';
-    } else {
-      const t = A.tableByNo(cur.focus || 1);
-      seenFocus.add(t.no);
-      const s = summary.tables[t.no] || { summary: '', actions: [], admin: '', keywords: [] };
-      $('#share-title').textContent = '테이블 ' + t.no + ' 발표';
-      body.innerHTML = '<div class="sf" style="' + catVar(t.cat) + '">' +
-        '<div class="sf-left"><span class="ic">' + catIcon(t.cat) + '</span><div class="sf-no">' + t.no + '<small>테이블</small></div><div class="sf-cat">' + CATS[t.cat].name + '</div><div class="sf-dong">' + esc(t.dongs.split('·').join(' · ')) + '동</div><div class="sf-space">' + esc(t.space) + '</div></div>' +
-        '<div class="sf-right">' +
-          (s.summary ? '<p class="sf-sum">' + esc(s.summary) + '</p>' : '') +
-          '<div class="sf-block"><h3><i style="background:var(--action)"></i>주민 공동 실천과제</h3><div class="sf-acts">' + (s.actions.filter(Boolean).map(a => '<div class="sf-act">' + esc(a) + '</div>').join('') || '<div class="sf-admin" style="color:var(--dim)">정리 대기 중</div>') + '</div></div>' +
-          '<div class="sf-block"><h3><i style="background:var(--admin)"></i>행정 협력 요청</h3><div class="sf-admin">' + esc(s.admin || '—') + '</div></div>' +
-          (s.keywords.length ? '<div class="sf-kw kw">' + s.keywords.map(k => '<span>#' + esc(k) + '</span>').join('') + '</div>' : '') +
-          '<div class="sf-nav">' + A.tables.map(x => '<i class="' + (x.no === t.no ? 'on' : seenFocus.has(x.no) ? 'seen' : '') + '"></i>').join('') + '</div>' +
-        '</div></div>';
-    }
-  }
-
-  // ── 투표 ──
-  let qrUrl = '';
-  const prevVotes = {};
-  function voteUrl() {
-    const base = cur.voteUrl || new URL('vote.html', location.href).href;
-    return base;
-  }
-  function renderVote() {
-    const url = voteUrl();
-    if (url !== qrUrl && window.QRCode) {
-      qrUrl = url;
-      $('#qr').innerHTML = '';
-      new QRCode($('#qr'), { text: url, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M });
-    }
-    $('#vote-picks').textContent = cur.votePicks || 3;
-    $('.vote-left').classList.toggle('closed', !cur.voteOpen && Object.keys(ballots).length > 0);
-    const { voters, rows } = A.tally(ballots, candidates());
-    $('#vote-voters').textContent = voters;
-    const wrap = $('#vote-bars');
-    const H = wrap.clientHeight || 900;
-    const pitch = Math.min(80, H / Math.max(rows.length, 1));
-    const max = Math.max(1, rows[0] ? rows[0].votes : 1);
-    const ids = new Set(rows.map(r => r.id));
-    [...wrap.children].forEach(el => { if (!ids.has(el.dataset.id)) el.remove(); });
-    rows.forEach((r, i) => {
-      let el = wrap.querySelector('[data-id="' + r.id + '"]');
-      if (!el) {
-        el = document.createElement('div');
-        el.className = 'vb'; el.dataset.id = r.id; el.style.cssText = catVar(r.cat);
-        el.innerHTML = '<div class="rk"></div><div class="bar"><div class="fill"></div><div class="lbl"><small>T' + r.table + '</small><span></span></div></div><div class="num"></div>';
-        wrap.appendChild(el);
-      }
-      el.style.height = (pitch - 12) + 'px';
-      el.style.transform = 'translateY(' + (i * pitch) + 'px)';
-      el.classList.toggle('top', i < 3 && r.votes > 0);
-      el.querySelector('.rk').textContent = i + 1;
-      el.querySelector('.lbl span').textContent = r.text;
-      el.querySelector('.fill').style.width = (r.votes / max * 100) + '%';
-      el.querySelector('.num').innerHTML = r.votes + '<small>표</small>';
-      if (prevVotes[r.id] != null && prevVotes[r.id] !== r.votes) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
-      prevVotes[r.id] = r.votes;
-    });
-  }
-
-  // ── 투표 결과 ──
-  let revealTimers = [];
-  async function revealResult() {
-    revealTimers.forEach(clearTimeout); revealTimers = [];
-    try { summary = await A.loadSummary(); ballots = (await A.loadVotes()).ballots || {}; } catch (e) { /* 마지막 값 사용 */ }
-    const { voters, rows } = A.tally(ballots, candidates());
-    const total = voters || 1;
-    $('#res-sub').textContent = voters + '명이 참여했어요 · 1인 ' + (cur.votePicks || 3) + '표';
-    const top = rows.slice(0, 3);
-    const order = [1, 0, 2]; // 2위 · 1위 · 3위 배치
-    $('#podium').innerHTML = order.map(i => {
-      const r = top[i];
-      if (!r) return '<div></div>';
-      const t = A.tableByNo(r.table);
-      return '<div class="pd r' + (i + 1) + '" style="' + catVar(r.cat) + '"><div class="medal">' + (i + 1) + '</div><div class="who"><span>' + CATS[t.cat].name + '</span><small>테이블 ' + t.no + ' · ' + esc(t.dongs) + '</small></div><h3>' + esc(r.text) + '</h3><div class="v"><b>' + r.votes + '</b>표 · 참여자의 ' + Math.round(r.votes / total * 100) + '%</div></div>';
-    }).join('');
-    $('#res-rest').innerHTML = rows.slice(3, 7).map((r, i) => '<div class="rr" style="' + catVar(r.cat) + '"><b>' + (i + 4) + '</b><span>' + esc(r.text) + '</span><em>T' + r.table + ' · ' + r.votes + '표</em></div>').join('');
-    const pds = document.querySelectorAll('.pd');
-    // 3위 → 2위 → 1위 순서로 공개
-    [[2, 600], [0, 2000], [1, 3600]].forEach(([k, ms]) => { if (pds[k]) revealTimers.push(setTimeout(() => pds[k].classList.add('show'), ms)); });
-    document.querySelectorAll('.rr').forEach((el, i) => revealTimers.push(setTimeout(() => el.classList.add('show'), 5000 + i * 250)));
-  }
-
-  // ── 슬로건 모션그래픽 ──
-  // 21개 동 이름이 화면 가장자리에 떠올랐다가 → 하천·공원·길·공동공간 네 줄기를 따라 가운데로 모이고
-  // → 하나의 고리가 되어 퍼져 나간 뒤 → 「함께 걷고, 함께 가꾸는 광산!」이 글자 단위로 올라옵니다.
+  // ── 구호 모션그래픽 (21개 동 → 여섯 줄기 → 고리 → 구호) ──
   const DONGS = ['송정1', '송정2', '도산', '신흥', '어룡', '우산', '월곡1', '월곡2', '운남', '하남', '임곡', '동곡', '평동', '삼도', '본량', '신가', '신창', '수완', '비아', '첨단1', '첨단2'];
   const FLOWS = [
-    ['river', 'M -80 250 C 200 120 380 420 640 330 S 880 400 960 540'],
-    ['park', 'M 2000 130 C 1720 250 1560 110 1360 300 S 1080 360 960 540'],
-    ['road', 'M -80 990 C 260 1010 420 770 650 790 S 890 650 960 540'],
-    ['common', 'M 2000 950 C 1720 1030 1580 820 1350 830 S 1060 700 960 540']
+    ['hwang', 'M -80 250 C 200 120 380 420 640 330 S 880 400 960 540'],
+    ['pung', 'M 2000 130 C 1720 250 1560 110 1360 300 S 1080 360 960 540'],
+    ['eodeung', 'M -80 990 C 260 1010 420 770 650 790 S 890 650 960 540'],
+    ['malmi', 'M 2000 950 C 1720 1030 1580 820 1350 830 S 1060 700 960 540'],
+    ['sinchon', 'M 960 -80 C 820 120 1100 260 980 380 S 940 470 960 540'],
+    ['daesang', 'M 960 1160 C 1120 980 820 860 960 720 S 980 600 960 540']
   ];
   let sloAnims = [], sloTimers = [], sloRaf = 0;
   let lastCue = Number(A.LS.get('agora-last-cue', 0));
   const anim = (el, kf, opt) => { const a = el.animate(kf, Object.assign({ fill: 'both' }, opt)); sloAnims.push(a); return a; };
   const later = (fn, ms) => sloTimers.push(setTimeout(fn, ms));
-
-  function sloStop() {
-    sloAnims.forEach(a => a.cancel()); sloAnims = [];
-    sloTimers.forEach(clearTimeout); sloTimers = [];
-    cancelAnimationFrame(sloRaf);
-  }
-
+  function sloStop() { sloAnims.forEach(a => a.cancel()); sloAnims = []; sloTimers.forEach(clearTimeout); sloTimers = []; cancelAnimationFrame(sloRaf); }
   function sloBuild() {
     const svg = $('#slo-lines');
-    svg.innerHTML = FLOWS.map(([c, d]) => '<path class="glow" d="' + d + '" stroke="' + CATS[c].color + '"/><path class="main" d="' + d + '" stroke="' + CATS[c].color + '"/>').join('') +
-      FLOWS.map(([c]) => [0, 1, 2].map(() => '<circle r="9" fill="' + CATS[c].color + '" color="' + CATS[c].color + '" opacity="0"/>').join('')).join('');
+    svg.innerHTML = FLOWS.map(([c, d]) => '<path class="glow" d="' + d + '" stroke="' + TOPICS[c].color + '"/><path class="main" d="' + d + '" stroke="' + TOPICS[c].color + '"/>').join('') +
+      FLOWS.map(([c]) => [0, 1, 2].map(() => '<circle r="9" fill="' + TOPICS[c].color + '" color="' + TOPICS[c].color + '" opacity="0"/>').join('')).join('');
     $('#slo-dongs').innerHTML = DONGS.map((d, i) => {
       const a = i / DONGS.length * Math.PI * 2 - Math.PI / 2;
       const x = 960 + Math.cos(a) * 780, y = 540 + Math.sin(a) * 400;
-      return '<div class="dg" style="left:' + x.toFixed(0) + 'px;top:' + y.toFixed(0) + 'px;' + catVar(CAT_ORDER[i % 4]) + '" data-dx="' + (960 - x).toFixed(0) + '" data-dy="' + (540 - y).toFixed(0) + '"><span>' + d + '</span></div>';
+      return '<div class="dg" style="left:' + x.toFixed(0) + 'px;top:' + y.toFixed(0) + 'px;' + tv(TOPIC_ORDER[i % 6]) + '" data-dx="' + (960 - x).toFixed(0) + '" data-dy="' + (540 - y).toFixed(0) + '"><span>' + d + '</span></div>';
     }).join('');
-    $('#slo-rings').innerHTML = CAT_ORDER.concat(CAT_ORDER).map(c => '<i style="' + catVar(c) + '"></i>').join('');
-    // 그리기 전에는 선이 보이지 않도록
+    $('#slo-rings').innerHTML = TOPIC_ORDER.concat(TOPIC_ORDER).map(c => '<i style="' + tv(c) + '"></i>').join('');
     svg.querySelectorAll('path').forEach(p => { const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len; });
     const split = t => [...t].map(ch => '<span class="ch">' + (ch === ' ' ? '&nbsp;' : ch) + '</span>').join('');
     $('#slo').innerHTML = '<span class="ln">' + split('함께 걷고,') + '</span><span class="ln">' + split('함께 가꾸는') + '</span><span class="big">광산!</span>';
   }
-
   function sloCountdown() {
     const box = $('#slo-count'), num = $('#slo-num'), arc = $('#slo-arc');
     anim(box, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'none' }], { duration: 300 });
@@ -370,47 +327,32 @@
     }, i * 1000));
     later(() => anim(box, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.4)' }], { duration: 350, easing: 'ease-in' }), 2950);
   }
-
   function sloSequence() {
-    // ① 네 줄기 선이 가장자리에서 가운데로 그려짐
-    const paths = [...document.querySelectorAll('#slo-lines path')];
-    paths.forEach((p, i) => {
+    [...document.querySelectorAll('#slo-lines path')].forEach((p, i) => {
       const len = p.getTotalLength();
       p.style.strokeDasharray = len;
-      anim(p, [{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 1900, delay: 200 + Math.floor(i / 2) * 140, easing: 'cubic-bezier(.55,0,.2,1)' });
+      anim(p, [{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 1900, delay: 200 + Math.floor(i / 2) * 120, easing: 'cubic-bezier(.55,0,.2,1)' });
       anim(p, [{ opacity: 1 }, { opacity: .3 }], { duration: 900, delay: 3300, fill: 'forwards' });
     });
-    // ② 21개 동 이름이 떠오름 → 가운데로 빨려 들어감
     document.querySelectorAll('.dg').forEach((el, i) => {
       anim(el.firstChild, [{ opacity: 0, transform: 'translate(-50%,-50%) scale(.4)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)' }], { duration: 520, delay: 120 + i * 45, easing: 'cubic-bezier(.2,1.4,.4,1)' });
-      anim(el, [{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + el.dataset.dx + 'px,' + el.dataset.dy + 'px) scale(.15)', opacity: 0 }],
-        { duration: 950, delay: 1750 + (i % 7) * 70, easing: 'cubic-bezier(.7,0,.84,0)', fill: 'forwards' });
+      anim(el, [{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + el.dataset.dx + 'px,' + el.dataset.dy + 'px) scale(.15)', opacity: 0 }], { duration: 950, delay: 1750 + (i % 7) * 70, easing: 'cubic-bezier(.7,0,.84,0)', fill: 'forwards' });
     });
-    // ③ 가운데 고리가 차오르고 → 네 색 물결로 터짐
-    const core = $('#slo-core');
-    anim(core, [{ transform: 'scale(0) rotate(0deg)' }, { transform: 'scale(.7) rotate(90deg)', offset: .45 }, { transform: 'scale(1.25) rotate(220deg)', offset: .9 }, { transform: 'scale(0) rotate(260deg)' }],
-      { duration: 1900, delay: 1600, easing: 'cubic-bezier(.4,0,.2,1)' });
+    anim($('#slo-core'), [{ transform: 'scale(0) rotate(0deg)' }, { transform: 'scale(.7) rotate(90deg)', offset: .45 }, { transform: 'scale(1.25) rotate(220deg)', offset: .9 }, { transform: 'scale(0) rotate(260deg)' }], { duration: 1900, delay: 1600, easing: 'cubic-bezier(.4,0,.2,1)' });
     document.querySelectorAll('.slo-rings i').forEach((r, i) => {
-      const first = i < 4;
+      const first = i < 6;
       anim(r, [{ transform: 'scale(.3)', opacity: first ? .95 : .35 }, { transform: 'scale(' + (first ? 7.5 : 4.5) + ')', opacity: 0 }],
-        first ? { duration: 1700, delay: 3250 + i * 120, easing: 'cubic-bezier(.1,.7,.3,1)' }
-              : { duration: 2400, delay: 6200 + (i - 4) * 160, iterations: Infinity, easing: 'cubic-bezier(.2,.6,.4,1)' });
+        first ? { duration: 1700, delay: 3250 + i * 100, easing: 'cubic-bezier(.1,.7,.3,1)' } : { duration: 2400, delay: 6200 + (i - 6) * 140, iterations: Infinity, easing: 'cubic-bezier(.2,.6,.4,1)' });
     });
-    // ④ 슬로건 글자가 아래에서 올라옴
-    document.querySelectorAll('#slo .ln').forEach((ln, li) => {
-      [...ln.children].forEach((ch, j) => anim(ch, [{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 760, delay: 3450 + li * 620 + j * 55, easing: 'cubic-bezier(.2,.9,.25,1.08)' }));
-    });
+    document.querySelectorAll('#slo .ln').forEach((ln, li) => { [...ln.children].forEach((ch, j) => anim(ch, [{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 760, delay: 3450 + li * 620 + j * 55, easing: 'cubic-bezier(.2,.9,.25,1.08)' })); });
     const big = document.querySelector('#slo .big');
     big.classList.remove('flow');
-    anim(big, [{ opacity: 0, transform: 'scale(1.9)', filter: 'blur(28px)' }, { opacity: 1, transform: 'scale(.95)', filter: 'blur(0)', offset: .7 }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }],
-      { duration: 1100, delay: 4750, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    anim(big, [{ opacity: 0, transform: 'scale(1.9)', filter: 'blur(28px)' }, { opacity: 1, transform: 'scale(.95)', filter: 'blur(0)', offset: .7 }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], { duration: 1100, delay: 4750, easing: 'cubic-bezier(.2,.8,.2,1)' });
     later(() => big.classList.add('flow'), 5900);
     anim($('#slo-sub'), [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: 5800, easing: 'ease-out' });
     document.querySelectorAll('#slo-icons span').forEach((el, i) => anim(el, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 600, delay: 6150 + i * 110, easing: 'cubic-bezier(.2,1.5,.4,1)' }));
-    // ⑤ 선을 따라 빛이 계속 가운데로 흘러 들어감
     later(sloPulses, 3400);
   }
-
   function sloPulses() {
     const mains = [...document.querySelectorAll('#slo-lines path.main')];
     const dots = [...document.querySelectorAll('#slo-lines circle')];
@@ -426,19 +368,11 @@
       sloRaf = requestAnimationFrame(frame);
     })(t0);
   }
-
-  function playSlogan(withCount) {
-    sloStop(); sloBuild();
-    if (withCount) { sloCountdown(); later(sloSequence, 3100); } else sloSequence();
-  }
+  function playSlogan(withCount) { sloStop(); sloBuild(); if (withCount) { sloCountdown(); later(sloSequence, 3100); } else sloSequence(); }
   function runSlogan(entered) {
     const cue = cur.sloganCue || 0;
-    if (cue > lastCue && Date.now() - cue < 30000) {
-      lastCue = cue; A.LS.set('agora-last-cue', cue);
-      playSlogan(true);
-    } else if (entered) {
-      playSlogan(false);
-    }
+    if (cue > lastCue && Date.now() - cue < 30000) { lastCue = cue; A.LS.set('agora-last-cue', cue); playSlogan(true); }
+    else if (entered) playSlogan(false);
   }
 
   // ── 시뮬레이터 (DEMO, 메인 스크린에서만) ──
@@ -448,15 +382,14 @@
     const st = A.effective();
     let wait = 1500;
     if (A.MODE === 'demo' && st.sim && !PREVIEW) {
-      if (st.stage === 'talk' && st.sub < SUBSTEPS.length - 1) { A.simTick(st); wait = (1400 + Math.random() * 1800) / (st.simSpeed || 1); }
-      if (st.stage === 'vote' && st.voteOpen && Object.keys(A.LS.get('agora-votes', {})).length < 142) { A.simVote(); wait = 350 + Math.random() * 500; }
+      if (st.stage === 'talk') { A.simTick(st); wait = (900 + Math.random() * 1400) / (st.simSpeed || 1); }
+      if (st.stage === 'like' && st.likeOpen && Object.keys(A.LS.get('agora-likes-v2', {})).length < 140) { A.simLike(); wait = 400 + Math.random() * 600; }
     }
     simTimer = setTimeout(simLoop, wait);
   }
 
-  // ── 루프 ──
   async function boot() {
-    try { await A.loadTables(); buildLanes(); } catch (e) { console.warn('tables', e); }
+    try { await A.loadTables(); buildStatic(); } catch (e) { console.warn('tables', e); }
     try { await A.pullState(); } catch (e) { console.warn('state', e); }
     render();
     setInterval(tick, 1000); tick();
