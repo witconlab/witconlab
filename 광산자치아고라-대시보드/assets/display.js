@@ -147,24 +147,24 @@
 
   // ② 테이블·주제 | 우리 | 외부 협력
   function step2(ts, k) {
-    const n = k ? 6 : 2;
+    const n = k ? 8 : 3;
     const chips = (list, cls) => list.slice(0, n).map(it => '<span class="chip ' + cls + enter(it) + '">' + esc(it.text) + '</span>').join('') + (list.length > n ? '<span class="more">+' + (list.length - n) + '</span>' : '');
-    return '<div class="tbl2"><div class="tr th"><div>테이블 · 주제</div><div><i class="dot us"></i>우리 (주민 실천)</div><div><i class="dot ext"></i>외부 협력 · 지원</div></div>' +
+    return '<div class="tbl2"><div class="tr th"><div>테이블 · 주제</div><div><i class="dot us"></i>[주민실천] 우리가 함께 할 일</div><div><i class="dot ext"></i>[외부협력] 협력·지원이 필요한 일</div></div>' +
       ts.map(t => { const d = A.tableData(items, t.no); return '<div class="tr" style="' + tv(t.topic) + '"><div class="tn"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div><div class="cl">' + (chips(d.us.slice().reverse(), 'us') || '<span class="wait">…</span>') + '</div><div class="cl">' + (chips(d.ext.slice().reverse(), 'ext') || '<span class="wait">…</span>') + '</div></div>'; }).join('') + '</div>';
   }
 
   // ③ 테이블별 제안 목록 + 선정 과제
-  const kindTag = kd => kd === 'us' ? '<span class="kind us">우리</span>' : kd === 'ext' ? '<span class="kind ext">외부</span>' : '';
+  const kindTag = kd => kd === 'us' ? '<span class="kind us">주민실천</span>' : kd === 'ext' ? '<span class="kind ext">외부협력</span>' : '';
   function step3(ts, k) {
     return '<div class="grid3 n' + ts.length + '">' + ts.map(t => {
       const d = A.tableData(items, t.no);
       const picked = new Set(d.picks.map(p => p.text));
       const others = d.us.map(i => ['us', i]).concat(d.ext.map(i => ['ext', i])).filter(([, i]) => !picked.has(i.text));
       return '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + (d.picks.length ? '<span class="ok">선정 ' + d.picks.length + '</span>' : '') + '</div>' +
-        (d.picks.map((p, i) => '<div class="pick"><i>★</i><span>' + esc(p.text) + '</span>' + kindTag(p.kind) + '</div>').join('') || '<div class="empty">투표로 1~2개를 고르는 중</div>') +
+        (d.picks.map((p, i) => '<div class="pick"><i>★</i><span>' + (d.picks.length > 1 ? (p.task + 1) + '. ' : '') + esc(p.text) + '</span>' + kindTag(p.kind) + '</div>').join('') || '<div class="empty">투표로 1~2개를 고르는 중</div>') +
         (d.tally.length ? '<div class="tally">🗳 ' + esc(d.tally.map(i => i.text).join(' ')) + '</div>' : '') +
         '<div class="others">' + others.slice(0, k ? 8 : 4).map(([kd, i]) => '<span class="o ' + kd + '">' + esc(i.text) + '</span>').join('') +
-        d.rest.slice(0, 2).map(i => '<span class="o rest">' + esc(i.text) + '</span>').join('') + '</div></div>';
+        (d.rest.length ? '<span class="o-hd">선정되지 않은 의견 ' + d.rest.length + '</span>' + d.rest.slice(0, k ? 6 : 2).map(i => '<span class="o rest ' + i.kind + '">' + esc(i.text) + '</span>').join('') : '') + '</div></div>';
     }).join('') + '</div>';
   }
 
@@ -187,7 +187,7 @@
       const d = A.tableData(items, t.no);
       const tasks = [0, 1].filter(i => i === 0 || d.picks[1] || A.filled(d.tasks[1]));
       return '<div class="sheet" style="' + tv(t.topic) + '"><div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span></div>' +
-        tasks.map(i => '<div class="sh-task"><div class="pick"><i>★</i><span>과제 ' + (i + 1) + ' · ' + esc(d.picks[i] ? d.picks[i].text : '') + '</span>' + kindTag(d.picks[i] && d.picks[i].kind) + '</div>' + fieldsHtml(d.tasks[i], tasks.length > 1) + '</div>').join('') + '</div>';
+        tasks.map(i => '<div class="sh-task"><div class="pick"><i>★</i><span>' + (tasks.length > 1 ? '과제 ' + (i + 1) + ' · ' : '') + esc(d.picks[i] ? d.picks[i].text : '선정 과제') + '</span>' + kindTag(d.picks[i] && d.picks[i].kind) + '</div>' + fieldsHtml(d.tasks[i], tasks.length > 1) + '</div>').join('') + '</div>';
     }).join('') + '</div>';
   }
 

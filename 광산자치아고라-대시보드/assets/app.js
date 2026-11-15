@@ -51,32 +51,38 @@
   };
   const TASK_FIELDS = ['bg', 'want', 'prop', 'first', 'with'];
 
-  // 문서 표 양식 (apps-script/Code.gs 의 DOC_SECTIONS 와 같게 유지)
+  // 문서 표 양식 — 단계마다 문서의 탭 하나 (apps-script/Code.gs 의 DOC_TABLES 와 같게 유지)
+  //  cols: 참여자마다 한 줄(열 = 칸) / rows: [칸, 항목 이름, 무엇을 쓰면 좋은지, 예시]
+  const US_DESC = '주민이 직접 할 수 있는 일 · 모임, 캠페인, 정화·돌봄 활동, 기록, 교육 등';
+  const EXT_DESC = '구청·행정복지센터·기관의 도움이 필요한 일 · 시설 정비, 안전, 예산·제도 지원 등';
+  const REST_DESC = '투표에서 뽑히지 않은 제안도 지우지 말고 하나씩';
   const TEMPLATE = [
-    { head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?', rows: [
-      ['good', '좋았던 점', '아침마다 강변을 걸으면 물소리가 좋아요'],
-      ['bad', '불편한 점', '밤에 조명이 어두워 혼자 걷기 무서워요'],
-      ['better', '개선점', '쉬어 갈 벤치가 더 있으면 좋겠어요']] },
-    { head: '② 함께 할 일 제안하기', q: '이 공간이 더 좋게 바뀌려면 어떤 변화가 필요할까요?', rows: [
-      ['us', '우리가 함께 할 일 (주민 실천)', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
-      ['ext', '외부 협력·지원이 필요한 일', '연결길 안내표지 정비 (구청)']] },
-    { head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요? (외부 협력만 2개 고르지 않기)', rows: [
-      ['pick0', '선정 과제 1', '함께 걷기·길 살피기 (우리)'],
-      ['pick1', '선정 과제 2', '연결길 안내표지 정비 (외부)'],
-      ['tally', '투표 결과', '함께 걷기 7표, 안내표지 5표, 쓰레기통 2표'],
-      ['rest', '선정되지 않은 의견', '쓰레기통 늘리기 — 지우지 말고 남겨 두기']] },
-    { head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요? (못 정하면 ‘추후 협의’)', task: 0, rows: [
-      ['bg', '현황·제안배경', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
-      ['want', '우리가 바라는 모습', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
-      ['prop', '우리의 제안', '취미를 이웃과 나누는 ‘공원에서 만나는 이웃’'],
-      ['first', '우리가 시작할 첫걸음', '각 동에서 취미를 나눌 주민을 찾아 공원 한 구간에서 시범 운영하기'],
-      ['with', '함께하고 싶은 이웃', '인근 아파트 주민모임, 주민자치회, 공원 관리부서']] },
-    { head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 비워 두세요', task: 1, rows: [
-      ['bg', '현황·제안배경', ''], ['want', '우리가 바라는 모습', ''], ['prop', '우리의 제안', ''], ['first', '우리가 시작할 첫걸음', ''], ['with', '함께하고 싶은 이웃', '']] },
-    { head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?', rows: [
-      ['check', '빠진 의견·고칠 표현', '“밤길” 대신 “저녁 산책길”로 고쳐 주세요'],
-      ['done', '최종 제출', '모두 동의하면 ‘제출’이라고 쓰기']] }
+    { tab: '① 이용 경험', head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?',
+      guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 말하지 않은 칸은 비워 두세요. 칸 안에서 엔터를 치면 카드가 한 장 더 생겨요.',
+      cols: ['good', 'bad', 'better'], ex: ['아침마다 강변을 걸으면 물소리가 좋아요', '밤에 조명이 어두워 혼자 걷기 무서워요', '쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
+    { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
+      guide: '제안 하나에 한 칸씩. [주민실천] 칸에는 우리가 할 일, [외부협력] 칸에는 도움을 요청할 일을 써요. 칸이 모자라면 한 칸 안에서 엔터로 이어 써요.',
+      rows: [['us', '[주민실천]', US_DESC, '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''],
+        ['ext', '[외부협력]', EXT_DESC, '연결길 안내표지 정비 (구청 공원녹지과)'], ['ext', '[외부협력]', '', ''], ['ext', '[외부협력]', '', ''], ['ext', '[외부협력]', '', '']] },
+    { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
+      guide: '테이블 안 투표로 1~2개를 골라요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
+      rows: [['pick', '선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['pick', '선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
+        ['tally', '투표 결과', '제안마다 몇 표였는지', '함께 걷기 7표, 안내표지 5표, 쓰레기통 2표'],
+        ['rest', '선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)'], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', '']] },
+    { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?', task: 0,
+      guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요.',
+      rows: [['bg', '현황·제안배경', '지금 어떤 상황이고 왜 필요한지', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
+        ['want', '우리가 바라는 모습', '이 일이 이뤄지면 어떤 모습일지', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
+        ['prop', '우리의 제안', '바라는 모습을 위해 함께 할 일', '취미를 이웃과 나누는 ‘공원에서 만나는 이웃’'],
+        ['first', '우리가 시작할 첫걸음', '처음 해 볼 활동 · 언제 · 어디서 · 동별 역할', '각 동에서 취미를 나눌 주민을 찾아 공원 한 구간에서 시범 운영하기'],
+        ['with', '함께하고 싶은 이웃', '참여할 주민·모임 / 도움이 필요한 기관', '인근 아파트 주민모임, 주민자치회, 공원 관리부서']] },
+    { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요', task: 1,
+      rows: [['bg', '현황·제안배경', '', ''], ['want', '우리가 바라는 모습', '', ''], ['prop', '우리의 제안', '', ''], ['first', '우리가 시작할 첫걸음', '', ''], ['with', '함께하고 싶은 이웃', '', '']] },
+    { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?',
+      guide: '진행자가 화면의 제안서를 읽어 주면 빠진 의견·고칠 표현을 적고, 모두 동의하면 ‘제출’이라고 써요.',
+      rows: [['check', '빠진 의견·고칠 표현', '원래 뜻과 다르게 정리된 곳', '“밤길” 대신 “저녁 산책길”로 고쳐 주세요'], ['done', '최종 제출', '모두 동의하면', '제출']] }
   ];
+  const TABS = [...new Set(TEMPLATE.map(t => t.tab))];
 
   const DEFAULT_TABLES = Array.from({ length: 12 }, (_, i) => ({ no: i + 1, topic: defaultTopic(i + 1), dongs: '', space: '' }));
 
@@ -196,7 +202,7 @@
 
   // ── 문서 표 파싱 ──
   function fieldOf(label) {
-    const l = label.replace(/\s+/g, '');
+    const l = String(label || '').replace(/\s+/g, '');
     if (/좋았/.test(l)) return 'good';
     if (/불편/.test(l)) return 'bad';
     if (/개선/.test(l)) return 'better';
@@ -214,35 +220,63 @@
     if (/제출/.test(l)) return 'done';
     return null;
   }
+  const TAG_US = /^\[\s*주민\s*실천\s*\]\s*/, TAG_EXT = /^\[\s*외부\s*협력\s*\]\s*/;
 
-  /** 문서 표 행 [[칸 줄들]] → [{field, task, text, cell, last}]. 답 칸의 한 줄 = 카드 하나 */
+  /** 문서 표 행 [[칸 문단들]] → [{field, task, text, cell, slot, last}]. 칸 안의 한 줄 = 카드 하나
+   *  항목 칸은 첫 문단만 이름으로 봄(아래 설명 문단은 무시). ① 표는 열마다 칸이 다름. */
   function parseDoc(rows) {
     const out = [];
-    let task = 0;
-    (rows || []).forEach(cells => {
+    let task = 0, colFields = null;
+    (rows || []).forEach((cells, ri) => {
       if (!cells || cells.length < 2) return;
-      const label = (cells[0] || []).join(' ').trim();
-      if (/^[①②③④⑤]/.test(label)) { const m = label.match(/과제\s*(\d)/); task = m ? Number(m[1]) - 1 : 0; return; }
+      const label = String((cells[0] || [])[0] || '').trim();
+      if (/^[①②③④⑤]/.test(label)) {
+        const m = label.match(/과제\s*(\d)/); task = m ? Number(m[1]) - 1 : 0;
+        const cf = cells.slice(1).map(c => fieldOf((c || [])[0]));
+        colFields = cf.some(f => f && FIELDS[f].step === 0) ? cf : null;
+        return;
+      }
+      if (/^예시/.test(label)) return;
+      const push = (field, t, ans, ci) => {
+        const lines = (ans || []).map(x => String(x).replace(/^[-–•·*▪◦○●]\s*/, '').trim())
+          .filter(x => x && !/\(예시\)|✍️/.test(x) && !/^\[\s*(주민\s*실천|외부\s*협력)\s*\]$/.test(x) && (x.length >= 2 || field === 'done'));
+        lines.forEach((text, i) => {
+          let f = field;
+          // ② 칸 안에서 [주민실천]/[외부협력]을 직접 붙였으면 그 표시를 따름
+          if (f === 'us' || f === 'ext') { if (TAG_US.test(text)) { f = 'us'; text = text.replace(TAG_US, ''); } else if (TAG_EXT.test(text)) { f = 'ext'; text = text.replace(TAG_EXT, ''); } }
+          if (text) out.push({ field: f, task: t, text, cell: f + t, slot: 'r' + ri + 'c' + ci, last: i === lines.length - 1 });
+        });
+      };
+      if (colFields) { cells.slice(1).forEach((c, i) => { if (colFields[i]) push(colFields[i], 0, c, i + 1); }); return; }
       const field = fieldOf(label);
       if (!field) return;
-      const ans = cells.length >= 3 ? cells[cells.length - 1] : cells[1];
       const t = field === 'pick' ? Math.max(0, Number((label.match(/\d/) || ['1'])[0]) - 1) : FIELDS[field].step === 3 ? task : 0;
-      const lines = (ans || []).map(s => String(s).replace(/^[-–•·*▪◦○●]\s*/, '').trim())
-        .filter(s => s && !/\(예시\)|✍️/.test(s) && (s.length >= 2 || field === 'done'));
-      lines.forEach((text, i) => out.push({ field, task: t, text, cell: field + t, last: i === lines.length - 1 }));
+      push(field, t, cells.length >= 3 ? cells[cells.length - 1] : cells[1], cells.length - 1);
     });
     return out;
   }
 
-  /** 칸별 줄 {cellKey: [줄]} → 문서와 같은 표 행 (데모·연습장용) */
+  /** 칸 열쇠 목록 (데모·연습장용). 열쇠 = 'T표R줄C열' */
+  function slotList() {
+    const out = [];
+    TEMPLATE.forEach((s, ti) => {
+      if (s.cols) { for (let r = 0; r < s.people; r++) s.cols.forEach((f, ci) => out.push({ key: 'T' + ti + 'R' + r + 'C' + ci, field: f, task: 0, tab: s.tab, ti })); }
+      else s.rows.forEach(([f, label], ri) => out.push({ key: 'T' + ti + 'R' + ri, field: f, task: f === 'pick' ? Number(label.match(/\d/)[0]) - 1 : FIELDS[f].step === 3 ? s.task : 0, tab: s.tab, ti }));
+    });
+    return out;
+  }
+  /** 칸별 줄 {열쇠: [줄]} → 문서와 같은 표 행 */
   function rowsFromCells(cells) {
     const rows = [];
-    TEMPLATE.forEach(s => {
-      rows.push([[s.head], ['예시 (이렇게 쓰면 돼요)'], ['우리 테이블 답 ✍️']]);
-      s.rows.forEach(([key, label, ex]) => {
-        const k = /^pick/.test(key) ? key : FIELDS[key].step === 3 ? key + s.task : key + '0';
-        rows.push([[label], ex ? [ex] : [], (cells[k] || []).slice()]);
-      });
+    TEMPLATE.forEach((s, ti) => {
+      if (s.cols) {
+        rows.push([[s.head]].concat(s.cols.map(f => [FIELDS[f].label])));
+        rows.push([['예시']].concat(s.ex.map(x => [x])));
+        for (let r = 0; r < s.people; r++) rows.push([['참여자 ' + (r + 1)]].concat(s.cols.map((f, ci) => (cells['T' + ti + 'R' + r + 'C' + ci] || []).slice())));
+      } else {
+        rows.push([[s.head], ['예시 (이렇게 쓰면 돼요)'], ['우리 테이블 답 ✍️']]);
+        s.rows.forEach(([, label, desc, ex], ri) => rows.push([desc ? [label, desc] : [label], ex ? [ex] : [], (cells['T' + ti + 'R' + ri] || []).slice()]));
+      }
     });
     return rows;
   }
@@ -253,7 +287,7 @@
   const docOk = {};
   async function loadFeedRaw() {
     if (MODE === 'live') return apiGet('feed');
-    const vdocs = LS.get('agora-vdocs-v2', {});
+    const vdocs = LS.get('agora-vdocs-v2b', {});
     const docs = {};
     tables.forEach(t => { docs[t.no] = { ok: true, rows: rowsFromCells(vdocs[t.no] || {}) }; });
     return { docs, manual: LS.get('agora-manual-v2', []) };
@@ -276,7 +310,7 @@
         const id = hash(base + '|' + counts[base]);
         // 칸의 마지막 줄은 아직 치는 중일 수 있어, 처음 본 뒤 SETTLE_MS 동안 그대로일 때만 올림
         if (MODE === 'live' && it.last && !seen[id]) {
-          const key = t.no + it.cell, p = lastLine[key];
+          const key = t.no + it.slot, p = lastLine[key];
           if (!p || p.id !== id) { lastLine[key] = { id, since: now }; return; }
           if (now - p.since < SETTLE_MS) return;
         }
@@ -305,7 +339,8 @@
   }
 
   // ── 테이블별 정리 ──
-  const kindOf = s => /\(\s*외부|\[\s*외부|외부\s*\)$/.test(s) ? 'ext' : /\(\s*(우리|주민)|\[\s*(우리|주민)/.test(s) ? 'us' : '';
+  // [주민실천]/[외부협력] (또는 (우리)/(외부)) 표시
+  const kindOf = s => /[\(\[]\s*외부/.test(s) ? 'ext' : /[\(\[]\s*(우리|주민)/.test(s) ? 'us' : '';
   const stripKind = s => s.replace(/\s*[\(\[]\s*(우리|주민|외부)[^\)\]]*[\)\]]\s*/g, ' ').trim();
 
   /** 한 테이블의 현재 기록을 칸별로 */
@@ -316,7 +351,7 @@
     const picks = [0, 1].map(k => of('pick', k)[0]).filter(Boolean).map(i => ({ text: stripKind(i.text), kind: kindOf(i.text), task: i.task }));
     return {
       good: of('good'), bad: of('bad'), better: of('better'), us: of('us'), ext: of('ext'),
-      picks, tally: of('tally'), rest: of('rest'),
+      picks, tally: of('tally'), rest: of('rest').map(i => Object.assign({}, i, { text: stripKind(i.text), kind: kindOf(i.text) })),
       tasks: [0, 1].map(k => { const o = {}; TASK_FIELDS.forEach(f => { o[f] = join(f, k); }); return o; }),
       check: of('check'), done: of('done').some(i => /제출|완료|동의/.test(i.text)),
       count: mine.length
@@ -437,38 +472,46 @@
     us: ['두 동 주민이 한 달에 한 번 함께 걷기', '{p} 줍깅 데이 함께 열기', '주민 안전지킴이 순찰하기', '산책로 사진 기록단 운영하기'],
     ext: ['{p} 조명·CCTV 점검', '안내표지 정비', '쉼터·벤치 설치 지원', '위험 구간 안전시설 보완'],
     tally: ['함께 걷기 7표, 줍깅 5표, 표지판 3표'],
-    rest: ['쓰레기통 늘리기', '반려견 산책 매너 캠페인']
+    rest: ['[주민실천] 쓰레기통 주변 함께 치우기 (2표)', '[주민실천] 반려견 산책 매너 캠페인 (1표)', '[외부협력] 화장실 설치 (2표)', '[외부협력] 주차 공간 확보 (1표)']
   };
   const TASK_SAMPLE = [
-    { pick: '{p} 함께 걷고 살피기 (우리)', bg: '{p}를 따로 걷는 주민은 많지만 함께 살피는 활동은 없음', want: '두 동 주민이 같이 걸으며 인사하고 길을 함께 돌보는 모습', prop: '한 달에 한 번 ‘{p} 함께 걷기’', first: '12월 첫 토요일 오전 10시, 동 행정복지센터 앞에서 시작', with: '걷기 동아리, 주민자치회, 추후 협의' },
-    { pick: '{p} 조명·안내표지 정비 (외부)', bg: '저녁 산책객이 늘었지만 어두운 구간이 많음', want: '저녁에도 안심하고 걷는 {p}', prop: '어두운 구간 조명 보완과 안내표지 정비 요청', first: '주민이 어두운 구간 지도를 함께 그려 구청에 전달', with: '구청 공원녹지과, 통장단' }
+    { pick: '[주민실천] {p} 함께 걷고 살피기', bg: '{p}를 따로 걷는 주민은 많지만 함께 살피는 활동은 없음', want: '두 동 주민이 같이 걸으며 인사하고 길을 함께 돌보는 모습', prop: '한 달에 한 번 ‘{p} 함께 걷기’', first: '12월 첫 토요일 오전 10시, 동 행정복지센터 앞에서 시작', with: '걷기 동아리, 주민자치회, 추후 협의' },
+    { pick: '[외부협력] {p} 조명·안내표지 정비', bg: '저녁 산책객이 늘었지만 어두운 구간이 많음', want: '저녁에도 안심하고 걷는 {p}', prop: '어두운 구간 조명 보완과 안내표지 정비 요청', first: '주민이 어두운 구간 지도를 함께 그려 구청에 전달', with: '구청 공원녹지과, 통장단' }
   ];
   function simTick(stageInfo) {
     const st = stageInfo || effective();
     if (st.stage !== 'talk') return null;
     const t = tables[Math.floor(Math.random() * tables.length)];
     const p = TOPICS[t.topic].name;
-    const vdocs = LS.get('agora-vdocs-v2', {});
+    const vdocs = LS.get('agora-vdocs-v2b', {});
     const cells = vdocs[t.no] = vdocs[t.no] || {};
-    const add = (k, line) => { (cells[k] = cells[k] || []).push(line.replace(/\{p\}/g, p)); };
+    const slots = slotList();
+    const has = (f, k = 0) => slots.some(x => x.field === f && x.task === k && (cells[x.key] || []).length);
+    // 그 칸의 빈 자리(없으면 마지막 자리 아래로 이어 쓰기)
+    const add = (f, k, line) => {
+      const mine = slots.filter(x => x.field === f && x.task === k);
+      const sl = mine.find(x => !(cells[x.key] || []).length) || mine[mine.length - 1];
+      (cells[sl.key] = cells[sl.key] || []).push(line.replace(/\{p\}/g, p));
+      return line;
+    };
     const rnd = a => a[Math.floor(Math.random() * a.length)];
     let line = '';
-    if (st.sub === 0) { const f = rnd(['good', 'bad', 'better']); line = rnd(SAMPLE[f]); add(f + '0', line); }
-    else if (st.sub === 1) { const f = rnd(['us', 'ext']); line = rnd(SAMPLE[f]); add(f + '0', line); }
+    if (st.sub === 0) { const f = rnd(['good', 'bad', 'better']); line = add(f, 0, rnd(SAMPLE[f])); }
+    else if (st.sub === 1) { const f = rnd(['us', 'ext']); line = add(f, 0, rnd(SAMPLE[f])); }
     else if (st.sub === 2) {
-      if (!cells.pick0) { line = TASK_SAMPLE[0].pick; add('pick0', line); }
-      else if (!cells.pick1 && Math.random() < .6) { line = TASK_SAMPLE[1].pick; add('pick1', line); }
-      else if (!cells.tally0) { line = SAMPLE.tally[0]; add('tally0', line); }
-      else if (!cells.rest0) { line = rnd(SAMPLE.rest); add('rest0', line); }
+      if (!has('pick', 0)) line = add('pick', 0, TASK_SAMPLE[0].pick);
+      else if (!has('pick', 1) && t.no % 3) line = add('pick', 1, TASK_SAMPLE[1].pick);  // 일부 테이블은 과제 하나만
+      else if (!has('tally')) line = add('tally', 0, SAMPLE.tally[0]);
+      else if (slots.filter(x => x.field === 'rest' && (cells[x.key] || []).length).length < 3) line = add('rest', 0, rnd(SAMPLE.rest));
     } else if (st.sub === 3) {
-      const k = cells.pick1 && TASK_FIELDS.every(f => cells[f + '0']) ? 1 : 0;
-      const f = TASK_FIELDS.find(x => !cells[x + k]);
-      if (f) { line = TASK_SAMPLE[k][f]; add(f + k, line); }
+      const k = has('pick', 1) && TASK_FIELDS.every(f => has(f, 0)) ? 1 : 0;
+      const f = TASK_FIELDS.find(x => !has(x, k));
+      if (f) line = add(f, k, TASK_SAMPLE[k][f]);
     } else if (st.sub === 4) {
-      if (!cells.check0 && Math.random() < .5) { line = '첫걸음 날짜는 추후 협의로 고쳐 주세요'; add('check0', line); }
-      else if (!cells.done0) { line = '제출'; add('done0', line); }
+      if (!has('check') && Math.random() < .5) line = add('check', 0, '첫걸음 날짜는 추후 협의로 고쳐 주세요');
+      else if (!has('done')) line = add('done', 0, '제출');
     }
-    LS.set('agora-vdocs-v2', vdocs);
+    LS.set('agora-vdocs-v2b', vdocs);
     return line;
   }
   function simLike() {
@@ -479,7 +522,7 @@
     LS.set('agora-likes-v2', b);
   }
   function resetDemo() {
-    ['agora-vdocs-v2', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-seen-v2'].forEach(LS.del);
+    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-seen-v2'].forEach(LS.del);
     Object.keys(seen).forEach(k => delete seen[k]);
   }
 
@@ -493,7 +536,7 @@
   const topicIcon = k => ICONS[TOPICS[k].icon];
 
   window.Agora = {
-    EVENT, TOPICS, TOPIC_ORDER, FIELDS, TASK_FIELDS, TEMPLATE, STAGES, SUBSTEPS, DEFAULT_TABLES, API, MODE, LS, ICONS,
+    EVENT, TOPICS, TOPIC_ORDER, FIELDS, TASK_FIELDS, TEMPLATE, TABS, slotList, STAGES, SUBSTEPS, DEFAULT_TABLES, API, MODE, LS, ICONS,
     get tables() { return tables; }, tableByNo, tablesOf, loadTables, docOk,
     get state() { return state; }, effective, setState, pullState, scheduledStage,
     onState: fn => stateListeners.push(fn),

@@ -9,6 +9,7 @@
  *
  * 스크립트 속성: ADMIN_KEY(필수), GEMINI_API_KEY, GEMINI_MODEL(선택), GEMINI_FALLBACK(선택)
  *
+ * 왼쪽 「서비스 +」에서 Google Docs API 를 추가해 두세요(단계별 탭 문서를 만들고 읽는 데 씀).
  * V1에서 올릴 때: 이 파일로 교체 → 새 버전 배포 → 편집기에서 applyTemplateV2() 한 번 실행
  *  (12개 문서가 표 양식으로 바뀌고, tables 시트 B열이 주제로 바뀝니다. 문서 안 기존 기록은 지워집니다)
  */
@@ -27,31 +28,37 @@ var TOPIC_ORDER = ['hwang', 'pung', 'eodeung', 'malmi', 'sinchon', 'daesang'];
 // 기본 배정: 1·7 황룡강, 2·8 풍영정천 … (시트 B열에서 바꿀 수 있음)
 function defaultTopic_(no) { return TOPIC_ORDER[(Number(no) - 1) % 6]; }
 
-// 표 양식. [항목(첫 칸), 예시] — 세 번째 칸이 기록자가 쓰는 칸
-var DOC_SECTIONS = [
-  { head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?', rows: [
-    ['좋았던 점', '아침마다 강변을 걸으면 물소리가 좋아요'],
-    ['불편한 점', '밤에 조명이 어두워 혼자 걷기 무서워요'],
-    ['개선점', '쉬어 갈 벤치가 더 있으면 좋겠어요']] },
-  { head: '② 함께 할 일 제안하기', q: '이 공간이 더 좋게 바뀌려면 어떤 변화가 필요할까요?', rows: [
-    ['우리가 함께 할 일 (주민 실천)', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
-    ['외부 협력·지원이 필요한 일', '연결길 안내표지 정비 (구청)']] },
-  { head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요? (외부 협력만 2개 고르지 않기)', rows: [
-    ['선정 과제 1', '함께 걷기·길 살피기 (우리)'],
-    ['선정 과제 2', '연결길 안내표지 정비 (외부)'],
-    ['투표 결과', '함께 걷기 7표, 안내표지 5표, 쓰레기통 2표'],
-    ['선정되지 않은 의견', '쓰레기통 늘리기 — 지우지 말고 남겨 두기']] },
-  { head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요? (못 정하면 ‘추후 협의’)', rows: [
-    ['현황·제안배경', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
-    ['우리가 바라는 모습', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
-    ['우리의 제안', '취미를 이웃과 나누는 ‘공원에서 만나는 이웃’'],
-    ['우리가 시작할 첫걸음', '각 동에서 취미를 나눌 주민을 찾아 공원 한 구간에서 시범 운영하기'],
-    ['함께하고 싶은 이웃', '인근 아파트 주민모임, 주민자치회, 공원 관리부서']] },
-  { head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 비워 두세요', rows: [
-    ['현황·제안배경', ''], ['우리가 바라는 모습', ''], ['우리의 제안', ''], ['우리가 시작할 첫걸음', ''], ['함께하고 싶은 이웃', '']] },
-  { head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?', rows: [
-    ['빠진 의견·고칠 표현', '“밤길” 대신 “저녁 산책길”로 고쳐 주세요'],
-    ['최종 제출', '모두 동의하면 ‘제출’이라고 쓰기']] }
+// 표 양식 — 단계마다 문서의 탭 하나 (assets/app.js 의 TEMPLATE 과 같게 유지)
+//  cols: 참여자마다 한 줄(열 = 칸) / rows: [칸, 항목 이름, 무엇을 쓰면 좋은지, 예시]
+var US_DESC = '주민이 직접 할 수 있는 일 · 모임, 캠페인, 정화·돌봄 활동, 기록, 교육 등';
+var EXT_DESC = '구청·행정복지센터·기관의 도움이 필요한 일 · 시설 정비, 안전, 예산·제도 지원 등';
+var REST_DESC = '투표에서 뽑히지 않은 제안도 지우지 말고 하나씩';
+function rep_(row, n) { var a = []; for (var i = 0; i < n; i++) a.push(row); return a; }
+var DOC_TABLES = [
+  { tab: '① 이용 경험', head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?',
+    guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 말하지 않은 칸은 비워 두세요. 칸 안에서 엔터를 치면 카드가 한 장 더 생겨요.',
+    cols: ['좋았던 점', '불편한 점', '개선점'], ex: ['아침마다 강변을 걸으면 물소리가 좋아요', '밤에 조명이 어두워 혼자 걷기 무서워요', '쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
+  { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
+    guide: '제안 하나에 한 칸씩. [주민실천] 칸에는 우리가 할 일, [외부협력] 칸에는 도움을 요청할 일을 써요. 칸이 모자라면 한 칸 안에서 엔터로 이어 써요.',
+    rows: [['[주민실천]', US_DESC, '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기']].concat(rep_(['[주민실천]', '', ''], 4))
+      .concat([['[외부협력]', EXT_DESC, '연결길 안내표지 정비 (구청 공원녹지과)']]).concat(rep_(['[외부협력]', '', ''], 3)) },
+  { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
+    guide: '테이블 안 투표로 1~2개를 골라요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
+    rows: [['선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
+      ['투표 결과', '제안마다 몇 표였는지', '함께 걷기 7표, 안내표지 5표, 쓰레기통 2표'],
+      ['선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)']].concat(rep_(['선정되지 않은 의견', '', ''], 5)) },
+  { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?',
+    guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요.',
+    rows: [['현황·제안배경', '지금 어떤 상황이고 왜 필요한지', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
+      ['우리가 바라는 모습', '이 일이 이뤄지면 어떤 모습일지', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
+      ['우리의 제안', '바라는 모습을 위해 함께 할 일', '취미를 이웃과 나누는 ‘공원에서 만나는 이웃’'],
+      ['우리가 시작할 첫걸음', '처음 해 볼 활동 · 언제 · 어디서 · 동별 역할', '각 동에서 취미를 나눌 주민을 찾아 공원 한 구간에서 시범 운영하기'],
+      ['함께하고 싶은 이웃', '참여할 주민·모임 / 도움이 필요한 기관', '인근 아파트 주민모임, 주민자치회, 공원 관리부서']] },
+  { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요',
+    rows: [['현황·제안배경', '', ''], ['우리가 바라는 모습', '', ''], ['우리의 제안', '', ''], ['우리가 시작할 첫걸음', '', ''], ['함께하고 싶은 이웃', '', '']] },
+  { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?',
+    guide: '진행자가 화면의 제안서를 읽어 주면 빠진 의견·고칠 표현을 적고, 모두 동의하면 ‘제출’이라고 써요.',
+    rows: [['빠진 의견·고칠 표현', '원래 뜻과 다르게 정리된 곳', '“밤길” 대신 “저녁 산책길”로 고쳐 주세요'], ['최종 제출', '모두 동의하면', '제출']] }
 ];
 
 // ─────────────────────────── 라우팅 ───────────────────────────
@@ -123,7 +130,13 @@ function docId_(url) {
 
 // ─────────────────────────── 실시간 피드 ───────────────────────────
 
-/** 12개 Docs를 HTML로 병렬 내보내기 → 표만 뽑아 [[칸 줄들]] 로 → 4초 캐시 */
+/**
+ * 12개 문서를 병렬로 읽어 표만 [[칸 문단들]] 로 → 4초 캐시.
+ * 1순위 Docs API(탭 포함, 서비스에 'Google Docs API' 추가 필요), 안 되면 HTML 내보내기(첫 탭).
+ */
+var DOC_MASK = 'tabs(documentTab(body(content(table(tableRows(tableCells(content(paragraph(elements(textRun(content))))))))),' +
+  'childTabs(documentTab(body(content(table(tableRows(tableCells(content(paragraph(elements(textRun(content)))))))))))';
+
 function feed_() {
   var cache = CacheService.getScriptCache();
   var hit = cache.get('feed');
@@ -132,17 +145,25 @@ function feed_() {
   var tables = readTables_();
   var token = ScriptApp.getOAuthToken();
   var withDoc = tables.filter(function (t) { return t.docId; });
+  var auth = { Authorization: 'Bearer ' + token };
   var res = withDoc.length ? UrlFetchApp.fetchAll(withDoc.map(function (t) {
-    return {
-      url: 'https://www.googleapis.com/drive/v3/files/' + t.docId + '/export?mimeType=text/html',
-      headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true
-    };
+    return { url: 'https://docs.googleapis.com/v1/documents/' + t.docId + '?includeTabsContent=true&fields=' + encodeURIComponent(DOC_MASK), headers: auth, muteHttpExceptions: true };
   })) : [];
-  var docs = {};
+  var docs = {}, retry = [];
   withDoc.forEach(function (t, i) {
-    var ok = res[i].getResponseCode() === 200;
-    docs[t.no] = { ok: ok, rows: ok ? docRows_(res[i].getContentText('UTF-8')) : [] };
+    if (res[i].getResponseCode() === 200) docs[t.no] = { ok: true, rows: jsonRows_(JSON.parse(res[i].getContentText())) };
+    else retry.push(t);
   });
+  if (retry.length) {
+    console.log('Docs API 실패 ' + retry.length + '개 → HTML 내보내기: ' + res[withDoc.indexOf(retry[0])].getContentText().slice(0, 200));
+    var res2 = UrlFetchApp.fetchAll(retry.map(function (t) {
+      return { url: 'https://www.googleapis.com/drive/v3/files/' + t.docId + '/export?mimeType=text/html', headers: auth, muteHttpExceptions: true };
+    }));
+    retry.forEach(function (t, i) {
+      var ok = res2[i].getResponseCode() === 200;
+      docs[t.no] = { ok: ok, rows: ok ? docRows_(res2[i].getContentText('UTF-8')) : [] };
+    });
+  }
   tables.forEach(function (t) { if (!docs[t.no]) docs[t.no] = { ok: false, rows: [] }; });
 
   var out = { docs: docs, manual: readManual_(), ts: Date.now() };
@@ -150,7 +171,35 @@ function feed_() {
   return out;
 }
 
-/** Docs HTML → 표의 행 목록. 각 행 = 칸 목록, 각 칸 = 문단(줄) 목록 */
+/** Docs API 문서(JSON) → 모든 탭의 표 행 (탭 순서대로) */
+function jsonRows_(doc) {
+  var rows = [];
+  function walk(tabs) {
+    (tabs || []).forEach(function (tab) {
+      var content = tab.documentTab && tab.documentTab.body && tab.documentTab.body.content || [];
+      content.forEach(function (el) {
+        if (!el.table) return;
+        (el.table.tableRows || []).forEach(function (tr) {
+          rows.push((tr.tableCells || []).map(function (td) {
+            var out = [];
+            (td.content || []).forEach(function (c) {
+              if (!c.paragraph) return;
+              var text = (c.paragraph.elements || []).map(function (e) { return e.textRun ? e.textRun.content : ''; }).join('');
+              // 줄바꿈(Shift+Enter)도 줄로 나눔
+              text.split(/[\n\u000b]/).forEach(function (l) { l = l.replace(/\s+/g, ' ').trim(); if (l) out.push(l); });
+            });
+            return out;
+          }));
+        });
+      });
+      walk(tab.childTabs);
+    });
+  }
+  walk(doc.tabs);
+  return rows;
+}
+
+/** (대체 경로) Docs HTML → 표의 행 목록 */
 function docRows_(html) {
   var rows = [];
   (html.match(/<tr[\s\S]*?<\/tr>/g) || []).forEach(function (tr) {
@@ -372,7 +421,8 @@ function testGemini() {
 function testFeed() {
   CacheService.getScriptCache().remove('feed');
   var f = feed_();
-  Logger.log(JSON.stringify(f.docs[1]).slice(0, 3000));
+  Logger.log('테이블 1 표 행 수: ' + f.docs[1].rows.length + ' (V2 표 양식이면 51)');
+  Logger.log(JSON.stringify(f.docs[1]).slice(0, 2000));
 }
 
 // ─────────────────────────── 공감(좋아요) ───────────────────────────
@@ -425,30 +475,90 @@ function exportLikes() {
 
 // ─────────────────────────── 문서 양식 ───────────────────────────
 
-function writeDoc_(doc, t) {
-  var body = doc.getBody();
-  body.clear();
+function docsApi_(path, payload) {
+  var res = UrlFetchApp.fetch('https://docs.googleapis.com/v1/documents/' + path, {
+    method: payload ? 'post' : 'get', contentType: 'application/json', payload: payload ? JSON.stringify(payload) : undefined,
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true });
+  var body = JSON.parse(res.getContentText() || '{}');
+  if (res.getResponseCode() !== 200) throw new Error('Docs API ' + res.getResponseCode() + ': ' + (body.error && body.error.message));
+  return body;
+}
+
+/** 문서 탭을 titles 대로 다시 만듦(첫 탭은 이름만 바꿈). 실패하면 null → 한 장 문서로 */
+function resetTabs_(id, titles) {
+  try {
+    var ids = function () { return docsApi_(id + '?includeTabsContent=true&fields=tabs(tabProperties(tabId))').tabs.map(function (t) { return t.tabProperties.tabId; }); };
+    var cur = ids();
+    var reqs = cur.slice(1).map(function (tabId) { return { deleteTab: { tabId: tabId } }; });
+    reqs.push({ updateDocumentTabProperties: { tabProperties: { tabId: cur[0], title: titles[0] }, fields: 'title' } });
+    titles.slice(1).forEach(function (title, i) { reqs.push({ addDocumentTab: { tabProperties: { title: title, index: i + 1 } } }); });
+    docsApi_(id + ':batchUpdate', { requests: reqs });
+    var after = ids();
+    if (after.length !== titles.length) throw new Error('탭 수가 맞지 않음 ' + after.length);
+    return after;
+  } catch (e) {
+    console.log('탭 만들기 실패 → 한 장 문서로: ' + e.message);
+    return null;
+  }
+}
+
+function gray_(text, size) { text.setForegroundColor('#6b7280').setItalic(true); if (size) text.setFontSize(size); return text; }
+
+function writeIntro_(body, t) {
   body.appendParagraph('테이블 ' + t.no + ' · ' + TOPICS[t.topic] + ' 기록지').setHeading(DocumentApp.ParagraphHeading.HEADING1);
-  body.appendParagraph('✍️ 맨 오른쪽 「우리 테이블 답」 칸에만 쓰세요. 칸 안에서 엔터를 치면 화면 카드가 한 장 더 생겨요.');
-  body.appendParagraph('⏱ 쓰고 10~15초 뒤 대형 화면에 떠요. 이름·전화번호는 쓰지 않아요. 가운데 예시 칸은 지우지 마세요.');
-  DOC_SECTIONS.forEach(function (s) {
-    body.appendParagraph(s.head + ' — ' + s.q).setHeading(DocumentApp.ParagraphHeading.HEADING2);
-    var cells = [[s.head, '예시 (이렇게 쓰면 돼요)', '우리 테이블 답 ✍️']].concat(s.rows.map(function (r) { return [r[0], r[1], '']; }));
-    var table = body.appendTable(cells);
-    table.setColumnWidth(0, 120).setColumnWidth(1, 170);
-    for (var i = 0; i < table.getNumRows(); i++) {
-      var row = table.getRow(i);
-      if (i === 0) {
-        for (var c = 0; c < 3; c++) row.getCell(c).setBackgroundColor('#1f2937').editAsText().setBold(true).setForegroundColor('#ffffff');
-      } else {
-        row.getCell(0).editAsText().setBold(true);
-        row.getCell(0).setBackgroundColor('#f3f4f6');
-        if (row.getCell(1).getText()) row.getCell(1).editAsText().setForegroundColor('#6b7280').setItalic(true).setFontSize(9);
-      }
+  ['✍️ 단계마다 위쪽 탭(① 이용 경험 → ⑤ 결과 확인)을 눌러 그 탭의 표에만 쓰세요.',
+   '✍️ 표의 맨 오른쪽 「우리 테이블 답」 칸에 써요. 칸 안에서 엔터를 치면 화면 카드가 한 장 더 생겨요.',
+   '⏱ 쓰고 10~15초 뒤 대형 화면에 떠요. 잘못 쓴 글은 그냥 고치면 화면도 고쳐져요.',
+   '🚫 이름·전화번호는 쓰지 않아요. 표의 첫 칸(항목 이름)과 예시는 지우지 마세요.'].forEach(function (l) { body.appendListItem(l); });
+}
+
+function writeTable_(body, s) {
+  body.appendParagraph(s.head + ' — ' + s.q).setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  if (s.guide) gray_(body.appendParagraph(s.guide).editAsText(), 10);
+  var cells, i;
+  if (s.cols) {
+    cells = [[s.head].concat(s.cols), ['예시'].concat(s.ex)];
+    for (i = 1; i <= s.people; i++) cells.push(['참여자 ' + i].concat(s.cols.map(function () { return ''; })));
+  } else {
+    cells = [[s.head, '예시 (이렇게 쓰면 돼요)', '우리 테이블 답 ✍️']].concat(s.rows.map(function (r) { return [r[0], r[2], '']; }));
+  }
+  var table = body.appendTable(cells);
+  table.setColumnWidth(0, s.cols ? 80 : 130);
+  if (!s.cols) table.setColumnWidth(1, 160);
+  for (i = 0; i < table.getNumRows(); i++) {
+    var row = table.getRow(i);
+    if (i === 0) {
+      for (var c = 0; c < row.getNumCells(); c++) row.getCell(c).setBackgroundColor('#1f2937').editAsText().setBold(true).setForegroundColor('#ffffff');
+      continue;
     }
+    row.getCell(0).setBackgroundColor('#f3f4f6').editAsText().setBold(true);
+    if (s.cols) {
+      if (i === 1) for (c = 1; c < row.getNumCells(); c++) gray_(row.getCell(c).editAsText(), 9);
+    } else {
+      var desc = s.rows[i - 1][1];
+      if (desc) gray_(row.getCell(0).appendParagraph(desc).editAsText().setBold(false), 8);
+      if (row.getCell(1).getText()) gray_(row.getCell(1).editAsText(), 9);
+    }
+  }
+}
+
+/** 문서 한 개를 표 양식으로: 탭 [쓰는 법, ①, ②, ③, ④, ⑤] (탭이 안 되면 한 장에 전부) */
+function writeDoc_(docId, t) {
+  var tabNames = DOC_TABLES.map(function (s) { return s.tab; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
+  var tabIds = resetTabs_(docId, ['📌 쓰는 법'].concat(tabNames));
+  var doc = DocumentApp.openById(docId);
+  var bodyOf = function (i) { return tabIds ? doc.getTab(tabIds[i]).asDocumentTab().getBody() : doc.getBody(); };
+  if (!tabIds) doc.getBody().clear();
+  var b0 = bodyOf(0);
+  if (tabIds) b0.clear();
+  writeIntro_(b0, t);
+  tabNames.forEach(function (name, ti) {
+    var b = bodyOf(ti + 1);
+    if (tabIds) b.clear();
+    DOC_TABLES.filter(function (s) { return s.tab === name; }).forEach(function (s) { writeTable_(b, s); });
   });
-  body.appendParagraph('');
   doc.saveAndClose();
+  return !!tabIds;
 }
 
 /** V1 → V2: 12개 문서를 표 양식으로 바꾸고 tables 시트 B열을 주제로 (문서 안 기존 기록은 지워짐) */
@@ -463,9 +573,8 @@ function applyTemplateV2() {
   }
   readTables_().forEach(function (t) {
     if (!t.docId) return;
-    var doc = DocumentApp.openById(t.docId);
-    doc.setName('[광산자치아고라] 테이블 ' + t.no + ' 기록 · ' + TOPICS[t.topic]);
-    writeDoc_(doc, t);
+    DriveApp.getFileById(t.docId).setName('[광산자치아고라] 테이블 ' + t.no + ' 기록 · ' + TOPICS[t.topic]);
+    console.log('테이블 ' + t.no + (writeDoc_(t.docId, t) ? ' · 단계별 탭으로' : ' · 한 장 문서로(탭 실패)'));
   });
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
@@ -486,7 +595,8 @@ function setup() {
   for (var no = 1; no <= 12; no++) {
     var t = { no: no, topic: defaultTopic_(no) };
     var doc = DocumentApp.create('[광산자치아고라] 테이블 ' + no + ' 기록 · ' + TOPICS[t.topic]);
-    writeDoc_(doc, t);
+    doc.saveAndClose();
+    writeDoc_(doc.getId(), t);
     DriveApp.getFileById(doc.getId()).moveTo(docsFolder);
     sh.appendRow([no, TOPICS[t.topic], '', '', 'https://docs.google.com/document/d/' + doc.getId() + '/edit', '']);
   }
@@ -498,7 +608,7 @@ function setup() {
 
 /** 행사 직전: 리허설 기록 지우기(12개 문서를 빈 표 양식으로) + 요약·수동·공감·화면 상태 초기화 */
 function resetForEvent() {
-  readTables_().forEach(function (t) { if (t.docId) writeDoc_(DocumentApp.openById(t.docId), t); });
+  readTables_().forEach(function (t) { if (t.docId) writeDoc_(t.docId, t); });
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   resetLikes_();
