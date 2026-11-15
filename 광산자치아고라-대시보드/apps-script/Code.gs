@@ -214,6 +214,9 @@ function htmlText_(s) {
   return s.replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
     .replace(/&#(\d+);/g, function (m, n) { return String.fromCharCode(Number(n)); })
+    .replace(/&#x([0-9a-f]+);/gi, function (m, n) { return String.fromCharCode(parseInt(n, 16)); })
+    .replace(/&(middot|hellip|lsquo|rsquo|ldquo|rdquo|ndash|mdash|bull|times);/g, function (m, n) {
+      return { middot: '·', hellip: '…', lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”', ndash: '–', mdash: '—', bull: '•', times: '×' }[n]; })
     .replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 }
 

@@ -36,6 +36,6 @@ assert.deepStrictEqual(rows[1], [['참여자 1'], ['물소리', '산책로 넓�
 assert.deepStrictEqual(A.parseDoc(rows).map(x => x.field + ':' + x.text), ['good:물소리', 'good:산책로 넓음', 'better:벤치', 'ext:조명 정비']);
 
 // 3) (대체 경로) HTML 내보내기
-const html = '<table><tr><td><p><span>④ 과제 2 실행방법</span></p></td><td><p></p></td><td><p>x</p></td></tr><tr><td><p>우리의 제안</p><p>설명</p></td><td></td><td><p>공원&nbsp;이웃 &lt;모임&gt;</p></td></tr></table>';
-assert.deepStrictEqual(A.parseDoc(J(gs.docRows_(html))).map(x => x.cell + ':' + x.text), ['prop1:공원 이웃 <모임>']);
+const html = '<table><tr><td><p><span>④ 과제 2 실행방법</span></p></td><td><p></p></td><td><p>x</p></td></tr><tr><td><p>우리의 제안</p><p>설명</p></td><td></td><td><p>공원&nbsp;이웃 &lt;모임&gt; &middot; &ldquo;함께&rdquo;</p></td></tr></table>';
+assert.deepStrictEqual(A.parseDoc(J(gs.docRows_(html))).map(x => x.cell + ':' + x.text), ['prop1:공원 이웃 <모임> · “함께”']);
 console.log('ok');
