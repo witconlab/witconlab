@@ -57,6 +57,13 @@
   }
   if (fullBtn) fullBtn.addEventListener('click', toggleFull);
 
+  // QR: 공개 주소를 그대로 담는다(교실 컴퓨터의 localhost·file:// 주소가 아니라).
+  document.querySelectorAll('[data-qr]').forEach(function (el) {
+    if (!window.qrcode) { el.textContent = el.dataset.qr; return; }
+    var q = qrcode(0, 'M'); q.addData(el.dataset.qr); q.make();
+    el.innerHTML = q.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
+  });
+
   function fromHash() { go((parseInt(location.hash.slice(1), 10) || 1) - 1); }
   window.addEventListener('hashchange', fromHash);
   fromHash();

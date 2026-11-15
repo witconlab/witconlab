@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>4차시 산책 경로 — 출력용</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Pretendard, 'Apple SD Gothic Neo', sans-serif; color: #111; word-break: keep-all; font-size: 11pt; }
+  .pg { width: 277mm; height: 190mm; display: grid; grid-template-columns: 175mm 1fr; gap: 7mm; page-break-after: always; overflow: hidden; }
+  .pg:last-child { page-break-after: auto; }
+  .map { width: 175mm; height: 190mm; object-fit: cover; border: 0.6mm solid #111; }
+  .side { display: flex; flex-direction: column; gap: 3mm; min-width: 0; }
+  .kick { margin: 0; font: 700 9pt/1 ui-monospace, Menlo, monospace; letter-spacing: .05em; }
+  h1 { margin: 0; font-size: 22pt; font-weight: 900; letter-spacing: -.04em; line-height: 1.15; }
+  h1 i { font-style: normal; display: inline-block; width: 1.15em; text-align: center; color: #fff; margin-right: .2em; }
+  .facts { display: flex; flex-wrap: wrap; gap: 1.5mm; margin: 0; }
+  .facts span { background: #111; color: #fff; font-weight: 700; font-size: 9.5pt; padding: .8mm 2mm; }
+  .facts .warn { background: #e8473a; }
+  dl { margin: 0; display: grid; grid-template-columns: 22mm 1fr; gap: 2mm 3mm; font-size: 10pt; line-height: 1.45; }
+  dt { font-weight: 900; } dd { margin: 0; }
+  .q { margin: 0; padding: 2.5mm 3mm; border: 0.5mm solid #111; font-size: 10.5pt; font-weight: 700; }
+  .memo { flex: 1; border: 0.5mm dashed #111; padding: 2.5mm 3mm; font-size: 9pt; font-weight: 700; background: repeating-linear-gradient(transparent 0 7.5mm, #bbb 7.5mm 7.8mm); background-origin: content-box; }
+  table { border-collapse: collapse; width: 100%; font-size: 10pt; }
+  th, td { border: 0.4mm solid #111; padding: 1.8mm 2mm; text-align: left; vertical-align: top; }
+  th { background: #eee; }
+  td b { display: inline-block; width: 5.5mm; text-align: center; color: #fff; }
+  .note { margin: 0; font-size: 8.5pt; line-height: 1.5; color: #444; }
+  .src { margin: 0; font-size: 7.5pt; color: #666; }
+</style>
+</head>
+<body>
+
+<section class="pg">
+  <img class="map" src="../guide/img/map-0.jpg" alt="산책 경로 5개 전체 지도">
+  <div class="side">
+    <p class="kick">우리 동네 기록 노트 · 4차시 동네 산책</p>
+    <h1>신흥동행정복지센터에서<br>출발하는 길 5개</h1>
+    <p class="note">테이블 번호 = 길 번호. ★ 출발·도착. 40분 안에 돌아와요(걷는 시간 + 멈춰서 기록하는 시간). 걷는 시간은 시속 2.5km(천천히)로 셈했어요.</p>
+    <table>
+      <thead><tr><th>길</th><th>왕복</th><th>걷기</th><th>특징</th></tr></thead>
+      <tbody>
+        <tr><td><b style="background:#e8473a">1</b> 송정공원 한 바퀴</td><td>0.6km</td><td>15분</td><td>평지 · 가장 짧아요</td></tr>
+        <tr><td><b style="background:#2f6fb3">2</b> 금봉산 아랫길</td><td>1.4km</td><td>35분</td><td>오르막 조금</td></tr>
+        <tr><td><b style="background:#2e8a52">3</b> 송정동초 담장길</td><td>1.4km</td><td>35분</td><td>평지</td></tr>
+        <tr><td><b style="background:#7a4fb8">4</b> 상무대로 건너 옛 송정</td><td>1.5km</td><td>35분</td><td>큰길 한 번 건너요</td></tr>
+        <tr><td><b style="background:#d98a00">5</b> 철길 옆 골목</td><td>1.1km</td><td>25분</td><td>평지 · 좁은 길</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><b>수업 전에 꼭 한 번 걸어 보세요.</b> 길은 지도 자료로 그린 초안이라, 공사·막힌 길·건널목 위치를 답사로 확인하고 고쳐 주세요.</p>
+    <p class="note">비상 연락: ______________________ &nbsp; 돌아올 시각: ____ 시 ____ 분</p>
+    <p class="src">지도 © OpenStreetMap 기여자</p>
+  </div>
+</section>
+
+<section class="pg">
+  <img class="map" src="../guide/img/map-1.jpg" alt="1번 길 송정공원 한 바퀴 지도">
+  <div class="side">
+    <p class="kick">ROUTE 01 · 1번 테이블</p>
+    <h1><i style="background:#e8473a">1</i>송정공원 한 바퀴</h1>
+    <p class="facts"><span>왕복 0.6km</span><span>걷기 약 15분</span><span>평지 · 가장 짧아요</span></p>
+    <dl><dt>이런 분께</dt><dd>걷기 힘드신 분, 천천히 오래 보고 싶은 분</dd><dt>길</dt><dd>센터 → 송정공원 → 광주송정도서관 앞 → 공원 남쪽 → 센터</dd><dt>잘 맞는 기록</dt><dd>몸으로 느끼기(볕·바람·그늘), 손으로 그리기(지금 모습), 눈으로 찍기(틈새 풀꽃)</dd><dt>조심해요</dt><dd>공원 안 계단·턱. 벤치에서 한 번 쉬어 가요.</dd></dl>
+    <p class="q">? 이 의자는 누가 제일 많이 앉을까? 도서관엔 언제 사람이 많을까?</p>
+    <div class="memo">멈춘 곳 · 본 것 · 들은 말</div>
+  </div>
+</section>
+
+<section class="pg">
+  <img class="map" src="../guide/img/map-2.jpg" alt="2번 길 금봉산 아랫길 지도">
+  <div class="side">
+    <p class="kick">ROUTE 02 · 2번 테이블</p>
+    <h1><i style="background:#2f6fb3">2</i>금봉산 아랫길</h1>
+    <p class="facts"><span>왕복 1.4km</span><span>걷기 약 35분</span><span class="warn">오르막 조금</span></p>
+    <dl><dt>이런 분께</dt><dd>자연·소리를 모으고 싶은 분</dd><dt>길</dt><dd>센터 → 송정공원 → 송정공원로 따라 북쪽 → 금봉산 아래에서 되돌아오기</dd><dt>잘 맞는 기록</dt><dd>귀로 듣기(새·바람 소리 글로 적기), 몸으로 느끼기(고양이·새 따라가기), 눈으로 찍기(집 앞 화분)</dd><dt>조심해요</dt><dd>차가 다니는 좁은 길. 한 줄로 걸어요. 돌아서는 곳은 퍼실이 정해요.</dd></dl>
+    <p class="q">? 이 산은 왜 금봉산일까? 언덕 위 집들은 언제부터 있었을까?</p>
+    <div class="memo">멈춘 곳 · 본 것 · 들은 말</div>
+  </div>
+</section>
+
+<section class="pg">
+  <img class="map" src="../guide/img/map-3.jpg" alt="3번 길 송정동초 담장길 지도">
+  <div class="side">
+    <p class="kick">ROUTE 03 · 3번 테이블</p>
+    <h1><i style="background:#2e8a52">3</i>송정동초 담장길</h1>
+    <p class="facts"><span>왕복 1.4km</span><span>걷기 약 35분</span><span>평지</span></p>
+    <dl><dt>이런 분께</dt><dd>간판·색깔·글씨를 찍고 싶은 분</dd><dt>길</dt><dd>센터 → 신흥동길 따라 동쪽(철길 옆) → 송정동초등학교 → 센터</dd><dt>잘 맞는 기록</dt><dd>눈으로 찍기(오래된 간판, 골목 색깔, 바닥 무늬), 귀로 듣기(동네 말)</dd><dt>조심해요</dt><dd>학교 앞은 아이들 사진을 찍지 않아요. 철길 쪽 울타리 안으로 걸어요.</dd></dl>
+    <p class="q">? 학교 담장 그림은 누가 그렸을까? 이 길 이름은 왜 신흥동길일까?</p>
+    <div class="memo">멈춘 곳 · 본 것 · 들은 말</div>
+  </div>
+</section>
+
+<section class="pg">
+  <img class="map" src="../guide/img/map-4.jpg" alt="4번 길 상무대로 건너 옛 송정 지도">
+  <div class="side">
+    <p class="kick">ROUTE 04 · 4번 테이블</p>
+    <h1><i style="background:#7a4fb8">4</i>상무대로 건너 옛 송정</h1>
+    <p class="facts"><span>왕복 1.5km</span><span>걷기 약 35분</span><span class="warn">큰길 한 번 건너요</span></p>
+    <dl><dt>이런 분께</dt><dd>이웃 이야기·예전 모습을 모으고 싶은 분</dd><dt>길</dt><dd>센터 → 신흥동길 → 상무대로 건너기 → 송정1동 골목 → 광산문화예술회관 → 센터</dd><dt>잘 맞는 기록</dt><dd>귀로 듣기(이웃 이야기, 동네 말), 찾아서 담기(예전 모습 사진과 비교), 눈으로 찍기(오래된 간판)</dd><dt>조심해요</dt><dd>상무대로는 신호등 건널목에서만, 퍼실이 앞장서요. 가게에 말 걸 땐 먼저 인사.</dd></dl>
+    <p class="q">? 이 골목 가게 중 제일 오래된 곳은 어디일까? 예전엔 여기에 뭐가 있었을까?</p>
+    <div class="memo">멈춘 곳 · 본 것 · 들은 말</div>
+  </div>
+</section>
+
+<section class="pg">
+  <img class="map" src="../guide/img/map-5.jpg" alt="5번 길 철길 옆 골목 지도">
+  <div class="side">
+    <p class="kick">ROUTE 05 · 5번 테이블</p>
+    <h1><i style="background:#d98a00">5</i>철길 옆 골목</h1>
+    <p class="facts"><span>왕복 1.1km</span><span>걷기 약 25분</span><span>평지 · 좁은 길</span></p>
+    <dl><dt>이런 분께</dt><dd>걸은 길을 그리고 싶은 분</dd><dt>길</dt><dd>센터 → 송정공원 남쪽 → 송정공원로11번길 따라 서쪽(철길 옆) → 되돌아오기</dd><dt>잘 맞는 기록</dt><dd>손으로 그리기(걸은 길 그리기), 몸으로 느끼기(볕·그늘), 눈으로 찍기(골목 색깔)</dd><dt>조심해요</dt><dd>철길·선로에는 들어가지 않아요. 좁은 길이라 차가 오면 한쪽으로.</dd></dl>
+    <p class="q">? 철길 옆 집들은 언제 생겼을까? 이 길로 누가 제일 많이 다닐까?</p>
+    <div class="memo">멈춘 곳 · 본 것 · 들은 말</div>
+  </div>
+</section>
+
+</body>
+</html>

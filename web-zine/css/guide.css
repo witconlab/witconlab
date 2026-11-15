@@ -82,3 +82,63 @@ body {
 .nav .next { flex: 1; background: var(--ink); color: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 2vw; }
 .nav button:disabled { opacity: .3; cursor: default; }
 button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-offset: 3px; }
+
+/* ---- 그림이 있는 장: 왼쪽 글 · 오른쪽 그림 ---- */
+.step.split.on { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 0 3vw; align-items: center; }
+.step.split > .txt { max-width: none; min-width: 0; }
+.step.split h2 { font-size: clamp(28px, min(4.4vw, 7.6vh), 88px); }
+.fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 1.2vh; max-width: none; min-width: 0; }
+.fig img { display: block; max-width: 100%; max-height: 50vh; object-fit: contain; border: 3px solid var(--ink); background: var(--white); box-shadow: 8px 8px 0 var(--ink); }
+.fig.phone img { border-radius: 20px; border-width: 5px; max-height: 54vh; }
+.fig.bare img { border: 0; box-shadow: none; background: none; }
+.fig .row { display: flex; gap: 1.4vw; align-items: flex-start; justify-content: center; max-width: 100%; }
+.fig .row img { max-width: calc(50% - .7vw); }
+.fig figcaption { font: 400 clamp(11px, .95vw, 16px)/1.35 var(--font-mono); letter-spacing: .03em; text-align: center; }
+.fig.missing img { display: none; }
+.fig.missing::before { content: '책 사진 자리\A guide/img/book.jpg'; white-space: pre; display: grid; place-items: center; text-align: center; width: min(26vw, 40vh); aspect-ratio: 3 / 4; border: 3px dashed var(--ink); background: var(--white); font: 700 clamp(13px, 1.2vw, 20px)/1.5 var(--font-mono); }
+
+/* ---- 15가지 기록 방법 ---- */
+.m15 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .7vw; margin: 0 0 1.6vh; padding: 0; max-width: none; }
+.m15 li { list-style: none; border: 3px solid var(--ink); background: var(--white); padding: 1vh .7vw; font-size: clamp(13px, min(1.35vw, 2.4vh), 26px); font-weight: 800; line-height: 1.25; letter-spacing: -.03em; display: flex; flex-direction: column; gap: .45em; }
+.m15 b { font-family: var(--font-num); font-size: .8em; }
+.fmt { font-style: normal; align-self: flex-start; font-size: .72em; font-weight: 800; padding: .15em .5em; color: var(--white); background: var(--ink); white-space: nowrap; }
+.f-video { background: var(--blue); } .f-sound { background: var(--red); } .f-draw { background: #2e8a52; }
+.f-map { background: #7a4fb8; } .f-doc { background: #d98a00; } .f-text { background: #6b6259; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; font-size: clamp(13px, min(1.3vw, 2.3vh), 24px); max-width: none; }
+.step:has(.m15) h2, .step:has(.arch) h2 { font-size: clamp(26px, min(3.8vw, 6.4vh), 76px); margin-bottom: 1.6vh; }
+.step:has(.arch) .say { font-size: clamp(20px, min(2.4vw, 4vh), 46px); margin-top: 1.6vh; }
+
+/* ---- 아카이브 예시 카드 ---- */
+.arch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6vw; max-width: none; }
+.ac { border: 3px solid var(--ink); background: var(--white); color: var(--ink); display: flex; flex-direction: column; min-width: 0; }
+.ac__m { position: relative; height: 22vh; border-bottom: 3px solid var(--ink); overflow: hidden; background: var(--cream); display: grid; place-items: center; }
+.ac__m > img, .ac__m > svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ac__m .fmt { position: absolute; left: 0; top: 0; font-size: clamp(12px, 1.1vw, 20px); padding: .35em .7em; }
+.ac__b { padding: 1.2vh .9vw 1.4vh; font-size: clamp(12px, min(1.2vw, 2.2vh), 23px); line-height: 1.38; font-weight: 600; }
+.ac__b b { display: block; font-size: 1.15em; font-weight: 900; letter-spacing: -.03em; margin-bottom: .25em; }
+.ac__meta { display: block; margin-top: .55em; padding-top: .45em; border-top: 2px dashed var(--ink); font-family: var(--font-mono); font-size: .78em; letter-spacing: 0; }
+.play { position: absolute; inset: 0; display: grid; place-items: center; }
+.play::before { content: ''; width: 5.5vh; height: 5.5vh; border-radius: 50%; background: rgba(17, 17, 17, .8); }
+.play::after { content: ''; position: absolute; border-style: solid; border-width: 1.2vh 0 1.2vh 2vh; border-color: transparent transparent transparent #fff; margin-left: .5vh; }
+.timebar { position: absolute; left: 6%; right: 6%; bottom: 8%; height: 6px; background: rgba(255, 255, 255, .7); }
+.timebar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 38%; background: var(--red); }
+.quote { padding: 0 1.2vw; text-align: center; font-family: var(--font-hand); font-size: clamp(22px, min(2.6vw, 4.6vh), 50px); line-height: 1.15; }
+.clip { width: 78%; height: 80%; background: #f2ecdf; border: 2px solid #8c8270; padding: 1.4vh 1vw; display: flex; flex-direction: column; gap: .8vh; font-family: 'Nanum Myeongjo', serif; transform: rotate(-2deg); }
+.clip strong { font-size: clamp(13px, min(1.3vw, 2.4vh), 24px); font-weight: 900; border-bottom: 2px solid #8c8270; padding-bottom: .3vh; }
+.clip span { flex: 1; background: repeating-linear-gradient(#b8ae9c 0 2px, transparent 2px 9px); }
+.then-now { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 100%; }
+.then-now > * { display: grid; place-items: end center; padding-bottom: .8vh; font: 700 clamp(11px, 1vw, 17px)/1 var(--font-mono); color: #fff; }
+.qr__box { width: min(44vh, 30vw); aspect-ratio: 1; background: var(--white); border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); padding: 1.2vh; font: 700 14px/1.4 var(--font-mono); word-break: break-all; }
+.qr__box svg { display: block; width: 100%; height: 100%; }
+.fig.qr figcaption { font-size: clamp(13px, 1.2vw, 22px); font-weight: 700; }
+.arch.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ac__m.shot { background: var(--white); }
+.ac__m.shot > img { object-fit: cover; object-position: top left; }
+.bg-white { background: var(--white); }
+/* 오늘 할 일: 시간표 */
+.tt { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--r, 4), auto); grid-auto-flow: column; gap: 0 3vw; font-size: clamp(16px, min(2vw, 3.5vh), 38px); font-weight: 800; line-height: 1.35; letter-spacing: -.02em; max-width: none; }
+.tt li { display: flex; gap: .8em; align-items: baseline; padding: .5em 0; border-top: 2px solid currentColor; }
+.tt b { flex: none; min-width: 3.4em; font-family: var(--font-num); }
+.step:has(.tt) h2 { font-size: clamp(28px, min(4.4vw, 7.4vh), 84px); margin-bottom: 2.4vh; }
+.step:has(.tt) .say { font-size: clamp(20px, min(2.4vw, 4vh), 46px); margin-top: 2vh; }
+.step.split:has(.list) .list { font-size: clamp(14px, min(1.6vw, 2.8vh), 30px); }
