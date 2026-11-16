@@ -87,7 +87,7 @@
       const d = A.tableData(items, t.no);
       const mine = items.filter(i => i.table === t.no);
       const last = mine[mine.length - 1];
-      const steps = [d.good.length + d.bad.length + d.better.length, d.us.length + d.ext.length, d.picks.length, A.filled(d.tasks[0]) + A.filled(d.tasks[1]), d.done ? '✓' : d.check.length];
+      const steps = [d.good.length + d.bad.length + d.better.length, '주' + d.us.length + '·외' + d.ext.length, d.picks.length, A.filled(d.tasks[0]) + A.filled(d.tasks[1]), d.done ? '✓' : d.check.length];
       const link = t.docId ? '<a href="https://docs.google.com/document/d/' + esc(t.docId) + '/edit" target="_blank" rel="noopener">문서 열기</a>' : '';
       return '<div class="doc ' + (A.docOk[t.no] ? 'ok' : '') + '" style="' + tv(t.topic) + '"><div class="doc-hd"><b>T' + t.no + ' ' + TOPICS[t.topic].name + '</b><i></i></div>' +
         '<small class="steps">' + steps.map((n, i) => '<span>' + '①②③④⑤'[i] + n + '</span>').join('') + '</small>' +

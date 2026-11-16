@@ -30,7 +30,9 @@
   td.l small { display: block; font-weight: 500; font-size: 12px; color: #6b7280; margin-top: 3px; }
   table.cols th:first-child { width: 16%; } table.cols th { width: auto; }
   table.cols td.ans textarea, table.pair td.ans textarea { min-height: 40px; }
-  table.pair th:first-child { width: 24%; } table.pair th:nth-child(2) { width: 28%; }
+  table.pair th:first-child { width: 18%; } table.pair th:nth-child(2) { width: 30%; } table.pair th small { display: block; font-weight: 500; font-size: 11px; opacity: .8; }
+  tr.band td { font-size: 14px; padding: 8px 10px; } tr.band small { color: #475569; font-size: 12px; }
+  tr.band.us td, tr.g-us td.l { background: #dcfce7; } tr.band.ext td, tr.g-ext td.l { background: #dbeafe; }
   tr.exr td { color: #6b7280; font-style: italic; font-size: 13px; background: #fafafa; }
   .paper h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
   .paper .guide { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
@@ -118,8 +120,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261116e"></script>
-<script src="assets/app.js?v=20261116e"></script>
+<script src="config.js?v=20261116f"></script>
+<script src="assets/app.js?v=20261116f"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -159,9 +161,10 @@
             Array.from({ length: s.people }, (_, r) => '<tr><td class="l">' + (r + 1) + '</td>' + s.cols.map((f, ci) => cellHtml('T' + ti + 'R' + r + 'C' + ci, s.head + ' 참여자 ' + (r + 1) + ' ' + FIELDS[f].label)).join('') + '</tr>').join('') + '</tbody></table>';
         }
         if (s.pair) {
-          return head + '<table class="pair"><thead><tr><th>' + esc(s.head) + '</th>' + s.pair.map(x => '<th>' + esc(x) + ' ✍️</th>').join('') + '</tr></thead><tbody>' +
-            s.ex.map(e => '<tr class="exr"><td>' + esc(e[0]) + '</td><td>' + esc(e[1]) + '</td><td>' + esc(e[2]) + '</td></tr>').join('') +
-            s.rows.map(([f, label, desc], ri) => '<tr><td class="l">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td>' + s.pair.map((x, ci) => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + x)).join('') + '</tr>').join('') + '</tbody></table>';
+          return head + '<table class="pair"><thead><tr><th>' + esc(s.head) + '</th>' + s.pair.map(([x, h]) => '<th>' + esc(x) + '<small>' + esc(h) + '</small></th>').join('') + '</tr></thead><tbody>' +
+            s.groups.map(g => '<tr class="band ' + g.field + '"><td colspan="3"><b>' + esc(g.band) + '</b> <small>' + esc(g.desc) + '</small></td></tr>' +
+              '<tr class="exr"><td>예시</td><td>' + esc(g.ex[0]) + '</td><td>' + esc(g.ex[1]) + '</td></tr>' +
+              s.rows.map(([f, label], ri) => f !== g.field ? '' : '<tr class="g-' + f + '"><td class="l">' + esc(label) + '</td>' + [0, 1].map(ci => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + s.pair[ci][0])).join('') + '</tr>').join('')).join('') + '</tbody></table>';
         }
         return head + '<table><thead><tr><th>' + esc(s.head) + '</th><th>예시 (이렇게 쓰면 돼요)</th><th>우리 테이블 답 ✍️</th></tr></thead><tbody>' +
           s.rows.map(([f, label, desc, ex], ri) => '<tr><td class="l" data-ex="' + esc(ex ? '예) ' + ex : '') + '">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td><td class="ex">' + esc(ex) + '</td>' + cellHtml('T' + ti + 'R' + ri, s.head + ' ' + label) + '</tr>').join('') + '</tbody></table>';
@@ -250,7 +253,7 @@
     cells = {};
     TEMPLATE.forEach((s, ti) => {
       if (s.cols) { s.cols.forEach((f, ci) => { cells['T' + ti + 'R0C' + ci] = [s.ex[ci]]; }); cells['T' + ti + 'R1C0'] = ['아이들과 주말마다 산책해요']; cells['T' + ti + 'R1C1'] = ['비 오면 길이 미끄러워요']; }
-      else if (s.pair) s.ex.forEach((e, n) => { const ri = s.rows.findIndex(r => r[0] === (n ? 'ext' : 'us')); cells['T' + ti + 'R' + ri + 'C0'] = [e[1]]; cells['T' + ti + 'R' + ri + 'C1'] = [e[2]]; });
+      else if (s.pair) s.groups.forEach(g => { const ri = s.rows.findIndex(r => r[0] === g.field); cells['T' + ti + 'R' + ri + 'C0'] = [g.ex[0]]; cells['T' + ti + 'R' + ri + 'C1'] = [g.ex[1]]; });
       else s.rows.forEach(([, , , ex], ri) => { if (ex) cells['T' + ti + 'R' + ri] = [ex]; });
     });
     const us = slotsOf('us'); cells[us[2]] = ['사진 기록단']; cells[us[3]] = ['산책로 변화를 사진으로 남기기'];

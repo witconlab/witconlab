@@ -18,7 +18,7 @@
 1. `Code.gs` 를 `apps-script/Code.gs` 로 통째로 교체 → 저장
 2. 배포 → 배포 관리 → 기존 배포 수정 → 새 버전 → 배포 (URL 그대로)
 3. 함수 `applyTemplateV2` 실행 → 12개 문서가 표 양식으로 바뀜(문서 안 기존 기록은 지워짐), `tables` 시트 B열이 주제로
-4. 함수 `testFeed` 실행 → 로그에 「표 행 수: 59」이 나오면 성공
+4. 함수 `testFeed` 실행 → 로그에 「표 행 수: 61」이 나오면 성공
 5. 행사 당일 아침 `resetForEvent` 실행
 
 테스트: `node tests/app.test.js && node tests/server.test.js`

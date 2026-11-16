@@ -69,10 +69,11 @@
       guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
       cols: ['good', 'bad', 'better'], ex: ['제방길 아침 — 물소리 들으며 걷기 좋아요', '제방길 저녁 — 조명이 어두워 혼자 걷기 무서워요', '산책로 중간 — 쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
     { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
-      guide: '제안 하나에 한 줄. 「제안 제목」은 짧게, 「핵심 내용」은 무엇을 어떻게 할지 한 문장으로 써요(화면에 번호가 자동으로 붙어요). 주민이 할 일은 [주민실천] 줄, 기관 도움이 필요한 일은 [외부협력] 줄에. 둘 다 필요하면 같은 제목으로 양쪽 줄에 역할을 나눠 적어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
-      pair: ['제안 제목', '핵심 내용'],
-      ex: [['예시 [주민실천]', '함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], ['예시 [외부협력]', '안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)']],
-      rows: [1, 2, 3, 4, 5].map(n => ['us', '[주민실천] ' + n, n === 1 ? US_DESC : '']).concat([1, 2, 3, 4].map(n => ['ext', '[외부협력] ' + n, n === 1 ? EXT_DESC : ''])) },
+      guide: '제안 하나에 한 줄. 주민이 직접 할 일은 🟢 초록 줄에, 기관 도움이 필요한 일은 🔵 파란 줄에 써요. 둘 다 필요하면 같은 제목으로 양쪽에 역할을 나눠 적어요. 화면에 번호가 자동으로 붙어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
+      pair: [['제안 제목 ✍️', '짧게, 이름처럼'], ['핵심 내용 ✍️', '무엇을 어떻게, 한 문장']],
+      groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'] },
+        { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'] }],
+      rows: [1, 2, 3, 4, 5].map(n => ['us', '🟢 주민 ' + n]).concat([1, 2, 3, 4].map(n => ['ext', '🔵 외부 ' + n])) },
     { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
       guide: '대형 화면에 뜬 제안 번호로 투표해요. 실제 투표 결과대로 1~2개를 적고, 뽑히지 않은 제안도 지우지 말고 남겨요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
       rows: [['pick', '선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['pick', '선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
@@ -269,8 +270,8 @@
       };
       if (colFields) { cells.slice(1).forEach((c, i) => { if (colFields[i]) push(colFields[i], 0, c, i + 1); }); return; }
       if (pair) {  // ② 한 줄 = 제안 하나: 「제안 제목 — 핵심 내용」으로 합침
-        const f = fieldOf(label);
-        if (f !== 'us' && f !== 'ext') return;
+        const f = /외부|기관/.test(label) ? 'ext' : /주민/.test(label) ? 'us' : null;
+        if (!f) return;
         const j = c => (c || []).map(x => String(x).trim()).filter(Boolean).join(' ');
         const a = j(cells[1]), b = j(cells[2]);
         push(f, 0, [a && b ? a + ' — ' + b : a || b], 1);
@@ -303,9 +304,12 @@
         rows.push([['예시']].concat(s.ex.map(x => [x])));
         for (let r = 0; r < s.people; r++) rows.push([['참여자 ' + (r + 1)]].concat(s.cols.map((f, ci) => (cells['T' + ti + 'R' + r + 'C' + ci] || []).slice())));
       } else if (s.pair) {
-        rows.push([[s.head]].concat(s.pair.map(x => [x])));
-        s.ex.forEach(e => rows.push(e.map(x => [x])));
-        s.rows.forEach(([, label, desc], ri) => rows.push([desc ? [label, desc] : [label]].concat([0, 1].map(ci => (cells['T' + ti + 'R' + ri + 'C' + ci] || []).slice()))));
+        rows.push([[s.head]].concat(s.pair));
+        s.groups.forEach(g => {
+          rows.push([[g.band, g.desc], [], []]);
+          rows.push([['예시'], [g.ex[0]], [g.ex[1]]]);
+          s.rows.forEach(([f, label], ri) => { if (f === g.field) rows.push([[label]].concat([0, 1].map(ci => (cells['T' + ti + 'R' + ri + 'C' + ci] || []).slice()))); });
+        });
       } else {
         rows.push([[s.head], ['예시 (이렇게 쓰면 돼요)'], ['우리 테이블 답 ✍️']]);
         s.rows.forEach(([, label, desc, ex], ri) => rows.push([desc ? [label, desc] : [label], ex ? [ex] : [], (cells['T' + ti + 'R' + ri] || []).slice()]));
