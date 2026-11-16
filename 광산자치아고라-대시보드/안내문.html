@@ -35,6 +35,7 @@
   .steps div { border: 1px solid var(--line); border-radius: 8px; padding: 2mm; font-size: 9.5pt; line-height: 1.45; }
   .steps div b { display: block; font-size: 10pt; }
   .steps div.hi { border: 2px solid var(--park); background: #f0fdf4; }
+  .steps div { font-size: 9pt; }
   .warn { border-left: 4px solid var(--road); background: #fff7ed; padding: 3mm 4mm; border-radius: 0 8px 8px 0; }
   .foot { margin-top: auto; padding-top: 4mm; font-size: 9pt; color: var(--muted); display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
 
@@ -56,61 +57,45 @@
 </style>
 </head>
 <body>
-
 <!-- ───────── 1쪽: 테이블 기록자 안내 ───────── -->
 <section class="page">
   <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
   <div class="eyebrow">2026 광산자치아고라 · 테이블 기록자 안내</div>
-  <h1>내가 적은 한 줄이<br>무대 화면에 바로 올라갑니다</h1>
-  <p class="lead">기록자는 테이블에서 나온 이야기를 배정받은 Google 문서에 한 줄씩 적어 주세요. 한 줄을 다 쓰면 10~15초 뒤 대형 스크린에 카드로 올라가고, 마지막에는 AI가 테이블별 실천과제로 정리합니다.</p>
+  <h1>예시를 보고, 우리 테이블 답을<br>표의 빈칸에 적어 주세요</h1>
+  <p class="lead">기록 문서는 단계마다 탭이 나뉘어 있고, 탭마다 <b>항목 | 예시 | 우리 테이블 답 ✍️</b> 표가 있습니다. 맨 오른쪽 칸만 채우면 칸 안의 한 줄이 화면의 카드 하나가 되어 대형 스크린에 올라갑니다.</p>
 
   <h2><b>1</b>준비</h2>
   <ul>
-    <li>노트북 또는 태블릿에서 <b>배정받은 테이블 번호의 문서 링크</b>를 엽니다. (관제반이 행사 전에 전달)</li>
-    <li>오른쪽 위에 <b>"편집"</b>이 보이는지 확인합니다. "보기 전용"이면 관제반에 알려 주세요.</li>
-    <li>회색 <span class="tag">※</span> 안내 줄과 <span class="tag">(예시)</span> 줄은 화면에 나가지 않으니 지우지 않아도 됩니다.</li>
+    <li><b>record.html</b>(기록자 입장)을 열고 <b>내 테이블 번호</b>를 누르면 내 문서가 열립니다.</li>
+    <li>📌 쓰는 법 탭에서 테이블 번호·주제 확인, <b>참여 동</b> 적기, 빈 칸에 글자가 써지는지 확인. "보기 전용"이면 관제반에 알려 주세요.</li>
+    <li>회색 <b>예시</b> 칸은 화면에 나가지 않습니다. 고치지 마세요.</li>
   </ul>
 
-  <h2><b>2</b>쓰는 법 — 한 줄에 발언 하나</h2>
-  <div class="grid2">
-    <table>
-      <tr><th>줄 앞 표시</th><th>이럴 때</th></tr>
-      <tr><td><span class="tag">[경험]</span></td><td>이용하면서 겪은 일</td></tr>
-      <tr><td><span class="tag t-pain">[불편]</span></td><td>불편한 점, 고칠 점</td></tr>
-      <tr><td><span class="tag">[자원]</span></td><td>이미 있는 모임·시설·사람</td></tr>
-      <tr><td><span class="tag t-idea">[아이디어]</span></td><td>함께 해 보면 좋을 방법</td></tr>
-      <tr><td><span class="tag t-action">[실천]</span></td><td>주민이 직접 할 일</td></tr>
-      <tr><td><span class="tag t-admin">[협력]</span></td><td>행정에 요청할 일</td></tr>
-    </table>
-    <div>
-      <pre>[경험] 도산: 저녁마다 제방길을 걸어요
-[불편] 임곡: 가로등이 없어 밤에 무서워요
-[자원] 걷기 동아리가 화요일마다 모여요
-[아이디어] 두 동이 같이 줍깅 데이를 정해요
-[실천] 매월 셋째 토요일 합동 줍깅하기
-[협력] 산막동 구간 가로등 설치 요청</pre>
-      <ul style="margin-top:3mm">
-        <li><b>도산:</b>처럼 동 이름을 앞에 쓰면 카드에 동이 표시됩니다.</li>
-        <li>표시를 빼면 바로 위 줄의 표시를 이어 씁니다.</li>
-      </ul>
-    </div>
-  </div>
-
-  <h2><b>3</b>시간대별로 이렇게 적어 주세요 <span style="font-size:10pt;color:var(--muted);font-weight:600">· 의제공론화 60분</span></h2>
+  <h2><b>2</b>단계마다 그 탭에 적어요 <span style="font-size:10pt;color:var(--muted);font-weight:600">· 의제공론화 60분</span></h2>
   <div class="steps">
-    <div><b>사례공유 10분</b>[경험] [자원]</div>
-    <div><b>경험 나누기 15분</b>[경험] [불편] [자원]</div>
-    <div><b>활용방안 20분</b>[아이디어]</div>
-    <div class="hi"><b>실천과제 10분</b>[실천] 1~2줄<br>[협력] 1줄 <b>꼭!</b></div>
-    <div><b>결과 정리 5분</b>빠진 것 보충</div>
+    <div><b>① 이용 경험 15분</b>참여자마다 한 줄 · 좋았던 점/불편한 점/개선점 「장소·상황 — 핵심」</div>
+    <div><b>② 함께 할 일 15분</b>제안 하나에 한 칸 [주민실천]·[외부협력] 「짧은 제목 — 핵심」</div>
+    <div class="hi"><b>③ 우선 과제 5분</b>화면 번호로 투표 · 선정 1~2개 · 투표 결과 · 뽑히지 않은 제안도 남기기</div>
+    <div class="hi"><b>④ 실행방법 20분</b>과제마다 다섯 칸 · 못 정하면 ‘추후 협의’</div>
+    <div><b>⑤ 결과 확인 5분</b>④에서 바로 고치기 · ✨ AI 문장 확인 · 신호 뒤 ‘제출’</div>
+  </div>
+  <p style="margin-top:2mm;font-size:9.5pt;color:var(--muted)">⑥ 공유 때는 대형 화면의 우리 제안서가 맞는지 ⑥⑦ 탭에 ‘확인’, ⑦에서 새로 나온 의견은 「추가 의견」 칸에 따로 적어요.</p>
+
+  <h2><b>3</b>진행자와 함께 지킬 사항</h2>
+  <div class="box">
+    <ul>
+      <li><b>요약 확인</b> — 뜻이 헷갈리면 진행자를 통해 “이렇게 정리해도 될까요?”</li>
+      <li><b>동의 여부 구분</b> — 한 사람의 제안과 테이블이 함께 확인한 내용을 구분. 침묵은 동의가 아니에요.</li>
+      <li><b>AI 정리 검토</b> — AI가 다듬은 문장은 원래 발언과 대조하고, 최종 내용은 참여자가 확인해요.</li>
+      <li><b>역할 확정 구분</b> — 현장에 없는 주민·기관은 ‘참여 제안’·‘협조 요청’으로 적어요.</li>
+    </ul>
   </div>
 
   <h2><b>4</b>꼭 지켜 주세요</h2>
   <div class="warn">
     <ul>
-      <li><b>이름·전화번호 등 개인정보는 적지 않습니다.</b> "도산 주민", "통장님"처럼 적어 주세요. 기록은 AI 요약에 쓰입니다.</li>
-      <li>이미 쓴 줄을 고치면 화면에 한 번 더 올라갑니다. <b>오타는 그대로 두고</b> 다음 줄로 넘어가세요.</li>
-      <li>짧게, 말한 사람의 표현 그대로. 한 줄은 두 문장을 넘지 않게 적습니다.</li>
+      <li><b>이름·전화번호 등 개인정보는 적지 않습니다.</b> "참여자 3", "도산동 주민"처럼 적어 주세요.</li>
+      <li>한 칸에 제안 하나. 여러 개면 Enter로 줄을 나누거나 다음 칸에.</li>
       <li>인터넷이 끊기면 휴대폰 테더링으로 바꾸고, 안 되면 손을 들어 관제반을 불러 주세요. 관제반이 대신 화면에 올립니다.</li>
     </ul>
   </div>
@@ -123,17 +108,17 @@
   <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
   <div class="eyebrow">2026 광산자치아고라 · 참가자 안내</div>
   <h1>오늘 우리 테이블의 이야기가<br>실시간으로 화면에 올라가요</h1>
-  <p class="lead">하천·공원·맨발길, 동네를 잇고 변화를 만드는 공론장에 오신 것을 환영합니다. 테이블 기록자가 여러분의 이야기를 적으면, 앞 화면에 바로 나타납니다.</p>
+  <p class="lead">하천·공원·길, 생활권 의제를 잇고 함께 해결하는 공론장에 오신 것을 환영합니다. 테이블 기록자가 여러분의 이야기를 적으면 앞 화면에 바로 나타납니다.</p>
 
   <h2><b>1</b>오늘의 흐름</h2>
   <div class="flow">
-    <div><em>14:00</em><b>여는마당</b><span>취지 공유, 퍼포먼스와 기념촬영</span></div>
-    <div><em>14:30</em><b>테이블 토론 60분</b><span>내 이야기가 화면에 카드로 올라가요</span></div>
-    <div><em>15:30</em><b>결과 공유</b><span>AI가 정리한 테이블별 실천과제를 함께 봐요</span></div>
-    <div><em>15:45</em><b>투표 · 구호</b><span>먼저 할 과제를 고르고 함께 외쳐요</span></div>
+    <div><em>14:00</em><b>여는마당 · 발제</b><span>취지 공유와 주제 발제</span></div>
+    <div><em>14:30</em><b>테이블 공론 60분</b><span>① 경험 → ② 제안 → ③ 우선 과제 → ④ 실행방법 → ⑤ 확인</span></div>
+    <div><em>15:30</em><b>⑥ 주제별 결과 공유</b><span>6개 주제의 제안서를 함께 봐요</span></div>
+    <div><em>15:45</em><b>⑦ 공감 · 구호</b><span>마음이 가는 제안에 ♥, 함께 외쳐요</span></div>
   </div>
 
-  <h2><b>2</b>우선순위 투표 방법</h2>
+  <h2><b>2</b>공감 · 응원 나누기</h2>
   <div class="vote">
     <div>
       <div class="qr" id="qr"></div>
@@ -141,15 +126,15 @@
     </div>
     <div>
       <ol>
-        <li>진행자가 <b>"투표를 시작합니다"</b>라고 하면, 휴대폰 카메라로 왼쪽 QR을 비춥니다.</li>
-        <li>열린 화면에서 가장 먼저 함께 하고 싶은 실천과제를 <b>최대 3개</b> 고릅니다.</li>
-        <li>아래 <b>투표하기</b>를 누르면 끝! 결과는 앞 화면에서 실시간으로 바뀝니다.</li>
+        <li>휴대폰 카메라로 왼쪽 QR을 비추면 공감 페이지가 열려요. <b>한 번만 들어오면</b> 돼요.</li>
+        <li>⑦ 시간이 되면 모든 테이블의 제안 카드가 주제별로 나타나요.</li>
+        <li>함께 실천되기를 바라는 제안에 <b>♥</b>를 눌러 주세요. <b>여러 개</b> 눌러도 되고, 다시 누르면 취소돼요.</li>
       </ol>
       <ul style="margin-top:3mm;color:var(--muted)">
-        <li>로그인이나 개인정보 입력은 없습니다. 휴대폰 한 대당 1표입니다.</li>
-        <li>마음이 바뀌면 <b>선택 바꾸기</b>로 다시 고를 수 있어요(마감 전까지).</li>
-        <li>투표 시작 전에 QR을 열면 "아직 열리지 않았어요"가 보입니다. 그대로 두면 투표가 열릴 때 화면이 자동으로 바뀝니다.</li>
-        <li>휴대폰이 없거나 어려우면 옆 분이나 퍼실리테이터에게 도움을 요청하세요.</li>
+        <li>순위를 정하지 않아요. 응원을 나누는 시간이라 화면에는 숫자 없이 하트만 떠올라요.</li>
+        <li>로그인이나 개인정보 입력은 없습니다.</li>
+        <li>미리 열어 두면 "공감 시간이 되면 여기서 바로 눌러요"가 보여요. 그대로 켜 두면 시간이 되었을 때 카드가 자동으로 나타납니다.</li>
+        <li>휴대폰이 없거나 어려우면 옆 분이나 진행자에게 도움을 요청하세요.</li>
       </ul>
     </div>
   </div>
