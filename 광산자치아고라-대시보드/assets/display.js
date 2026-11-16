@@ -146,11 +146,14 @@
   }
 
   // ② 테이블·주제 | 우리 | 외부 협력
+  // 「짧은 제목 — 핵심」이면 제목을 굵게
+  const titled = text => { const [h, b] = A.splitTitle(text); return h ? '<strong>' + esc(h) + '</strong> ' + esc(b) : esc(b); };
   function step2(ts, k) {
-    const n = k ? 8 : 3;
-    const chips = (list, cls) => list.slice(0, n).map(it => '<span class="chip ' + cls + enter(it) + '">' + esc(it.text) + '</span>').join('') + (list.length > n ? '<span class="more">+' + (list.length - n) + '</span>' : '');
+    const n = k ? 8 : 2;
+    // 최신 제안이 앞에. 번호는 ③ 투표 때 부르는 번호
+    const chips = (list, cls) => list.slice().reverse().slice(0, n).map(it => '<span class="chip ' + cls + enter(it) + '"><b class="no">' + it.no + '</b>' + titled(it.text) + '</span>').join('') + (list.length > n ? '<span class="more">+' + (list.length - n) + '</span>' : '');
     return '<div class="tbl2"><div class="tr th"><div>테이블 · 주제</div><div><i class="dot us"></i>[주민실천] 우리가 함께 할 일</div><div><i class="dot ext"></i>[외부협력] 협력·지원이 필요한 일</div></div>' +
-      ts.map(t => { const d = A.tableData(items, t.no); return '<div class="tr" style="' + tv(t.topic) + '"><div class="tn"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div><div class="cl">' + (chips(d.us.slice().reverse(), 'us') || '<span class="wait">…</span>') + '</div><div class="cl">' + (chips(d.ext.slice().reverse(), 'ext') || '<span class="wait">…</span>') + '</div></div>'; }).join('') + '</div>';
+      ts.map(t => { const d = A.tableData(items, t.no); return '<div class="tr" style="' + tv(t.topic) + '"><div class="tn"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div><div class="cl">' + (chips(A.numbered(d).filter(x => x.kind === 'us'), 'us') || '<span class="wait">…</span>') + '</div><div class="cl">' + (chips(A.numbered(d).filter(x => x.kind === 'ext'), 'ext') || '<span class="wait">…</span>') + '</div></div>'; }).join('') + '</div>';
   }
 
   // ③ 테이블별 제안 목록 + 선정 과제
@@ -158,12 +161,11 @@
   function step3(ts, k) {
     return '<div class="grid3 n' + ts.length + '">' + ts.map(t => {
       const d = A.tableData(items, t.no);
-      const picked = new Set(d.picks.map(p => p.text));
-      const others = d.us.map(i => ['us', i]).concat(d.ext.map(i => ['ext', i])).filter(([, i]) => !picked.has(i.text));
+      const others = A.numbered(d);
       return '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + (d.picks.length ? '<span class="ok">선정 ' + d.picks.length + '</span>' : '') + '</div>' +
         (d.picks.map((p, i) => '<div class="pick"><i>★</i><span>' + (d.picks.length > 1 ? (p.task + 1) + '. ' : '') + esc(p.text) + '</span>' + kindTag(p.kind) + '</div>').join('') || '<div class="empty">투표로 1~2개를 고르는 중</div>') +
         (d.tally.length ? '<div class="tally">🗳 ' + esc(d.tally.map(i => i.text).join(' ')) + '</div>' : '') +
-        '<div class="others">' + others.slice(0, k ? 8 : 4).map(([kd, i]) => '<span class="o ' + kd + '">' + esc(i.text) + '</span>').join('') +
+        '<div class="others">' + (others.length ? '<span class="o-hd">투표할 제안 ' + others.length + '</span>' : '') + others.slice(0, k ? 9 : 4).map(i => { const [h, b] = A.splitTitle(i.text); return '<span class="o ' + i.kind + '"><b class="no">' + i.no + '</b>' + esc(h || b) + '</span>'; }).join('') +
         (d.rest.length ? '<span class="o-hd">선정되지 않은 의견 ' + d.rest.length + '</span>' + d.rest.slice(0, k ? 6 : 2).map(i => '<span class="o rest ' + i.kind + '">' + esc(i.text) + '</span>').join('') : '') + '</div></div>';
     }).join('') + '</div>';
   }
@@ -196,7 +198,7 @@
   function propSheet(t, compact) {
     const d = A.tableData(items, t.no);
     const ps = A.proposals(t.no, items, summary, cur.polished);
-    const head = '<div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + ' · 의제 제안서</span>' + (d.done ? '<em class="done">✓ 제출</em>' : '') + (ps.some(p => p.polished) ? '<em class="ai">✨ 표현 다듬음</em>' : '') + '</div>';
+    const head = '<div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + (d.dongs ? ' · ' + esc(d.dongs) : '') + ' · 의제 제안서</span>' + (d.done ? '<em class="done">✓ 제출</em>' : '') + (ps.some(p => p.polished) ? '<em class="ai">✨ 표현 다듬음</em>' : '') + '</div>';
     if (!ps.length) return '<div class="sheet" style="' + tv(t.topic) + '">' + head + '<div class="empty">④에서 정리한 내용이 여기에 모여요</div></div>';
     return '<div class="sheet" style="' + tv(t.topic) + '">' + head + ps.map(p =>
       '<div class="sh-task"><h3>' + esc(p.title) + kindTag(p.kind) + '</h3>' +

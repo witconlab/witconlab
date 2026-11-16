@@ -91,13 +91,17 @@
       const link = t.docId ? '<a href="https://docs.google.com/document/d/' + esc(t.docId) + '/edit" target="_blank" rel="noopener">문서 열기</a>' : '';
       return '<div class="doc ' + (A.docOk[t.no] ? 'ok' : '') + '" style="' + tv(t.topic) + '"><div class="doc-hd"><b>T' + t.no + ' ' + TOPICS[t.topic].name + '</b><i></i></div>' +
         '<small class="steps">' + steps.map((n, i) => '<span>' + '①②③④⑤'[i] + n + '</span>').join('') + '</small>' +
-        '<small>' + (last ? hhmm(last.time) + ' ' + esc(last.text) : '아직 기록 없음') + '</small>' + link + '</div>';
+        '<small>' + (last ? hhmm(last.time) + ' ' + esc(last.text) : '아직 기록 없음') + '</small>' +
+        // 기록자가 남긴 확인 메모: AI 문장 이의, ⑥ 공유 화면 오류(‘확인’이 아니면), ⑦ 추가 의견
+        d.aiCheck.map(i => '<small class="note ai">✨ ' + esc(i.text) + '</small>').join('') +
+        d.shareCheck.filter(i => !/^확인/.test(i.text)).map(i => '<small class="note err">⑥ ' + esc(i.text) + '</small>').join('') +
+        d.extra.map(i => '<small class="note">⑦ ' + esc(i.text) + '</small>').join('') + link + '</div>';
     }).join('');
   }
 
   // ── 수동 푸시 ──
   $('#push-table').innerHTML = A.tables.map(t => '<option value="' + t.no + '">T' + t.no + ' ' + TOPICS[t.topic].name + '</option>').join('');
-  $('#push-field').innerHTML = Object.entries(FIELDS).map(([k, v]) => '<option value="' + k + '">' + '①②③④⑤'[v.step] + ' ' + v.label + '</option>').join('');
+  $('#push-field').innerHTML = Object.entries(FIELDS).map(([k, v]) => '<option value="' + k + '">' + (v.step >= 0 && v.step < 5 ? '①②③④⑤'[v.step] + ' ' : '') + v.label + '</option>').join('');
   $('#push').onsubmit = async e => {
     e.preventDefault();
     const text = $('#push-text').value.trim(); if (!text) return;

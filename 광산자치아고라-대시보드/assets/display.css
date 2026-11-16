@@ -338,3 +338,10 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .slo-count b { font-size: 230px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
 
 .mode-badge { position: absolute; right: 18px; bottom: 14px; font-size: 14px; color: var(--dim); z-index: 6; }
+
+.chip .no, .o .no { display: inline-block; min-width: 1.5em; margin-right: 6px; padding: 0 5px; border-radius: 6px; background: rgba(255, 255, 255, .14); color: var(--text); font-size: .8em; text-align: center; }
+.chip strong { font-weight: 900; color: #fff; }
+.o.us::before, .o.ext::before { display: none; }
+.o.us .no { background: rgba(52, 211, 153, .3); } .o.ext .no { background: rgba(96, 165, 250, .3); }
+.all .tbl2 .cl { flex-wrap: nowrap; }
+.all .tbl2 .chip { flex: 0 1 auto; min-width: 0; }

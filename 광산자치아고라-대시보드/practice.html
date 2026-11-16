@@ -23,6 +23,7 @@
   .btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
   .doc { grid-area: doc; }
   .paper { padding: 16px 16px 24px; }
+  .rules { padding-left: 20px; font-size: 14px; line-height: 1.7; color: #334155; }
   .dtabs { display: flex; gap: 2px; padding: 8px 10px 0; background: #f1f5f9; border-bottom: 1px solid var(--line); overflow-x: auto; }
   .dtabs button { flex: none; border: 1px solid transparent; border-bottom: 0; background: none; padding: 8px 12px; border-radius: 8px 8px 0 0; font: inherit; font-size: 14px; font-weight: 800; color: var(--muted); cursor: pointer; }
   .dtabs button.on { background: #fff; color: #0284c7; border-color: var(--line); margin-bottom: -1px; }
@@ -116,8 +117,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261116c"></script>
-<script src="assets/app.js?v=20261116c"></script>
+<script src="config.js?v=20261116d"></script>
+<script src="assets/app.js?v=20261116d"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -128,6 +129,11 @@
   let tableNo = saved.table || Number(A.LS.get('agora-my-table', 0)) || 1;
   let step = 0, seen = new Set();
   const SLOTS = A.slotList();
+  const RULES = ['<b>요약 확인</b> — 발언의 뜻이 헷갈리면 진행자를 통해 “이렇게 정리해도 될까요?”라고 확인해요.',
+    '<b>동의 여부 구분</b> — 한 사람의 제안과 테이블이 함께 확인한 내용을 구분해요. 말이 없다고 동의한 것으로 보지 않아요.',
+    '<b>AI 정리 검토</b> — AI가 만든 제목·요약은 원래 발언과 대조하고(⑤ 탭에 메모), 최종 내용은 참여자가 확인해요.',
+    '<b>역할 확정 구분</b> — 현장에 없는 주민·기관은 ‘참여 제안’·‘협조 요청’ 대상으로 적어요.',
+    '<b>기록 시간</b> — 단계가 끝날 때 진행자가 요약을 읽어 주는 동안 정리를 마무리해요.'];
   const slotsOf = (f, k = 0) => SLOTS.filter(x => x.field === f && x.task === k).map(x => x.key);
   const linesOf = (f, k = 0) => slotsOf(f, k).flatMap(key => cells[key] || []);
 
@@ -138,10 +144,11 @@
   // 실제 문서처럼 지금 단계의 탭만 보여 줌
   function buildPaper() {
     const t = A.tableByNo(tableNo);
-    const tab = A.TABS[step];
-    document.querySelectorAll('#dtabs button').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === step));
+    const tab = A.TABS[tabIdx];
+    document.querySelectorAll('#dtabs button').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === tabIdx));
     $('#paper').innerHTML = '<h2>테이블 ' + t.no + ' · ' + TOPICS[t.topic].name + ' 기록지</h2>' +
       '<p class="guide">✍️ 맨 오른쪽 「우리 테이블 답」 칸에 써요. 칸 안에서 엔터를 치면 화면 카드가 한 장 더 생겨요. 이름·전화번호는 쓰지 않아요.</p>' +
+      (tabIdx === 0 ? '<h3>진행자와 기록자가 함께 지킬 사항</h3><ul class="rules">' + RULES.map(r => '<li>' + r + '</li>').join('') + '</ul>' : '') +
       TEMPLATE.map((s, ti) => {
         if (s.tab !== tab) return '';
         const head = '<h3>' + esc(s.head) + ' <small>— ' + esc(s.q) + '</small></h3>' + (s.guide ? '<p class="guide">' + esc(s.guide) + '</p>' : '');
@@ -216,9 +223,12 @@
 
   $('#steps').innerHTML = SUBSTEPS.map((s, i) => '<button data-i="' + i + '">' + s.label[0] + '</button>').join('');
   // 문서 탭과 화면 단계는 함께 움직임
-  function setStep(i) { step = i; document.querySelectorAll('#steps button').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === i)); buildPaper(); render(); }
+  // 문서 탭(📌, ①~⑤, ⑥⑦)과 화면 단계(①~⑤)는 함께 움직임
+  let tabIdx = 1;
+  function setTab(i) { tabIdx = i; step = Math.min(Math.max(i - 1, 0), 4); document.querySelectorAll('#steps button').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === step)); buildPaper(); render(); }
+  const setStep = i => setTab(i + 1);
   $('#steps').onclick = e => { const b = e.target.closest('button'); if (b) setStep(Number(b.dataset.i)); };
-  $('#dtabs').onclick = e => { const b = e.target.closest('button'); if (b) setStep(Number(b.dataset.i)); };
+  $('#dtabs').onclick = e => { const b = e.target.closest('button'); if (b) setTab(Number(b.dataset.i)); };
 
   $('#paper').addEventListener('input', e => {
     const ta = e.target.closest('textarea'); if (!ta) return;
@@ -239,7 +249,7 @@
     save(); buildPaper(); render();
   };
 
-  setStep(0);
+  setTab(1);
 })();
 </script>
 </body>

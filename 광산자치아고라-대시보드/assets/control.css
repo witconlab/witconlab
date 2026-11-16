@@ -125,3 +125,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .6); }
 .sum.topic { border-left-width: 8px; }
 .cands li { grid-template-columns: auto 40px 1fr 50px; }
 .cands .v { color: #fb7185; }
+
+.doc small.note { white-space: normal; color: #fde68a; margin-top: 3px; }
+.doc small.note.err { color: #fca5a5; font-weight: 700; }
+.doc small.note.ai { color: #fcd34d; }

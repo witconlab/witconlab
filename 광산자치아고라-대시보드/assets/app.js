@@ -33,6 +33,7 @@
 
   // 기록 칸(문서 표의 행)
   const FIELDS = {
+    dongs:  { step: -1, label: '참여 동' },
     good:   { step: 0, label: '좋았던 점' },
     bad:    { step: 0, label: '불편한 점' },
     better: { step: 0, label: '개선점' },
@@ -47,7 +48,10 @@
     first:  { step: 3, label: '우리가 시작할 첫걸음' },
     with:   { step: 3, label: '함께하고 싶은 이웃' },
     check:  { step: 4, label: '빠진 의견·고칠 표현' },
-    done:   { step: 4, label: '최종 제출' }
+    aiCheck: { step: 4, label: 'AI 문장 확인' },
+    done:   { step: 4, label: '최종 제출' },
+    shareCheck: { step: 5, label: '⑥ 공유 화면 확인' },
+    extra:  { step: 6, label: '⑦ 추가 의견' }
   };
   const TASK_FIELDS = ['bg', 'want', 'prop', 'first', 'with'];
 
@@ -56,31 +60,41 @@
   const US_DESC = '주민이 직접 할 수 있는 일 · 모임, 캠페인, 정화·돌봄 활동, 기록, 교육 등';
   const EXT_DESC = '구청·행정복지센터·기관의 도움이 필요한 일 · 시설 정비, 안전, 예산·제도 지원 등';
   const REST_DESC = '투표에서 뽑히지 않은 제안도 지우지 말고 하나씩';
+  const WITH_DESC = '참여할 주민·모임 / 도움이 필요한 기관 · 현장에 없는 곳은 ‘참여 제안’·‘협조 요청’으로';
   const TEMPLATE = [
+    { tab: '📌 쓰는 법', head: '📌 시작 전 준비', q: '테이블 정보를 확인해요',
+      guide: '테이블 번호·주제는 문서 제목에 있어요. 참여 동을 적고, 진행자와 단계별 질문·시간·제출 방법(⑤에서 ‘제출’)을 맞춰요. 관제반에 「기록 연결」이 초록불인지 확인해요.',
+      rows: [['dongs', '참여 동', '이 테이블 주민들의 동', '첨단1동, 첨단2동']] },
     { tab: '① 이용 경험', head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?',
-      guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 말하지 않은 칸은 비워 두세요. 칸 안에서 엔터를 치면 카드가 한 장 더 생겨요.',
-      cols: ['good', 'bad', 'better'], ex: ['아침마다 강변을 걸으면 물소리가 좋아요', '밤에 조명이 어두워 혼자 걷기 무서워요', '쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
+      guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
+      cols: ['good', 'bad', 'better'], ex: ['제방길 아침 — 물소리 들으며 걷기 좋아요', '제방길 저녁 — 조명이 어두워 혼자 걷기 무서워요', '산책로 중간 — 쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
     { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
-      guide: '제안 하나에 한 칸씩. [주민실천] 칸에는 우리가 할 일, [외부협력] 칸에는 도움을 요청할 일을 써요. 칸이 모자라면 한 칸 안에서 엔터로 이어 써요.',
-      rows: [['us', '[주민실천]', US_DESC, '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''],
-        ['ext', '[외부협력]', EXT_DESC, '연결길 안내표지 정비 (구청 공원녹지과)'], ['ext', '[외부협력]', '', ''], ['ext', '[외부협력]', '', ''], ['ext', '[외부협력]', '', '']] },
+      guide: '제안 하나에 한 칸, 「짧은 제목 — 핵심 내용」으로 써요(화면에 번호가 자동으로 붙어요). 주민과 외부가 함께 해야 하는 제안은 같은 제목으로 [주민실천]·[외부협력] 칸에 역할을 나눠 적어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
+      rows: [['us', '[주민실천]', US_DESC, '함께 걷기 — 두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''], ['us', '[주민실천]', '', ''],
+        ['ext', '[외부협력]', EXT_DESC, '안내표지 정비 — 연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'], ['ext', '[외부협력]', '', ''], ['ext', '[외부협력]', '', ''], ['ext', '[외부협력]', '', '']] },
     { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-      guide: '테이블 안 투표로 1~2개를 골라요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
+      guide: '대형 화면에 뜬 제안 번호로 투표해요. 실제 투표 결과대로 1~2개를 적고, 뽑히지 않은 제안도 지우지 말고 남겨요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
       rows: [['pick', '선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['pick', '선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
-        ['tally', '투표 결과', '제안마다 몇 표였는지', '함께 걷기 7표, 안내표지 5표, 쓰레기통 2표'],
+        ['tally', '투표 결과', '제안 번호마다 몇 표였는지', '1번 7표, 6번 5표, 3번 2표'],
         ['rest', '선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)'], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', '']] },
     { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?', task: 0,
-      guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요.',
+      guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
       rows: [['bg', '현황·제안배경', '지금 어떤 상황이고 왜 필요한지', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
         ['want', '우리가 바라는 모습', '이 일이 이뤄지면 어떤 모습일지', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
         ['prop', '우리의 제안', '바라는 모습을 위해 함께 할 일', '취미를 이웃과 나누는 ‘공원에서 만나는 이웃’'],
         ['first', '우리가 시작할 첫걸음', '처음 해 볼 활동 · 언제 · 어디서 · 동별 역할', '각 동에서 취미를 나눌 주민을 찾아 공원 한 구간에서 시범 운영하기'],
-        ['with', '함께하고 싶은 이웃', '참여할 주민·모임 / 도움이 필요한 기관', '인근 아파트 주민모임, 주민자치회, 공원 관리부서']] },
+        ['with', '함께하고 싶은 이웃', WITH_DESC, '인근 아파트 주민모임(참여 제안), 주민자치회, 공원 관리부서(협조 요청)']] },
     { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요', task: 1,
-      rows: [['bg', '현황·제안배경', '', ''], ['want', '우리가 바라는 모습', '', ''], ['prop', '우리의 제안', '', ''], ['first', '우리가 시작할 첫걸음', '', ''], ['with', '함께하고 싶은 이웃', '', '']] },
+      rows: [['bg', '현황·제안배경', '', ''], ['want', '우리가 바라는 모습', '', ''], ['prop', '우리의 제안', '', ''], ['first', '우리가 시작할 첫걸음', '', ''], ['with', '함께하고 싶은 이웃', WITH_DESC, '']] },
     { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?',
-      guide: '진행자가 화면의 제안서를 읽어 주면 빠진 의견·고칠 표현을 적고, 모두 동의하면 ‘제출’이라고 써요.',
-      rows: [['check', '빠진 의견·고칠 표현', '원래 뜻과 다르게 정리된 곳', '“밤길” 대신 “저녁 산책길”로 고쳐 주세요'], ['done', '최종 제출', '모두 동의하면', '제출']] }
+      guide: '진행자가 다섯 항목을 읽어 주면, 고칠 곳은 ④ 탭에서 바로 고쳐요(화면도 바로 바뀌어요). 기록과 화면이 같은지 확인하고, 진행자의 최종 확인 신호 뒤에 ‘제출’이라고 써요.',
+      rows: [['check', '고친 곳·빠진 의견 메모', '무엇을 고쳤는지 짧게', '첫걸음 날짜를 ‘추후 협의’로 고침'],
+        ['aiCheck', '✨ AI 다듬은 문장 확인', 'AI가 다듬은 문장이 화면에 뜨면 원래 발언과 비교해 다른 점을 적어요', '“줍깅”이 “환경정화”로 바뀜 → 원래 말로 되돌려 주세요'],
+        ['done', '최종 제출', '진행자의 최종 확인 신호 뒤에', '제출']] },
+    { tab: '⑥⑦ 공유·공감', head: '⑥⑦ 공유 · 공감 확인', q: '전체 화면에 우리 결과가 잘 나왔나요?',
+      guide: '⑥ 대형 화면의 우리 테이블 제안서가 제출한 내용과 같은지 확인하고, 틀리면 여기에 적은 뒤 운영 담당자에게 알려요. ⑦에서 새로 나온 의견은 제안서와 섞지 말고 따로 적어요.',
+      rows: [['shareCheck', '공유 화면 확인 (⑥)', '맞으면 ‘확인’, 틀리면 무엇이 틀렸는지', '과제 이름이 잘려서 보여요'],
+        ['extra', '추가 의견 (⑦)', '제안서와 구분해 따로 남겨요', '다른 테이블과 함께 줍깅하자는 의견']] }
   ];
   const TABS = [...new Set(TEMPLATE.map(t => t.tab))];
 
@@ -203,6 +217,10 @@
   // ── 문서 표 파싱 ──
   function fieldOf(label) {
     const l = String(label || '').replace(/\s+/g, '');
+    if (/참여동/.test(l)) return 'dongs';
+    if (/AI|다듬/.test(l)) return 'aiCheck';
+    if (/공유/.test(l)) return 'shareCheck';
+    if (/추가의견/.test(l)) return 'extra';
     if (/좋았/.test(l)) return 'good';
     if (/불편/.test(l)) return 'bad';
     if (/개선/.test(l)) return 'better';
@@ -216,7 +234,7 @@
     if (/첫걸음/.test(l)) return 'first';
     if (/이웃|주체/.test(l)) return 'with';
     if (/제안/.test(l)) return 'prop';
-    if (/빠진|고칠|수정/.test(l)) return 'check';
+    if (/빠진|고친|고칠|수정/.test(l)) return 'check';
     if (/제출/.test(l)) return 'done';
     return null;
   }
@@ -230,7 +248,7 @@
     (rows || []).forEach((cells, ri) => {
       if (!cells || cells.length < 2) return;
       const label = String((cells[0] || [])[0] || '').trim();
-      if (/^[①②③④⑤]/.test(label)) {
+      if (/^(?:[①-⑦]|📌)/u.test(label)) {
         const m = label.match(/과제\s*(\d)/); task = m ? Number(m[1]) - 1 : 0;
         const cf = cells.slice(1).map(c => fieldOf((c || [])[0]));
         colFields = cf.some(f => f && FIELDS[f].step === 0) ? cf : null;
@@ -353,11 +371,19 @@
       good: of('good'), bad: of('bad'), better: of('better'), us: of('us'), ext: of('ext'),
       picks, tally: of('tally'), rest: of('rest').map(i => Object.assign({}, i, { text: stripKind(i.text), kind: kindOf(i.text) })),
       tasks: [0, 1].map(k => { const o = {}; TASK_FIELDS.forEach(f => { o[f] = join(f, k); }); return o; }),
-      check: of('check'), done: of('done').some(i => /제출|완료|동의/.test(i.text)),
+      check: of('check'), aiCheck: of('aiCheck'), shareCheck: of('shareCheck'), extra: of('extra'), dongs: of('dongs').map(i => i.text).join(', '),
+      done: of('done').some(i => /제출|완료|동의/.test(i.text)),
       count: mine.length
     };
   }
   const filled = task => TASK_FIELDS.filter(f => task[f]).length;
+  /** ② 제안 번호: [주민실천] 1.. 다음 [외부협력] 이어서 (③ 투표 때 이 번호로 부름) */
+  const numbered = d => d.us.map((it, i) => Object.assign({ no: i + 1, kind: 'us' }, it)).concat(d.ext.map((it, i) => Object.assign({ no: d.us.length + i + 1, kind: 'ext' }, it)));
+  /** 「짧은 제목 — 핵심」 → [제목, 핵심] (구분이 없으면 ['', 전체]) */
+  function splitTitle(text) {
+    const m = String(text).match(/^(.{1,24}?)\s+[—–-]\s+(.+)$/) || String(text).match(/^([^:：]{1,24})[:：]\s*(.+)$/);
+    return m ? [m[1].trim(), m[2].trim()] : ['', String(text)];
+  }
 
   /** 화면에 쓸 의제 제안서: 과제별 {title, bg, want, prop, first, with, us, ext, polished} */
   function proposals(no, items, summary, usePolished) {
@@ -378,7 +404,7 @@
     return tables.map(t => {
       const d = tableData(items, t.no);
       return { no: t.no, topic: t.topic, picks: d.picks.map(p => p.text + (p.kind ? ' (' + (p.kind === 'us' ? '우리' : '외부') + ')' : '')),
-        us: d.us.map(i => i.text), ext: d.ext.map(i => i.text), tasks: d.tasks.filter((k, i) => i === 0 || filled(k)), check: d.check.map(i => i.text) };
+        us: d.us.map(i => i.text), ext: d.ext.map(i => i.text), tasks: d.tasks.filter((k, i) => i === 0 || filled(k)), check: d.check.concat(d.aiCheck).map(i => i.text) };
     }).filter(t => t.picks.length || t.us.length || t.tasks.some(filled));
   }
 
@@ -469,8 +495,8 @@
     good: ['아침마다 {p} 걸으면 공기가 좋아요', '주말엔 {p}에 가족 단위로 많이 와요', '{p}에서 이웃을 자주 만나요', '아이들이 {p}에서 뛰어놀기 좋아요'],
     bad: ['{p} 가로등이 드문드문해 밤엔 무서워요', '비 오고 나면 산책로가 진흙탕이 돼요', '쓰레기가 쌓여도 치우는 사람이 없어요', '화장실이 멀어서 어르신들이 오래 못 계세요', '자전거랑 보행자가 섞여 위험해요'],
     better: ['쉬어 갈 벤치가 더 있었으면 해요', '안내 표지판을 알아보기 쉽게 바꿨으면', '밤에도 걸을 수 있게 조명이 필요해요', '두 동이 함께 쓰는 모임 공간이 있으면 좋겠어요'],
-    us: ['두 동 주민이 한 달에 한 번 함께 걷기', '{p} 줍깅 데이 함께 열기', '주민 안전지킴이 순찰하기', '산책로 사진 기록단 운영하기'],
-    ext: ['{p} 조명·CCTV 점검', '안내표지 정비', '쉼터·벤치 설치 지원', '위험 구간 안전시설 보완'],
+    us: ['함께 걷기 — 두 동 주민이 한 달에 한 번 함께 걷기', '줍깅 데이 — {p} 쓰레기 함께 줍기', '안전지킴이 — 저녁 산책로 주민 순찰하기', '사진 기록단 — 산책로 변화를 사진으로 남기기'],
+    ext: ['조명 점검 — {p} 어두운 구간 조명·CCTV 점검', '안내표지 정비 — 연결길 표지판 새로 달기', '쉼터 지원 — 벤치·그늘막 설치', '안전시설 — 위험 구간 난간 보완'],
     tally: ['함께 걷기 7표, 줍깅 5표, 표지판 3표'],
     rest: ['[주민실천] 쓰레기통 주변 함께 치우기 (2표)', '[주민실천] 반려견 산책 매너 캠페인 (1표)', '[외부협력] 화장실 설치 (2표)', '[외부협력] 주차 공간 확보 (1표)']
   };
@@ -540,7 +566,7 @@
     get tables() { return tables; }, tableByNo, tablesOf, loadTables, docOk,
     get state() { return state; }, effective, setState, pullState, scheduledStage,
     onState: fn => stateListeners.push(fn),
-    parseDoc, rowsFromCells, loadFeed, pushManual, tableData, proposals, filled, aiInput,
+    parseDoc, rowsFromCells, loadFeed, pushManual, tableData, proposals, filled, numbered, splitTitle, aiInput,
     loadSummary, saveSummary, summarize, ruleSummary,
     deviceId, buildCards, loadLikes, like, resetLikes,
     simTick, simLike, resetDemo,
