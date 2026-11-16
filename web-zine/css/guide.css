@@ -142,3 +142,11 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .step:has(.tt) h2 { font-size: clamp(28px, min(4.4vw, 7.4vh), 84px); margin-bottom: 2.4vh; }
 .step:has(.tt) .say { font-size: clamp(20px, min(2.4vw, 4vh), 46px); margin-top: 2vh; }
 .step.split:has(.list) .list { font-size: clamp(14px, min(1.6vw, 2.8vh), 30px); }
+/* 책 사례 6장(3×2) */
+.arch.books { gap: 1.2vh 1.4vw; }
+.arch.books .ac__m { height: auto; aspect-ratio: 640 / 380; background: var(--white); }
+.arch.books .ac__m > img { object-fit: contain; } /* 책 사진은 자르지 않고 통째로 */
+.step:has(.books) h2 { font-size: clamp(24px, min(3.2vw, 5.6vh), 64px); margin-bottom: 1.4vh; }
+.step:has(.books) .say { margin-top: 1.2vh; font-size: clamp(18px, min(2vw, 3.4vh), 40px); }
+.arch.books .ac__b { padding: 1vh .9vw 1.2vh; font-size: clamp(13px, min(1.3vw, 2.3vh), 24px); }
+.arch.books .ac__meta { margin-top: .35em; padding-top: .3em; }
