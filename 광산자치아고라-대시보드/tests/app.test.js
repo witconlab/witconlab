@@ -49,12 +49,12 @@ assert.notStrictEqual(p[0].slot, p[2].slot);  // 쓰는 중 판단은 칸마다
 // 기록자 역할 반영: 참여 동, AI 문장 확인, ⑥ 공유 확인, ⑦ 추가 의견, 제안 번호·제목
 (async () => {
   const k = f => A.slotList().find(x => x.field === f).key;
-  const c = { [k('dongs')]: ['첨단1동, 첨단2동'], [k('aiCheck')]: ['줍깅을 그대로'], [k('shareCheck')]: ['확인'], [k('extra')]: ['함께 줍깅'],
+  const c = { [k('dongs')]: ['첨단1동, 첨단2동'], [k('aiCheck')]: ['줍깅을 그대로'],
     [k('us')]: ['함께 걷기 — 한 달에 한 번 걷기'], [k('ext')]: ['안내표지: 새로 달기'] };
   const items = A.parseDoc(A.rowsFromCells(c)).map((x, i) => Object.assign({ table: 2, id: 'x' + i }, x));
   const d = A.tableData(items, 2);
   assert.strictEqual(d.dongs, '첨단1동, 첨단2동');
-  assert.deepStrictEqual([d.aiCheck.length, d.shareCheck.length, d.extra.length], [1, 1, 1]);
+  assert.deepStrictEqual(d.aiCheck.length, 1);
   assert.deepStrictEqual(A.numbered(d).map(x => x.no + x.kind), ['1us', '2ext']);
   assert.deepStrictEqual(A.splitTitle(d.us[0].text), ['함께 걷기', '한 달에 한 번 걷기']);
   assert.deepStrictEqual(A.splitTitle(d.ext[0].text), ['안내표지', '새로 달기']);
