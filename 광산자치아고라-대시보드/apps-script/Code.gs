@@ -633,6 +633,15 @@ function setup() {
   SpreadsheetApp.getUi().alert('완료! tables 시트의 12개 문서 링크를 기록자에게 "편집자"로 공유해 주세요.');
 }
 
+/** 기록자가 로그인·권한 요청 없이 쓰도록: 12개 문서를 「링크가 있는 모든 사용자 = 편집자」로 */
+function shareDocsForEditing() {
+  readTables_().forEach(function (t) {
+    if (!t.docId) return;
+    DriveApp.getFileById(t.docId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    console.log('테이블 ' + t.no + ' · 링크로 편집 가능');
+  });
+}
+
 /** 행사 직전: 리허설 기록 지우기(12개 문서를 빈 표 양식으로) + 요약·수동·공감·화면 상태 초기화 */
 function resetForEvent() {
   readTables_().forEach(function (t) { if (t.docId) writeDoc_(t.docId, t); });
