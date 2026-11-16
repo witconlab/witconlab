@@ -15,6 +15,7 @@
  */
 
 var SHEETS = { tables: 'tables', summary: 'summary', manual: 'manual', likes: 'likes' };
+var REREAD_MS = 20000;  // 수정 시각이 그대로여도 이만큼 지난 문서는 차례로 다시 읽음
 
 var TOPICS = {
   hwang:   '황룡강',
@@ -158,16 +159,23 @@ function feed_() {
     var tables = readTables_();
     var keys = tables.map(function (t) { return 'doc' + t.no; });
     var prev = cache.getAll(keys);
-    var docs = {}, put = {};
+    var docs = {}, put = {}, now = Date.now();
+    // Drive 수정 시각은 몇 분 늦게 바뀔 수 있어서, 시각이 같아도 오래 안 읽은 문서는 한 번에 2개씩 다시 읽음
+    var forced = 2;
+    var cached = {};
+    tables.forEach(function (t) { if (prev['doc' + t.no]) cached[t.no] = JSON.parse(prev['doc' + t.no]); });
+    var oldest = tables.slice().sort(function (a, b) { return ((cached[a.no] || {}).read || 0) - ((cached[b.no] || {}).read || 0); });
+    var refresh = {};
+    oldest.forEach(function (t) { var p = cached[t.no]; if (forced > 0 && p && now - (p.read || 0) > REREAD_MS) { refresh[t.no] = true; forced--; } });
     tables.forEach(function (t) {
       if (!t.docId) { docs[t.no] = { ok: false, rows: [] }; return; }
       try {
         var at = DriveApp.getFileById(t.docId).getLastUpdated().getTime();
-        var p = prev['doc' + t.no] ? JSON.parse(prev['doc' + t.no]) : null;
-        if (p && p.at === at && p.id === t.docId) { docs[t.no] = { ok: true, rows: p.rows }; return; }
+        var p = cached[t.no];
+        if (p && p.at === at && p.id === t.docId && !refresh[t.no]) { docs[t.no] = { ok: true, rows: p.rows }; return; }
         var rows = docTabsRows_(DocumentApp.openById(t.docId).getTabs());
         docs[t.no] = { ok: true, rows: rows };
-        put['doc' + t.no] = JSON.stringify({ at: at, id: t.docId, rows: rows });
+        put['doc' + t.no] = JSON.stringify({ at: at, id: t.docId, rows: rows, read: now });
       } catch (err) {
         console.log('테이블 ' + t.no + ' 문서 읽기 실패: ' + err.message);
         docs[t.no] = { ok: false, rows: [] };
