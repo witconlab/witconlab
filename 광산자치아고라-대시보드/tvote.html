@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>광산자치아고라 ③ 우선 과제 투표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root { --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b; --line: #e2e8f0; --us: #16a34a; --us-bg: #dcfce7; --ext: #2563eb; --ext-bg: #dbeafe; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; padding-bottom: 120px; }
+  header { padding: 24px 18px 18px; background: linear-gradient(135deg, #15803d, #0d9488 50%, #1d4ed8); color: #fff; }
+  header small { font-size: 15px; font-weight: 700; opacity: .9; }
+  header h1 { font-size: 26px; font-weight: 900; margin-top: 6px; line-height: 1.3; }
+  header p { font-size: 16px; margin-top: 8px; opacity: .95; line-height: 1.5; }
+  main { padding: 14px; max-width: 600px; margin: 0 auto; }
+  .tbar { display: flex; align-items: center; gap: 10px; margin: 6px 2px 4px; }
+  .tbar b { font-size: 22px; font-weight: 900; }
+  .tbar span { color: var(--muted); font-weight: 700; }
+  .tbar button { margin-left: auto; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 14px; font-weight: 700; color: var(--muted); }
+  h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; margin: 20px 2px 10px; }
+  h2 small { font-size: 14px; font-weight: 700; color: var(--muted); }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .opt { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .opt .no { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; background: #f1f5f9; }
+  .opt span { flex: 1; }
+  .opt b { display: block; font-size: 19px; line-height: 1.35; }
+  .opt em { display: block; font-style: normal; font-size: 15px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .opt .r { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #cbd5e1; }
+  .us .opt.on { border-color: var(--us); background: var(--us-bg); } .us .opt.on .r { border: 8px solid var(--us); }
+  .ext .opt.on { border-color: var(--ext); background: var(--ext-bg); } .ext .opt.on .r { border: 8px solid var(--ext); }
+  .us .opt.on .no { background: var(--us); color: #fff; } .ext .opt.on .no { background: var(--ext); color: #fff; }
+  .none { color: var(--muted); font-size: 15px; padding: 6px 2px; }
+  .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tables h3 { grid-column: 1 / -1; font-size: 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+  .tables h3 i { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
+  .tables button { border: 2px solid var(--line); border-left: 8px solid var(--c); background: #fff; border-radius: 14px; padding: 16px; font: inherit; font-size: 20px; font-weight: 900; text-align: left; }
+  .submit { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(248, 250, 252, .96); border-top: 1px solid var(--line); }
+  .submit button { display: block; width: 100%; max-width: 600px; margin: 0 auto; border: 0; border-radius: 14px; padding: 16px; font: inherit; font-size: 19px; font-weight: 900; color: #fff; background: #0f172a; }
+  .submit button:disabled { background: #cbd5e1; }
+  .submit p { text-align: center; font-size: 14px; color: var(--muted); margin-top: 6px; }
+  .state { text-align: center; padding: 60px 16px; }
+  .state .big { font-size: 56px; }
+  .state h2 { justify-content: center; margin-top: 12px; }
+  .state p { color: var(--muted); margin-top: 8px; line-height: 1.6; font-size: 17px; }
+  .toast { position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #0f172a; color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; font-size: 16px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .toast.on { opacity: 1; } .toast.err { background: #b91c1c; }
+</style>
+</head>
+<body>
+<header>
+  <small>2026 광산자치아고라 · ③ 우선 과제 선정</small>
+  <h1>우리 테이블이 먼저 할 일을 골라 주세요</h1>
+  <p>🟢 주민이 할 일 1개, 🔵 기관 도움이 필요한 일 1개.<br>투표를 마치기 전까지는 다시 골라 바꿀 수 있어요.</p>
+</header>
+<main id="main"><div class="state"><p>불러오는 중…</p></div></main>
+<div class="submit" id="submit" hidden><button id="send">투표하기</button><p id="sub-msg"></p></div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js?v=20261116h"></script>
+<script src="assets/app.js?v=20261116h"></script>
+<script>
+(function () {
+  const A = window.Agora;
+  const { TOPICS, TOPIC_ORDER, esc } = A;
+  const $ = s => document.querySelector(s);
+  let my = A.LS.get('agora-my-tvote', {});          // {round, table, us, ext, sent}
+  let pick = { us: my.us || '', ext: my.ext || '' };
+  let lastKey = '';
+
+  function toast(msg, err) {
+    const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (err ? ' err' : '');
+    clearTimeout(toast.t); toast.t = setTimeout(() => { t.className = 'toast'; }, 2200);
+  }
+  const save = () => A.LS.set('agora-my-tvote', my);
+
+  function render() {
+    const st = A.state;
+    if ((st.voteRound || 0) !== (my.round || 0)) { my = { round: st.voteRound || 0, table: my.table }; pick = { us: '', ext: '' }; save(); }
+    const ballot = st.ballot || {};
+    const bt = my.table && ballot[my.table];
+    const key = [st.voteOpen, JSON.stringify(ballot), my.table, pick.us, pick.ext, my.sent].join('|');
+    if (key === lastKey) return;
+    lastKey = key;
+    $('#submit').hidden = true;
+    if (!st.voteOpen) {
+      $('#main').innerHTML = my.sent
+        ? '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '의 결과는 앞 화면에서 함께 봐요.</p></div>'
+        : '<div class="state"><div class="big">⏳</div><h2>투표 시간이 되면 여기서 바로 골라요</h2><p>이 화면을 켜 두세요. 다시 QR을 찍지 않아도<br>투표가 열리면 제안이 자동으로 나타나요.</p></div>';
+      return;
+    }
+    if (!bt) {  // 내 테이블 고르기
+      const nos = Object.keys(ballot).map(Number);
+      $('#main').innerHTML = '<h2>내 테이블 번호를 눌러 주세요</h2><div class="tables">' + TOPIC_ORDER.map(c => {
+        const ts = A.tables.filter(t => t.topic === c && nos.includes(t.no));
+        return ts.length ? '<h3 style="--c:' + TOPICS[c].color + '"><i></i>' + TOPICS[c].name + '</h3>' + ts.map(t => '<button data-t="' + t.no + '" style="--c:' + TOPICS[c].color + '">테이블 ' + t.no + '</button>').join('') : '';
+      }).join('') + '</div>' + (nos.length ? '' : '<p class="none">아직 투표할 제안이 없어요.</p>');
+      return;
+    }
+    const t = A.tableByNo(my.table);
+    const sec = (k, title, hint) => '<div class="' + k + '"><h2>' + title + ' <small>' + hint + '</small></h2><div class="list">' +
+      (bt[k].map(o => '<button class="opt' + (pick[k] === o.id ? ' on' : '') + '" data-k="' + k + '" data-id="' + o.id + '"><i class="no">' + o.no + '</i><span><b>' + esc(o.text) + '</b>' + (o.sub ? '<em>' + esc(o.sub) + '</em>' : '') + '</span><i class="r"></i></button>').join('') || '<p class="none">이 테이블은 제안이 없어요</p>') + '</div></div>';
+    $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span><button id="change">테이블 바꾸기</button></div>' +
+      sec('us', '🟢 주민이 직접 할 일', '하나만') + sec('ext', '🔵 기관 도움이 필요한 일', '하나만');
+    $('#submit').hidden = false;
+    $('#send').disabled = !pick.us && !pick.ext;
+    $('#send').textContent = my.sent ? '이대로 다시 투표하기' : '투표하기';
+    $('#sub-msg').textContent = my.sent ? '투표했어요. 바꾸려면 다시 고르고 눌러 주세요.' : (pick.us && pick.ext ? '' : '주민·기관 하나씩 골라 주세요');
+  }
+
+  $('#main').addEventListener('click', e => {
+    const tb = e.target.closest('[data-t]');
+    if (tb) { my.table = Number(tb.dataset.t); pick = { us: '', ext: '' }; my.sent = false; save(); lastKey = ''; render(); window.scrollTo(0, 0); return; }
+    if (e.target.closest('#change')) { my.table = 0; my.sent = false; save(); lastKey = ''; render(); return; }
+    const o = e.target.closest('.opt'); if (!o) return;
+    pick[o.dataset.k] = pick[o.dataset.k] === o.dataset.id ? '' : o.dataset.id;
+    if (navigator.vibrate) navigator.vibrate(12);
+    lastKey = ''; render();
+  });
+  $('#send').onclick = async () => {
+    const b = $('#send'); b.disabled = true;
+    try {
+      const r = await A.castVote({ table: my.table, us: pick.us, ext: pick.ext });
+      if (r && r.error) throw new Error(r.error);
+      Object.assign(my, { us: pick.us, ext: pick.ext, sent: true }); save();
+      toast('🗳 투표가 전해졌어요');
+    } catch (e) { toast(e.message || '전송 실패. 잠시 후 다시 눌러 주세요', true); }
+    lastKey = ''; render();
+  };
+
+  A.onState(render);
+  (async function loop() {
+    try { await A.pullState(); } catch (e) { /* 다음 회차 */ }
+    try { if (!A.tables.length || !A.tables[0].docId) await A.loadTables(); } catch (e) { /* 기본 목록 사용 */ }
+    render();
+    setTimeout(loop, A.MODE === 'live' ? 7000 + Math.random() * 4000 : 1500);
+  })();
+})();
+</script>
+</body>
+</html>

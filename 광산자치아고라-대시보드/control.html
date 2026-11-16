@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>광산자치아고라 관제 패널</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/control.css?v=20261116g">
+<link rel="stylesheet" href="assets/control.css?v=20261116h">
 </head>
 <body>
 <header class="top">
@@ -77,6 +77,18 @@
     </section>
 
     <section class="card">
+      <div class="card-hd"><h2>③ 테이블별 휴대폰 투표</h2><span class="muted" id="vote-sum"></span></div>
+      <p class="muted small">②가 끝나면 「투표 열기」 → 지금 ② 제안이 테이블별 후보로 고정되고, 대형 화면 ③에 QR과 표 막대가 떠요. 참가자는 자기 테이블에서 🟢 주민 1개·🔵 외부 1개를 고릅니다. 기록자는 결과를 ③ 탭에 옮겨 적어요.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="vote-open">투표 열기</button>
+        <button class="btn" id="vote-close">투표 마치기</button>
+        <button class="btn danger" id="vote-reset">투표 초기화</button>
+        <button class="btn ghost" id="open-vote">투표 페이지</button>
+      </div>
+      <ol class="cands" id="vote-list"></ol>
+    </section>
+
+    <section class="card">
       <div class="card-hd"><h2>⑦ 공감 · 응원</h2><span class="muted" id="like-sum"></span></div>
       <p class="muted small">카드는 지금 화면의 의제 제안서(다듬은 문장 켜짐이면 다듬은 문장)로 만듭니다. 화면에는 숫자 없이 하트만 떠올라요.</p>
       <div class="row" style="margin-top:10px">
@@ -125,8 +137,8 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<script src="config.js?v=20261116g"></script>
-<script src="assets/app.js?v=20261116g"></script>
-<script src="assets/control.js?v=20261116g"></script>
+<script src="config.js?v=20261116h"></script>
+<script src="assets/app.js?v=20261116h"></script>
+<script src="assets/control.js?v=20261116h"></script>
 </body>
 </html>

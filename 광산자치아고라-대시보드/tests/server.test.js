@@ -39,4 +39,17 @@ const tabs = [
 const rows = J(gs.docTabsRows_(tabs));
 assert.deepStrictEqual(rows[1], [['참여자 1'], ['물소리', '산책로 넓음'], [], ['벤치']]);
 assert.deepStrictEqual(A.parseDoc(rows).map(x => x.field + ':' + x.text), ['good:물소리', 'good:산책로 넓음', 'better:벤치', 'ext:조명 정비']);
+
+// 3) ③ 테이블별 투표: 후보 밖 id 는 버리고, 기기마다 마지막 표만 셈
+const store = {};
+gs.PropertiesService = { getScriptProperties: () => ({ getProperty: k => store[k] || null, setProperty: (k, v) => { store[k] = v; }, deleteProperty: k => { delete store[k]; }, getProperties: () => Object.assign({}, store) }) };
+store.STATE = JSON.stringify({ voteOpen: true, ballot: { 3: { us: [{ id: 't3n1' }, { id: 't3n2' }], ext: [{ id: 't3n3' }] } } });
+assert.deepStrictEqual(J(gs.vote_({ device: 'a', table: 3, us: 't3n1', ext: 't3n3' })), { ok: true, us: 't3n1', ext: 't3n3' });
+gs.vote_({ device: 'b', table: 3, us: 't3n2', ext: 'zzz' });        // 외부 후보가 아니면 빈칸
+gs.vote_({ device: 'a', table: 3, us: 't3n2', ext: 't3n3' });       // 다시 누르면 바뀜
+assert.deepStrictEqual(J(gs.readVotes_()), { counts: { t3n2: 2, t3n3: 1 }, people: 2 });
+assert.ok(gs.vote_({ device: 'c', table: 9, us: 't3n1' }).error);    // 후보 없는 테이블
+gs.resetVotes_(); assert.deepStrictEqual(J(gs.readVotes_()).people, 0);
+store.STATE = JSON.stringify({ voteOpen: false });
+assert.ok(gs.vote_({ device: 'a', table: 3, us: 't3n1' }).error);
 console.log('ok');

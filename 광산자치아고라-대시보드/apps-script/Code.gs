@@ -49,9 +49,9 @@ var DOC_TABLES = [
     groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], color: '#dcfce7', n: 5, label: '🟢 주민 ' },
       { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'], color: '#dbeafe', n: 4, label: '🔵 외부 ' }] },
   { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-    guide: '대형 화면에 뜬 제안 번호로 투표해요. 실제 투표 결과대로 1~2개를 적고, 뽑히지 않은 제안도 지우지 말고 남겨요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
-    rows: [['선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
-      ['투표 결과', '제안 번호마다 몇 표였는지', '1번 7표, 6번 5표, 3번 2표'],
+    guide: '참가자가 휴대폰으로 투표해요(대형 화면 QR). 🟢 주민 중 가장 많은 표를 「선정 과제 1」, 🔵 외부 중 가장 많은 표를 「선정 과제 2」에 적고, 화면의 표 수를 「투표 결과」에 옮겨요. 뽑히지 않은 제안도 지우지 말고 남겨요.',
+    rows: [['선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표', '함께 걷기·길 살피기'], ['선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표', '연결길 안내표지 정비'],
+      ['투표 결과', '대형 화면의 번호별 표 수', '1번 7표, 3번 2표 / 6번 5표, 7번 1표'],
       ['선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)']].concat(rep_(['선정되지 않은 의견', '', ''], 5)) },
   { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?',
     guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
@@ -80,6 +80,7 @@ function doGet(e) {
       case 'state':   return json_({ state: readState_() });
       case 'summary': return json_(readSummary_());
       case 'likes':   return json_(readLikes_());
+      case 'votes':   return json_(readVotes_());
       default:        return json_({ ok: true, name: '광산자치아고라 API v2' });
     }
   } catch (err) {
@@ -92,6 +93,7 @@ function doPost(e) {
   try { body = JSON.parse(e.postData.contents || '{}'); } catch (err) { return json_({ error: 'bad json' }); }
   try {
     if (body.action === 'like') return json_(like_(body));
+    if (body.action === 'vote') return json_(vote_(body));
     if (body.key !== prop_('ADMIN_KEY')) return json_({ error: '관제 비밀번호가 맞지 않아요.' });
     switch (body.action) {
       case 'setState':    return json_({ state: writeState_(body.state) });
@@ -99,6 +101,7 @@ function doPost(e) {
       case 'summarize':   return json_(startSummarizeJob_(body.input));
       case 'saveSummary': return json_(saveSummary_(body.data));
       case 'resetLikes':  return json_(resetLikes_());
+      case 'resetVotes':  return json_(resetVotes_());
       default:            return json_({ error: 'unknown action' });
     }
   } catch (err) {
@@ -457,6 +460,38 @@ function resetLikes_() {
   return { ok: true };
 }
 
+// ── ③ 테이블별 휴대폰 투표: 기기마다 「테이블|주민 후보|외부 후보」 한 줄 ──
+var VOTE_PREFIX = 'v_';
+function vote_(b) {
+  var state = readState_() || {};
+  if (!state.voteOpen) return { error: '지금은 투표 시간이 아니에요.' };
+  var bt = (state.ballot || {})[b.table];
+  if (!bt) return { error: '이 테이블은 투표할 제안이 없어요.' };
+  var ids = function (a) { return (a || []).map(function (o) { return o.id; }); };
+  var us = ids(bt.us).indexOf(b.us) >= 0 ? b.us : '', ext = ids(bt.ext).indexOf(b.ext) >= 0 ? b.ext : '';
+  var device = String(b.device || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+  if (!device) return { error: '기기 정보가 없어요.' };
+  var sp = PropertiesService.getScriptProperties();
+  if (us || ext) sp.setProperty(VOTE_PREFIX + device, [Number(b.table), us, ext].join('|'));
+  else sp.deleteProperty(VOTE_PREFIX + device);
+  return { ok: true, us: us, ext: ext };
+}
+function readVotes_() {
+  var props = PropertiesService.getScriptProperties().getProperties();
+  var counts = {}, people = 0;
+  Object.keys(props).forEach(function (k) {
+    if (k.indexOf(VOTE_PREFIX) !== 0) return;
+    people++;
+    props[k].split('|').slice(1).forEach(function (id) { if (id) counts[id] = (counts[id] || 0) + 1; });
+  });
+  return { counts: counts, people: people };
+}
+function resetVotes_() {
+  var sp = PropertiesService.getScriptProperties();
+  Object.keys(sp.getProperties()).forEach(function (k) { if (k.indexOf(VOTE_PREFIX) === 0) sp.deleteProperty(k); });
+  return { ok: true };
+}
+
 /** 행사 후 실행: 카드별 공감 수를 likes 시트에 기록 (화면에는 숫자를 보이지 않음) */
 function exportLikes() {
   var r = readLikes_();
@@ -606,6 +641,7 @@ function applyTemplateV2() {
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   resetLikes_();
+  resetVotes_();
   PropertiesService.getScriptProperties().deleteProperty('STATE');
   CacheService.getScriptCache().remove('feed');
 }
@@ -648,6 +684,7 @@ function resetForEvent() {
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   resetLikes_();
+  resetVotes_();
   PropertiesService.getScriptProperties().deleteProperty('STATE');
   CacheService.getScriptCache().remove('feed');
 }

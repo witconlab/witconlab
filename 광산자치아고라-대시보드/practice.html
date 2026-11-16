@@ -126,8 +126,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261116g"></script>
-<script src="assets/app.js?v=20261116g"></script>
+<script src="config.js?v=20261116h"></script>
+<script src="assets/app.js?v=20261116h"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -207,8 +207,6 @@
     const sl = slotField[k], all = lines.join(' ');
     if (PHONE.test(all)) return ['bad', '전화번호는 쓰지 않아요. 지워 주세요.'];
     if (lines.some(l => l.length > 60)) return ['warn', '한 줄이 길어요. 엔터로 나누거나 짧게 써 주세요.'];
-    if (sl.field === 'pick' && lines.length && !/[\(\[]\s*(우리|주민|외부)/.test(all)) return ['warn', '앞에 [주민실천] 또는 [외부협력]을 붙여 주세요.'];
-    if (sl.field === 'pick' && sl.task === 1 && /외부/.test(all) && /외부/.test(linesOf('pick', 0).join(' '))) return ['bad', '[외부협력]만 2개는 고르지 않아요. 하나는 [주민실천]으로!'];
     if (sl.field === 'done' && lines.length && !/제출/.test(all)) return ['warn', '모두 동의하면 ‘제출’이라고 써요.'];
     if (A.TASK_FIELDS.includes(sl.field) && sl.task === 0 && !lines.length) return ['', '못 정하면 ‘추후 협의’'];
     if (sl.col != null && lines.length > 1) return ['warn', '한 줄에 제안 하나. 다음 제안은 아래 줄에 써요.'];
@@ -248,7 +246,7 @@
     const M = [
       ['① 참여자 두 명 이상의 이야기를 각자 줄에', new Set(['good', 'bad', 'better'].flatMap(f => SLOTS.filter(x => x.field === f && (cells[x.key] || []).length).map(x => x.key.replace(/C\d+$/, '')))).size >= 2],
       ['② [주민실천] 두 칸 이상 + [외부협력] 한 칸 이상', new Set(slotsOf('us').filter(k => (cells[k] || []).length).map(k => k.replace(/C\d+$/, ''))).size >= 2 && has('ext')],
-      ['③ 선정 과제 1에 [주민실천]/[외부협력] + 투표 결과 + 선정되지 않은 의견', /[\(\[]\s*(우리|주민|외부)/.test(linesOf('pick', 0).join(' ')) && has('tally') && has('rest')],
+      ['③ 선정 과제(🟢 주민·🔵 외부) + 투표 결과 + 선정되지 않은 의견', has('pick', 0) && has('pick', 1) && has('tally') && has('rest')],
       ['④ 과제 1의 다섯 칸 모두 (못 정하면 ‘추후 협의’)', TASK_FIELDS.every(f => has(f, 0))],
       ['⑤ 「최종 제출」에 ‘제출’', /제출/.test(linesOf('done').join(' '))]
     ];

@@ -75,9 +75,9 @@
         { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'] }],
       rows: [1, 2, 3, 4, 5].map(n => ['us', '🟢 주민 ' + n]).concat([1, 2, 3, 4].map(n => ['ext', '🔵 외부 ' + n])) },
     { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-      guide: '대형 화면에 뜬 제안 번호로 투표해요. 실제 투표 결과대로 1~2개를 적고, 뽑히지 않은 제안도 지우지 말고 남겨요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
-      rows: [['pick', '선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['pick', '선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
-        ['tally', '투표 결과', '제안 번호마다 몇 표였는지', '1번 7표, 6번 5표, 3번 2표'],
+      guide: '참가자가 휴대폰으로 투표해요(대형 화면 QR). 🟢 주민 중 가장 많은 표를 「선정 과제 1」, 🔵 외부 중 가장 많은 표를 「선정 과제 2」에 적고, 화면의 표 수를 「투표 결과」에 옮겨요. 뽑히지 않은 제안도 지우지 말고 남겨요.',
+      rows: [['pick', '선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표', '함께 걷기·길 살피기'], ['pick', '선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표', '연결길 안내표지 정비'],
+        ['tally', '투표 결과', '대형 화면의 번호별 표 수', '1번 7표, 3번 2표 / 6번 5표, 7번 1표'],
         ['rest', '선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)'], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', '']] },
     { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?', task: 0,
       guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
@@ -122,6 +122,7 @@
     sim: false, simSpeed: 1,
     polished: false,         // ⑤·⑥·⑦에서 AI가 다듬은 문장을 쓸지
     likeOpen: false, cards: [], likeRound: 0,
+    voteOpen: false, ballot: {}, voteRound: 0,  // ③ 테이블별 휴대폰 투표 (🟢 주민 1개 + 🔵 외부 1개)
     sloganCue: 0, updated: 0
   };
 
@@ -381,7 +382,7 @@
     const mine = items.filter(i => i.table === Number(no));
     const of = (f, k) => mine.filter(i => i.field === f && (k == null || i.task === k));
     const join = (f, k) => of(f, k).map(i => i.text).join(' ');
-    const picks = [0, 1].map(k => of('pick', k)[0]).filter(Boolean).map(i => ({ text: stripKind(i.text), kind: kindOf(i.text), task: i.task }));
+    const picks = [0, 1].map(k => of('pick', k)[0]).filter(Boolean).map(i => ({ text: stripKind(i.text), kind: kindOf(i.text) || (i.task ? 'ext' : 'us'), task: i.task }));  // 과제 1 = 주민, 과제 2 = 외부(표시가 없으면)
     return {
       good: of('good'), bad: of('bad'), better: of('better'), us: of('us'), ext: of('ext'),
       picks, tally: of('tally'), rest: of('rest').map(i => Object.assign({}, i, { text: stripKind(i.text), kind: kindOf(i.text) })),
@@ -500,6 +501,45 @@
     LS.set('agora-likes-v2', b);
     return { ok: true };
   }
+  // ── ③ 테이블별 투표: 관제가 열 때 ② 제안을 후보로 고정 → 휴대폰은 주민 1개·외부 1개 ──
+  function buildBallot(items) {
+    const out = {};
+    tables.forEach(t => {
+      const nums = numbered(tableData(items, t.no));
+      const opt = i => { const [h, b] = splitTitle(i.text); return { id: 't' + t.no + 'n' + i.no, no: i.no, text: trim(h || b, 30), sub: h ? trim(b, 40) : '' }; };
+      const us = nums.filter(i => i.kind === 'us').map(opt), ext = nums.filter(i => i.kind === 'ext').map(opt);
+      if (us.length || ext.length) out[t.no] = { us, ext };
+    });
+    return out;
+  }
+  async function loadVotes() {
+    if (MODE === 'live') return apiGet('votes');
+    const b = LS.get('agora-tvotes-v1', {});
+    const counts = {};
+    Object.values(b).forEach(v => [v.us, v.ext].forEach(id => { if (id) counts[id] = (counts[id] || 0) + 1; }));
+    return { counts, people: Object.keys(b).length };
+  }
+  /** 내 표 {table, us, ext} (us·ext 는 후보 id, 하나만 골라도 됨) */
+  async function castVote(v) {
+    if (MODE === 'live') return apiPost({ action: 'vote', device: deviceId(), table: v.table, us: v.us || '', ext: v.ext || '' });
+    if (!state.voteOpen) throw new Error('지금은 투표 시간이 아니에요.');
+    const b = LS.get('agora-tvotes-v1', {});
+    b[deviceId()] = { table: v.table, us: v.us || '', ext: v.ext || '' };
+    LS.set('agora-tvotes-v1', b);
+    return { ok: true };
+  }
+  async function resetVotes() {
+    if (MODE === 'live') return apiPost({ action: 'resetVotes', key: adminKey() });
+    LS.set('agora-tvotes-v1', {});
+  }
+  function simVote() {
+    const nos = Object.keys(state.ballot || {}); if (!state.voteOpen || !nos.length) return;
+    const no = nos[Math.floor(Math.random() * nos.length)], bt = state.ballot[no];
+    const pick = a => a.length ? a[Math.floor(Math.random() * Math.min(a.length, 3))].id : '';
+    const b = LS.get('agora-tvotes-v1', {});
+    b['sim' + Object.keys(b).length] = { table: Number(no), us: pick(bt.us), ext: pick(bt.ext) };
+    LS.set('agora-tvotes-v1', b);
+  }
   async function resetLikes() {
     if (MODE === 'live') return apiPost({ action: 'resetLikes', key: adminKey() });
     LS.set('agora-likes-v2', {});
@@ -570,7 +610,7 @@
     LS.set('agora-likes-v2', b);
   }
   function resetDemo() {
-    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-seen-v2'].forEach(LS.del);
+    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-tvotes-v1', 'agora-seen-v2'].forEach(LS.del);
     Object.keys(seen).forEach(k => delete seen[k]);
   }
 
@@ -591,7 +631,8 @@
     parseDoc, rowsFromCells, loadFeed, pushManual, tableData, proposals, filled, numbered, splitTitle, aiInput,
     loadSummary, saveSummary, summarize, ruleSummary,
     deviceId, buildCards, loadLikes, like, resetLikes,
-    simTick, simLike, resetDemo,
+    buildBallot, loadVotes, castVote, resetVotes,
+    simTick, simLike, simVote, resetDemo,
     esc, hash, hhmm, pad, toMin, nowMin, sleep, trim, topicIcon, adminKey, apiGet
   };
 })();

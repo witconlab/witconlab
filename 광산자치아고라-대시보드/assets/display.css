@@ -345,3 +345,22 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .o.us .no { background: rgba(52, 211, 153, .3); } .o.ext .no { background: rgba(96, 165, 250, .3); }
 .all .tbl2 .cl { flex-wrap: nowrap; }
 .all .tbl2 .chip { flex: 0 1 auto; min-width: 0; }
+
+/* ③ 테이블별 휴대폰 투표 */
+.vwrap { height: 100%; display: flex; gap: 14px; } .vwrap .grid3 { flex: 1; min-width: 0; }
+.vote-qr { flex: none; width: 250px; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #fff; color: #0f172a; border-radius: 18px; padding: 18px; text-align: center; }
+.vote-qr #vqr { width: 210px; height: 210px; } .vote-qr #vqr img, .vote-qr #vqr canvas { width: 100% !important; height: auto !important; }
+.vote-qr p { font-size: 20px; line-height: 1.5; } .vote-qr p b { display: block; font-size: 26px; margin-bottom: 4px; }
+.vb { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+.vb + .vb { margin-top: 6px; }
+.vb-hd { font-size: 15px; font-weight: 800; color: var(--muted); }
+.vr { display: grid; grid-template-columns: auto minmax(0, 1fr) 30% 2.2em; gap: 8px; align-items: center; font-size: 17px; color: #d4d4d8; }
+.vr .vt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vr .vbar { height: 10px; border-radius: 5px; background: #2a2d33; overflow: hidden; }
+.vr .vbar i { display: block; height: 100%; border-radius: 5px; transition: width .6s; }
+.vb.us .vbar i { background: #34d399; } .vb.ext .vbar i { background: #60a5fa; }
+.vr em { font-style: normal; font-weight: 900; text-align: right; font-variant-numeric: tabular-nums; }
+.vr .no { display: inline-block; min-width: 1.6em; padding: 0 5px; border-radius: 6px; background: rgba(255, 255, 255, .14); text-align: center; font-size: .85em; }
+.vb.us .vr.top .no { background: #34d399; color: #000; } .vb.ext .vr.top .no { background: #60a5fa; color: #000; }
+.vr.top { color: #fff; font-weight: 800; }
+.n2 .vr { font-size: 24px; } .n2 .vb-hd { font-size: 19px; } .n2 .vr .vbar { height: 14px; }

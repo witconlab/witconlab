@@ -38,6 +38,7 @@
   let items = [];
   let summary = { tables: {}, topics: {}, at: 0 };
   let likeCounts = null;
+  let voteCounts = {};
 
   // 보여 줄 주제: null = 전체, 'auto' = 15초마다 돌아가며
   const ROTATE_MS = 15000;
@@ -112,7 +113,7 @@
   // 같은 내용이면 다시 그리지 않음(애니메이션 유지)
   let lastSig = '';
   function renderBody() {
-    const sig = [cur.stage, cur.sub, viewTopic(), cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || [])].join('|');
+    const sig = [cur.stage, cur.sub, viewTopic(), cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts)].join('|');
     if (sig === lastSig) return;
     lastSig = sig;
     if (cur.stage === 'talk') renderTalk();
@@ -132,6 +133,7 @@
     body.className = 'talk-body s' + cur.sub + (k ? ' one' : ' all');
     const renderers = [step1, step2, step3, step4, step5];
     body.innerHTML = renderers[cur.sub](ts, k);
+    const vq = $('#vqr'); if (vq && window.QRCode) new QRCode(vq, { text: new URL('tvote.html', location.href).href, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
     $('#ai-overlay').classList.toggle('on', cur.sub === 4 && !!(summary.job && summary.job.status === 'running' && Date.now() - summary.job.started < 8 * 60000));
   }
 
@@ -158,7 +160,21 @@
 
   // ③ 테이블별 제안 목록 + 선정 과제
   const kindTag = kd => kd === 'us' ? '<span class="kind us">주민실천</span>' : kd === 'ext' ? '<span class="kind ext">외부협력</span>' : '';
+  // 휴대폰 투표 막대: 🟢 주민 / 🔵 외부 각각 가장 많은 표가 ★
+  function voteBars(bt, k) {
+    const c = voteCounts || {};
+    const part = (list, cls, label) => {
+      const max = Math.max(1, ...list.map(o => c[o.id] || 0)), top = Math.max(0, ...list.map(o => c[o.id] || 0));
+      return '<div class="vb ' + cls + '"><div class="vb-hd">' + label + '</div>' + ((k ? list : list.slice().sort((a, b) => (c[b.id] || 0) - (c[a.id] || 0))).slice(0, k ? 6 : 2).map(o => { const n = c[o.id] || 0; return '<div class="vr' + (n && n === top ? ' top' : '') + '"><b class="no">' + o.no + '</b><span class="vt">' + esc(o.text) + '</span><span class="vbar"><i style="width:' + (n / max * 100) + '%"></i></span><em>' + n + '</em></div>'; }).join('') || '<div class="empty">제안 없음</div>') + '</div>';
+    };
+    return part(bt.us, 'us', '🟢 주민') + part(bt.ext, 'ext', '🔵 외부');
+  }
   function step3(ts, k) {
+    const ballot = cur.ballot || {};
+    if (Object.keys(ballot).length) {
+      return '<div class="vwrap"><div class="grid3 vote n' + ts.length + '">' + ts.map(t => '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div>' + (ballot[t.no] ? voteBars(ballot[t.no], k) : '<div class="empty">투표할 제안이 없어요</div>') + '</div>').join('') + '</div>' +
+        (cur.voteOpen ? '<div class="vote-qr"><div id="vqr"></div><p><b>휴대폰으로 투표</b>내 테이블에서<br>🟢 주민 1개<br>🔵 외부 1개</p></div>' : '') + '</div>';
+    }
     return '<div class="grid3 n' + ts.length + '">' + ts.map(t => {
       const d = A.tableData(items, t.no);
       const others = A.numbered(d);
@@ -281,6 +297,10 @@
         summary = next;
         if (changed) renderBody(true);
       }
+      if (s === 'talk' && cur.sub === 2 && Object.keys(cur.ballot || {}).length) {
+        const r = await A.loadVotes();
+        if (JSON.stringify(r.counts || {}) !== JSON.stringify(voteCounts)) { voteCounts = r.counts || {}; renderBody(true); }
+      }
       if (s === 'like') {
         const r = await A.loadLikes();
         const counts = r.counts || {};
@@ -384,7 +404,8 @@
     const st = A.effective();
     let wait = 1500;
     if (A.MODE === 'demo' && st.sim && !PREVIEW) {
-      if (st.stage === 'talk') { A.simTick(st); wait = (900 + Math.random() * 1400) / (st.simSpeed || 1); }
+      if (st.stage === 'talk' && st.sub === 2 && st.voteOpen && Object.keys(A.LS.get('agora-tvotes-v1', {})).length < 140) { A.simVote(); wait = 300 + Math.random() * 500; }
+      else if (st.stage === 'talk') { A.simTick(st); wait = (900 + Math.random() * 1400) / (st.simSpeed || 1); }
       if (st.stage === 'like' && st.likeOpen && Object.keys(A.LS.get('agora-likes-v2', {})).length < 140) { A.simLike(); wait = 400 + Math.random() * 600; }
     }
     simTimer = setTimeout(simLoop, wait);

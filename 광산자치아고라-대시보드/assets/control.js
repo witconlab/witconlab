@@ -74,7 +74,7 @@
     $('#like-close').disabled = !st.likeOpen;
     $('#now-label').textContent = '스크린: ' + (STAGES.find(s => s.key === eff.stage) || {}).label + (eff.stage === 'talk' ? ' · ' + SUBSTEPS[eff.sub].label : '') + (st.auto ? ' (자동)' : '');
     $('#sync').textContent = st.updated ? '마지막 변경 ' + hhmm(st.updated) : '';
-    renderCards();
+    renderCards(); renderVotes();
   }
   A.onState(renderState);
 
@@ -201,6 +201,29 @@
     try { const r = await A.loadLikes(); if (JSON.stringify(r) !== JSON.stringify(likeInfo)) { likeInfo = { counts: r.counts || {}, people: r.people || 0 }; renderCards(); } } catch (e) { /* 다음 회차 */ }
   }
 
+  // ── ③ 테이블별 투표 ──
+  let voteInfo = { counts: {}, people: 0 };
+  $('#open-vote').onclick = () => window.open('tvote.html' + demoQs, 'agora-tvote');
+  $('#vote-open').onclick = () => {
+    const ballot = A.buildBallot(items);
+    if (!Object.keys(ballot).length) { toast('아직 ② 제안이 없어요', true); return; }
+    act(() => A.setState({ stage: 'talk', sub: 2, voteOpen: true, ballot, auto: false }), Object.keys(ballot).length + '개 테이블 투표를 열었어요');
+  };
+  $('#vote-close').onclick = () => act(() => A.setState({ voteOpen: false }), '투표를 마쳤어요');
+  $('#vote-reset').onclick = () => { if (confirm('모든 투표를 지우고 후보도 비울까요?')) act(async () => { await A.resetVotes(); await A.setState({ voteOpen: false, ballot: {}, voteRound: Date.now() }); }, '투표를 초기화했어요'); };
+  function renderVotes() {
+    const ballot = A.state.ballot || {};
+    const c = voteInfo.counts;
+    const top = list => { const best = list.slice().sort((a, b) => (c[b.id] || 0) - (c[a.id] || 0))[0]; return best && c[best.id] ? best.no + '번 ' + best.text + ' · ' + c[best.id] + '표' : '—'; };
+    $('#vote-sum').textContent = (A.state.voteOpen ? '진행 중 · ' : '') + voteInfo.people + '명 참여';
+    const nos = Object.keys(ballot).map(Number).sort((a, b) => a - b);
+    $('#vote-list').innerHTML = nos.length ? nos.map(no => { const t = A.tableByNo(no); return '<li style="' + tv(t.topic) + '"><span></span><span class="t">T' + no + '</span><span>🟢 ' + esc(top(ballot[no].us)) + '<br>🔵 ' + esc(top(ballot[no].ext)) + '</span><span class="v">' + [...ballot[no].us, ...ballot[no].ext].reduce((n, o) => n + (c[o.id] || 0), 0) + '</span></li>'; }).join('')
+      : '<li class="empty">② 제안이 쌓이면 「투표 열기」를 눌러 주세요.</li>';
+  }
+  async function pollVotes() {
+    try { const r = await A.loadVotes(); if (JSON.stringify(r) !== JSON.stringify(voteInfo)) { voteInfo = { counts: r.counts || {}, people: r.people || 0 }; renderVotes(); } } catch (e) { /* 다음 회차 */ }
+  }
+
   // ── 시뮬레이션 ──
   $('#sim').onchange = e => act(() => A.setState({ sim: e.target.checked }));
   $('#sim-speed').onchange = e => act(() => A.setState({ simSpeed: Number(e.target.value) }));
@@ -217,11 +240,12 @@
     try { await A.loadTables(); } catch (e) { toast('테이블 설정을 불러오지 못했어요: ' + e.message, true); }
     try { await A.pullState(); } catch (e) { toast('상태를 불러오지 못했어요: ' + e.message, true); }
     renderState(); renderSummary();
-    await Promise.all([pollFeed(), loadSummary(), pollLikes()]);
+    await Promise.all([pollFeed(), loadSummary(), pollLikes(), pollVotes()]);
     const ms = A.MODE === 'live' ? 5000 : 1500;
     setInterval(pollFeed, ms);
     setInterval(loadSummary, ms * 2);
     setInterval(pollLikes, A.MODE === 'live' ? 4000 : 1000);
+    setInterval(pollVotes, A.MODE === 'live' ? 4000 : 1000);
     if (A.MODE === 'live') setInterval(() => A.pullState().catch(() => {}), 4000);
     setInterval(renderState, 30000);
   })();

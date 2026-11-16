@@ -59,5 +59,9 @@ assert.notStrictEqual(p[0].slot, p[2].slot);  // 쓰는 중 판단은 칸마다
   assert.deepStrictEqual(A.splitTitle(d.us[0].text), ['함께 걷기', '한 달에 한 번 걷기']);
   assert.deepStrictEqual(A.splitTitle(d.ext[0].text), ['안내표지', '새로 달기']);
   assert.deepStrictEqual(A.splitTitle('그냥 한 문장'), ['', '그냥 한 문장']);
+  // ③ 투표 후보: 화면 번호 그대로, 주민·외부 따로
+  const bt = A.buildBallot(items)[2];
+  assert.deepStrictEqual(bt.us.map(o => [o.id, o.no, o.text, o.sub]), [['t2n1', 1, '함께 걷기', '한 달에 한 번 걷기']]);
+  assert.deepStrictEqual(bt.ext.map(o => [o.id, o.no, o.text]), [['t2n2', 2, '안내표지']]);
   console.log('ok roles');
 })().catch(e => { console.error(e); process.exit(1); });
