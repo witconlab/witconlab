@@ -44,9 +44,11 @@ var DOC_TABLES = [
     guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
     cols: ['좋았던 점', '불편한 점', '개선점'], ex: ['제방길 아침 — 물소리 들으며 걷기 좋아요', '제방길 저녁 — 조명이 어두워 혼자 걷기 무서워요', '산책로 중간 — 쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
   { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
-    guide: '제안 하나에 한 칸, 「짧은 제목 — 핵심 내용」으로 써요(화면에 번호가 자동으로 붙어요). 주민과 외부가 함께 해야 하는 제안은 같은 제목으로 [주민실천]·[외부협력] 칸에 역할을 나눠 적어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
-    rows: [['[주민실천]', US_DESC, '함께 걷기 — 두 동 주민이 한 달에 한 번 함께 걷고 길 살피기']].concat(rep_(['[주민실천]', '', ''], 4))
-      .concat([['[외부협력]', EXT_DESC, '안내표지 정비 — 연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)']]).concat(rep_(['[외부협력]', '', ''], 3)) },
+    guide: '제안 하나에 한 줄. 「제안 제목」은 짧게, 「핵심 내용」은 무엇을 어떻게 할지 한 문장으로 써요(화면에 번호가 자동으로 붙어요). 주민이 할 일은 [주민실천] 줄, 기관 도움이 필요한 일은 [외부협력] 줄에. 둘 다 필요하면 같은 제목으로 양쪽 줄에 역할을 나눠 적어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
+    pair: ['제안 제목', '핵심 내용'],
+    ex: [['예시 [주민실천]', '함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], ['예시 [외부협력]', '안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)']],
+    rows: [1, 2, 3, 4, 5].map(function (n) { return ['[주민실천] ' + n, n === 1 ? US_DESC : '', '']; })
+      .concat([1, 2, 3, 4].map(function (n) { return ['[외부협력] ' + n, n === 1 ? EXT_DESC : '', '']; })) },
   { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
     guide: '대형 화면에 뜬 제안 번호로 투표해요. 실제 투표 결과대로 1~2개를 적고, 뽑히지 않은 제안도 지우지 말고 남겨요. 하나만 골랐으면 「선정 과제 2」는 비워 두세요. [외부협력]만 2개는 고르지 않아요.',
     rows: [['선정 과제 1', '앞에 [주민실천] 또는 [외부협력]', '[주민실천] 함께 걷기·길 살피기'], ['선정 과제 2', '하나만 골랐으면 비워 두기', '[외부협력] 연결길 안내표지 정비'],
@@ -421,7 +423,7 @@ function testFeed() {
   var c = CacheService.getScriptCache();
   c.removeAll(['feed'].concat(readTables_().map(function (t) { return 'doc' + t.no; })));
   var f = feed_();
-  Logger.log('테이블 1 표 행 수: ' + f.docs[1].rows.length + ' (V2 표 양식이면 57)');
+  Logger.log('테이블 1 표 행 수: ' + f.docs[1].rows.length + ' (V2 표 양식이면 59)');
   Logger.log(JSON.stringify(f.docs[1]).slice(0, 2000));
 }
 
@@ -508,15 +510,20 @@ function writeTable_(body, s) {
   body.appendParagraph(s.head + ' — ' + s.q).setHeading(DocumentApp.ParagraphHeading.HEADING2);
   if (s.guide) gray_(body.appendParagraph(s.guide).editAsText(), 10);
   var cells, i;
+  var exN = 0;  // 회색 예시 줄 수(머리 줄 다음)
   if (s.cols) {
     cells = [[s.head].concat(s.cols), ['예시'].concat(s.ex)];
     for (i = 1; i <= s.people; i++) cells.push(['참여자 ' + i].concat(s.cols.map(function () { return ''; })));
+    exN = 1;
+  } else if (s.pair) {
+    cells = [[s.head].concat(s.pair)].concat(s.ex).concat(s.rows.map(function (r) { return [r[0], '', '']; }));
+    exN = s.ex.length;
   } else {
     cells = [[s.head, '예시 (이렇게 쓰면 돼요)', '우리 테이블 답 ✍️']].concat(s.rows.map(function (r) { return [r[0], r[2], '']; }));
   }
   var table = body.appendTable(cells);
   table.setColumnWidth(0, s.cols ? 80 : 130);
-  if (!s.cols) table.setColumnWidth(1, 160);
+  if (!s.cols) table.setColumnWidth(1, s.pair ? 130 : 160);
   for (i = 0; i < table.getNumRows(); i++) {
     var row = table.getRow(i);
     if (i === 0) {
@@ -524,8 +531,10 @@ function writeTable_(body, s) {
       continue;
     }
     row.getCell(0).setBackgroundColor('#f3f4f6').editAsText().setBold(true);
-    if (s.cols) {
-      if (i === 1) for (c = 1; c < row.getNumCells(); c++) gray_(row.getCell(c).editAsText(), 9);
+    if (s.cols || s.pair) {
+      if (i <= exN) for (c = 1; c < row.getNumCells(); c++) gray_(row.getCell(c).editAsText(), 9);
+      var pd = s.pair && i > exN ? s.rows[i - 1 - exN][1] : '';
+      if (pd) gray_(row.getCell(0).appendParagraph(pd).editAsText().setBold(false), 8);
     } else {
       var desc = s.rows[i - 1][1];
       if (desc) gray_(row.getCell(0).appendParagraph(desc).editAsText().setBold(false), 8);

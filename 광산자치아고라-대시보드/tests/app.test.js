@@ -14,15 +14,17 @@ const cells = {};
 cells[key('good', 0, 0)] = ['산책 좋아요'];            // 참여자 1 좋았던 점
 cells[key('bad', 0, 1)] = ['밤에 어두워요'];           // 참여자 2 불편한 점
 cells[key('good', 0, 2)] = ['산책 좋아요'];            // 참여자 3 같은 말 → 카드 따로
-cells[key('us', 0, 0)] = ['함께 걷기', '[외부협력] 조명 정비'];  // 칸 안 표시가 우선
-cells[key('ext', 0, 0)] = ['안내표지'];
+cells[key('us', 0, 0)] = ['함께 걷기'];                // ② [주민실천] 1: 제목
+cells[key('us', 0, 1)] = ['한 달에 한 번', '같이 걷기'];  //            핵심 내용(여러 줄도 한 제안)
+cells[key('us', 0, 2)] = ['[외부협력] 조명 정비'];      // [주민실천] 2: 칸 안 표시가 우선
+cells[key('ext', 0, 1)] = ['안내표지만'];               // [외부협력] 1: 핵심 내용만 써도 올라감
 cells[key('pick', 0)] = ['[주민실천] 함께 걷기'];      // 과제 하나만
 cells[key('rest', 0, 0)] = ['[외부협력] 화장실 (2표)'];
 cells[key('rest', 0, 1)] = ['쓰레기통'];
 cells[key('prop', 0)] = ['공원 이웃'];
 cells[key('done')] = ['제출'];
 const p = A.parseDoc(A.rowsFromCells(cells));
-assert.deepStrictEqual(short(p), ['good0:산책 좋아요', 'bad0:밤에 어두워요', 'good0:산책 좋아요', 'us0:함께 걷기', 'ext0:조명 정비', 'ext0:안내표지', 'pick0:[주민실천] 함께 걷기', 'rest0:[외부협력] 화장실 (2표)', 'rest0:쓰레기통', 'prop0:공원 이웃', 'done0:제출']);
+assert.deepStrictEqual(short(p), ['good0:산책 좋아요', 'bad0:밤에 어두워요', 'good0:산책 좋아요', 'us0:함께 걷기 — 한 달에 한 번 같이 걷기', 'ext0:조명 정비', 'ext0:안내표지만', 'pick0:[주민실천] 함께 걷기', 'rest0:[외부협력] 화장실 (2표)', 'rest0:쓰레기통', 'prop0:공원 이웃', 'done0:제출']);
 assert.notStrictEqual(p[0].slot, p[2].slot);  // 쓰는 중 판단은 칸마다
 
 (async () => {

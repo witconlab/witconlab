@@ -13,13 +13,17 @@ J(gs.DOC_TABLES).forEach(s => {
   if (s.cols) {
     serverRows.push([[s.head]].concat(s.cols.map(c => [c])), [['예시']].concat(s.ex.map(x => [x])));
     for (let i = 1; i <= s.people; i++) serverRows.push([['참여자 ' + i]].concat(s.cols.map(() => [])));
+  } else if (s.pair) {
+    serverRows.push([[s.head]].concat(s.pair.map(c => [c])));
+    s.ex.forEach(e => serverRows.push(e.map(x => [x])));
+    s.rows.forEach(r => serverRows.push([r[1] ? [r[0], r[1]] : [r[0]], [], []]));
   } else {
     serverRows.push([[s.head], ['예시 (이렇게 쓰면 돼요)'], ['우리 테이블 답 ✍️']]);
     s.rows.forEach(r => serverRows.push([r[1] ? [r[0], r[1]] : [r[0]], r[2] ? [r[2]] : [], []]));
   }
 });
 assert.deepStrictEqual(serverRows, A.rowsFromCells({}));
-assert.strictEqual(serverRows.length, 57);
+assert.strictEqual(serverRows.length, 59);
 assert.deepStrictEqual(J(gs.DOC_TABLES).map(s => s.tab), A.TEMPLATE.map(s => s.tab));
 
 // 2) DocumentApp 탭(가짜 객체) → 표 행 (UrlFetch 없이 읽는 경로)

@@ -29,7 +29,8 @@
   .dtabs button.on { background: #fff; color: #0284c7; border-color: var(--line); margin-bottom: -1px; }
   td.l small { display: block; font-weight: 500; font-size: 12px; color: #6b7280; margin-top: 3px; }
   table.cols th:first-child { width: 16%; } table.cols th { width: auto; }
-  table.cols td.ans textarea { min-height: 40px; }
+  table.cols td.ans textarea, table.pair td.ans textarea { min-height: 40px; }
+  table.pair th:first-child { width: 24%; } table.pair th:nth-child(2) { width: 28%; }
   tr.exr td { color: #6b7280; font-style: italic; font-size: 13px; background: #fafafa; }
   .paper h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
   .paper .guide { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
@@ -46,7 +47,7 @@
   td.ans:focus-within { box-shadow: inset 0 0 0 2px #0284c7; }
   td .h { display: block; font-size: 12px; font-weight: 700; padding: 0 8px 6px; }
   td .h.warn { color: var(--warn); } td .h.bad { color: var(--bad); } td .h.ok { color: var(--ok); }
-  @media (max-width: 560px) { table:not(.cols) th:nth-child(2), td.ex { display: none; } table:not(.cols) th:nth-child(1) { width: 34%; } td.l::after { content: attr(data-ex); display: block; font-weight: 500; font-style: italic; color: #6b7280; font-size: 12px; margin-top: 4px; } }
+  @media (max-width: 560px) { table:not(.cols):not(.pair) th:nth-child(2), td.ex { display: none; } table:not(.cols):not(.pair) th:nth-child(1) { width: 34%; } td.l::after { content: attr(data-ex); display: block; font-weight: 500; font-style: italic; color: #6b7280; font-size: 12px; margin-top: 4px; } }
 
   .stage { grid-area: stage; background: #000; color: #f5f5f4; border-color: #000; position: sticky; top: 12px; }
   @media (max-width: 900px) { .stage { position: static; } }
@@ -117,8 +118,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261116d"></script>
-<script src="assets/app.js?v=20261116d"></script>
+<script src="config.js?v=20261116e"></script>
+<script src="assets/app.js?v=20261116e"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -157,6 +158,11 @@
             '<tr class="exr"><td>예시</td>' + s.ex.map(x => '<td>' + esc(x) + '</td>').join('') + '</tr>' +
             Array.from({ length: s.people }, (_, r) => '<tr><td class="l">' + (r + 1) + '</td>' + s.cols.map((f, ci) => cellHtml('T' + ti + 'R' + r + 'C' + ci, s.head + ' 참여자 ' + (r + 1) + ' ' + FIELDS[f].label)).join('') + '</tr>').join('') + '</tbody></table>';
         }
+        if (s.pair) {
+          return head + '<table class="pair"><thead><tr><th>' + esc(s.head) + '</th>' + s.pair.map(x => '<th>' + esc(x) + ' ✍️</th>').join('') + '</tr></thead><tbody>' +
+            s.ex.map(e => '<tr class="exr"><td>' + esc(e[0]) + '</td><td>' + esc(e[1]) + '</td><td>' + esc(e[2]) + '</td></tr>').join('') +
+            s.rows.map(([f, label, desc], ri) => '<tr><td class="l">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td>' + s.pair.map((x, ci) => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + x)).join('') + '</tr>').join('') + '</tbody></table>';
+        }
         return head + '<table><thead><tr><th>' + esc(s.head) + '</th><th>예시 (이렇게 쓰면 돼요)</th><th>우리 테이블 답 ✍️</th></tr></thead><tbody>' +
           s.rows.map(([f, label, desc, ex], ri) => '<tr><td class="l" data-ex="' + esc(ex ? '예) ' + ex : '') + '">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td><td class="ex">' + esc(ex) + '</td>' + cellHtml('T' + ti + 'R' + ri, s.head + ' ' + label) + '</tr>').join('') + '</tbody></table>';
       }).join('');
@@ -177,6 +183,8 @@
     if (sl.field === 'pick' && sl.task === 1 && /외부/.test(all) && /외부/.test(linesOf('pick', 0).join(' '))) return ['bad', '[외부협력]만 2개는 고르지 않아요. 하나는 [주민실천]으로!'];
     if (sl.field === 'done' && lines.length && !/제출/.test(all)) return ['warn', '모두 동의하면 ‘제출’이라고 써요.'];
     if (A.TASK_FIELDS.includes(sl.field) && sl.task === 0 && !lines.length) return ['', '못 정하면 ‘추후 협의’'];
+    if (sl.col != null && lines.length > 1) return ['warn', '한 줄에 제안 하나. 다음 제안은 아래 줄에 써요.'];
+    if (sl.col === 0 && lines.length && !(cells[k.replace(/C0$/, 'C1')] || []).length) return ['', '옆 칸에 핵심 내용도'];
     if (lines.length > 1) return ['ok', '카드 ' + lines.length + '장으로 올라가요'];
     return ['', ''];
   }
@@ -211,7 +219,7 @@
     const has = (f, k) => linesOf(f, k).length > 0;
     const M = [
       ['① 참여자 두 명 이상의 이야기를 각자 줄에', new Set(['good', 'bad', 'better'].flatMap(f => SLOTS.filter(x => x.field === f && (cells[x.key] || []).length).map(x => x.key.replace(/C\d+$/, '')))).size >= 2],
-      ['② [주민실천] 두 칸 이상 + [외부협력] 한 칸 이상', slotsOf('us').filter(k => (cells[k] || []).length).length >= 2 && has('ext')],
+      ['② [주민실천] 두 칸 이상 + [외부협력] 한 칸 이상', new Set(slotsOf('us').filter(k => (cells[k] || []).length).map(k => k.replace(/C\d+$/, ''))).size >= 2 && has('ext')],
       ['③ 선정 과제 1에 [주민실천]/[외부협력] + 투표 결과 + 선정되지 않은 의견', /[\(\[]\s*(우리|주민|외부)/.test(linesOf('pick', 0).join(' ')) && has('tally') && has('rest')],
       ['④ 과제 1의 다섯 칸 모두 (못 정하면 ‘추후 협의’)', TASK_FIELDS.every(f => has(f, 0))],
       ['⑤ 「최종 제출」에 ‘제출’', /제출/.test(linesOf('done').join(' '))]
@@ -242,9 +250,10 @@
     cells = {};
     TEMPLATE.forEach((s, ti) => {
       if (s.cols) { s.cols.forEach((f, ci) => { cells['T' + ti + 'R0C' + ci] = [s.ex[ci]]; }); cells['T' + ti + 'R1C0'] = ['아이들과 주말마다 산책해요']; cells['T' + ti + 'R1C1'] = ['비 오면 길이 미끄러워요']; }
+      else if (s.pair) s.ex.forEach((e, n) => { const ri = s.rows.findIndex(r => r[0] === (n ? 'ext' : 'us')); cells['T' + ti + 'R' + ri + 'C0'] = [e[1]]; cells['T' + ti + 'R' + ri + 'C1'] = [e[2]]; });
       else s.rows.forEach(([, , , ex], ri) => { if (ex) cells['T' + ti + 'R' + ri] = [ex]; });
     });
-    const us = slotsOf('us'); cells[us[1]] = ['산책로 사진 기록단 운영하기'];
+    const us = slotsOf('us'); cells[us[2]] = ['사진 기록단']; cells[us[3]] = ['산책로 변화를 사진으로 남기기'];
     const rest = slotsOf('rest'); cells[rest[1]] = ['[외부협력] 화장실 설치 (1표)'];
     save(); buildPaper(); render();
   };
