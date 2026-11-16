@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기록자 연습 QR</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4vh; padding: 4vh 4vw; word-break: keep-all; }
+  h1 { font-size: clamp(28px, 4.2vw, 64px); font-weight: 900; text-align: center; line-height: 1.25; }
+  .lead { font-size: clamp(16px, 1.8vw, 28px); color: #cbd5e1; text-align: center; }
+  .row { display: flex; gap: 5vw; flex-wrap: wrap; justify-content: center; }
+  .card { background: #fff; color: #0f172a; border-radius: 28px; padding: 3vh 2.5vw; display: flex; flex-direction: column; align-items: center; gap: 1.6vh; width: min(440px, 88vw); }
+  .card .no { font-size: clamp(14px, 1.3vw, 20px); font-weight: 800; color: #fff; background: var(--c); padding: 4px 14px; border-radius: 999px; }
+  .card h2 { font-size: clamp(22px, 2.4vw, 38px); font-weight: 900; }
+  .card p { font-size: clamp(14px, 1.3vw, 20px); color: #475569; text-align: center; line-height: 1.5; }
+  .qr { width: min(340px, 70vw); aspect-ratio: 1; }
+  .qr img, .qr canvas { width: 100% !important; height: auto !important; }
+  .url { font-size: 13px; color: #64748b; word-break: break-all; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>휴대폰·노트북 카메라로 찍어 바로 연습해요</h1>
+  <p class="lead">2026 광산자치아고라 · 기록자 사전 교육</p>
+  <div class="row">
+    <div class="card" style="--c:#0284c7">
+      <span class="no">실습 ① 각자</span>
+      <h2>기록 연습장</h2>
+      <div class="qr" id="qr-practice"></div>
+      <p>실제 문서와 같은 표에 써 보면<br>오른쪽에 화면 모습이 바로 보여요.<br><b>무대 화면에는 안 올라가요.</b></p>
+      <div class="url" id="url-practice"></div>
+    </div>
+    <div class="card" style="--c:#16a34a">
+      <span class="no">실습 ② 테이블별</span>
+      <h2>기록자 입장</h2>
+      <div class="qr" id="qr-record"></div>
+      <p>내 테이블 번호를 눌러 진짜 문서에 써요.<br>앞 화면에 우리 테이블 카드가 떠요.<br>시험 기록은 행사 날 아침에 지워요.</p>
+      <div class="url" id="url-record"></div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // 이 페이지와 같은 폴더의 주소 (로컬에서 열면 GitHub Pages 주소)
+  var base = location.protocol.indexOf('http') === 0 && location.hostname !== 'localhost'
+    ? new URL('.', location.href).href
+    : 'https://witconlab.github.io/witconlab/광산자치아고라-대시보드/';
+  ['practice', 'record'].forEach(function (k) {
+    var url = decodeURI(base) + k + '.html';
+    document.getElementById('url-' + k).textContent = url;
+    new QRCode(document.getElementById('qr-' + k), { text: encodeURI(url), width: 600, height: 600, correctLevel: QRCode.CorrectLevel.M });
+  });
+</script>
+</body>
+</html>
