@@ -534,9 +534,11 @@ function writeDoc_(docId, t) {
   var bodyOf = function (i) { return doc.getTab(tabIds[i]).asDocumentTab().getBody(); };
   tabNames.forEach(function (name, ti) {
     var b = bodyOf(ti);
+    b.appendParagraph('');  // 탭이 표로 끝나면 clear()가 실패해서
     b.clear();
     if (ti === 0) writeIntro_(b, t);
     DOC_TABLES.filter(function (s) { return s.tab === name; }).forEach(function (s) { writeTable_(b, s); });
+    b.appendParagraph('');
   });
   doc.saveAndClose();
   CacheService.getScriptCache().remove('doc' + t.no);
