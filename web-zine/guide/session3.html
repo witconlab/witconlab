@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>3차시 · 기획 — 우리 동네 기록 노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<link rel="stylesheet" href="../css/guide.css">
+</head>
+<body>
+<header class="bar">
+  <h1 class="bar__title">우리 동네 기록 노트 <span class="q">?</span><span class="e">!</span></h1>
+  <div class="bar__meta mono"><span>SESSION 03 / 05</span><button class="bar__btn" id="full" type="button">전체 화면 (F)</button></div>
+</header>
+<div class="progress" aria-hidden="true"></div>
+
+<main class="stage">
+  <div class="meta mono"><span id="pos"></span><span id="min"></span></div>
+
+  <section class="step cover bg-ink">
+    <p class="kick mono">SESSION 03 · 기획</p>
+    <h2>내 주변에서<br>물음표(?)와 느낌표(!)<br>찾기</h2>
+    <p class="body">복합커뮤니티 송정다누리 · 14:00 – 16:00</p>
+  </section>
+
+  <section class="step bg-white split" data-min="15분 · 여는 이야기">
+    <div class="txt">
+      <p class="kick mono">INSTRUCTOR · 강사 소개</p>
+      <h2>위서영입니다.</h2>
+      <p class="body">위트 콘텐츠연구소 대표 · 미디어교육사 1급<br>마을의 이야기를 기술로 잇는 일을 해요.</p>
+      <ul class="list">
+        <li><b>2014</b>양림동 마을잡지 「양림사이다」 기자단</li>
+        <li><b>2018</b>광주광역시도시재생공동체센터 · 마을 기록 아카이빙</li>
+        <li><b>2021</b>「도시기록충 – 운암3단지」 재개발 전 기록 사진</li>
+        <li><b>2024</b>「고쳐볼 지도」 광주 동구 수리수선 지도</li>
+      </ul>
+    </div>
+    <figure class="fig"><img src="img/instructor.jpg" alt="강의하는 위서영 강사"><figcaption>전남대 대학원 디지털미래융합서비스 재학</figcaption></figure>
+  </section>
+
+  <section class="step bg-yellow">
+    <p class="kick mono">TODAY · 오늘 할 일</p>
+    <h2>오늘은 이렇게 해요.</h2>
+    <ol class="tt" style="--r:4"><li><b>15분</b>여는 이야기 · 기록 방법 15가지 돌아보기</li><li><b>20분</b>경험 · 사진첩에서 3장 고르기</li><li><b>25분</b>수집 · 모아 보고 싶은 방법 ○ / ★</li><li><b>10분</b>쉬는 시간</li><li><b>25분</b>물음표(?) → 느낌표(!)</li><li><b>20분</b>내 책 8쪽 미리 그리기</li><li><b>5분</b>닫기 · 4차시 준비</li></ol>
+    <p class="say hand">2시간 · 복합커뮤니티 송정다누리</p>
+  </section>
+
+  <section class="step bg-sky">
+    <p class="kick mono">GOAL · 학습목표</p>
+    <h2>오늘이 끝나면<br>이렇게 할 수 있어요.</h2>
+    <ul class="list"><li><b>01</b>15가지 기록 방법이 사진·영상·소리·글·그림·지도·자료로 남는다는 것을 알아요.</li><li><b>02</b>내 사진에서 물음표(?)를 찾고, "아하, ~구나"로 느낌표(!)를 말해요.</li><li><b>03</b>내 책 8쪽의 제목과 쪽마다 넣을 것을 미리 그려요.</li></ul>
+  </section>
+
+  <section class="step bg-yellow">
+    <p class="kick mono">RECAP · 지난 수업 돌아보기</p>
+    <h2>기록 방법 15가지, 기억나세요?</h2>
+    <ul class="m15"><li><b>01</b>오래된 간판<i class="fmt ">사진</i></li><li><b>02</b>골목 색깔<i class="fmt ">사진</i></li><li><b>03</b>지금 모습 그리기<i class="fmt f-draw">그림</i></li><li><b>04</b>문질러 본뜨기<i class="fmt f-draw">그림</i></li><li><b>05</b>바닥 무늬<i class="fmt ">사진</i></li><li><b>06</b>틈새 풀꽃<i class="fmt ">사진</i></li><li><b>07</b>고양이·새 따라가기<i class="fmt f-video">영상</i></li><li><b>08</b>집 앞 화분<i class="fmt ">사진</i></li><li><b>09</b>옛 신문·기사<i class="fmt f-doc">자료</i></li><li><b>10</b>옛 하늘(항공)사진<i class="fmt f-doc">자료</i></li><li><b>11</b>볕·바람·그늘<i class="fmt f-text">글</i></li><li><b>12</b>동네 소리 글로 적기<i class="fmt f-sound">소리</i></li><li><b>13</b>이웃 이야기<i class="fmt f-sound">소리·글</i></li><li><b>14</b>동네 말 모으기<i class="fmt f-text">글</i></li><li><b>15</b>걸은 길 그리기<i class="fmt f-map">지도</i></li></ul>
+    <p class="legend"><i class="fmt">사진</i><i class="fmt f-video">영상</i><i class="fmt f-sound">소리</i><i class="fmt f-text">글</i><i class="fmt f-draw">그림</i><i class="fmt f-map">지도</i><i class="fmt f-doc">자료</i>&nbsp; 기록은 이 일곱 가지 모양으로 남아요.</p>
+  </section>
+
+  <section class="step bg-white split">
+    <div class="txt">
+      <p class="kick mono">LOCAL ARCHIVIST · 학익동지킴이</p>
+      <h2>사라지는 동네를<br>기록하는 사람.</h2>
+      <p class="body">인천 학익동에서 자란 곽은비 님. 재개발로 골목과 이웃이 사라지기 시작하자, 4년 전부터 자기 동네를 기록해요.</p>
+      <p class="say hand">"역사 없는 동네는 없어요."</p>
+    </div>
+    <figure class="fig"><img src="img/arc/hagik-interview.jpg" alt="카메라를 든 곽은비 로컬 아키비스트"><figcaption>인스타그램 @hagik_archive · 사진 출처: 인천일보(2026.9.27)</figcaption></figure>
+  </section>
+
+  <section class="step bg-sky split">
+    <div class="txt">
+      <p class="kick mono">LOCAL ARCHIVIST · 이렇게 기록해요</p>
+      <h2>학익동지킴이의<br>기록법.</h2>
+      <ul class="list">
+        <li><b>사진</b>차가 못 들어가는 골목까지 걸으며 찍기</li>
+        <li><b>이야기</b>40년 넘게 산 주민의 인생 이야기 듣기</li>
+        <li><b>수집</b>동네의 오래된 물건 모으기</li>
+        <li><b>나눔</b>주민이 보낸 옛 앨범 사진을 함께 올리기</li>
+        <li><b>몸</b>옛 학교 체육복을 입고 동네 걷기</li>
+        <li><b>책</b>카드뉴스 · 독립 출판물 · 전시 「기억의 모양」</li>
+      </ul>
+    </div>
+    <figure class="fig"><img src="img/arc/hagik-portfolio.jpg" alt="체육복 차림으로 골목을 걷는 사진"><figcaption>학익동지킴이 포트폴리오 · 도시정비뉴스·인천일보 인터뷰 정리</figcaption></figure>
+  </section>
+
+  <section class="step bg-lime split">
+    <div class="txt">
+      <p class="kick mono">MEMORY PLANT · 기억발전소</p>
+      <h2>내 인생을<br>내가 책으로.</h2>
+      <ul class="list">
+        <li><b>누가</b>기억을 기록하는 문화예술 사회적 기업</li>
+        <li><b>사진책</b>「기억의 지도」 50플러스 세대가 8주 동안 직접 기록 → 인생 사진책 100권 넘게</li>
+        <li><b>전시</b>「마을 아카이브전」 주민·마을이 만든 자료 300여 종을 모아 전시하고 책으로</li>
+      </ul>
+      <p class="say hand">대신 써 주지 않아요. 내가 만들어요.</p>
+    </div>
+    <figure class="fig"><img src="img/arc/memoryplant.jpg" alt="마을 아카이브전에 놓인 마을 잡지와 책자들"><figcaption>마을 아카이브전 · 사진 출처: 이로운넷(2018.3.23)</figcaption></figure>
+  </section>
+
+  <section class="step bg-sky">
+    <p class="kick mono">ARCHIVE · 실제 기록 ① 눈으로</p>
+    <h2>사진 · 영상 기록</h2>
+    <div class="arch">
+      <div class="ac"><div class="ac__m "><img src="img/arc/market.jpg" alt="재래시장 사진"><i class="fmt ">사진</i></div><p class="ac__b"><b>재래시장 사진</b>시장 풍경을 찍은 기록사진. 사진마다 "기록물 제목"이 붙어 있어요.<span class="ac__meta">국가기록원 「사진! 대한민국」</span></p></div>
+      <div class="ac"><div class="ac__m "><img src="img/arc/sportday.jpg" alt="학교 운동회 사진"><i class="fmt ">사진</i></div><p class="ac__b"><b>학교 운동회 사진</b>무슨 행사였는지, 몇 년도인지 기록물 제목에 적혀 있어요. 우리 동네 운동회도 기록이 돼요.<span class="ac__meta">국가기록원 「사진! 대한민국」</span></p></div>
+      <div class="ac"><div class="ac__m shot"><img src="img/arc/daehan-news.jpg" alt="대한뉴스 「호남선 복선 개통」"><i class="fmt f-video">영상</i></div><p class="ac__b"><b>대한뉴스 「호남선 복선 개통」</b>1988년, 장성~송정리 구간 복선 개통을 담은 뉴스 영상. "송정리"로 찾으면 나와요.<span class="ac__meta">e영상역사관 · "송정리" 검색</span></p></div>
+    </div>
+    <p class="say hand">기록 + 언제·어디·누가 한 줄 = 아카이브</p>
+  </section>
+
+  <section class="step bg-lime">
+    <p class="kick mono">ARCHIVE · 실제 기록 ② 귀로</p>
+    <h2>소리 · 이야기 · 동네 말</h2>
+    <div class="arch">
+      <div class="ac"><div class="ac__m "><img src="img/arc/sound.jpg" alt="「우리의 소리를 찾아서」"><i class="fmt f-sound">소리</i></div><p class="ac__b"><b>「우리의 소리를 찾아서」</b>MBC 라디오가 전국 800여 마을을 찾아가 주민들의 노래를 녹음했어요. 약 1만 8천 곡이 아카이브로 남았어요.<span class="ac__meta">서울우리소리박물관 · 내 손안에 서울(2019)</span></p></div>
+      <div class="ac"><div class="ac__m shot"><img src="img/arc/oral.jpg" alt="5·18 구술채록"><i class="fmt f-sound">이야기</i></div><p class="ac__b"><b>5·18 구술채록</b>그날을 겪은 사람들이 자기 말로 들려준 이야기를 영상과 글로 남겨요. 이름·얼굴은 본인 허락을 받고 공개해요.<span class="ac__meta">5·18기념재단 디지털 아카이브</span></p></div>
+      <div class="ac"><div class="ac__m shot"><img src="img/arc/dict.jpg" alt="우리말샘 "지역어(방언)""><i class="fmt f-text">동네 말</i></div><p class="ac__b"><b>우리말샘 "지역어(방언)"</b>국민이 함께 만드는 사전. 지역에서 쓰는 말을 "지역어(방언)"로 따로 모아요.<span class="ac__meta">국립국어원 우리말샘</span></p></div>
+    </div>
+    <p class="say hand">사람 목소리·얼굴은 허락받은 것만 남겨요.</p>
+  </section>
+
+  <section class="step bg-cream">
+    <p class="kick mono">ARCHIVE · 실제 기록 ③ 찾아서 · 지도로</p>
+    <h2>옛 신문 · 지도</h2>
+    <div class="arch two">
+      <div class="ac"><div class="ac__m shot"><img src="img/arc/newslib.jpg" alt="옛 신문에서 "송정리""><i class="fmt f-doc">자료</i></div><p class="ac__b"><b>옛 신문에서 "송정리"</b>1920~1999년 신문에서 "송정리"가 3,304건. 1968년 「광주–송정리 사이 고속도로 건설 지시」 같은 기사가 나와요.<span class="ac__meta">네이버 뉴스 라이브러리</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/arc/osm.jpg" alt="오픈스트리트맵 신흥동"><i class="fmt f-map">지도</i></div><p class="ac__b"><b>오픈스트리트맵 신흥동</b>시민들이 걸으며 함께 그리는 지도. 4차시 산책 길 5개도 이 지도 자료로 그렸어요.<span class="ac__meta">openstreetmap.org</span></p></div>
+    </div>
+    <p class="say hand">찾은 자료는 "어디서 찾았는지"까지가 기록이에요.</p>
+  </section>
+
+  <section class="step bg-yellow split">
+    <div class="txt">
+      <p class="kick mono">OPENING</p>
+      <h2>오늘은 잘 찍는 법이 아니라,<br>내 눈에 뭐가 걸렸는지<br>찾아보는 날이에요.</h2>
+      <p class="body">경험 → 수집 → 물음표 ? → 느낌표 !</p>
+      <p class="say hand">"사소한 것들을 발견하는 힘"</p>
+    </div>
+    <figure class="fig"><img src="img/book.jpg" alt="『매일의 영감 수집』 책" onerror="this.parentNode.classList.add('missing')"><figcaption>『매일의 영감 수집』 서은아 · 위즈덤하우스<br>표지 이미지 출처: 교보문고</figcaption></figure>
+  </section>
+
+  <section class="step bg-sky split" data-min="20분">
+    <div class="txt">
+      <p class="kick mono">EXPERIENCE · 경험</p>
+      <h2>사진첩에서<br>3장 고르기.</h2>
+      <p class="body">지난 한 달 사진 중 마음이 가서 찍은 것 3장.<br>짝에게 "왜 찍었는지" 1분씩 말해요.<br>활동지 ① 조각 칸에 적어요.</p>
+      <p class="say hand">음식 사진도 좋아요.</p>
+    </div>
+    <figure class="fig"><img src="img/s3-ws-1.jpg" alt="활동지 ① 나의 조각 작성 예시"><figcaption>활동지 ① 나의 조각 · 작성 예시</figcaption></figure>
+  </section>
+
+  <section class="step bg-lime split" data-min="25분">
+    <div class="txt">
+      <p class="kick mono">COLLECT · 수집</p>
+      <h2>○ 여러 개,<br>★ 딱 하나.</h2>
+      <p class="body">눈으로 찍기 · 손으로 그리기 · 귀로 듣기 · 몸으로 느끼기 · 찾아서 담기<br>같은 ★를 고른 분과 4차시 산책 짝이 돼요.</p>
+      <p class="say hand">활동지 ② 에 표시해요.</p>
+    </div>
+    <figure class="fig"><img src="img/s3-ws-2.jpg" alt="활동지 ② 모아 보고 싶은 방법 표시 예시"><figcaption>활동지 ② · 작성 예시</figcaption></figure>
+  </section>
+
+  <section class="step bg-cream" data-min="10분">
+    <p class="kick mono">BREAK</p>
+    <h2>쉬는 시간.</h2>
+    <p class="body">차 한 잔, 물 한 잔 하고 오세요.</p>
+  </section>
+
+  <section class="step" data-min="25분">
+    <p class="kick mono">? → !</p>
+    <h2>왜 눈에 띄었을까?</h2>
+    <dl class="qe">
+      <dt>?</dt><dd>시장 입구 국밥집, 왜 40년째 같은 자리에 있을까?</dd>
+      <dt>!</dt><dd>아하, 동네 사람들 사랑방이었구나!</dd>
+    </dl>
+    <p class="body">조각마다 물음표를 붙이고, "아하, ~구나"로 느낌표를 달아요.<br>3장 중 1장만 해도 괜찮아요.</p>
+  </section>
+
+  <section class="step bg-sky">
+    <p class="kick mono">? 물음표 · 이렇게 시작해요</p>
+    <h2>물음표는<br>네 마디면 돼요.</h2>
+    <ul class="list">
+      <li><b>왜</b>대문 색은 왜 다 초록일까?</li>
+      <li><b>언제</b>이 나무는 언제부터 여기 있었을까?</li>
+      <li><b>누가</b>경로당 앞 국화는 누가 심을까?</li>
+      <li><b>어디</b>골목 고양이는 낮에 어디서 잘까?</li>
+    </ul>
+    <p class="say hand">"어? 이건 왜 이럴까?" 하고 한 번만 물어보면 돼요.</p>
+  </section>
+
+  <section class="step bg-lime">
+    <p class="kick mono">? → ! · 우리 동네에서는</p>
+    <h2>이런 것도<br>물음표가 돼요.</h2>
+    <div class="ex">
+      <p class="ex__what">우리 집 초록 대문</p><p class="ex__q"><i>?</i>대문 색은 왜 다 초록일까?</p><p class="ex__e"><i>!</i>새마을 때 같이 칠했구나!</p>
+      <p class="ex__what">경로당 앞 국화</p><p class="ex__q"><i>?</i>누가 매년 심을까?</p><p class="ex__e"><i>!</i>총무님이 30년째 가꾸셨구나!</p>
+      <p class="ex__what">골목 끝 평상</p><p class="ex__q"><i>?</i>왜 저기에만 평상이 있을까?</p><p class="ex__e"><i>!</i>여름 그늘이 동네 쉼터였구나!</p>
+      <p class="ex__what">마을 쓰레기통</p><p class="ex__q"><i>?</i>왜 늘 잘못 버려질까?</p><p class="ex__e"><i>!</i>버리기 재밌으면 먼저 움직이는구나!</p>
+    </div>
+    <p class="say hand">잘 쓰고 못 쓰고는 없어요. 내 눈에 띈 것이 재료예요.</p>
+  </section>
+
+  <section class="step bg-yellow split">
+    <div class="txt">
+      <p class="kick mono">ZINE · 진이 뭐예요?</p>
+      <h2>진(zine)은<br>내가 만든 작은 책.</h2>
+      <p class="body">직접 만들고, 조금 찍어서, 손으로 나눠요.<br>"나만 좋아할 것 같은 사소한 이야기"가 주인공.</p>
+      <p class="say hand">인천 배다리 헌책방 거리의 「언노운 북 페스티벌」</p>
+    </div>
+    <figure class="fig"><img src="img/arc/patchwork-cover.jpg" alt="언노운 북 페스티벌 북마켓 소개: 이런 이야기도 책이 될 수 있다고?"><figcaption>@patchwork_baedari · 제3회 언노운 북 페스티벌(2026.10)</figcaption></figure>
+  </section>
+
+  <section class="step bg-white">
+    <p class="kick mono">ZINE · 이런 이야기도 책이 돼요 1/4 · 출처 언노운 북 페스티벌 @patchwork_baedari</p>
+    <h2>옥상도, 이발소도, 후루룩 소리도.</h2>
+    <div class="arch books">
+      <div class="ac"><div class="ac__m"><img src="img/books/rooftop.jpg" alt="옥상의 날의 책 「평범한 옥상 풍경」"><i class="fmt ">사진</i></div><p class="ac__b"><b>「평범한 옥상 풍경」</b>옥상의 날<span class="ac__meta">우리도 → 동네 옥상·지붕 찍기</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/barber.jpg" alt="이발일기의 책 「머리 자르는 일」"><i class="fmt f-sound">이야기</i></div><p class="ac__b"><b>「머리 자르는 일」</b>이발일기<span class="ac__meta">우리도 → 오래된 가게 이야기</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/hooloolook.jpg" alt="후루룩의 책 「후루룩 소리」"><i class="fmt f-sound">소리</i></div><p class="ac__b"><b>「후루룩 소리」</b>후루룩<span class="ac__meta">우리도 → 동네 소리 글로 적기</span></p></div>
+    </div>
+  </section>
+
+  <section class="step bg-white">
+    <p class="kick mono">ZINE · 이런 이야기도 책이 돼요 2/4 · 출처 언노운 북 페스티벌 @patchwork_baedari</p>
+    <h2>옥상도, 이발소도, 후루룩 소리도.</h2>
+    <div class="arch books">
+      <div class="ac"><div class="ac__m"><img src="img/books/hoyonzi.jpg" alt="호연지의 책 「낙서」"><i class="fmt f-draw">그림</i></div><p class="ac__b"><b>「낙서」</b>호연지<span class="ac__meta">우리도 → 지금 모습 그리기</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/callingbooks.jpg" alt="콜링북스 / 타비 프레스의 책 「하루 쓰임을 다한 일력」"><i class="fmt f-doc">모으기</i></div><p class="ac__b"><b>「하루 쓰임을 다한 일력」</b>콜링북스 / 타비 프레스<span class="ac__meta">우리도 → 버려질 것 모으기</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/ryu.jpg" alt="Ryu(유승우)의 책 「우리집 김치냉장고」"><i class="fmt ">사진</i></div><p class="ac__b"><b>「우리집 김치냉장고」</b>Ryu(유승우)<span class="ac__meta">우리도 → 집 앞 화분·골목 색깔</span></p></div>
+    </div>
+  </section>
+
+  <section class="step bg-sky">
+    <p class="kick mono">ZINE · 이런 이야기도 책이 돼요 3/4 · 출처 언노운 북 페스티벌 @patchwork_baedari</p>
+    <h2>내 기억, 내 이웃, 내 상상도.</h2>
+    <div class="arch books">
+      <div class="ac"><div class="ac__m"><img src="img/books/somean.jpg" alt="소민의 책 「어린 시절 놀이」"><i class="fmt f-text">기억</i></div><p class="ac__b"><b>「어린 시절 놀이」</b>소민<span class="ac__meta">우리도 → 어릴 적 동네 놀이</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/padonamu.jpg" alt="스튜디오 파도나무의 책 「너(YOU)」"><i class="fmt f-draw">그림</i></div><p class="ac__b"><b>「너(YOU)」</b>스튜디오 파도나무<span class="ac__meta">우리도 → 이웃 집 이야기</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/diggingbooks.jpg" alt="디깅북스의 책 「똥 같은 생각」"><i class="fmt f-doc">모으기</i></div><p class="ac__b"><b>「똥 같은 생각」</b>디깅북스<span class="ac__meta">우리도 → 벼룩시장·옛 사진 모으기</span></p></div>
+    </div>
+  </section>
+
+  <section class="step bg-sky">
+    <p class="kick mono">ZINE · 이런 이야기도 책이 돼요 4/4 · 출처 언노운 북 페스티벌 @patchwork_baedari</p>
+    <h2>내 기억, 내 이웃, 내 상상도.</h2>
+    <div class="arch books">
+      <div class="ac"><div class="ac__m"><img src="img/books/pencilmug.jpg" alt="연필과머그의 책 「커피 곁에 머무는 모든 것들」"><i class="fmt f-text">글</i></div><p class="ac__b"><b>「커피 곁에 머무는 모든 것들」</b>연필과머그<span class="ac__meta">우리도 → 내가 좋아하는 것</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/gilboat.jpg" alt="gilboat(길보트)의 책 「이까짓거」"><i class="fmt f-text">글</i></div><p class="ac__b"><b>「이까짓거」</b>gilboat(길보트)<span class="ac__meta">우리도 → 내가 아는 요령</span></p></div>
+      <div class="ac"><div class="ac__m"><img src="img/books/humanprotector.jpg" alt="휴먼 프로텍터 아카데미의 책 「요정의 학위」"><i class="fmt f-draw">상상</i></div><p class="ac__b"><b>「요정의 학위」</b>휴먼 프로텍터 아카데미<span class="ac__meta">우리도 → 상상 속 우리 동네</span></p></div>
+    </div>
+  </section>
+
+  <section class="step bg-yellow split" data-min="20분">
+    <div class="txt">
+      <p class="kick mono">PLAN · 내 책 기획</p>
+      <h2>내 책 8쪽<br>미리 그리기.</h2>
+      <ul class="list">
+        <li><b>01</b>제목 (가안)</li>
+        <li><b>02</b>쪽마다 넣고 싶은 것</li>
+        <li><b>03</b>내 책 한 줄 소개</li>
+        <li><b>04</b>산책 미션 카드 — 점선 따라 오리기</li>
+      </ul>
+      <p class="say hand">글자 몇 개만 적어도 돼요. 4차시에 바꿀 수 있어요.</p>
+    </div>
+    <figure class="fig"><div class="row"><img src="img/s3-ws-3.jpg" alt="활동지 ③ 내 책 미리 그려 보기 예시"><img src="img/s3-ws-4.jpg" alt="활동지 ④ 산책 미션 카드 예시"></div><figcaption>활동지 ③ 내 책 미리 그려 보기 · ④ 산책 미션 카드</figcaption></figure>
+  </section>
+
+  <section class="step bg-cream">
+    <p class="kick mono">NEXT · 4차시 미리 보기</p>
+    <h2>4차시는 이렇게 해요.</h2>
+    <ol class="tt" style="--r:3"><li><b>10분</b>출발 준비 · 미션 카드 읽기</li><li><b>40분</b>동네 산책 · 테이블마다 한 길</li><li><b>10분</b>돌아와 쉬기 · 사진 8장 고르기</li><li><b>50분</b>휴대폰으로 웹 진 만들기</li><li><b>10분</b>서로 넘겨 보기 · 다 만들었어요</li></ol>
+    <p class="say hand">신흥동행정복지센터 2층 · 14:00 – 16:00</p>
+  </section>
+
+  <section class="step bg-sky split">
+    <div class="txt">
+      <p class="kick mono">NEXT · 4차시 산책 길</p>
+      <h2>테이블마다<br>한 길씩 걸어요.</h2>
+      <ul class="list">
+        <li><b>1</b>송정공원 한 바퀴 · 0.6km</li>
+        <li><b>2</b>금봉산 아랫길 · 1.4km</li>
+        <li><b>3</b>송정동초 담장길 · 1.4km</li>
+        <li><b>4</b>상무대로 건너 옛 송정 · 1.5km</li>
+        <li><b>5</b>철길 옆 골목 · 1.1km</li>
+      </ul>
+    </div>
+    <figure class="fig"><img src="img/s4-routes.jpg" alt="신흥동행정복지센터에서 출발하는 산책 길 5개 지도"><figcaption>테이블 번호 = 길 번호 · 40분 안에 돌아와요</figcaption></figure>
+  </section>
+
+  <section class="step bg-lime split">
+    <div class="txt">
+      <p class="kick mono">NEXT · 4차시 웹 진</p>
+      <h2>돌아와서<br>휴대폰으로 진 만들기.</h2>
+      <p class="body">오늘 그린 8쪽 계획대로, 산책에서 찍은 사진을 넣어요.<br>사진 · 자막 · 스티커로 한 쪽씩.</p>
+      <p class="say hand">이런 책이 나와요!</p>
+    </div>
+    <figure class="fig phone"><img src="img/s4-09-view-p2.jpg" alt="완성된 예시 진을 펼친 휴대폰 화면"><figcaption>예시 진 · 2–3쪽</figcaption></figure>
+  </section>
+
+  <section class="step bg-red" data-min="5분">
+    <p class="kick mono">NEXT TIME</p>
+    <h2>다음 시간엔<br>밖으로 나가요.</h2>
+    <p class="body">휴대폰 충전 · 편한 신발 · 산책 미션 카드</p>
+    <p class="say hand">4차시 · 신흥동행정복지센터 2층</p>
+  </section>
+</main>
+
+<nav class="nav">
+  <button class="prev" type="button" aria-label="이전">←</button>
+  <button class="next" type="button" data-last="처음으로"><span>다음</span><span aria-hidden="true">→</span></button>
+</nav>
+<script src="../js/guide.js"></script>
+</body>
+</html>

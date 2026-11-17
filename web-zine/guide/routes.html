@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>4차시 · 산책 경로 — 우리 동네 기록 노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="../css/guide.css">
+<style>
+  body { grid-template-rows: auto 1fr; }
+  .routes { display: grid; grid-template-columns: minmax(340px, 34%) 1fr; gap: 2vw; padding: 2.4vh 3vw 3vh; min-height: 0; }
+  .panel { display: flex; flex-direction: column; min-height: 0; gap: 1.4vh; }
+  .tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .tabs button { font: 800 clamp(14px, 1.5vw, 26px)/1 var(--font-num); padding: .5em 0; border: 3px solid var(--ink); background: var(--white); color: var(--ink); cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: var(--c, var(--ink)); color: var(--white); border-color: var(--ink); }
+  .tabs button:first-child { font-family: var(--font-body); font-size: clamp(12px, 1.1vw, 20px); }
+  .card { flex: 1; min-height: 0; overflow: auto; border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); padding: 2.4vh 1.6vw; background: var(--white); }
+  .card .kick { margin-bottom: 1vh; }
+  .card h2 { margin: 0 0 1.2vh; font-size: clamp(24px, min(2.8vw, 5vh), 54px); font-weight: 900; letter-spacing: -.05em; line-height: 1.15; }
+  .card h2 i { font-style: normal; display: inline-block; width: 1.1em; height: 1.1em; line-height: 1.1em; text-align: center; margin-right: .3em; background: var(--c); color: var(--white); font-family: var(--font-num); font-size: .8em; vertical-align: .08em; }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 1.4vh; }
+  .facts span { font: 700 clamp(13px, 1.2vw, 22px)/1.2 var(--font-body); padding: .25em .6em; background: var(--ink); color: var(--white); }
+  .facts span.warn { background: var(--red); }
+  .card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .5em .8em; font-size: clamp(14px, min(1.35vw, 2.4vh), 26px); line-height: 1.4; }
+  .card dt { font-weight: 900; white-space: nowrap; }
+  .card dd { margin: 0; font-weight: 600; }
+  .card .say { font-size: clamp(20px, min(2vw, 3.6vh), 40px); margin-top: 1.6vh; }
+  .all-list { margin: 0; padding: 0; list-style: none; }
+  .all-list li { display: flex; gap: .6em; align-items: baseline; padding: .55em 0; border-top: 2px solid var(--ink); font-size: clamp(15px, min(1.5vw, 2.7vh), 28px); font-weight: 800; cursor: pointer; }
+  .all-list li:last-child { border-bottom: 2px solid var(--ink); }
+  .all-list b { flex: none; width: 1.4em; text-align: center; background: var(--c); color: var(--white); font-family: var(--font-num); }
+  .all-list small { margin-left: auto; font-weight: 600; font-family: var(--font-mono); font-size: .7em; white-space: nowrap; }
+  #map .leaflet-tile-pane { filter: saturate(.6) contrast(1.05); }
+  /* ?print: 지도만 크게(출력용 그림 뽑기) */
+  body.print { grid-template-rows: 1fr; } body.print .bar, body.print .panel, body.print .leaflet-control-zoom { display: none; }
+  body.print .routes { grid-template-columns: 1fr; padding: 0; } body.print #map { box-shadow: none; border: 0; }
+  #map { border: 3px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); min-height: 300px; background: var(--cream); }
+  .pin { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--ink); background: var(--white); display: grid; place-items: center; font: 700 13px/1 var(--font-num); }
+  .pin.home { width: 34px; height: 34px; background: var(--ink); color: var(--yellow); border-color: var(--white); font-size: 16px; box-shadow: 0 0 0 3px var(--ink); }
+  .leaflet-tooltip.lbl { font: 800 14px/1.2 var(--font-body); border: 2px solid var(--ink); border-radius: 0; box-shadow: 3px 3px 0 var(--ink); padding: 3px 7px; }
+  .note { margin: 0; font-size: clamp(11px, .95vw, 16px); line-height: 1.45; color: #555; }
+  @media (max-width: 760px) {
+    body { height: auto; overflow: auto; }
+    .routes { grid-template-columns: 1fr; }
+    #map { height: 60vh; order: -1; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <h1 class="bar__title">우리 동네 기록 노트 <span class="q">?</span><span class="e">!</span></h1>
+  <div class="bar__meta mono"><span>SESSION 04 · 산책 길</span><button class="bar__btn" id="full" type="button">전체 화면 (F)</button></div>
+</header>
+
+<main class="routes">
+  <div class="panel">
+    <div class="tabs" role="group" aria-label="경로 고르기"></div>
+    <article class="card" id="card" aria-live="polite"></article>
+    <p class="note">출발·도착: 신흥동행정복지센터. 다섯 길 모두 큰길과 철길을 건너지 않아요. 3번(동쪽이 막혀 있음)을 빼고는 갈 때와 올 때 다른 길로 돌아와요. 1·5번, 2·4번은 같은 동네를 서로 반대 방향으로 돌아서 테이블끼리 몰리지 않아요. 길은 OpenStreetMap 지도 자료로 그린 초안이에요. 수업 전에 꼭 한 번 걸어 보고 고쳐 주세요. 걷는 시간은 시속 2.5km(천천히)로 셈했어요. 숫자 키 1~5로 길을, 0으로 전체를 봐요.</p>
+  </div>
+  <div id="map" role="img" aria-label="신흥동행정복지센터 주변 산책 경로 5개 지도"></div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// 산책 경로 좌표: OpenStreetMap 길 자료로 뽑은 초안. 큰길(상무대로·사암로·금봉로)과 철길을 건너지 않고, 갈 때와 올 때 다른 길로 도는 고리 모양. 답사 뒤 고치면 된다.
+// [위도, 경도] 순. m = 왕복 거리(미터).
+window.ROUTE_PATHS = [{"m":570,"path":[[35.14527,126.80074],[35.14543,126.80059],[35.14556,126.80052],[35.14558,126.80044],[35.14565,126.80027],[35.14581,126.80004],[35.14587,126.80001],[35.14588,126.7998],[35.14588,126.79975],[35.14581,126.79976],[35.14574,126.79974],[35.14541,126.79957],[35.14521,126.79946],[35.14512,126.7993],[35.14509,126.79909],[35.14506,126.79909],[35.14463,126.7991],[35.1446,126.79909],[35.14459,126.79901],[35.14461,126.79898],[35.14446,126.79899],[35.1443,126.79907],[35.14432,126.79986],[35.14437,126.79991],[35.14445,126.8],[35.14455,126.80014],[35.14458,126.80026],[35.14476,126.8003],[35.1449,126.80047],[35.145,126.80063],[35.14513,126.80088],[35.14527,126.80074]]},{"m":1350,"path":[[35.14527,126.80074],[35.14543,126.80059],[35.14556,126.80052],[35.14558,126.80044],[35.14565,126.80027],[35.14581,126.80004],[35.14587,126.80001],[35.14588,126.7998],[35.14588,126.79975],[35.14581,126.79976],[35.14574,126.79974],[35.14541,126.79957],[35.14521,126.79946],[35.14512,126.7993],[35.14509,126.79909],[35.14533,126.79908],[35.14549,126.79905],[35.14566,126.79902],[35.14574,126.79901],[35.14576,126.79904],[35.14578,126.79906],[35.14581,126.79907],[35.14584,126.79907],[35.14586,126.79905],[35.14588,126.79903],[35.14589,126.79901],[35.1459,126.799],[35.1459,126.79897],[35.1459,126.79893],[35.14589,126.79892],[35.14663,126.79858],[35.14678,126.79848],[35.14697,126.79827],[35.14699,126.79824],[35.14722,126.79802],[35.1474,126.79797],[35.14748,126.79796],[35.1476,126.79793],[35.14761,126.79778],[35.14764,126.79744],[35.14766,126.79728],[35.14769,126.79712],[35.1472,126.79726],[35.1471,126.79732],[35.14699,126.79739],[35.14663,126.79755],[35.14651,126.79764],[35.14629,126.79782],[35.14623,126.79787],[35.14616,126.79791],[35.14611,126.79793],[35.14604,126.79794],[35.14586,126.79793],[35.14578,126.79792],[35.14575,126.79791],[35.14577,126.79869],[35.14581,126.79886],[35.14578,126.79887],[35.14576,126.79888],[35.14574,126.79891],[35.14573,126.79893],[35.14541,126.79892],[35.14515,126.79892],[35.14467,126.79895],[35.14461,126.79898],[35.14446,126.79899],[35.1443,126.79907],[35.14432,126.79986],[35.14437,126.79991],[35.14445,126.8],[35.14455,126.80014],[35.14458,126.80026],[35.14476,126.8003],[35.1449,126.80047],[35.145,126.80063],[35.14513,126.80088],[35.14527,126.80074]]},{"m":1240,"path":[[35.14527,126.80074],[35.14513,126.80088],[35.14504,126.80094],[35.14495,126.80103],[35.14485,126.80115],[35.14478,126.80117],[35.14438,126.80123],[35.14444,126.8024],[35.14447,126.80279],[35.14452,126.80349],[35.14455,126.80404],[35.14462,126.80504],[35.14466,126.8053],[35.14472,126.8053],[35.14477,126.80531],[35.14484,126.80535],[35.14488,126.80539],[35.14526,126.80582],[35.14532,126.80588],[35.14538,126.80593],[35.14543,126.80599],[35.14561,126.80616],[35.14543,126.80599],[35.14538,126.80593],[35.14532,126.80588],[35.14526,126.80582],[35.14488,126.80539],[35.14484,126.80535],[35.14477,126.80531],[35.14472,126.8053],[35.14466,126.8053],[35.14462,126.80504],[35.14455,126.80404],[35.14452,126.80349],[35.14447,126.80279],[35.14444,126.8024],[35.14438,126.80123],[35.14478,126.80117],[35.14485,126.80115],[35.14495,126.80103],[35.14504,126.80094],[35.14513,126.80088],[35.14527,126.80074]]},{"m":1410,"path":[[35.14527,126.80074],[35.14513,126.80088],[35.145,126.80063],[35.1449,126.80047],[35.14476,126.8003],[35.14458,126.80026],[35.14455,126.80014],[35.14445,126.8],[35.14437,126.79991],[35.14432,126.79986],[35.1443,126.79907],[35.14446,126.79899],[35.14461,126.79898],[35.14467,126.79895],[35.14515,126.79892],[35.14541,126.79892],[35.14573,126.79893],[35.14574,126.79891],[35.14576,126.79888],[35.14578,126.79887],[35.14581,126.79886],[35.14577,126.79869],[35.14575,126.79791],[35.14578,126.79792],[35.14586,126.79793],[35.14604,126.79794],[35.14611,126.79793],[35.14616,126.79791],[35.14623,126.79787],[35.14629,126.79782],[35.14651,126.79764],[35.14663,126.79755],[35.14699,126.79739],[35.1471,126.79732],[35.1472,126.79726],[35.14769,126.79712],[35.14773,126.79703],[35.14779,126.79694],[35.14787,126.79686],[35.14779,126.79694],[35.14773,126.79703],[35.14769,126.79712],[35.14766,126.79728],[35.14764,126.79744],[35.14761,126.79778],[35.1476,126.79793],[35.14748,126.79796],[35.1474,126.79797],[35.14722,126.79802],[35.14699,126.79824],[35.14697,126.79827],[35.14678,126.79848],[35.14663,126.79858],[35.14589,126.79892],[35.1459,126.79893],[35.1459,126.79897],[35.1459,126.799],[35.14589,126.79901],[35.14588,126.79903],[35.14586,126.79905],[35.14584,126.79907],[35.14581,126.79907],[35.14578,126.79906],[35.14576,126.79904],[35.14574,126.79901],[35.14566,126.79902],[35.14549,126.79905],[35.14533,126.79908],[35.14509,126.79909],[35.14512,126.7993],[35.14521,126.79946],[35.14541,126.79957],[35.14574,126.79974],[35.14581,126.79976],[35.14588,126.79975],[35.14588,126.7998],[35.14587,126.80001],[35.14581,126.80004],[35.14565,126.80027],[35.14558,126.80044],[35.14556,126.80052],[35.14543,126.80059],[35.14527,126.80074]]},{"m":1040,"path":[[35.14527,126.80074],[35.14513,126.80088],[35.145,126.80063],[35.1449,126.80047],[35.14476,126.8003],[35.14458,126.80026],[35.14455,126.80014],[35.14445,126.8],[35.14437,126.79991],[35.14432,126.79986],[35.1443,126.79907],[35.14446,126.79899],[35.14461,126.79898],[35.14467,126.79895],[35.14466,126.79876],[35.14468,126.79867],[35.14475,126.79858],[35.14481,126.79848],[35.14483,126.79843],[35.14485,126.79836],[35.14486,126.79827],[35.14486,126.79791],[35.14486,126.79789],[35.14484,126.79757],[35.14485,126.79747],[35.1449,126.79736],[35.14502,126.79724],[35.1452,126.797],[35.14538,126.79682],[35.14543,126.79683],[35.14543,126.79708],[35.14541,126.79749],[35.1454,126.79768],[35.14543,126.7978],[35.1455,126.79783],[35.14575,126.79791],[35.14577,126.79869],[35.14581,126.79886],[35.14578,126.79887],[35.14576,126.79888],[35.14574,126.79891],[35.14573,126.79893],[35.14573,126.79895],[35.14573,126.79896],[35.14573,126.79898],[35.14574,126.79901],[35.14566,126.79902],[35.14549,126.79905],[35.14533,126.79908],[35.14509,126.79909],[35.14512,126.7993],[35.14521,126.79946],[35.14541,126.79957],[35.14574,126.79974],[35.14581,126.79976],[35.14588,126.79975],[35.14588,126.7998],[35.14587,126.80001],[35.14581,126.80004],[35.14565,126.80027],[35.14558,126.80044],[35.14556,126.80052],[35.14543,126.80059],[35.14527,126.80074]]}];
+</script>
+<script>
+(function () {
+  if (/[?&]print/.test(location.search)) document.body.classList.add('print');
+  var HOME = [35.14522, 126.80064];
+  // 테이블 번호 = 길 번호. 들를 곳 좌표는 OpenStreetMap에 올라 있는 위치.
+  var ROUTES = [
+    { name: '송정공원 한 바퀴', c: '#e8473a', level: '평지 · 가장 짧아요',
+      who: '걷기 힘드신 분, 천천히 오래 보고 싶은 분',
+      way: '센터 → 공원 북쪽 → 광주송정도서관 옆 → 공원 남쪽 → 센터 (시계 반대 방향, 5번 길과 반대로 돌아요)',
+      rec: '몸으로 느끼기(볕·바람·그늘), 손으로 그리기(지금 모습), 눈으로 찍기(틈새 풀꽃)',
+      ask: '이 의자는 누가 제일 많이 앉을까? 도서관엔 언제 사람이 많을까?',
+      care: '공원 안 계단·턱. 벤치에서 한 번 쉬어 가요.',
+      stops: [[35.14497, 126.79972, '광주송정도서관', 'left']] },
+    { name: '금봉산 아랫길', c: '#2f6fb3', level: '오르막 조금',
+      who: '자연·소리를 모으고 싶은 분',
+      way: '센터 → 송정공원로 따라 북쪽(금봉산 아래) → 송정공원로47번길 → 송정공원로23번길로 내려와 → 공원 남쪽 → 센터 (4번 길과 반대로 돌아요)',
+      rec: '귀로 듣기(새·바람 소리 글로 적기), 몸으로 느끼기(고양이·새 따라가기), 눈으로 찍기(집 앞 화분)',
+      ask: '이 산은 왜 금봉산일까? 언덕 위 집들은 언제부터 있었을까?',
+      care: '차가 다니는 좁은 길. 한 줄로 걸어요.',
+      stops: [[35.14769, 126.79712, '송정공원로47번길']] },
+    { name: '송정동초 담장길', c: '#2e8a52', level: '평지',
+      who: '간판·색깔·글씨를 찍고 싶은 분',
+      way: '센터 → 신흥동길 → 철길 옆 길 따라 동쪽 → 송정동초등학교 동쪽 담장길 → 같은 길로 돌아오기',
+      rec: '눈으로 찍기(오래된 간판, 골목 색깔, 바닥 무늬), 귀로 듣기(동네 말)',
+      ask: '학교 담장 그림은 누가 그렸을까? 이 길 이름은 왜 신흥동길일까?',
+      care: '학교 앞은 아이들 사진을 찍지 않아요. 철길 옆 길은 울타리 안쪽으로. 동쪽은 사암로와 철길에 막혀 있어서 이 길만 갔던 길로 돌아와요. 돌아올 때는 반대쪽 풍경을 봐요.',
+      stops: [[35.14561, 126.80616, '되돌아오는 곳', 'left']] },
+    { name: '철길 쪽 언덕 골목', c: '#7a4fb8', level: '오르막 조금',
+      who: '이웃 이야기·예전 모습을 모으고 싶은 분',
+      way: '센터 → 공원 남쪽 → 송정공원로23번길 올라 → 송정공원로47번길 → 송정공원로로 내려와 → 센터 (2번 길과 반대로 돌아요)',
+      rec: '귀로 듣기(이웃 이야기, 동네 말), 찾아서 담기(예전 모습 사진과 비교), 눈으로 찍기(오래된 대문)',
+      ask: '이 골목에서 제일 오래된 집은 어디일까? 예전엔 여기에 뭐가 있었을까?',
+      care: '언덕길·계단. 2번 테이블과 중간에서 마주치면 인사하고 지나가요.',
+      stops: [[35.14787, 126.79686, '송정공원로47번길']] },
+    { name: '철길 옆 골목', c: '#d98a00', level: '평지 · 좁은 길',
+      who: '걸은 길을 그리고 싶은 분',
+      way: '센터 → 공원 남쪽 → 송정공원로11번길 따라 서쪽(철길 옆) → 송정공원로23번길로 올라 → 공원 북쪽 → 센터 (1번 길과 반대로 돌아요)',
+      rec: '손으로 그리기(걸은 길 그리기), 몸으로 느끼기(볕·그늘), 눈으로 찍기(골목 색깔)',
+      ask: '철길 옆 집들은 언제 생겼을까? 이 길로 누가 제일 많이 다닐까?',
+      care: '철길·선로에는 들어가지 않아요. 좁은 길이라 차가 오면 한쪽으로.',
+      stops: [[35.14538, 126.79682, '송정공원로11번길 끝']] }
+  ];
+  var P = window.ROUTE_PATHS || [];
+  var walkMin = function (m) { return Math.round(m / 2500 * 60 / 5) * 5; };
+
+  var tabs = document.querySelector('.tabs'), card = document.getElementById('card');
+  var map = L.map('map', { zoomControl: true, scrollWheelZoom: false, zoomSnap: 0.25, attributionControl: true }).setView(HOME, 16); // 뷰가 있어야 선을 그림
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+
+  var lines = [], stopLayers = [];
+  ROUTES.forEach(function (r, i) {
+    var path = (P[i] && P[i].path) || [HOME];
+    r.m = (P[i] && P[i].m) || 0;
+    lines.push(L.polyline(path, { color: r.c, weight: 7, opacity: .9, lineJoin: 'round' }).addTo(map)
+      .on('click', function () { pick(i + 1); }));
+    stopLayers.push(L.layerGroup(r.stops.map(function (s) {
+      return L.marker([s[0], s[1]], { icon: L.divIcon({ className: '', html: '<div class="pin" style="border-color:' + r.c + '">' + (i + 1) + '</div>', iconSize: [26, 26] }) })
+        .bindTooltip(s[2], { permanent: true, direction: s[3] || 'right', offset: [s[3] === 'left' ? -14 : 14, 0], className: 'lbl' });
+    })));
+  });
+  // 가는 방향 화살표: 길 길이의 1/5마다 하나씩
+  var arrowLayers = ROUTES.map(function (r, i) {
+    var path = (P[i] && P[i].path) || [HOME], g = L.layerGroup(), d = [0];
+    for (var a = 1; a < path.length; a++) d.push(d[a - 1] + map.distance(path[a - 1], path[a]));
+    [.12, .3, .5, .7, .88].forEach(function (f) {
+      var t = d[d.length - 1] * f, a = 1;
+      while (a < d.length - 1 && d[a] < t) a++;
+      var p0 = path[a - 1], p1 = path[a];
+      var ang = Math.atan2((p1[0] - p0[0]), (p1[1] - p0[1]) * Math.cos(p0[0] * Math.PI / 180)) * -180 / Math.PI;
+      L.marker([(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2], { interactive: false, icon: L.divIcon({ className: '',
+        html: '<div style="transform:rotate(' + ang + 'deg);color:' + r.c + ';font:900 22px/1 sans-serif;text-shadow:0 0 3px #fff,0 0 3px #fff">➤</div>', iconSize: [22, 22], iconAnchor: [11, 11] }) }).addTo(g);
+    });
+    return g;
+  });
+  L.marker(HOME, { zIndexOffset: 1000, icon: L.divIcon({ className: '', html: '<div class="pin home">★</div>', iconSize: [34, 34] }) })
+    .bindTooltip('출발·도착 · 신흥동행정복지센터', { permanent: true, direction: 'top', offset: [0, -18], className: 'lbl' }).addTo(map);
+
+  var btns = [];
+  ['전체'].concat(ROUTES.map(function (r, i) { return String(i + 1); })).forEach(function (t, k) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = t;
+    if (k) { b.style.setProperty('--c', ROUTES[k - 1].c); b.setAttribute('aria-label', k + '번 길 · ' + ROUTES[k - 1].name); }
+    b.addEventListener('click', function () { pick(k); });
+    tabs.appendChild(b); btns.push(b);
+  });
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function pick(k) {
+    cur = k;
+    btns.forEach(function (b, j) { b.setAttribute('aria-pressed', String(j === k)); });
+    lines.forEach(function (l, j) {
+      var on = !k || j === k - 1;
+      // 전체 보기: 같은 길을 쓰는 1·5번, 2·4번은 굵은 선 위에 가는 선을 얹어 두 색이 다 보이게
+      l.setStyle({ opacity: on ? .95 : .15, weight: k ? (on ? 9 : 7) : [6, 13, 8, 6, 13][j] });
+      if (on && k) l.bringToFront();
+      if (on && k) arrowLayers[j].addTo(map); else arrowLayers[j].remove();
+      if (on && k) stopLayers[j].addTo(map); else stopLayers[j].remove(); // 전체 보기에선 이름표를 감춰 겹치지 않게
+    });
+    if (!k) [1, 4, 3, 2, 0].forEach(function (j) { lines[j].bringToFront(); });
+    if (!k) {
+      card.innerHTML = '<p class="kick mono">WALK · 5 ROUTES</p><h2>테이블마다<br>한 길씩 걸어요.</h2>' +
+        '<ul class="all-list">' + ROUTES.map(function (r, i) {
+          return '<li data-k="' + (i + 1) + '" style="--c:' + r.c + '"><b>' + (i + 1) + '</b>' + esc(r.name) + '<small>' + (r.m / 1000).toFixed(1) + 'km · ' + walkMin(r.m) + '분</small></li>';
+        }).join('') + '</ul><p class="say hand">40분 안에 돌아와요. 걷는 시간 + 멈춰서 기록하는 시간.</p>';
+      card.querySelectorAll('li').forEach(function (li) { li.addEventListener('click', function () { pick(+li.dataset.k); }); });
+      map.fitBounds(L.featureGroup(lines).getBounds(), { padding: [30, 30] });
+    } else {
+      var r = ROUTES[k - 1];
+      card.style.setProperty('--c', r.c);
+      card.innerHTML = '<p class="kick mono">ROUTE 0' + k + ' · ' + k + '번 테이블</p>' +
+        '<h2><i>' + k + '</i>' + esc(r.name) + '</h2>' +
+        '<p class="facts"><span>왕복 ' + (r.m / 1000).toFixed(1) + 'km</span><span>걷기 약 ' + walkMin(r.m) + '분</span><span' + (/큰길|오르막/.test(r.level) ? ' class="warn"' : '') + '>' + esc(r.level) + '</span></p>' +
+        '<dl><dt>이런 분께</dt><dd>' + esc(r.who) + '</dd><dt>길</dt><dd>' + esc(r.way) + '</dd><dt>잘 맞는 기록</dt><dd>' + esc(r.rec) + '</dd><dt>조심해요</dt><dd>' + esc(r.care) + '</dd></dl>' +
+        '<p class="say hand">? ' + esc(r.ask) + '</p>';
+      map.fitBounds(lines[k - 1].getBounds(), { padding: [110, 110], maxZoom: 18 });
+    }
+    history.replaceState(null, '', '#' + k);
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (/^[0-5]$/.test(e.key)) pick(+e.key);
+    else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+  document.getElementById('full').addEventListener('click', function () {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen();
+  });
+  var cur = Math.max(0, Math.min(5, parseInt(location.hash.slice(1), 10) || 0));
+  pick(cur);
+  // 글꼴·격자 배치가 끝난 뒤 지도 크기가 바뀌므로, 크기가 바뀔 때마다 다시 맞춘다.
+  if (window.ResizeObserver) new ResizeObserver(function () { map.invalidateSize(); pick(cur); }).observe(document.getElementById('map'));
+  window.addEventListener('load', function () { map.invalidateSize(); pick(cur); });
+})();
+</script>
+</body>
+</html>
