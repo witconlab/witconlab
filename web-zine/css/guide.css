@@ -163,7 +163,8 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .arch.notes .ac__b { padding: 1vh .9vw 1.2vh; font-size: clamp(13px, min(1.25vw, 2.2vh), 24px); }
 .notes .ac__meta { font-family: var(--font-body); font-weight: 800; font-size: .9em; }
 .step:has(.notes) h2 { font-size: clamp(24px, min(3.2vw, 5.6vh), 64px); margin-bottom: 1.4vh; }
-.fig.video { width: 100%; }
-.fig.video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 50vh; border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: var(--ink); }
 /* 지금 단계·시간 표시를 잘 보이게 */
 #min:not(:empty) { background: var(--ink); color: var(--yellow); padding: .25em .7em; font-size: 1.15em; }
+/* 들어 볼 소리 목록 */
+.tracks a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+.tracks small { display: block; font-size: .7em; font-weight: 600; text-decoration: none; }
