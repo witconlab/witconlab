@@ -161,3 +161,5 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .arch.notes .ac__b { padding: 1vh .9vw 1.2vh; font-size: clamp(13px, min(1.25vw, 2.2vh), 24px); }
 .notes .ac__meta { font-family: var(--font-body); font-weight: 800; font-size: .9em; }
 .step:has(.notes) h2 { font-size: clamp(24px, min(3.2vw, 5.6vh), 64px); margin-bottom: 1.4vh; }
+.fig.video { width: 100%; }
+.fig.video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 50vh; border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: var(--ink); }
