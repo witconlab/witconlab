@@ -138,7 +138,9 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 /* 오늘 할 일: 시간표 */
 .tt { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--r, 4), auto); grid-auto-flow: column; gap: 0 3vw; font-size: clamp(16px, min(2vw, 3.5vh), 38px); font-weight: 800; line-height: 1.35; letter-spacing: -.02em; max-width: none; }
 .tt li { display: flex; gap: .8em; align-items: baseline; padding: .5em 0; border-top: 2px solid currentColor; }
-.tt b { flex: none; min-width: 3.4em; font-family: var(--font-num); }
+.tt b { flex: none; font-size: 1.2em; line-height: 1; }
+.tt span { flex: 1; }
+.tt em { flex: none; font-style: normal; font-family: var(--font-num); font-weight: 700; padding: .1em .5em; background: var(--ink); color: var(--white); font-size: .8em; }
 .step:has(.tt) h2 { font-size: clamp(28px, min(4.4vw, 7.4vh), 84px); margin-bottom: 2.4vh; }
 .step:has(.tt) .say { font-size: clamp(20px, min(2.4vw, 4vh), 46px); margin-top: 2vh; }
 .step.split:has(.list) .list { font-size: clamp(14px, min(1.6vw, 2.8vh), 30px); }
@@ -163,3 +165,5 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .step:has(.notes) h2 { font-size: clamp(24px, min(3.2vw, 5.6vh), 64px); margin-bottom: 1.4vh; }
 .fig.video { width: 100%; }
 .fig.video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 50vh; border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: var(--ink); }
+/* 지금 단계·시간 표시를 잘 보이게 */
+#min:not(:empty) { background: var(--ink); color: var(--yellow); padding: .25em .7em; font-size: 1.15em; }
