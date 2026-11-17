@@ -23,7 +23,10 @@
 
   function pad(x) { return String(x).padStart(2, '0'); }
   function go(k) {
+    var was = steps[i];
     i = Math.max(0, Math.min(n - 1, k));
+    // 영상이 있는 장을 떠나면 소리가 계속 나지 않도록 다시 불러 멈춘다.
+    if (was && was !== steps[i]) was.querySelectorAll('iframe').forEach(function (f) { f.src = f.src; });
     steps.forEach(function (s, j) { s.classList.toggle('on', j === i); });
     Array.prototype.forEach.call(bar.children, function (b, j) { b.classList.toggle('on', j <= i); });
     pos.textContent = pad(i + 1) + ' / ' + pad(n);
