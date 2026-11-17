@@ -146,7 +146,18 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .arch.books { gap: 1.2vh 1.4vw; }
 .arch.books .ac__m { height: auto; aspect-ratio: 640 / 380; background: var(--white); }
 .arch.books .ac__m > img { object-fit: contain; } /* 책 사진은 자르지 않고 통째로 */
-.step:has(.books) h2 { font-size: clamp(24px, min(3.2vw, 5.6vh), 64px); margin-bottom: 1.4vh; }
+.step:has(.books) h2 { font-size: clamp(22px, min(2.8vw, 4.8vh), 56px); margin-bottom: 1vh; }
+.step:has(.books) .kick { margin-bottom: 1vh; }
 .step:has(.books) .say { margin-top: 1.2vh; font-size: clamp(18px, min(2vw, 3.4vh), 40px); }
 .arch.books .ac__b { padding: 1vh .9vw 1.2vh; font-size: clamp(13px, min(1.3vw, 2.3vh), 24px); }
 .arch.books .ac__meta { margin-top: .35em; padding-top: .3em; }
+/* 책 카드: 크리에이터 한 줄 + 창작물 세 줄 */
+.ac__who { display: block; font-size: .85em; font-weight: 800; margin-bottom: .35em; }
+.ac__work { display: block; font-weight: 500; line-height: 1.4; }
+.books .ac__meta { font-family: var(--font-body); font-weight: 800; font-size: .9em; }
+/* 영감 수집 노트 예시(세로 사진) */
+.arch.notes .ac__m { height: 30vh; background: var(--white); }
+.arch.notes .ac__m > img { object-fit: contain; }
+.arch.notes .ac__b { padding: 1vh .9vw 1.2vh; font-size: clamp(13px, min(1.25vw, 2.2vh), 24px); }
+.notes .ac__meta { font-family: var(--font-body); font-weight: 800; font-size: .9em; }
+.step:has(.notes) h2 { font-size: clamp(24px, min(3.2vw, 5.6vh), 64px); margin-bottom: 1.4vh; }
