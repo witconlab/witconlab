@@ -7,6 +7,9 @@ const A = window.Agora;
 const key = (field, task = 0, n = 0) => A.slotList().filter(x => x.field === field && x.task === task)[n].key;
 const short = p => p.map(x => x.field + x.task + ':' + x.text);
 
+// 현장 배치도: 13개 테이블 = 강 4 · 산 3 · 하천 4 · 공원 2
+assert.deepStrictEqual(A.DEFAULT_TABLES.map(t => t.topic).join(','), 'river,river,river,river,mount,mount,mount,stream,stream,stream,stream,park,park');
+
 // 빈 양식(예시만 있음)은 아무것도 안 나옴
 assert.deepStrictEqual(A.parseDoc(A.rowsFromCells({})), []);
 

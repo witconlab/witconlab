@@ -1,7 +1,7 @@
 /* 2026 광산자치아고라 · 공통 코어 V2 (대형 스크린·관제 패널·공감 페이지·연습장이 함께 사용)
  *
  * V2: 진행흐름도 ①~⑦ 기준. 기록자는 Google 문서의 표에서 「우리 테이블 답」 칸에 씁니다.
- *  - LIVE : Apps Script 웹앱 URL이 설정된 경우. 12개 Docs(표) → Apps Script → 브라우저
+ *  - LIVE : Apps Script 웹앱 URL이 설정된 경우. 13개 Docs(표) → Apps Script → 브라우저
  *  - DEMO : ?demo. localStorage를 "가상 문서"로 쓰고 시뮬레이터가 기록자처럼 채웁니다.
  */
 (function () {
@@ -15,21 +15,20 @@
     date: '2026-11-19',
     dateLabel: '2026. 11. 19.(목) 14:00 – 16:00',
     place: '광산구청 7층 윤상원홀',
-    host: '광산구 도시재생공동체센터',
+    host: '광산구도시재생공동체센터',
     keynote: { title: '생활공간을 잇고, 함께 만드는 변화', speaker: '더가능연구소 엄관용 연구실장' }
   };
 
-  // 6개 공간 주제
+  // 4개 주제(강·산·하천·공원) · 13개 테이블 — 현장 배치도: 1–4 강, 5–7 산, 8–11 하천, 12–13 공원
   const TOPICS = {
-    hwang:   { name: '황룡강',       color: '#38bdf8', icon: 'wave' },
-    pung:    { name: '풍영정천',     color: '#2dd4bf', icon: 'wave' },
-    eodeung: { name: '어등산',       color: '#a3e635', icon: 'mount' },
-    malmi:   { name: '말미산',       color: '#facc15', icon: 'mount' },
-    sinchon: { name: '신촌근린공원', color: '#fb923c', icon: 'tree' },
-    daesang: { name: '대상공원',     color: '#f472b6', icon: 'tree' }
+    river:  { name: '강',   place: '황룡강',               color: '#38bdf8', icon: 'wave' },
+    mount:  { name: '산',   place: '어등산·말미산',        color: '#a3e635', icon: 'mount' },
+    stream: { name: '하천', place: '풍영정천·장수천',      color: '#2dd4bf', icon: 'wave' },
+    park:   { name: '공원', place: '신촌근린공원·대상공원', color: '#fb923c', icon: 'tree' }
   };
-  const TOPIC_ORDER = ['hwang', 'pung', 'eodeung', 'malmi', 'sinchon', 'daesang'];
-  const defaultTopic = no => TOPIC_ORDER[(Number(no) - 1) % 6];
+  const TOPIC_ORDER = ['river', 'mount', 'stream', 'park'];
+  const TABLE_COUNT = 13;
+  const defaultTopic = no => (no = Number(no)) <= 4 ? 'river' : no <= 7 ? 'mount' : no <= 11 ? 'stream' : 'park';
 
   // 기록 칸(문서 표의 행)
   const FIELDS = {
@@ -68,7 +67,7 @@
     { tab: '① 이용 경험', head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?',
       guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
       cols: ['good', 'bad', 'better'], ex: ['제방길 아침 — 물소리 들으며 걷기 좋아요', '제방길 저녁 — 조명이 어두워 혼자 걷기 무서워요', '산책로 중간 — 쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
-    { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
+    { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '우리의 경험을 바탕으로, 이곳이 어떻게 달라지면 좋을까요?',
       guide: '제안 하나에 한 줄. 주민이 직접 할 일은 🟢 초록 줄에, 기관 도움이 필요한 일은 🔵 파란 줄에 써요. 둘 다 필요하면 같은 제목으로 양쪽에 역할을 나눠 적어요. 화면에 번호가 자동으로 붙어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
       pair: [['제안 제목 ✍️', '짧게, 이름처럼'], ['핵심 내용 ✍️', '무엇을 어떻게, 한 문장']],
       groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'] },
@@ -79,7 +78,7 @@
       rows: [['pick', '선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표', '함께 걷기·길 살피기'], ['pick', '선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표', '연결길 안내표지 정비'],
         ['tally', '투표 결과', '대형 화면의 번호별 표 수', '1번 7표, 3번 2표 / 6번 5표, 7번 1표'],
         ['rest', '선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)'], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', ''], ['rest', '선정되지 않은 의견', '', '']] },
-    { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?', task: 0,
+    { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?', task: 0,
       guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
       rows: [['bg', '현황·제안배경', '지금 어떤 상황이고 왜 필요한지', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
         ['want', '우리가 바라는 모습', '이 일이 이뤄지면 어떤 모습일지', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
@@ -88,7 +87,7 @@
         ['with', '함께하고 싶은 이웃', WITH_DESC, '인근 아파트 주민모임(참여 제안), 주민자치회, 공원 관리부서(협조 요청)']] },
     { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요', task: 1,
       rows: [['bg', '현황·제안배경', '', ''], ['want', '우리가 바라는 모습', '', ''], ['prop', '우리의 제안', '', ''], ['first', '우리가 시작할 첫걸음', '', ''], ['with', '함께하고 싶은 이웃', WITH_DESC, '']] },
-    { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?',
+    { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '정리된 내용이 우리가 이야기한 뜻과 맞나요?',
       guide: '진행자가 다섯 항목을 읽어 주면, 고칠 곳은 ④ 탭에서 바로 고쳐요(화면도 바로 바뀌어요). 기록과 화면이 같은지 확인하고, 진행자의 최종 확인 신호 뒤에 ‘제출’이라고 써요.',
       rows: [['check', '고친 곳·빠진 의견 메모', '무엇을 고쳤는지 짧게', '첫걸음 날짜를 ‘추후 협의’로 고침'],
         ['aiCheck', '✨ AI 다듬은 문장 확인', 'AI가 다듬은 문장이 화면에 뜨면 원래 발언과 비교해 다른 점을 적어요', '“줍깅”이 “환경정화”로 바뀜 → 원래 말로 되돌려 주세요'],
@@ -96,7 +95,7 @@
   ];
   const TABS = [...new Set(TEMPLATE.map(t => t.tab))];
 
-  const DEFAULT_TABLES = Array.from({ length: 12 }, (_, i) => ({ no: i + 1, topic: defaultTopic(i + 1), dongs: '', space: '' }));
+  const DEFAULT_TABLES = Array.from({ length: TABLE_COUNT }, (_, i) => ({ no: i + 1, topic: defaultTopic(i + 1), dongs: '', space: '' }));
 
   // 시각은 기본값입니다(확정되면 여기 숫자만 바꾸면 됨). 단계는 관제반이 버튼으로 넘깁니다.
   const STAGES = [
@@ -110,10 +109,10 @@
   ];
   const SUBSTEPS = [
     { label: '① 이용 경험 나누기',   min: 15, start: '14:30', q: '우리는 이곳에서 어떤 경험을 하고 있나요?' },
-    { label: '② 함께 할 일 제안하기', min: 15, start: '14:45', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?' },
+    { label: '② 함께 할 일 제안하기', min: 15, start: '14:45', q: '우리의 경험을 바탕으로, 이곳이 어떻게 달라지면 좋을까요?' },
     { label: '③ 우선 과제 선정하기', min: 5,  start: '15:00', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?' },
-    { label: '④ 실행방법 구체화하기', min: 20, start: '15:05', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?' },
-    { label: '⑤ 테이블 결과 확인하기', min: 5, start: '15:25', q: '우리의 의견이 잘 담겼나요?' }
+    { label: '④ 실행방법 구체화하기', min: 20, start: '15:05', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?' },
+    { label: '⑤ 테이블 결과 확인하기', min: 5, start: '15:25', q: '정리된 내용이 우리가 이야기한 뜻과 맞나요?' }
   ];
 
   const DEFAULT_STATE = {
@@ -563,7 +562,7 @@
     const st = stageInfo || effective();
     if (st.stage !== 'talk') return null;
     const t = tables[Math.floor(Math.random() * tables.length)];
-    const p = TOPICS[t.topic].name;
+    const p = TOPICS[t.topic].place.split('·')[0];
     const vdocs = LS.get('agora-vdocs-v2b', {});
     const cells = vdocs[t.no] = vdocs[t.no] || {};
     const slots = slotList();
@@ -624,7 +623,7 @@
   const topicIcon = k => ICONS[TOPICS[k].icon];
 
   window.Agora = {
-    EVENT, TOPICS, TOPIC_ORDER, FIELDS, TASK_FIELDS, TEMPLATE, TABS, slotList, STAGES, SUBSTEPS, DEFAULT_TABLES, API, MODE, LS, ICONS,
+    EVENT, TOPICS, TOPIC_ORDER, TABLE_COUNT, FIELDS, TASK_FIELDS, TEMPLATE, TABS, slotList, STAGES, SUBSTEPS, DEFAULT_TABLES, API, MODE, LS, ICONS,
     get tables() { return tables; }, tableByNo, tablesOf, loadTables, docOk,
     get state() { return state; }, effective, setState, pullState, scheduledStage,
     onState: fn => stateListeners.push(fn),

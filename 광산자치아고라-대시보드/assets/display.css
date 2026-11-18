@@ -42,7 +42,7 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .hd-right { display: flex; align-items: center; gap: 18px; flex: none; }
 .hd-docs { font-size: 16px; color: var(--muted); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .hd-docs b { color: var(--text); font-size: 22px; }
-.hd-docs .dots { display: grid; grid-template-columns: repeat(6, 9px); gap: 4px; }
+.hd-docs .dots { display: grid; grid-template-columns: repeat(7, 9px); gap: 4px; }
 .hd-docs .dots i { width: 9px; height: 9px; border-radius: 50%; background: #334155; }
 .hd-docs .dots i.ok { background: var(--action); }
 .hd-live { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 18px; letter-spacing: .08em; background: #dc2626; padding: 8px 15px; border-radius: 8px; }
@@ -195,7 +195,8 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 
 /* ③·④ 테이블 카드 */
 .grid3, .grid4 { height: 100%; display: grid; gap: 14px; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; }
-.grid3.n2 { grid-template-columns: repeat(2, 1fr); }
+.grid3.n2, .grid3.n4 { grid-template-columns: repeat(2, 1fr); } .grid3.n3 { grid-template-columns: repeat(3, 1fr); }
+.all .grid3, .all .grid4 { grid-template-columns: repeat(5, 1fr); }
 .pc { position: relative; background: var(--panel); border: 1px solid var(--line); border-top: 5px solid var(--c); border-radius: 18px; padding: 12px 16px; overflow: hidden; display: flex; flex-direction: column; gap: 7px; min-height: 0; }
 .pc-hd { display: flex; align-items: center; gap: 8px; font-size: 21px; font-weight: 800; color: var(--muted); }
 .pc-hd b { font-size: 28px; color: var(--c); }
@@ -221,7 +222,7 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 
 /* ④·⑤·⑥ 제안서 */
 .sheets { height: 100%; display: grid; gap: 20px; grid-template-columns: repeat(2, 1fr); min-height: 0; }
-.sheets.n1 { grid-template-columns: 1fr; }
+.sheets.n1 { grid-template-columns: 1fr; } .sheets.n3 { grid-template-columns: repeat(3, 1fr); }
 .sheet { background: var(--panel); border: 1px solid var(--line); border-top: 6px solid var(--c); border-radius: 22px; padding: 18px 24px; overflow: hidden; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .sh-hd { display: flex; align-items: baseline; gap: 12px; }
 .sh-hd b { font-size: 32px; font-weight: 900; color: var(--c); }
@@ -256,7 +257,7 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 /* ── ⑥ 주제별 결과 공유 ── */
 [data-scene=share] { padding: 22px 36px 26px; display: flex; flex-direction: column; gap: 16px; }
 .share-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; }
-.topics6 { height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 18px; }
+.topics4 { height: 100%; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: 1fr 1fr; gap: 18px; }
 .tp { background: var(--panel); border: 1px solid var(--line); border-top: 6px solid var(--c); border-radius: 22px; padding: 18px 22px; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
 .tp-hd { display: flex; align-items: center; gap: 12px; }
 .tp-hd .ic, .tf-name .ic, .lb-hd .ic { width: 50px; height: 50px; border-radius: 14px; background: var(--c); display: grid; place-items: center; flex: none; }
@@ -291,7 +292,7 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .like-closed { display: none; position: absolute; inset: auto 0 40px 0; font-size: 30px; font-weight: 800; color: var(--gold); }
 .like-left.closed .like-closed { display: block; }
 .like-left.closed .qr, .like-left.closed .like-how { opacity: .25; }
-.like-board { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 16px; min-height: 0; }
+.like-board { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: 1fr 1fr; gap: 16px; min-height: 0; }
 .lb { background: rgba(255, 255, 255, .03); border: 1px solid var(--line); border-top: 6px solid var(--c); border-radius: 22px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; min-height: 0; }
 .lb-hd { display: flex; align-items: center; gap: 12px; }
 .lb-hd b { font-size: 30px; font-weight: 900; color: var(--c); }
@@ -321,12 +322,14 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .slo-rings i { position: absolute; left: 960px; top: 540px; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%; border: 6px solid var(--c); opacity: 0; }
 .slo-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; }
 .slo { font-weight: 900; letter-spacing: -.04em; line-height: 1.04; }
-.slo .ln { display: block; overflow: hidden; font-size: 150px; padding: 0 .06em .04em; }
+.slo .ln { display: block; overflow: hidden; font-size: 116px; padding: 0 .06em .04em; }
 .slo .ch { display: inline-block; transform: translateY(115%); }
-.slo .big { display: block; font-size: 270px; opacity: 0; padding-bottom: 14px; background: linear-gradient(90deg, var(--river), var(--park), var(--road), var(--common), var(--river)); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.slo .who { display: inline-block; vertical-align: middle; font-style: normal; font-size: 30px; font-weight: 800; letter-spacing: 0; color: var(--muted); border: 2px solid var(--line); border-radius: 99px; padding: 4px 16px; margin-right: 22px; -webkit-text-fill-color: var(--muted); }
+.slo .big .who { font-size: 36px; vertical-align: 40%; }
+.slo .big { display: block; font-size: 230px; opacity: 0; padding-bottom: 14px; background: linear-gradient(90deg, var(--river), var(--park), var(--road), var(--common), var(--river)); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
 .slo .big.flow { animation: gradFlow 9s linear infinite; }
 @keyframes gradFlow { to { background-position: 150% 0; } }
-.slo-sub { font-size: 40px; font-weight: 600; color: var(--muted); margin-top: 26px; opacity: 0; }
+.slo-sub { font-size: 64px; font-weight: 900; color: var(--text); margin-top: 18px; opacity: 0; }
 .slo-icons { display: flex; justify-content: center; gap: 26px; margin-top: 34px; }
 .slo-icons span { width: 84px; height: 84px; border-radius: 50%; background: var(--c); display: grid; place-items: center; opacity: 0; }
 .slo-icons svg { width: 46px; height: 46px; color: #fff; }
@@ -364,3 +367,16 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .vb.us .vr.top .no { background: #34d399; color: #000; } .vb.ext .vr.top .no { background: #60a5fa; color: #000; }
 .vr.top { color: #fff; font-weight: 800; }
 .n2 .vr { font-size: 24px; } .n2 .vb-hd { font-size: 19px; } .n2 .vr .vbar { height: 14px; }
+/* 4개 주제 · 13개 테이블 */
+.lb-hd small { font-size: 18px; color: var(--muted); }
+.slo-sub small { display: block; font-size: 30px; font-weight: 800; color: var(--muted); margin-bottom: 4px; }
+.like-why { font-size: 21px; font-weight: 700; line-height: 1.5; margin-top: 16px; color: var(--text); }
+.grid3 > *, .grid4 > * { min-height: 0; overflow: hidden; }
+.share-body .grid4 { flex: 1; height: auto; }
+.grid3, .grid4 { grid-auto-rows: minmax(0, 1fr); }
+/* 테이블 4개 주제: 카드 한 줄 4장 → 글자를 키움 */
+.one .grid4 .pick { font-size: 26px; } .one .grid4 .line, .one .grid4 .t2 { font-size: 22px; line-height: 1.45; }
+.one .grid4.props h3 { font-size: 28px; } .one .grid4.props .sh-hd b { font-size: 30px; } .one .grid4.props .sh-hd span { font-size: 18px; }
+.s4 .grid4, .s4 .sheets, .share-body .grid4 { min-height: 0; }
+.one .grid4 { grid-template-columns: repeat(2, 1fr); }
+.grid4.props .sheet > * { flex-shrink: 0; }

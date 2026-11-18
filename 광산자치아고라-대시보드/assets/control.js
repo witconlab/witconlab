@@ -55,8 +55,8 @@
   $('#auto').onchange = e => act(() => A.setState({ auto: e.target.checked }));
 
   // ── 주제 ──
-  $('#topics').innerHTML = '<button data-t="all">전체 12개</button><button data-t="auto">자동 순환</button>' +
-    TOPIC_ORDER.map(k => '<button data-t="' + k + '" style="' + tv(k) + '">' + TOPICS[k].name + '<small>' + A.tablesOf(k).map(t => t.no).join('·') + '</small></button>').join('');
+  $('#topics').innerHTML = '<button data-t="all">전체 ' + A.tables.length + '개</button><button data-t="auto">자동 순환</button>' +
+    TOPIC_ORDER.map(k => '<button data-t="' + k + '" style="' + tv(k) + '">' + TOPICS[k].name + '<small>' + TOPICS[k].place + ' · ' + A.tablesOf(k).map(t => t.no).join('·') + '</small></button>').join('');
   $('#topics').onclick = e => { const b = e.target.closest('button'); if (b) act(() => A.setState({ topic: b.dataset.t })); };
 
   $('#slogan-go').onclick = () => act(() => A.setState({ stage: 'slogan', sloganCue: Date.now(), auto: false }), '구호 카운트다운 시작!');
@@ -154,7 +154,7 @@
   $('#run-ai').onclick = async () => {
     if (dirty && !confirm('저장하지 않은 수정 내용이 있어요. AI 결과로 덮어쓸까요?')) return;
     const btn = $('#run-ai');
-    btn.disabled = true; $('#ai-msg').textContent = A.MODE === 'live' ? 'Gemini가 12개 테이블 제안서를 다듬는 중… 보통 1~3분. 대형 화면 ⑤에는 「AI가 다듬는 중」이 떠요.' : '데모: 원문으로 정리하는 중…';
+    btn.disabled = true; $('#ai-msg').textContent = A.MODE === 'live' ? 'Gemini가 ' + A.tables.length + '개 테이블 제안서를 다듬는 중… 보통 1~3분. 대형 화면 ⑤에는 「AI가 다듬는 중」이 떠요.' : '데모: 원문으로 정리하는 중…';
     const ok = await act(async () => { summary = await A.summarize(items); dirty = false; renderSummary(); }, 'AI 다듬기 완료. 검수 후 「화면에 다듬은 문장 쓰기」를 켜세요.');
     if (!ok && A.MODE === 'live' && confirm('AI 다듬기에 실패했어요. 기록자가 쓴 원문으로 제안서·주제 요약을 채울까요?')) {
       await act(async () => { summary = await A.saveSummary(A.ruleSummary(items)); renderSummary(); }, '원문으로 정리했어요');

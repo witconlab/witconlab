@@ -27,8 +27,8 @@
   $('#mode-badge').textContent = A.MODE === 'demo' ? '시뮬레이션 모드 · 화면을 두 번 누르면 전체화면' : '';
 
   function buildStatic() {
-    $('#open-icons').innerHTML = TOPIC_ORDER.map(k => '<div class="oi" style="' + tv(k) + '"><div class="ic">' + topicIcon(k) + '</div><b>' + TOPICS[k].name + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join('·') + '</small></div>').join('');
-    $('#key-cats').innerHTML = TOPIC_ORDER.map(k => '<div class="kc" style="' + tv(k) + '"><div class="ic">' + topicIcon(k) + '</div><div><b>' + TOPICS[k].name + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join(' · ') + '</small></div></div>').join('');
+    $('#open-icons').innerHTML = TOPIC_ORDER.map(k => '<div class="oi" style="' + tv(k) + '"><div class="ic">' + topicIcon(k) + '</div><b>' + TOPICS[k].name + '</b><small>' + TOPICS[k].place + '<br>테이블 ' + A.tablesOf(k).map(t => t.no).join('·') + '</small></div>').join('');
+    $('#key-cats').innerHTML = TOPIC_ORDER.map(k => '<div class="kc" style="' + tv(k) + '"><div class="ic">' + topicIcon(k) + '</div><div><b>' + TOPICS[k].name + ' · ' + TOPICS[k].place + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join(' · ') + '</small></div></div>').join('');
     $('#wait-grid').innerHTML = A.tables.map(t => '<div class="wt" data-no="' + t.no + '" style="' + tv(t.topic) + '"><b>' + t.no + '</b><span>' + esc(TOPICS[t.topic].name + (t.dongs ? ' · ' + t.dongs : '')) + '</span><i></i></div>').join('');
   }
   buildStatic();
@@ -54,8 +54,8 @@
   function qbarHtml(question, k) {
     const dots = cur.topic === 'auto' ? '<div class="rot">' + TOPIC_ORDER.map(x => '<i class="' + (x === k ? 'on' : '') + '" style="' + tv(x) + '"></i>').join('') + '</div>' : '';
     const who = k
-      ? '<div class="qb-topic" style="' + tv(k) + '"><span class="ic">' + topicIcon(k) + '</span><b>' + TOPICS[k].name + '</b><small>테이블 ' + A.tablesOf(k).map(t => t.no).join(' · ') + '</small></div>'
-      : '<div class="qb-topic all"><b>12개 테이블</b><small>' + TOPIC_ORDER.map(x => '<i style="background:' + TOPICS[x].color + '"></i>' + TOPICS[x].name).join(' ') + '</small></div>';
+      ? '<div class="qb-topic" style="' + tv(k) + '"><span class="ic">' + topicIcon(k) + '</span><b>' + TOPICS[k].name + '</b><small>' + TOPICS[k].place + ' · 테이블 ' + A.tablesOf(k).map(t => t.no).join(' · ') + '</small></div>'
+      : '<div class="qb-topic all"><b>' + A.tables.length + '개 테이블</b><small>' + TOPIC_ORDER.map(x => '<i style="background:' + TOPICS[x].color + '"></i>' + TOPICS[x].name).join(' ') + '</small></div>';
     return who + '<div class="qb-q"><b>“' + esc(question) + '”</b><small>공통질문 · ' + esc(A.EVENT.question) + '</small></div>' + dots;
   }
 
@@ -151,7 +151,7 @@
   // 「짧은 제목 — 핵심」이면 제목을 굵게
   const titled = text => { const [h, b] = A.splitTitle(text); return h ? '<strong>' + esc(h) + '</strong> ' + esc(b) : esc(b); };
   function step2(ts, k) {
-    const n = k ? 8 : 2;
+    const n = k ? (ts.length > 3 ? 3 : ts.length > 2 ? 4 : 8) : 2;  // 한 주제 테이블이 많을수록 칸마다 적게
     // 최신 제안이 앞에. 번호는 ③ 투표 때 부르는 번호
     const chips = (list, cls) => list.slice().reverse().slice(0, n).map(it => '<span class="chip ' + cls + enter(it) + '"><b class="no">' + it.no + '</b>' + titled(it.text) + '</span>').join('') + (list.length > n ? '<span class="more">+' + (list.length - n) + '</span>' : '');
     return '<div class="tbl2"><div class="tr th"><div>테이블 · 주제</div><div><i class="dot us"></i>[주민실천] 우리가 함께 할 일</div><div><i class="dot ext"></i>[외부협력] 협력·지원이 필요한 일</div></div>' +
@@ -179,7 +179,7 @@
       const d = A.tableData(items, t.no);
       const others = A.numbered(d);
       return '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + (d.picks.length ? '<span class="ok">선정 ' + d.picks.length + '</span>' : '') + '</div>' +
-        (d.picks.map((p, i) => '<div class="pick"><i>★</i><span>' + (d.picks.length > 1 ? (p.task + 1) + '. ' : '') + esc(p.text) + '</span>' + kindTag(p.kind) + '</div>').join('') || '<div class="empty">투표로 1~2개를 고르는 중</div>') +
+        (d.picks.map((p, i) => '<div class="pick"><i>★</i><span>' + (d.picks.length > 1 ? (p.task + 1) + '. ' : '') + esc(p.text) + '</span>' + kindTag(p.kind) + '</div>').join('') || '<div class="empty">🟢 주민 1개 · 🔵 외부 1개를 고르는 중</div>') +
         (d.tally.length ? '<div class="tally">🗳 ' + esc(d.tally.map(i => i.text).join(' ')) + '</div>' : '') +
         '<div class="others">' + (others.length ? '<span class="o-hd">투표할 제안 ' + others.length + '</span>' : '') + others.slice(0, k ? 9 : 4).map(i => { const [h, b] = A.splitTitle(i.text); return '<span class="o ' + i.kind + '"><b class="no">' + i.no + '</b>' + esc(h || b) + '</span>'; }).join('') +
         (d.rest.length ? '<span class="o-hd">선정되지 않은 의견 ' + d.rest.length + '</span>' + d.rest.slice(0, k ? 6 : 2).map(i => '<span class="o rest ' + i.kind + '">' + esc(i.text) + '</span>').join('') : '') + '</div></div>';
@@ -192,7 +192,7 @@
     return '<dl class="f5' + (compact ? ' c' : '') + '">' + TASK_FIELDS.map(f => '<div class="' + (task[f] ? 'on' : '') + '"><dt>' + LABELS[f] + '</dt><dd>' + (task[f] ? esc(task[f]) : '<span class="wait">…</span>') + '</dd></div>').join('') + '</dl>';
   }
   function step4(ts, k) {
-    if (!k) {
+    if (!k || ts.length > 3) {  // 전체 또는 테이블 4개 주제: 카드로 간단히
       return '<div class="grid4">' + ts.map(t => {
         const d = A.tableData(items, t.no), task = d.tasks[0], pick = d.picks[0];
         return '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '<span class="prog">' + TASK_FIELDS.map(f => '<i class="' + (task[f] ? 'on' : '') + '"></i>').join('') + '</span></div>' +
@@ -224,7 +224,7 @@
   }
   function step5(ts, k) {
     return '<div class="checks">' + CHECKS.map((c, i) => '<span><b>' + (i + 1) + '</b>' + c + '</span>').join('') + '</div>' +
-      (k ? '<div class="sheets n' + ts.length + '">' + ts.map(t => propSheet(t, false)).join('') + '</div>'
+      (k && ts.length <= 3 ? '<div class="sheets n' + ts.length + '">' + ts.map(t => propSheet(t, false)).join('') + '</div>'
          : '<div class="grid4 props">' + ts.map(t => propSheet(t, true)).join('') + '</div>');
   }
 
@@ -236,10 +236,10 @@
     const tsum = x => (summary.topics || {})[x];
     if (!k) {
       body.className = 'share-body all';
-      body.innerHTML = '<div class="topics6">' + TOPIC_ORDER.map(x => {
+      body.innerHTML = '<div class="topics4">' + TOPIC_ORDER.map(x => {
         const s = tsum(x);
         const titles = A.tablesOf(x).flatMap(t => A.proposals(t.no, items, summary, cur.polished).map(p => ({ t: t.no, p })));
-        return '<div class="tp" style="' + tv(x) + '"><div class="tp-hd"><span class="ic">' + topicIcon(x) + '</span><b>' + TOPICS[x].name + '</b><small>테이블 ' + A.tablesOf(x).map(t => t.no).join('·') + '</small></div>' +
+        return '<div class="tp" style="' + tv(x) + '"><div class="tp-hd"><span class="ic">' + topicIcon(x) + '</span><b>' + TOPICS[x].name + '</b><small>' + TOPICS[x].place + ' · 테이블 ' + A.tablesOf(x).map(t => t.no).join('·') + '</small></div>' +
           (s && s.summary ? '<p class="tp-sum">' + esc(s.summary) + '</p>' : '') +
           '<ul>' + (titles.slice(0, 4).map(({ t, p }) => '<li><small>T' + t + '</small>' + esc(p.title) + kindTag(p.kind) + '</li>').join('') || '<li class="empty">결과를 기다리고 있어요</li>') + '</ul></div>';
       }).join('') + '</div>';
@@ -250,7 +250,8 @@
     body.style.cssText = tv(k);
     body.innerHTML = '<div class="tf-hd">' +
       (s && s.summary ? '<div class="tf-sum"><small>✨ 주제별 결과 요약</small><p>' + esc(s.summary) + '</p>' + (s.points && s.points.length ? '<div class="tf-pts">' + s.points.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' : '') + '</div>' : '<div class="tf-sum"><p class="dim">주제별 요약은 관제반이 AI 정리 후 띄워요</p></div>') + '</div>' +
-      '<div class="sheets n' + A.tablesOf(k).length + '">' + A.tablesOf(k).map(t => propSheet(t, false)).join('') + '</div>';
+      (A.tablesOf(k).length > 3 ? '<div class="grid4 props">' + A.tablesOf(k).map(t => propSheet(t, true)).join('') + '</div>'
+        : '<div class="sheets n' + A.tablesOf(k).length + '">' + A.tablesOf(k).map(t => propSheet(t, false)).join('') + '</div>');
   }
 
   // ── ⑦ 공감·응원 ──
@@ -262,7 +263,7 @@
     const cards = cur.cards || [];
     $('#like-board').innerHTML = TOPIC_ORDER.map(x => {
       const mine = cards.filter(c => c.topic === x);
-      return '<div class="lb" style="' + tv(x) + '"><div class="lb-hd"><span class="ic">' + topicIcon(x) + '</span><b>' + TOPICS[x].name + '</b></div>' +
+      return '<div class="lb" style="' + tv(x) + '"><div class="lb-hd"><span class="ic">' + topicIcon(x) + '</span><b>' + TOPICS[x].name + '</b><small>' + TOPICS[x].place + '</small></div>' +
         (mine.map(c => '<div class="lc" data-id="' + c.id + '"><small>T' + c.table + '</small><b>' + esc(c.text) + '</b>' + (c.sub ? '<p>' + esc(c.sub) + '</p>' : '') + '<span class="hb"></span></div>').join('') || '<div class="empty">제안 카드 준비 중</div>') + '</div>';
     }).join('');
   }
@@ -313,12 +314,12 @@
   // ── 구호 모션그래픽 (21개 동 → 여섯 줄기 → 고리 → 구호) ──
   const DONGS = ['송정1', '송정2', '도산', '신흥', '어룡', '우산', '월곡1', '월곡2', '운남', '하남', '임곡', '동곡', '평동', '삼도', '본량', '신가', '신창', '수완', '비아', '첨단1', '첨단2'];
   const FLOWS = [
-    ['hwang', 'M -80 250 C 200 120 380 420 640 330 S 880 400 960 540'],
-    ['pung', 'M 2000 130 C 1720 250 1560 110 1360 300 S 1080 360 960 540'],
-    ['eodeung', 'M -80 990 C 260 1010 420 770 650 790 S 890 650 960 540'],
-    ['malmi', 'M 2000 950 C 1720 1030 1580 820 1350 830 S 1060 700 960 540'],
-    ['sinchon', 'M 960 -80 C 820 120 1100 260 980 380 S 940 470 960 540'],
-    ['daesang', 'M 960 1160 C 1120 980 820 860 960 720 S 980 600 960 540']
+    ['river', 'M -80 250 C 200 120 380 420 640 330 S 880 400 960 540'],
+    ['stream', 'M 2000 130 C 1720 250 1560 110 1360 300 S 1080 360 960 540'],
+    ['mount', 'M -80 990 C 260 1010 420 770 650 790 S 890 650 960 540'],
+    ['stream', 'M 2000 950 C 1720 1030 1580 820 1350 830 S 1060 700 960 540'],
+    ['park', 'M 960 -80 C 820 120 1100 260 980 380 S 940 470 960 540'],
+    ['mount', 'M 960 1160 C 1120 980 820 860 960 720 S 980 600 960 540']
   ];
   let sloAnims = [], sloTimers = [], sloRaf = 0;
   let lastCue = Number(A.LS.get('agora-last-cue', 0));
@@ -333,12 +334,14 @@
     $('#slo-dongs').innerHTML = DONGS.map((d, i) => {
       const a = i / DONGS.length * Math.PI * 2 - Math.PI / 2;
       const x = 960 + Math.cos(a) * 780, y = 540 + Math.sin(a) * 400;
-      return '<div class="dg" style="left:' + x.toFixed(0) + 'px;top:' + y.toFixed(0) + 'px;' + tv(TOPIC_ORDER[i % 6]) + '" data-dx="' + (960 - x).toFixed(0) + '" data-dy="' + (540 - y).toFixed(0) + '"><span>' + d + '</span></div>';
+      return '<div class="dg" style="left:' + x.toFixed(0) + 'px;top:' + y.toFixed(0) + 'px;' + tv(TOPIC_ORDER[i % TOPIC_ORDER.length]) + '" data-dx="' + (960 - x).toFixed(0) + '" data-dy="' + (540 - y).toFixed(0) + '"><span>' + d + '</span></div>';
     }).join('');
     $('#slo-rings').innerHTML = TOPIC_ORDER.concat(TOPIC_ORDER).map(c => '<i style="' + tv(c) + '"></i>').join('');
     svg.querySelectorAll('path').forEach(p => { const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len; });
     const split = t => [...t].map(ch => '<span class="ch">' + (ch === ' ' ? '&nbsp;' : ch) + '</span>').join('');
-    $('#slo').innerHTML = '<span class="ln">' + split('함께 걷고,') + '</span><span class="ln">' + split('함께 가꾸는') + '</span><span class="big">광산!</span>';
+    // 발제 장표의 주고받기: 사회자 → 참여자 → 사회자 → 참여자 → 다 함께
+    const ln = (who, t) => '<span class="ln"><em class="who">' + who + '</em>' + split(t) + '</span>';
+    $('#slo').innerHTML = ln('사회자', '함께 걷고!') + ln('참여자', '함께 가꾸고!') + ln('사회자', '함께 만드는!') + '<span class="big"><em class="who">참여자</em>광산!</span>';
   }
   function sloCountdown() {
     const box = $('#slo-count'), num = $('#slo-num'), arc = $('#slo-arc');
@@ -367,17 +370,17 @@
     });
     anim($('#slo-core'), [{ transform: 'scale(0) rotate(0deg)' }, { transform: 'scale(.7) rotate(90deg)', offset: .45 }, { transform: 'scale(1.25) rotate(220deg)', offset: .9 }, { transform: 'scale(0) rotate(260deg)' }], { duration: 1900, delay: 1600, easing: 'cubic-bezier(.4,0,.2,1)' });
     document.querySelectorAll('.slo-rings i').forEach((r, i) => {
-      const first = i < 6;
+      const half = TOPIC_ORDER.length, first = i < half;
       anim(r, [{ transform: 'scale(.3)', opacity: first ? .95 : .35 }, { transform: 'scale(' + (first ? 7.5 : 4.5) + ')', opacity: 0 }],
-        first ? { duration: 1700, delay: 3250 + i * 100, easing: 'cubic-bezier(.1,.7,.3,1)' } : { duration: 2400, delay: 6200 + (i - 6) * 140, iterations: Infinity, easing: 'cubic-bezier(.2,.6,.4,1)' });
+        first ? { duration: 1700, delay: 3250 + i * 100, easing: 'cubic-bezier(.1,.7,.3,1)' } : { duration: 2400, delay: 6200 + (i - half) * 140, iterations: Infinity, easing: 'cubic-bezier(.2,.6,.4,1)' });
     });
     document.querySelectorAll('#slo .ln').forEach((ln, li) => { [...ln.children].forEach((ch, j) => anim(ch, [{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 760, delay: 3450 + li * 620 + j * 55, easing: 'cubic-bezier(.2,.9,.25,1.08)' })); });
     const big = document.querySelector('#slo .big');
     big.classList.remove('flow');
-    anim(big, [{ opacity: 0, transform: 'scale(1.9)', filter: 'blur(28px)' }, { opacity: 1, transform: 'scale(.95)', filter: 'blur(0)', offset: .7 }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], { duration: 1100, delay: 4750, easing: 'cubic-bezier(.2,.8,.2,1)' });
-    later(() => big.classList.add('flow'), 5900);
-    anim($('#slo-sub'), [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: 5800, easing: 'ease-out' });
-    document.querySelectorAll('#slo-icons span').forEach((el, i) => anim(el, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 600, delay: 6150 + i * 110, easing: 'cubic-bezier(.2,1.5,.4,1)' }));
+    anim(big, [{ opacity: 0, transform: 'scale(1.9)', filter: 'blur(28px)' }, { opacity: 1, transform: 'scale(.95)', filter: 'blur(0)', offset: .7 }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], { duration: 1100, delay: 5370, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    later(() => big.classList.add('flow'), 6520);
+    anim($('#slo-sub'), [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: 6420, easing: 'ease-out' });
+    document.querySelectorAll('#slo-icons span').forEach((el, i) => anim(el, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 600, delay: 6770 + i * 110, easing: 'cubic-bezier(.2,1.5,.4,1)' }));
     later(sloPulses, 3400);
   }
   function sloPulses() {

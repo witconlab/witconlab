@@ -2,7 +2,7 @@
  * 2026 광산자치아고라 · AI 공론장 대시보드 백엔드 V2 (Google Apps Script)
  *
  * V2: 진행흐름도(①~⑦) 기준. 기록자는 Google 문서의 "표"에 답을 씁니다.
- *  - tables  시트 : 12개 테이블 설정(주제·동·대상공간·기록 Docs 링크)
+ *  - tables  시트 : 13개 테이블 설정(주제·동·대상공간·기록 Docs 링크)
  *  - summary 시트 : AI가 다듬은 의제 제안서·주제별 요약(JSON 한 칸씩, 관제 패널에서 검수)
  *  - manual  시트 : 관제반 수동 푸시
  *  - likes   시트 : 행사 후 exportLikes() 를 실행하면 공감 결과가 기록됨
@@ -11,23 +11,31 @@
  *
  * 왼쪽 「서비스 +」에서 Google Docs API 를 추가해 두세요(단계별 탭 문서를 만드는 데 씀).
  * V1에서 올릴 때: 이 파일로 교체 → 새 버전 배포 → 편집기에서 applyTemplateV2() 한 번 실행
- *  (12개 문서가 표 양식으로 바뀌고, tables 시트 B열이 주제로 바뀝니다. 문서 안 기존 기록은 지워집니다)
+ *  (13개 문서가 표 양식으로 바뀌고, tables 시트 B열이 주제로 바뀝니다. 문서 안 기존 기록은 지워집니다)
  */
 
 var SHEETS = { tables: 'tables', summary: 'summary', manual: 'manual', likes: 'likes' };
 var REREAD_MS = 20000;  // 수정 시각이 그대로여도 이만큼 지난 문서는 차례로 다시 읽음
 
-var TOPICS = {
-  hwang:   '황룡강',
-  pung:    '풍영정천',
-  eodeung: '어등산',
-  malmi:   '말미산',
-  sinchon: '신촌근린공원',
-  daesang: '대상공원'
+// 4개 주제 · 13개 테이블 (assets/app.js 의 TOPICS 와 같게 유지)
+var TOPICS = { river: '강', mount: '산', stream: '하천', park: '공원' };
+var PLACES = { river: '황룡강', mount: '어등산·말미산', stream: '풍영정천·장수천', park: '신촌근린공원·대상공원' };
+var TOPIC_ORDER = ['river', 'mount', 'stream', 'park'];
+var TABLE_COUNT = 13;
+// 기본 배정(현장 배치도): 1–4 강, 5–7 산, 8–11 하천, 12–13 공원 (시트 B열에서 바꿀 수 있음)
+function defaultTopic_(no) { no = Number(no); return no <= 4 ? 'river' : no <= 7 ? 'mount' : no <= 11 ? 'stream' : 'park'; }
+function topicLabel_(k) { return TOPICS[k] ? TOPICS[k] + '(' + PLACES[k] + ')' : k; }
+// ② 탭의 주제별 보조질문과 예시 (사전학습자료 「공간별 물음과 제안 예시」)
+var TOPIC_HINT = {
+  river:  { q: '우리 동네와 황룡강을 어떻게 연결하면 좋을까요? 생태길30을 이용하는 동과 함께 해볼 일은 무엇인가요?',
+    us: ['함께 걷기·길 살피기', '동마다 구간을 나눠 함께 걷고 산책로 살피기'], ext: ['연결길 안내표지 정비', '산책로가 끊긴 구간·진입로에 안내표지를 달아 주세요'] },
+  mount:  { q: '많은 사람이 안전하게 걷고 서로 배려하려면 무엇이 필요할까요? 산책로 정비 이후 두 동이 함께 돌볼 일은 무엇인가요?',
+    us: ['산행 배려 캠페인', '두 동 주민이 함께 걷는 날을 정해 숲길을 함께 돌보기'], ext: ['위험구간 안전시설 보완', '미끄러운 계단·위험 구간의 안전시설을 보완해 주세요'] },
+  stream: { q: '매일 걷는 하천이 더 쾌적하고 편안해지려면 무엇이 필요할까요?',
+    us: ['하천 정화·오염 살피기', '동별 구간을 정해 한 달에 한 번 함께 치우고 사진으로 남기기'], ext: ['오염 원인 점검', '기름띠·악취의 원인을 점검하고 결과를 알려 주세요'] },
+  park:   { q: '공원이 있는 동과 많이 이용하는 동이 함께 챙길 일은 무엇인가요? 공원과 산책길을 이어 걷기를 늘리려면 무엇이 필요할까요?',
+    us: ['두 동 공동 환경정화', '두 동 주민이 날을 정해 공원을 함께 가꾸고 이웃과 함께 걷기'], ext: ['공원시설 점검·보수', '벤치·그늘·조명을 점검하고 보수해 주세요'] }
 };
-var TOPIC_ORDER = ['hwang', 'pung', 'eodeung', 'malmi', 'sinchon', 'daesang'];
-// 기본 배정: 1·7 황룡강, 2·8 풍영정천 … (시트 B열에서 바꿀 수 있음)
-function defaultTopic_(no) { return TOPIC_ORDER[(Number(no) - 1) % 6]; }
 
 // 표 양식 — 단계마다 문서의 탭 하나 (assets/app.js 의 TEMPLATE 과 같게 유지)
 //  cols: 참여자마다 한 줄(열 = 칸) / rows: [칸, 항목 이름, 무엇을 쓰면 좋은지, 예시]
@@ -43,7 +51,7 @@ var DOC_TABLES = [
   { tab: '① 이용 경험', head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?',
     guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
     cols: ['좋았던 점', '불편한 점', '개선점'], ex: ['제방길 아침 — 물소리 들으며 걷기 좋아요', '제방길 저녁 — 조명이 어두워 혼자 걷기 무서워요', '산책로 중간 — 쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
-  { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?',
+  { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '우리의 경험을 바탕으로, 이곳이 어떻게 달라지면 좋을까요?',
     guide: '제안 하나에 한 줄. 주민이 직접 할 일은 🟢 초록 줄에, 기관 도움이 필요한 일은 🔵 파란 줄에 써요. 둘 다 필요하면 같은 제목으로 양쪽에 역할을 나눠 적어요. 화면에 번호가 자동으로 붙어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
     pair: [['제안 제목 ✍️', '짧게, 이름처럼'], ['핵심 내용 ✍️', '무엇을 어떻게, 한 문장']],
     groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], color: '#dcfce7', n: 5, label: '🟢 주민 ' },
@@ -53,7 +61,7 @@ var DOC_TABLES = [
     rows: [['선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표', '함께 걷기·길 살피기'], ['선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표', '연결길 안내표지 정비'],
       ['투표 결과', '대형 화면의 번호별 표 수', '1번 7표, 3번 2표 / 6번 5표, 7번 1표'],
       ['선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)']].concat(rep_(['선정되지 않은 의견', '', ''], 5)) },
-  { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?',
+  { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?',
     guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
     rows: [['현황·제안배경', '지금 어떤 상황이고 왜 필요한지', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
       ['우리가 바라는 모습', '이 일이 이뤄지면 어떤 모습일지', '첨단1·2동 주민들이 아파트 경계를 넘어 인사하고 어울리는 모습'],
@@ -62,7 +70,7 @@ var DOC_TABLES = [
       ['함께하고 싶은 이웃', WITH_DESC, '인근 아파트 주민모임(참여 제안), 주민자치회, 공원 관리부서(협조 요청)']] },
   { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요',
     rows: [['현황·제안배경', '', ''], ['우리가 바라는 모습', '', ''], ['우리의 제안', '', ''], ['우리가 시작할 첫걸음', '', ''], ['함께하고 싶은 이웃', WITH_DESC, '']] },
-  { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '우리의 의견이 잘 담겼나요?',
+  { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '정리된 내용이 우리가 이야기한 뜻과 맞나요?',
     guide: '진행자가 다섯 항목을 읽어 주면, 고칠 곳은 ④ 탭에서 바로 고쳐요(화면도 바로 바뀌어요). 기록과 화면이 같은지 확인하고, 진행자의 최종 확인 신호 뒤에 ‘제출’이라고 써요.',
     rows: [['고친 곳·빠진 의견 메모', '무엇을 고쳤는지 짧게', '첫걸음 날짜를 ‘추후 협의’로 고침'],
       ['✨ AI 다듬은 문장 확인', 'AI가 다듬은 문장이 화면에 뜨면 원래 발언과 비교해 다른 점을 적어요', '“줍깅”이 “환경정화”로 바뀜 → 원래 말로 되돌려 주세요'],
@@ -124,7 +132,7 @@ function readTables_() {
   var rows = sheet_(SHEETS.tables).getDataRange().getValues().slice(1);
   return rows.filter(function (r) { return r[0]; }).map(function (r) {
     var topic = String(r[1] || '').trim();
-    // 주제 이름(황룡강)이나 키(hwang) 둘 다 받음. V1 값(river 등)이면 기본 배정
+    // 주제 이름(강)이나 키(river) 둘 다 받음. 예전 값(황룡강 등)이면 번호로 기본 배정
     var byName = TOPIC_ORDER.filter(function (k) { return TOPICS[k] === topic; })[0];
     topic = TOPICS[topic] ? topic : (byName || defaultTopic_(r[0]));
     return {
@@ -142,7 +150,7 @@ function docId_(url) {
 // ─────────────────────────── 실시간 피드 ───────────────────────────
 
 /**
- * 12개 문서의 표를 [[칸 문단들]] 로 → 5초 캐시.
+ * 13개 문서의 표를 [[칸 문단들]] 로 → 5초 캐시.
  * UrlFetch 하루 한도(약 2만 번)를 쓰지 않도록 DocumentApp 으로 읽고,
  * 마지막 수정 시각이 바뀐 문서만 다시 엽니다(안 바뀐 문서는 캐시).
  */
@@ -242,7 +250,7 @@ function writeState_(state) {
 }
 
 // ─────────────────────────── AI 다듬기 · 주제별 요약 ───────────────────────────
-// summary 시트: A열 키(t1…t12, p:hwang…) · B열 JSON. 관제 패널에서 검수·저장합니다.
+// summary 시트: A열 키(t1…t13, p:river…) · B열 JSON. 관제 패널에서 검수·저장합니다.
 
 function readSummary_() {
   var rows = sheet_(SHEETS.summary).getDataRange().getValues().slice(1);
@@ -284,7 +292,7 @@ function summarize_(input) {
     .filter(function (m, i, a) { return m && a.indexOf(m) === i; });
 
   var corpus = input.map(function (t) {
-    var lines = ['### 테이블 ' + t.no + ' · 주제 ' + (TOPICS[t.topic] || t.topic)];
+    var lines = ['### 테이블 ' + t.no + ' · 주제 ' + topicLabel_(t.topic)];
     if (t.us && t.us.length) lines.push('주민 실천 제안: ' + t.us.join(' / '));
     if (t.ext && t.ext.length) lines.push('외부 협력 제안: ' + t.ext.join(' / '));
     if (t.picks && t.picks.length) lines.push('선정 과제: ' + t.picks.join(' / '));
@@ -299,7 +307,7 @@ function summarize_(input) {
 
   var prompt = [
     '당신은 광산구 주민공론장(광산자치아고라)의 기록 정리를 돕는 퍼실리테이터입니다.',
-    '아래는 12개 테이블 기록자가 표에 받아 적은 의제 제안서 초안입니다. 두 가지를 하세요.',
+    '아래는 13개 테이블 기록자가 표에 받아 적은 의제 제안서 초안입니다. 두 가지를 하세요.',
     '',
     '1) tables: 테이블별 의제 제안서의 "표현 다듬기"',
     ' - 다른 테이블 주민도 바로 이해하도록 길거나 모호한 문장을 짧고 분명하게 고치세요(항목당 60자 이내).',
@@ -329,7 +337,7 @@ function summarize_(input) {
     required: ['tables', 'topics']
   };
   var payload = JSON.stringify({
-    contents: [{ role: 'user', parts: [{ text: prompt + '\n\n(topics 의 topic 값은 영문 키: ' + TOPIC_ORDER.map(function (k) { return k + '=' + TOPICS[k]; }).join(', ') + ')' }] }],
+    contents: [{ role: 'user', parts: [{ text: prompt + '\n\n(topics 의 topic 값은 영문 키: ' + TOPIC_ORDER.map(function (k) { return k + '=' + topicLabel_(k); }).join(', ') + ')' }] }],
     generationConfig: { temperature: 0.3, responseMimeType: 'application/json', responseSchema: schema }
   });
   var r = callGemini_(key, models, payload);
@@ -523,8 +531,8 @@ function resetTabs_(id, titles) {
 function gray_(text, size) { text.setForegroundColor('#6b7280').setItalic(true); if (size) text.setFontSize(size); return text; }
 
 function writeIntro_(body, t) {
-  body.appendParagraph('테이블 ' + t.no + ' · ' + TOPICS[t.topic] + ' 기록지').setHeading(DocumentApp.ParagraphHeading.HEADING1);
-  ['✍️ 단계마다 위쪽 탭(① 이용 경험 → ⑥⑦ 공유·공감)을 눌러 그 탭의 표에만 쓰세요.',
+  body.appendParagraph('테이블 ' + t.no + ' · ' + topicLabel_(t.topic) + ' 기록지').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  ['✍️ 단계마다 위쪽 탭(📌 쓰는 법 → ① 이용 경험 … ⑤ 결과 확인)을 눌러 그 탭의 표에만 쓰세요.',
    '✍️ 표의 맨 오른쪽 「우리 테이블 답」 칸에 써요. 칸 안에서 엔터를 치면 화면 카드가 한 장 더 생겨요.',
    '⏱ 쓰고 10~15초 뒤 대형 화면에 떠요. 잘못 쓴 글은 그냥 고치면 화면도 고쳐져요.',
    '🚫 이름·전화번호는 쓰지 않아요. 표의 첫 칸(항목 이름)과 예시는 지우지 마세요.'].forEach(function (l) { body.appendListItem(l); });
@@ -604,6 +612,16 @@ function writePairTable_(body, s) {
   });
 }
 
+/** ② 탭에 그 테이블 주제의 보조질문·예시를 넣은 사본 */
+function withHint_(s, t) {
+  var h = TOPIC_HINT[t.topic];
+  if (!s.groups || !h) return s;
+  var c = JSON.parse(JSON.stringify(s));
+  c.guide = s.guide + '\n💬 ' + TOPICS[t.topic] + ' 보조질문: ' + h.q;
+  c.groups[0].ex = h.us; c.groups[1].ex = h.ext;
+  return c;
+}
+
 /** 문서 한 개를 표 양식으로: 탭 [📌 쓰는 법, ①, ②, ③, ④, ⑤, ⑥⑦] */
 function writeDoc_(docId, t) {
   var tabNames = DOC_TABLES.map(function (s) { return s.tab; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
@@ -615,17 +633,17 @@ function writeDoc_(docId, t) {
     b.appendParagraph('');  // 탭이 표로 끝나면 clear()가 실패해서
     b.clear();
     if (ti === 0) writeIntro_(b, t);
-    DOC_TABLES.filter(function (s) { return s.tab === name; }).forEach(function (s) { writeTable_(b, s); });
+    DOC_TABLES.filter(function (s) { return s.tab === name; }).forEach(function (s) { writeTable_(b, withHint_(s, t)); });
     b.appendParagraph('');
   });
   doc.saveAndClose();
   CacheService.getScriptCache().remove('doc' + t.no);
 }
 
-/** V1 → V2: 12개 문서를 표 양식으로 바꾸고 tables 시트 B열을 주제로 (문서 안 기존 기록은 지워짐) */
+/** V1 → V2: 13개 문서를 표 양식으로 바꾸고 tables 시트 B열을 주제로 (문서 안 기존 기록은 지워짐) */
 function applyTemplateV2() {
   var sh = sheet_(SHEETS.tables);
-  sh.getRange(1, 1, 1, 6).setValues([['번호', '주제(황룡강/풍영정천/어등산/말미산/신촌근린공원/대상공원)', '참여 동', '대상 공간', '기록 Docs 링크', '퍼실리테이터']]);
+  sh.getRange(1, 1, 1, 6).setValues([['번호', '주제(강/산/하천/공원)', '참여 동', '대상 공간', '기록 Docs 링크', '퍼실리테이터']]);
   var rows = sh.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (!rows[i][0]) continue;
@@ -634,7 +652,7 @@ function applyTemplateV2() {
   }
   readTables_().forEach(function (t) {
     if (!t.docId) return;
-    DriveApp.getFileById(t.docId).setName('[광산자치아고라] 테이블 ' + t.no + ' 기록 · ' + TOPICS[t.topic]);
+    DriveApp.getFileById(t.docId).setName('[광산자치아고라] 테이블 ' + t.no + ' 기록 · ' + topicLabel_(t.topic));
     writeDoc_(t.docId, t);
     console.log('테이블 ' + t.no + ' · 단계별 탭으로');
   });
@@ -646,7 +664,7 @@ function applyTemplateV2() {
   CacheService.getScriptCache().remove('feed');
 }
 
-/** 처음 한 번 실행(새로 만들 때): 시트 + 12개 기록용 Google Docs(표 양식) 생성 */
+/** 처음 한 번 실행(새로 만들 때): 시트 + 13개 기록용 Google Docs(표 양식) 생성 */
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var parent = DriveApp.getFileById(ss.getId()).getParents();
@@ -654,10 +672,10 @@ function setup() {
   var docsFolder = folder.createFolder('광산자치아고라 테이블 기록');
   var sh = sheet_(SHEETS.tables);
   sh.clearContents();
-  sh.appendRow(['번호', '주제(황룡강/풍영정천/어등산/말미산/신촌근린공원/대상공원)', '참여 동', '대상 공간', '기록 Docs 링크', '퍼실리테이터']);
-  for (var no = 1; no <= 12; no++) {
+  sh.appendRow(['번호', '주제(강/산/하천/공원)', '참여 동', '대상 공간', '기록 Docs 링크', '퍼실리테이터']);
+  for (var no = 1; no <= TABLE_COUNT; no++) {
     var t = { no: no, topic: defaultTopic_(no) };
-    var doc = DocumentApp.create('[광산자치아고라] 테이블 ' + no + ' 기록 · ' + TOPICS[t.topic]);
+    var doc = DocumentApp.create('[광산자치아고라] 테이블 ' + no + ' 기록 · ' + topicLabel_(t.topic));
     doc.saveAndClose();
     writeDoc_(doc.getId(), t);
     DriveApp.getFileById(doc.getId()).moveTo(docsFolder);
@@ -666,10 +684,10 @@ function setup() {
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   if (!prop_('ADMIN_KEY')) PropertiesService.getScriptProperties().setProperty('ADMIN_KEY', 'agora2026');
-  SpreadsheetApp.getUi().alert('완료! tables 시트의 12개 문서 링크를 기록자에게 "편집자"로 공유해 주세요.');
+  SpreadsheetApp.getUi().alert('완료! tables 시트의 13개 문서 링크를 기록자에게 "편집자"로 공유해 주세요.');
 }
 
-/** 기록자가 로그인·권한 요청 없이 쓰도록: 12개 문서를 「링크가 있는 모든 사용자 = 편집자」로 */
+/** 기록자가 로그인·권한 요청 없이 쓰도록: 13개 문서를 「링크가 있는 모든 사용자 = 편집자」로 */
 function shareDocsForEditing() {
   readTables_().forEach(function (t) {
     if (!t.docId) return;
@@ -678,7 +696,7 @@ function shareDocsForEditing() {
   });
 }
 
-/** 행사 직전: 리허설 기록 지우기(12개 문서를 빈 표 양식으로) + 요약·수동·공감·화면 상태 초기화 */
+/** 행사 직전: 리허설 기록 지우기(13개 문서를 빈 표 양식으로) + 요약·수동·공감·화면 상태 초기화 */
 function resetForEvent() {
   readTables_().forEach(function (t) { if (t.docId) writeDoc_(t.docId, t); });
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
@@ -687,4 +705,39 @@ function resetForEvent() {
   resetVotes_();
   PropertiesService.getScriptProperties().deleteProperty('STATE');
   CacheService.getScriptCache().remove('feed');
+}
+
+/** 13개 테이블·4개 주제로 바꾸기 (한 번만): 시트 B열을 기본 배치로, 13번 문서 만들기, 문서 이름 바꾸기.
+ *  문서 안 내용은 그대로 두고, 표 양식(제목·② 예시)은 resetForEvent 때 새 주제로 다시 써져요. */
+function applyTopics13() {
+  var sh = sheet_(SHEETS.tables);
+  sh.getRange(1, 1, 1, 6).setValues([['번호', '주제(강/산/하천/공원)', '참여 동', '대상 공간', '기록 Docs 링크', '퍼실리테이터']]);
+  var rows = sh.getDataRange().getValues();
+  var have = {};
+  for (var i = 1; i < rows.length; i++) {
+    if (!rows[i][0]) continue;
+    have[Number(rows[i][0])] = true;
+    sh.getRange(i + 1, 2).setValue(TOPICS[defaultTopic_(rows[i][0])]);
+  }
+  var first = readTables_().filter(function (t) { return t.docId; })[0];
+  var parents = first ? DriveApp.getFileById(first.docId).getParents() : null;
+  var folder = parents && parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+  for (var no = 1; no <= TABLE_COUNT; no++) {
+    if (have[no]) continue;
+    var t = { no: no, topic: defaultTopic_(no) };
+    var doc = DocumentApp.create('[광산자치아고라] 테이블 ' + no + ' 기록 · ' + topicLabel_(t.topic));
+    doc.saveAndClose();
+    writeDoc_(doc.getId(), t);
+    var f = DriveApp.getFileById(doc.getId());
+    f.moveTo(folder);
+    f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    sh.appendRow([no, TOPICS[t.topic], '', '', 'https://docs.google.com/document/d/' + doc.getId() + '/edit', '']);
+    console.log('테이블 ' + no + ' 문서 새로 만듦');
+  }
+  readTables_().forEach(function (t) {
+    if (t.docId) DriveApp.getFileById(t.docId).setName('[광산자치아고라] 테이블 ' + t.no + ' 기록 · ' + topicLabel_(t.topic));
+  });
+  resetVotes_();
+  CacheService.getScriptCache().remove('feed');
+  console.log('완료: ' + readTables_().length + '개 테이블');
 }

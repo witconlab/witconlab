@@ -57,8 +57,8 @@
 <div class="submit" id="submit" hidden><button id="send">투표하기</button><p id="sub-msg"></p></div>
 <div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261118b"></script>
-<script src="assets/app.js?v=20261118b"></script>
+<script src="config.js?v=20261118c"></script>
+<script src="assets/app.js?v=20261118c"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -68,7 +68,7 @@
   let pick = { us: my.us || '', ext: my.ext || '' };
   // 테이블 QR(tvote.html?t=5)로 들어오면 그 테이블로 바로
   const qt = Number(new URLSearchParams(location.search).get('t'));
-  if (qt >= 1 && qt <= 12 && qt !== my.table) { my = { round: my.round, table: qt }; pick = { us: '', ext: '' }; A.LS.set('agora-my-tvote', my); }
+  if (qt >= 1 && qt <= A.TABLE_COUNT && qt !== my.table) { my = { round: my.round, table: qt }; pick = { us: '', ext: '' }; A.LS.set('agora-my-tvote', my); }
   let lastKey = '';
 
   function toast(msg, err) {
