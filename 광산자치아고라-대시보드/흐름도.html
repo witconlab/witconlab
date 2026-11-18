@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광산자치아고라 공론장 흐름도</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="assets/guide.css?v=20261116a">
+<style>
+  /* 1쪽 한눈에 보기 */
+  table.flow th, table.flow td { font-size: 8.8pt; padding: 1.3mm 1.8mm; line-height: 1.42; border-bottom: 1px solid var(--line); }
+  table.flow th { background: #f5f5f4; color: #111; font-size: 9pt; }
+  table.flow td.st { font-weight: 800; white-space: nowrap; }
+  table.flow td.st small { display: block; font-weight: 600; color: var(--muted); font-size: 8pt; }
+  table.flow tr.hi td { background: #f0fdf4; }
+  table.flow td.none { color: #a8a29e; }
+  .pipe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; margin-top: 2mm; }
+  .pipe > div { border-radius: 8px; padding: 2.5mm 3mm; background: var(--soft); font-size: 9pt; line-height: 1.5; position: relative; }
+  .pipe > div b { display: block; font-size: 9.5pt; margin-bottom: .5mm; }
+  .pipe > div:not(:last-child)::after { content: '→'; position: absolute; right: -2.4mm; top: 50%; transform: translate(50%, -50%); font-weight: 900; color: var(--muted); }
+  /* 단계 블록 */
+  .stage { border: 1.5px solid #d6d3d1; border-radius: 10px; padding: 3mm 3.5mm 3.5mm; margin-bottom: 4mm; break-inside: avoid; }
+  .sh { display: flex; align-items: baseline; gap: 2.5mm; flex-wrap: wrap; margin-bottom: 2mm; }
+  .sh b { font-size: 14pt; font-weight: 900; }
+  .sh span { font-size: 9pt; font-weight: 700; color: #fff; background: var(--ink); padding: 0 6px; border-radius: 99px; }
+  .sh em.q { font-style: normal; font-size: 9.5pt; color: var(--muted); font-weight: 700; }
+  .shots { display: flex; gap: 2.5mm; align-items: flex-start; height: var(--h, 64mm); }
+  .shots figure { height: 100%; display: flex; flex-direction: column; }
+  .shots img { height: calc(100% - 4.5mm); width: auto; border-radius: 5px; border: 1px solid #d6d3d1; display: block; }
+  .shots figcaption { font-size: 8pt; font-weight: 800; color: var(--muted); margin-top: .8mm; white-space: nowrap; }
+  .shots .ar { align-self: center; font-size: 15pt; font-weight: 900; color: #a8a29e; }
+  .who { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-top: 2.5mm; }
+  .who > div { border-radius: 8px; padding: 2mm 3mm; }
+  .who .f { background: #fef3c7; } .who .r { background: #dbeafe; }
+  .who h4 { font-size: 9.5pt; font-weight: 900; margin-bottom: .6mm; }
+  .who li { font-size: 8.8pt; line-height: 1.45; }
+  .who ul { padding-left: 14px; }
+  .key { display: inline-block; font-size: 8.5pt; font-weight: 800; padding: 0 5px; border-radius: 4px; background: #fff; border: 1px solid #a8a29e; }
+</style>
+</head>
+<body>
+
+<!-- ───────── 1쪽: 한눈에 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+  <div class="eyebrow">2026 광산자치아고라 · 공론장 흐름도 (진행자 · 기록자용)</div>
+  <h1>말하면 → 적고 → 화면에 뜨고 → 휴대폰으로 고릅니다</h1>
+  <p class="lead">진행자는 질문하고 요약해 주고, 기록자는 문서의 지금 단계 탭에 적습니다. 적은 줄은 몇 초 뒤 대형 화면 카드가 됩니다. 화면 넘기기·투표 열기·AI 다듬기는 관제반이 합니다. 2~5쪽에 단계마다 실제로 보게 되는 화면을 실었습니다.</p>
+
+  <h2><b>1</b>기록이 화면이 되는 길</h2>
+  <div class="pipe">
+    <div><b>🎤 진행자</b>질문 → 발언 → “이렇게 정리해도 될까요?” 요약</div>
+    <div><b>✍️ 기록자</b>Google 문서 지금 단계 탭, 오른쪽 노란 칸에 한 줄씩</div>
+    <div><b>🖥 대형 화면</b>손을 떼고 몇 초~20초 뒤 카드로. 고치면 화면도 바뀜</div>
+    <div><b>📱 참가자</b>③ 테이블 투표 · ⑦ 공감 ♥ (테이블 QR 카드)</div>
+  </div>
+
+  <h2><b>2</b>단계별 한눈에 보기</h2>
+  <table class="flow">
+    <tr><th style="width:15%">단계</th><th style="width:25%">🎤 진행자</th><th style="width:25%">✍️ 기록자 (문서 탭)</th><th style="width:20%">🖥 대형 화면</th><th>📱 참가자 휴대폰</th></tr>
+    <tr><td class="st">시작 전<small>13:30~</small></td><td>QR 카드를 테이블에 놓기. 기록자와 질문·제출 신호 맞추기</td><td>연습장 → <b>📂 실제 문서로</b> → 내 번호. 📌 쓰는 법에 참여 동</td><td>참석 등록 · 연결 12/12</td><td class="none">—</td></tr>
+    <tr><td class="st">① 이용 경험<small>14:30 · 15분</small></td><td>한 사람씩 좋았던·불편한·개선점</td><td><b>① 탭</b> 참여자 줄마다 세 칸</td><td>좋았던 / 불편한 / 개선점 카드</td><td class="none">—</td></tr>
+    <tr><td class="st">② 함께 할 일<small>14:45 · 15분</small></td><td>제안마다 짧은 제목. 주민 일 / 기관 일 나눠 묻기</td><td><b>② 탭</b> 🟢 주민 줄 · 🔵 외부 줄, 제목 | 핵심</td><td>테이블별 🟢·🔵 제안, 번호 자동</td><td class="none">—</td></tr>
+    <tr class="hi"><td class="st">③ 우선 과제<small>15:00 · 5분</small></td><td>QR 카드 위 칸으로 투표 안내 → 마감 뒤 1위 소리 내 확인</td><td>화면 1위를 <b>③ 탭</b>에 옮겨 적기 + 표 수</td><td>QR + 테이블별 표 막대</td><td><b>tvote</b> 🟢 1개 + 🔵 1개 → 투표하기</td></tr>
+    <tr><td class="st">④ 실행방법<small>15:05 · 20분</small></td><td>과제마다 현황·바람·제안·첫걸음·이웃</td><td><b>④ 탭</b> 과제 1·2 다섯 칸, 모르면 ‘추후 협의’</td><td>테이블별 실행방법 카드</td><td class="none">—</td></tr>
+    <tr><td class="st">⑤ 결과 확인<small>15:25 · 5분</small></td><td>다섯 항목 읽기 → 고칠 곳 확인 → “제출해 주세요”</td><td>④에서 고치고 <b>⑤ 탭</b> 메모·✨·제출</td><td>테이블별 제안서 (AI 다듬은 문장)</td><td class="none">—</td></tr>
+    <tr><td class="st">⑥ 주제별 공유<small>15:30 · 15분</small></td><td>우리 제안서 확인, 틀리면 손 들기</td><td class="none">문서는 쓰지 않음. 화면만 확인</td><td>주제별 요약 + 두 테이블 제안서</td><td class="none">—</td></tr>
+    <tr class="hi"><td class="st">⑦ 공감·응원<small>15:45 · 10분</small></td><td>QR 카드 아래 칸으로 ♥ 안내</td><td class="none">문서는 쓰지 않음</td><td>QR + 떠오르는 하트</td><td><b>vote</b> 모든 제안에 ♥ (여러 개)</td></tr>
+    <tr><td class="st">구호<small>15:55</small></td><td>다 함께 외치기</td><td class="none">—</td><td>3·2·1 → 「함께 걷고, 함께 가꾸는 광산!」</td><td class="none">—</td></tr>
+  </table>
+  <p class="note">시간은 기본값입니다. 실제 전환은 총괄 진행자 멘트와 관제반 화면을 따릅니다. 화면이 넘어가면 기록자도 문서 탭을 바꿉니다.</p>
+
+  <div class="foot"><span>2026. 11. 19.(목) 14:00–16:00 · 광산구청 7층 윤상원홀</span><span>흐름도 1/5</span></div>
+</section>
+
+<!-- ───────── 2쪽: 시작 전 · ① ───────── -->
+<section class="page">
+  <div class="stage">
+    <div class="sh"><b>시작 전</b><span>13:30~14:30</span><em class="q">기록 문서 열기 · QR 카드 놓기</em></div>
+    <div class="shots">
+      <figure><img src="assets/flow/doc-real.jpg"><figcaption>기록자: 연습장 → 📂 실제 문서로</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-wait.jpg"><figcaption>대형 화면: 참석 등록 · 연결 12/12</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>테이블 번호 QR 카드(A4)를 참가자가 보이게 놓기</li><li>기록자와 단계별 질문·시간, ⑤ 제출 신호 맞추기</li></ul></div>
+      <div class="r"><h4>✍️ 기록자</h4><ul><li>연습장 맨 끝 탭 <b>📂 실제 문서로</b> → 내 테이블 번호 → 새 탭에 실제 문서</li><li>문서 제목의 번호·주제 확인, <b>📌 쓰는 법</b>에 참여 동 적기</li><li>“보기 전용”이면 바로 관제반에</li></ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="sh"><b>① 이용 경험 나누기</b><span>14:30 · 15분</span><em class="q">“우리는 이곳에서 어떤 경험을 하고 있나요?”</em></div>
+    <div class="shots">
+      <figure><img src="assets/flow/doc-1.jpg"><figcaption>기록자 문서 ① 탭</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-1.jpg"><figcaption>대형 화면: 😊 좋았던 · 😣 불편한 · 💡 개선점</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>한 사람씩 좋았던 점·불편한 점·개선점</li><li>「어디서·언제 — 무엇이」로 짧게 말하도록 돕기</li></ul></div>
+      <div class="r"><h4>✍️ 기록자 · ① 탭</h4><ul><li>참여자 1, 2 … 줄에 한 사람씩, 세 칸 중 말한 칸만</li><li>서로 다른 경험은 합치지 않기 · 이름·연락처 금지</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>기록 연습장: witconlab.github.io/witconlab/광산자치아고라-대시보드/practice.html</span><span>흐름도 2/5</span></div>
+</section>
+
+<!-- ───────── 3쪽: ② · ③ ───────── -->
+<section class="page">
+  <div class="stage">
+    <div class="sh"><b>② 함께 할 일 제안하기</b><span>14:45 · 15분</span><em class="q">“이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?”</em></div>
+    <div class="shots">
+      <figure><img src="assets/flow/doc-2.jpg"><figcaption>기록자 문서 ② 탭</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-2.jpg"><figcaption>대형 화면: 테이블별 🟢 주민 · 🔵 외부 제안</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>제안마다 <b>짧은 제목</b>을 붙여 주기</li><li>“주민이 직접 할 일은?” / “기관 도움이 필요한 일은?” 나눠 묻기</li><li>③ 전에 제안을 모두 말하게 하기 (늦게 쓴 제안은 투표 후보에 안 들어감)</li></ul></div>
+      <div class="r"><h4>✍️ 기록자 · ② 탭</h4><ul><li>제안 하나 = 한 줄, <b>제안 제목 | 핵심 내용</b></li><li>주민 일은 🟢 초록 줄, 기관 일은 🔵 파란 줄</li><li>회색 예시 줄은 건드리지 않기. 번호는 화면이 붙임</li></ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="sh"><b>③ 우선 과제 선정하기</b><span>15:00 · 5분</span><em class="q">“여러 제안 중 무엇을 먼저 이야기해 볼까요?”</em></div>
+    <div class="shots" style="--h:50mm">
+      <figure><img src="assets/flow/ph-tvote.jpg"><figcaption>참가자 휴대폰</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-3.jpg"><figcaption>대형 화면: 표 막대 + QR</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/doc-3.jpg"><figcaption>기록자 문서 ③ 탭</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>QR 카드 <b>위 칸</b>(③ 우리 테이블 투표)을 찍게 안내. 미리 찍어 두면 투표가 열릴 때 바로 보임</li><li>🟢 주민 1개 + 🔵 외부 1개 → <span class="key">투표하기</span>. 어려운 분은 옆 분이 돕기</li><li>마감 뒤 화면의 우리 테이블 1위를 소리 내어 확인. 동점이면 손들기</li></ul></div>
+      <div class="r"><h4>✍️ 기록자 · ③ 탭</h4><ul><li>화면 1위를 옮겨 적기: <b>선정 과제 1</b> 🟢 주민 1위, <b>선정 과제 2</b> 🔵 외부 1위</li><li><b>투표 결과</b>에 번호별 표 수 (예: 1번 7표, 3번 2표 / 6번 5표)</li><li>뽑히지 않은 제안도 지우지 말고 아래 칸에</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>③ 투표는 관제반이 「투표 열기」를 눌러야 휴대폰에 후보가 나타나요</span><span>흐름도 3/5</span></div>
+</section>
+
+<!-- ───────── 4쪽: ④ · ⑤ ───────── -->
+<section class="page">
+  <div class="stage">
+    <div class="sh"><b>④ 실행방법 구체화하기</b><span>15:05 · 20분</span><em class="q">“이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?”</em></div>
+    <div class="shots">
+      <figure><img src="assets/flow/doc-4.jpg"><figcaption>기록자 문서 ④ 탭</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-4.jpg"><figcaption>대형 화면: 테이블별 실행방법</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>과제마다 현황 → 바라는 모습 → 제안 → 첫걸음(언제·어디서·동별 역할) → 함께할 이웃</li><li>못 정한 것은 ‘추후 협의’로 넘기기</li><li>현장에 없는 기관은 ‘협조 요청’으로 말하기</li></ul></div>
+      <div class="r"><h4>✍️ 기록자 · ④ 탭</h4><ul><li><b>과제 1 실행방법</b>, <b>과제 2 실행방법</b> 표의 다섯 칸</li><li>과제가 하나면 과제 2 표는 비우기</li><li>끝날 무렵 관제반이 AI 다듬기를 돌려요 (쓰기는 계속 가능)</li></ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="sh"><b>⑤ 테이블 결과 확인하기</b><span>15:25 · 5분</span><em class="q">“우리의 의견이 잘 담겼나요?”</em></div>
+    <div class="shots">
+      <figure><img src="assets/flow/doc-5.jpg"><figcaption>기록자 문서 ⑤ 탭</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-5.jpg"><figcaption>대형 화면: 테이블별 의제 제안서</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>화면의 우리 제안서 다섯 항목을 읽어 주기</li><li>AI가 다듬은 문장이 원래 뜻과 같은지 참여자와 확인</li><li>다 되면 <b>“제출해 주세요”</b> 신호</li></ul></div>
+      <div class="r"><h4>✍️ 기록자 · ⑤ 탭</h4><ul><li>고칠 곳은 <b>④ 탭</b>에서 바로 고치기 (화면도 바뀜) → ⑤에 메모</li><li>AI 문장이 원래 말과 다르면 <b>✨ 칸</b>에 적기</li><li>신호 뒤 <b>최종 제출</b> 칸에 ‘제출’. 그 뒤로는 고치지 않기</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>문의: 중앙 관제반</span><span>흐름도 4/5</span></div>
+</section>
+
+<!-- ───────── 5쪽: ⑥ · ⑦ · 구호 ───────── -->
+<section class="page">
+  <div class="stage">
+    <div class="sh"><b>⑥ 주제별 결과 공유</b><span>15:30 · 15분</span><em class="q">“같은 공간에 대해 어떤 의견이 나왔을까요?”</em></div>
+    <div class="shots" style="--h:64mm">
+      <figure><img src="assets/flow/scr-6.jpg"><figcaption>대형 화면: 6개 주제 → 주제마다 요약과 두 테이블 제안서</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>우리 주제 차례에 테이블 제안서를 함께 보기</li><li>내용이 틀리면 손을 들어 관제반에</li></ul></div>
+      <div class="r"><h4>✍️ 기록자</h4><ul><li>문서는 더 쓰지 않아요. 화면만 확인</li><li>틀린 곳을 보면 진행자와 함께 손 들기</li></ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="sh"><b>⑦ 공감 · 응원</b><span>15:45 · 10분</span><em class="q">“함께 실천되기를 바라는 제안에 ♥를 눌러 주세요”</em></div>
+    <div class="shots" style="--h:62mm">
+      <figure><img src="assets/flow/ph-like.jpg"><figcaption>참가자 휴대폰</figcaption></figure>
+      <div class="ar">→</div>
+      <figure><img src="assets/flow/scr-7.jpg"><figcaption>대형 화면: QR + 떠오르는 하트 (숫자 없음)</figcaption></figure>
+    </div>
+    <div class="who">
+      <div class="f"><h4>🎤 진행자</h4><ul><li>QR 카드 <b>아래 칸</b>(⑦ 공감·응원)을 찍게 안내</li><li>모든 테이블 제안에 ♥ 여러 개 가능, 순위 없음</li></ul></div>
+      <div class="r"><h4>✍️ 기록자</h4><ul><li>문서는 쓰지 않아요. 휴대폰이 어려운 분 돕기</li></ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="sh"><b>구호 · 마무리</b><span>15:55</span><em class="q">3 · 2 · 1 → 「함께 걷고, 함께 가꾸는 광산!」</em></div>
+    <div class="shots" style="--h:40mm">
+      <figure><img src="assets/flow/scr-slogan.jpg"><figcaption>대형 화면: 구호 장면</figcaption></figure>
+      <div style="align-self:center;font-size:9.5pt;line-height:1.6;padding-left:2mm"><b>진행자</b> 테이블 참가자와 함께 외치기<br><b>기록자</b> 문서는 그대로 두기 (결과 보고 자료로 보관)</div>
+    </div>
+  </div>
+  <div class="foot"><span>테이블 QR 카드: vote-qr.html (위 칸 ③ 투표 · 아래 칸 ⑦ 공감)</span><span>흐름도 5/5</span></div>
+</section>
+
+<button class="printbtn noprint" onclick="window.print()">인쇄 / PDF 저장</button>
+</body>
+</html>
