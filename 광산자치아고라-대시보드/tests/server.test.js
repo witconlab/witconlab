@@ -16,13 +16,16 @@ J(gs.DOC_TABLES).forEach(s => {
   } else if (s.pair) {
     serverRows.push([[s.head]].concat(s.pair));
     J(gs.pairRows_(s)).forEach(r => serverRows.push(r.kind === 'band' ? [[r.g.band, r.g.desc], [], []] : r.cells.map(x => x ? [x] : [])));
+  } else if (s.sel) {
+    serverRows.push([[s.head]].concat(s.sel), [['예시'], [s.ex[0]], [s.ex[1]]]);
+    s.rows.forEach(r => serverRows.push([[r[0], r[1]], [], []]));
   } else {
     serverRows.push([[s.head], ['예시 (이렇게 쓰면 돼요)'], ['우리 테이블 답 ✍️']]);
     s.rows.forEach(r => serverRows.push([r[1] ? [r[0], r[1]] : [r[0]], r[2] ? [r[2]] : [], []]));
   }
 });
 assert.deepStrictEqual(serverRows, A.rowsFromCells({}));
-assert.strictEqual(serverRows.length, 58);
+assert.strictEqual(serverRows.length, 54);
 assert.deepStrictEqual(J(gs.DOC_TABLES).map(s => s.tab), A.TEMPLATE.map(s => s.tab));
 
 // 2) DocumentApp 탭(가짜 객체) → 표 행 (UrlFetch 없이 읽는 경로)
@@ -40,11 +43,22 @@ const rows = J(gs.docTabsRows_(tabs));
 assert.deepStrictEqual(rows[1], [['참여자 1'], ['물소리', '산책로 넓음'], [], ['벤치']]);
 assert.deepStrictEqual(A.parseDoc(rows).map(x => x.field + ':' + x.text), ['good:물소리', 'good:산책로 넓음', 'better:벤치', 'ext:조명 정비']);
 
+// 2-1) ③ 표: 선정 과제는 「제목 — 핵심 내용」, 투표 결과는 주민·외부 줄 각각(오른쪽 칸 요약)
+const r3 = [[['③ 우선 과제 선정하기'], ['제안 제목 ✍️', '② 표의 제목 그대로'], ['핵심 내용 ✍️']], [['예시'], ['함께 걷기'], ['두 동…']],
+  [['선정 과제 1 · 🟢 주민', '설명'], ['함께 걷기'], ['한 달에 한 번 함께 걷기']], [['선정 과제 2 · 🔵 외부', '설명'], ['조명 정비'], ['어두운 구간 조명 보완']],
+  [['투표 결과 · 🟢 주민', '자동'], ['1번 함께 걷기 — 7표'], ['10명 투표 · 최다 1번 함께 걷기 7표']], [['투표 결과 · 🔵 외부', '자동'], [], []]];
+assert.deepStrictEqual(A.parseDoc(r3).map(x => x.field + x.task + ':' + x.text),
+  ['pick0:함께 걷기 — 한 달에 한 번 함께 걷기', 'pick1:조명 정비 — 어두운 구간 조명 보완', 'tally0:10명 투표 · 최다 1번 함께 걷기 7표']);
+const d3 = A.tableData(A.parseDoc(r3).map(x => Object.assign({ table: 1 }, x)), 1);
+assert.deepStrictEqual(J(d3.picks), [{ text: '함께 걷기', sub: '한 달에 한 번 함께 걷기', kind: 'us', task: 0 }, { text: '조명 정비', sub: '어두운 구간 조명 보완', kind: 'ext', task: 1 }]);
+
 // 3) ③ 테이블별 투표: 후보 밖 id 는 버리고, 기기마다 마지막 표만 셈
 // 가짜 스프레드시트(기록 시트용)
 const sheets = {};
 const mkSheet = () => { const rows = []; return { rows, getLastRow: () => rows.length, appendRow: r => rows.push(r), getRange: (r, c, n) => ({ setValues: v => { rows.splice(r - 1, n, ...v); } }) }; };
 gs.SpreadsheetApp = { getActiveSpreadsheet: () => ({ getSheetByName: n => sheets[n], insertSheet: n => (sheets[n] = mkSheet()) }) };
+const triggers = [];
+gs.ScriptApp = { getProjectTriggers: () => triggers.slice(), deleteTrigger: x => triggers.splice(triggers.indexOf(x), 1), newTrigger: h => ({ timeBased: () => ({ after: () => ({ create: () => triggers.push({ getHandlerFunction: () => h }) }) }) }) };
 const kinds = () => (sheets.log ? sheets.log.rows.slice(1).map(r => r[1]) : []);
 // Google 한도를 흉내: 속성 값 하나 9KB, 캐시 값 하나 100KB. 속성 읽기 횟수를 셈
 const store = {}, cache = {}; let propReads = 0;
@@ -64,6 +78,8 @@ const vrows = sheets.votes.rows;
 assert.deepStrictEqual(J(vrows[0].slice(2)), ['테이블', '구분', '번호', '제안', '설명', '표 수']);
 assert.deepStrictEqual(J(vrows.slice(1).map(r => [r[1], r[2], r[3], r[7]])), [['투표 마치기', 3, '주민', 0], ['투표 마치기', 3, '주민', 2], ['투표 마치기', 3, '외부', 1]]);
 assert.ok(kinds().includes('투표 마치기') && kinds().includes('화면'));
+assert.deepStrictEqual(triggers.map(x => x.getHandlerFunction()), ['writeVoteDocs']);   // 문서 기록은 트리거로
+assert.deepStrictEqual(J(JSON.parse(gs.cacheGetBig_('VOTE_DOCS'))[3].us.lines.map(l => l.split(' — ')[1])), ['0표', '2표']);
 gs.resetVotes_(); assert.deepStrictEqual(J(gs.readVotes_()).people, 0);
 assert.ok(kinds().includes('투표 초기화 직전'));                         // 지우기 전에 남김
 const raw = JSON.parse(sheets.log.rows.find(r => r[1] === '투표 초기화 직전')[3]);
@@ -94,6 +110,20 @@ assert.strictEqual(propReads, 0);
 gs.clearState_();
 assert.strictEqual(gs.readState_(), null);
 assert.ok(gs.like_({ device: 'a', ids: [] }).error);                 // 상태가 없으면 공감 닫힘
+
+// 3-1) 투표 결과 → 테이블 문서 ③ 「투표 결과 · 주민/외부」 줄
+const bal = { 3: { us: [{ id: 't3n1', no: 1, text: '함께 걷기' }, { id: 't3n2', no: 2, text: '사진 기록단' }], ext: [{ id: 't3n3', no: 3, text: '조명 정비' }, { id: 't3n4', no: 4, text: '표지판' }] } };
+const vl = J(gs.voteLines_(bal, { a: '3|t3n1|t3n3', b: '3|t3n1|t3n4', c: '3|t3n2|', d: '5|t5n1|' }));
+assert.deepStrictEqual(vl[3].us, { lines: ['1번 함께 걷기 — 2표', '2번 사진 기록단 — 1표'], sum: '3명 투표 · 최다 1번 함께 걷기 2표' });
+assert.deepStrictEqual(vl[3].ext, { lines: ['3번 조명 정비 — 1표', '4번 표지판 — 1표'], sum: '2명 투표 · 동점 3번·4번 1표 (테이블에서 정해요)' });
+const dcell = () => { let txt = ''; return { getText: () => txt, setText: v => { txt = v; } }; };
+const drow = label => { const cs = [{ getText: () => label + '\n설명' }, dcell(), dcell()]; return { getNumCells: () => 3, getCell: c => cs[c] }; };
+const drows = [drow('③ 우선 과제 선정하기'), drow('선정 과제 1 · 🟢 주민'), drow('투표 결과 · 🟢 주민'), drow('투표 결과 · 🔵 외부')];
+const dtable = { getCell: () => ({ getText: () => '③ 우선 과제 선정하기' }), getNumRows: () => drows.length, getRow: i => drows[i] };
+assert.ok(gs.writeVoteDoc_([{ asDocumentTab: () => ({ getBody: () => ({ getTables: () => [dtable] }) }), getChildTabs: () => [] }], vl[3]));
+assert.strictEqual(drows[2].getCell(1).getText(), '1번 함께 걷기 — 2표\n2번 사진 기록단 — 1표');
+assert.strictEqual(drows[3].getCell(2).getText(), '2명 투표 · 동점 3번·4번 1표 (테이블에서 정해요)');
+assert.strictEqual(drows[1].getCell(1).getText(), '');                 // 선정 과제 줄은 건드리지 않음
 
 // 4-1) 공감: 카드·열기·마치기·초기화 모두 기록, 큰 자료는 옆 칸으로 나눔
 gs.writeState_({ likeOpen: true, cards: [{ id: 'c1', table: 1, topic: 'river', text: '산책로' }, { id: 'c2', table: 2, topic: 'park', text: '벤치' }] });

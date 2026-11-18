@@ -126,8 +126,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261118d"></script>
-<script src="assets/app.js?v=20261118d"></script>
+<script src="config.js?v=20261118e"></script>
+<script src="assets/app.js?v=20261118e"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -191,6 +191,11 @@
               '<tr class="exr"><td>예시</td><td>' + esc(g.ex[0]) + '</td><td>' + esc(g.ex[1]) + '</td></tr>' +
               s.rows.map(([f, label], ri) => f !== g.field ? '' : '<tr class="g-' + f + '"><td class="l">' + esc(label) + '</td>' + [0, 1].map(ci => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + s.pair[ci][0])).join('') + '</tr>').join('')).join('') + '</tbody></table>';
         }
+        if (s.sel) {  // ③ 선정 과제·투표 결과: 제안 제목 | 핵심 내용
+          return head + '<table class="pair"><thead><tr><th>' + esc(s.head) + '</th>' + s.sel.map(([x, h]) => '<th>' + esc(x) + '<small>' + esc(h) + '</small></th>').join('') + '</tr></thead><tbody>' +
+            '<tr class="exr"><td>예시</td><td>' + esc(s.ex[0]) + '</td><td>' + esc(s.ex[1]) + '</td></tr>' +
+            s.rows.map(([f, label, desc], ri) => '<tr class="' + (f === 'pick' ? (/외부/.test(label) ? 'g-ext' : 'g-us') : '') + '"><td class="l">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td>' + [0, 1].map(ci => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + s.sel[ci][0])).join('') + '</tr>').join('') + '</tbody></table>';
+        }
         return head + '<table><thead><tr><th>' + esc(s.head) + '</th><th>예시 (이렇게 쓰면 돼요)</th><th>우리 테이블 답 ✍️</th></tr></thead><tbody>' +
           s.rows.map(([f, label, desc, ex], ri) => '<tr><td class="l" data-ex="' + esc(ex ? '예) ' + ex : '') + '">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td><td class="ex">' + esc(ex) + '</td>' + cellHtml('T' + ti + 'R' + ri, s.head + ' ' + label) + '</tr>').join('') + '</tbody></table>';
       }).join('');
@@ -246,7 +251,7 @@
     const M = [
       ['① 참여자 두 명 이상의 이야기를 각자 줄에', new Set(['good', 'bad', 'better'].flatMap(f => SLOTS.filter(x => x.field === f && (cells[x.key] || []).length).map(x => x.key.replace(/C\d+$/, '')))).size >= 2],
       ['② [주민실천] 두 칸 이상 + [외부협력] 한 칸 이상', new Set(slotsOf('us').filter(k => (cells[k] || []).length).map(k => k.replace(/C\d+$/, ''))).size >= 2 && has('ext')],
-      ['③ 선정 과제(🟢 주민·🔵 외부) + 투표 결과 + 선정되지 않은 의견', has('pick', 0) && has('pick', 1) && has('tally') && has('rest')],
+      ['③ 선정 과제 🟢 주민·🔵 외부를 ②에서 제목·핵심 내용 그대로', SLOTS.filter(x => x.field === 'pick' && (cells[x.key] || []).length).length >= 4],
       ['④ 과제 1의 다섯 칸 모두 (못 정하면 ‘추후 협의’)', TASK_FIELDS.every(f => has(f, 0))],
       ['⑤ 「최종 제출」에 ‘제출’', /제출/.test(linesOf('done').join(' '))]
     ];
@@ -279,10 +284,10 @@
     TEMPLATE.forEach((s, ti) => {
       if (s.cols) { s.cols.forEach((f, ci) => { cells['T' + ti + 'R0C' + ci] = [s.ex[ci]]; }); cells['T' + ti + 'R1C0'] = ['아이들과 주말마다 산책해요']; cells['T' + ti + 'R1C1'] = ['비 오면 길이 미끄러워요']; }
       else if (s.pair) s.groups.forEach(g => { const ri = s.rows.findIndex(r => r[0] === g.field); cells['T' + ti + 'R' + ri + 'C0'] = [g.ex[0]]; cells['T' + ti + 'R' + ri + 'C1'] = [g.ex[1]]; });
+      else if (s.sel) { cells['T' + ti + 'R0C0'] = [s.ex[0]]; cells['T' + ti + 'R0C1'] = [s.ex[1]]; cells['T' + ti + 'R2C0'] = ['1번 함께 걷기 — 7표', '2번 사진 기록단 — 3표']; cells['T' + ti + 'R2C1'] = ['10명 투표 · 1번 함께 걷기 7표']; }
       else s.rows.forEach(([, , , ex], ri) => { if (ex) cells['T' + ti + 'R' + ri] = [ex]; });
     });
     const us = slotsOf('us'); cells[us[2]] = ['사진 기록단']; cells[us[3]] = ['산책로 변화를 사진으로 남기기'];
-    const rest = slotsOf('rest'); cells[rest[1]] = ['[외부협력] 화장실 설치 (1표)'];
     save(); buildPaper(); render();
   };
 

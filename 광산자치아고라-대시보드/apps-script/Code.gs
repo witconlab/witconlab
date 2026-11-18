@@ -44,7 +44,7 @@ var TOPIC_HINT = {
 //  cols: 참여자마다 한 줄(열 = 칸) / rows: [칸, 항목 이름, 무엇을 쓰면 좋은지, 예시]
 var US_DESC = '주민이 직접 할 수 있는 일 · 모임, 캠페인, 정화·돌봄 활동, 기록, 교육 등';
 var EXT_DESC = '구청·행정복지센터·기관의 도움이 필요한 일 · 시설 정비, 안전, 예산·제도 지원 등';
-var REST_DESC = '투표에서 뽑히지 않은 제안도 지우지 말고 하나씩';
+var TALLY_DESC = '투표를 마치면 자동으로 채워져요 · 비워 두세요';
 var WITH_DESC = '참여할 주민·모임 / 도움이 필요한 기관 · 현장에 없는 곳은 ‘참여 제안’·‘협조 요청’으로';
 function rep_(row, n) { var a = []; for (var i = 0; i < n; i++) a.push(row); return a; }
 var DOC_TABLES = [
@@ -60,10 +60,10 @@ var DOC_TABLES = [
     groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], color: '#dcfce7', n: 5, label: '🟢 주민 ' },
       { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'], color: '#dbeafe', n: 4, label: '🔵 외부 ' }] },
   { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-    guide: '참가자가 휴대폰으로 투표해요(대형 화면 QR). 🟢 주민 중 가장 많은 표를 「선정 과제 1」, 🔵 외부 중 가장 많은 표를 「선정 과제 2」에 적고, 화면의 표 수를 「투표 결과」에 옮겨요. 뽑히지 않은 제안도 지우지 말고 남겨요.',
-    rows: [['선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표', '함께 걷기·길 살피기'], ['선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표', '연결길 안내표지 정비'],
-      ['투표 결과', '대형 화면의 번호별 표 수', '1번 7표, 3번 2표 / 6번 5표, 7번 1표'],
-      ['선정되지 않은 의견', REST_DESC, '[주민실천] 쓰레기통 주변 함께 치우기 (2표)']].concat(rep_(['선정되지 않은 의견', '', ''], 5)) },
+    guide: '참가자가 휴대폰으로 투표해요(대형 화면 QR). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안을 ② 표에서 제목·핵심 내용 그대로 옮겨 적어요. 「투표 결과」 두 줄은 관제반이 투표를 마치면 자동으로 채워져요 — 비워 두세요.',
+    sel: [['제안 제목 ✍️', '② 표의 제목 그대로'], ['핵심 내용 ✍️', '② 표의 핵심 내용 그대로']], ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
+    rows: [['선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표'], ['선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표'],
+      ['투표 결과 · 🟢 주민', TALLY_DESC], ['투표 결과 · 🔵 외부', TALLY_DESC]] },
   { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?',
     guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
     rows: [['현황·제안배경', '지금 어떤 상황이고 왜 필요한지', '아파트 사이를 길게 잇는 공원이라 두 동 주민이 만날 기회가 더해지면 좋겠음'],
@@ -472,7 +472,7 @@ function testFeed() {
   var c = CacheService.getScriptCache();
   c.removeAll(['feed'].concat(readTables_().map(function (t) { return 'doc' + t.no; })));
   var f = feed_();
-  Logger.log('테이블 1 표 행 수: ' + f.docs[1].rows.length + ' (V2 표 양식이면 58)');
+  Logger.log('테이블 1 표 행 수: ' + f.docs[1].rows.length + ' (V2 표 양식이면 54)');
   Logger.log(JSON.stringify(f.docs[1]).slice(0, 2000));
 }
 
@@ -570,7 +570,7 @@ function logStateChange_(a, b) {
   var diff = keys.filter(function (k) { return JSON.stringify(a[k]) !== JSON.stringify(b[k]); })
     .map(function (k) { return k + '=' + JSON.stringify(b[k]); });
   if (b.voteOpen && !a.voteOpen) log_('투표 열기', Object.keys(b.ballot || {}).length + '개 테이블 후보', b.ballot);
-  if (a.voteOpen && !b.voteOpen) snapshotVotes_('투표 마치기', a.ballot || {});
+  if (a.voteOpen && !b.voteOpen) { snapshotVotes_('투표 마치기', a.ballot || {}); startVoteDocsJob_(a.ballot || {}); }
   if (JSON.stringify(a.cards || []) !== JSON.stringify(b.cards || [])) log_('공감 카드', (b.cards || []).length + '장', b.cards || []);
   if (a.likeOpen && !b.likeOpen) snapshotLikes_('공감 마치기', a.cards || []);
   if (diff.length) log_('화면', diff.join(' · '));
@@ -610,6 +610,72 @@ function snapshotLikes_(why, cards) {
   if (!sh.getLastRow()) sh.appendRow(['시각', '계기', '카드', '테이블', '주제', '제안', '설명', '공감 수']);
   var rows = (cards || []).map(function (c) { return [now, why, c.id, c.table, TOPICS[c.topic] || c.topic, c.text, c.sub || '', counts[c.id] || 0]; });
   if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, 8).setValues(rows);
+}
+
+/** 테이블별 투표 결과 줄: { us: {lines, sum}, ext: {lines, sum} } (기기마다 「테이블|주민|외부」) */
+function voteLines_(ballot, raw) {
+  var out = {};
+  Object.keys(ballot || {}).forEach(function (no) {
+    var bt = ballot[no], r = {};
+    ['us', 'ext'].forEach(function (k, ki) {
+      var counts = {}, people = 0;
+      Object.keys(raw).forEach(function (d) {
+        var v = raw[d].split('|');
+        if (Number(v[0]) !== Number(no) || !v[ki + 1]) return;
+        people++; counts[v[ki + 1]] = (counts[v[ki + 1]] || 0) + 1;
+      });
+      var opts = bt[k] || [];
+      var lines = opts.map(function (o) { return o.no + '번 ' + o.text + ' — ' + (counts[o.id] || 0) + '표'; });
+      var max = Math.max.apply(null, [0].concat(opts.map(function (o) { return counts[o.id] || 0; })));
+      var top = opts.filter(function (o) { return max && (counts[o.id] || 0) === max; });
+      var sum = people + '명 투표' + (top.length === 1 ? ' · 최다 ' + top[0].no + '번 ' + top[0].text + ' ' + max + '표'
+        : top.length > 1 ? ' · 동점 ' + top.map(function (o) { return o.no + '번'; }).join('·') + ' ' + max + '표 (테이블에서 정해요)' : '');
+      r[k] = { lines: lines.length ? lines : ['후보 없음'], sum: opts.length ? sum : '후보 없음' };
+    });
+    out[no] = r;
+  });
+  return out;
+}
+
+function startVoteDocsJob_(ballot) {
+  var res = voteLines_(ballot, devicesWith_(VOTE_PREFIX));
+  if (!Object.keys(res).length) return;
+  cachePutBig_('VOTE_DOCS', JSON.stringify(res), 1800);
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'writeVoteDocs') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('writeVoteDocs').timeBased().after(1000).create();
+}
+
+/** 트리거가 실행: 테이블 문서 ③ 표의 「투표 결과 · 🟢 주민 / 🔵 외부」 줄에 결과를 씀 */
+function writeVoteDocs() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'writeVoteDocs') ScriptApp.deleteTrigger(t); });
+  var res = JSON.parse(cacheGetBig_('VOTE_DOCS') || '{}'), done = [], fail = [];
+  readTables_().forEach(function (t) {
+    if (!res[t.no] || !t.docId) return;
+    try { if (writeVoteDoc_(DocumentApp.openById(t.docId).getTabs(), res[t.no])) done.push(t.no); else fail.push(t.no + '(표 없음)'); }
+    catch (e) { fail.push(t.no + '(' + e.message + ')'); }
+  });
+  CacheService.getScriptCache().remove('feed');
+  log_('투표 결과 → 문서', '기록됨: ' + (done.join(', ') || '없음') + (fail.length ? ' / 실패: ' + fail.join(', ') : ''), res);
+}
+
+function writeVoteDoc_(tabs, r) {
+  var hit = false;
+  (tabs || []).forEach(function (tab) {
+    tab.asDocumentTab().getBody().getTables().forEach(function (table) {
+      if (!/^③/.test(table.getCell(0, 0).getText())) return;
+      for (var i = 1; i < table.getNumRows(); i++) {
+        var row = table.getRow(i), label = row.getCell(0).getText().split('\n')[0];
+        if (!/^투표\s*결과/.test(label) || row.getNumCells() < 3) continue;
+        var k = /외부/.test(label) ? ['ext'] : /주민/.test(label) ? ['us'] : ['us', 'ext'];  // 예전 양식(한 줄)이면 둘 다
+        var tag = k.length > 1;
+        row.getCell(1).setText(k.map(function (x) { return r[x].lines.map(function (l) { return (tag ? (x === 'us' ? '🟢 ' : '🔵 ') : '') + l; }).join('\n'); }).join('\n'));
+        row.getCell(2).setText(k.map(function (x) { return (tag ? (x === 'us' ? '🟢 ' : '🔵 ') : '') + r[x].sum; }).join('\n'));
+        hit = true;
+      }
+    });
+    if (writeVoteDoc_(tab.getChildTabs(), r)) hit = true;
+  });
+  return hit;
 }
 
 /** 행사 뒤 편집기에서 실행: 투표·공감 결과를 한 번 더 남기고, 기록 문서 13개와 이 시트를 날짜 폴더에 사본으로 보관.
@@ -675,6 +741,7 @@ function writeTable_(body, s) {
   body.appendParagraph(s.head + ' — ' + s.q).setHeading(DocumentApp.ParagraphHeading.HEADING2);
   if (s.guide) gray_(body.appendParagraph(s.guide).editAsText(), 10);
   if (s.pair) return writePairTable_(body, s);
+  if (s.sel) return writeSelTable_(body, s);
   var cells, i;
   var exN = 0;  // 회색 예시 줄 수(머리 줄 다음)
   if (s.cols) {
@@ -736,6 +803,26 @@ function writePairTable_(body, s) {
     } else {
       row.getCell(0).setBackgroundColor(r.g.color).editAsText().setBold(true);
     }
+  });
+}
+
+/** ③ 표: 항목 | 제안 제목 | 핵심 내용. 선정 과제 두 줄(기록자) + 투표 결과 두 줄(투표를 마치면 서버가 채움) */
+function writeSelTable_(body, s) {
+  var table = body.appendTable([[s.head, s.sel[0][0], s.sel[1][0]], ['예시', s.ex[0], s.ex[1]]].concat(s.rows.map(function (r) { return [r[0], '', '']; })));
+  table.setColumnWidth(0, 130);
+  table.setColumnWidth(1, 150);
+  var hd = table.getRow(0), c;
+  for (c = 0; c < 3; c++) {
+    hd.getCell(c).setBackgroundColor('#1f2937').editAsText().setBold(true).setForegroundColor('#ffffff');
+    if (c) hd.getCell(c).appendParagraph(s.sel[c - 1][1]).editAsText().setBold(false).setFontSize(8).setForegroundColor('#d1d5db');
+  }
+  table.getRow(1).getCell(0).setBackgroundColor('#f9fafb');
+  for (c = 0; c < 3; c++) gray_(table.getRow(1).getCell(c).editAsText(), 9);
+  s.rows.forEach(function (r, i) {
+    var row = table.getRow(i + 2), color = /^투표/.test(r[0]) ? '#fef9c3' : /외부/.test(r[0]) ? '#dbeafe' : '#dcfce7';
+    row.getCell(0).setBackgroundColor(color).editAsText().setBold(true);
+    gray_(row.getCell(0).appendParagraph(r[1]).editAsText().setBold(false), 8);
+    if (/^투표/.test(r[0])) for (c = 1; c < 3; c++) row.getCell(c).setBackgroundColor('#fefce8');
   });
 }
 
