@@ -51,14 +51,14 @@
 <header>
   <small>2026 광산자치아고라 · ③ 우선 과제 선정</small>
   <h1>우리 테이블이 먼저 할 일을 골라 주세요</h1>
-  <p>🟢 주민이 할 일 1개, 🔵 기관 도움이 필요한 일 1개.<br>투표를 마치기 전까지는 다시 골라 바꿀 수 있어요.</p>
+  <p>🟢 주민이 할 일 1개, 🔵 기관 도움이 필요한 일 1개.<br>투표는 한 번만 할 수 있어요.</p>
 </header>
 <main id="main"><div class="state"><p>불러오는 중…</p></div></main>
 <div class="submit" id="submit" hidden><button id="send">투표하기</button><p id="sub-msg"></p></div>
 <div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261118e"></script>
-<script src="assets/app.js?v=20261118e"></script>
+<script src="config.js?v=20261118f"></script>
+<script src="assets/app.js?v=20261118f"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -86,6 +86,11 @@
     if (key === lastKey) return;
     lastKey = key;
     $('#submit').hidden = true;
+    if (my.sent && bt) {  // 한 번 투표하면 끝 (다시 투표 없음)
+      const name = (k, id) => { const o = (bt[k] || []).find(x => x.id === id); return o ? o.no + '. ' + esc(o.text) : '고르지 않음'; };
+      $('#main').innerHTML = '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '<br>🟢 ' + name('us', my.us) + '<br>🔵 ' + name('ext', my.ext) + '</p><p>결과는 앞 화면에서 함께 봐요.</p></div>';
+      return;
+    }
     if (!st.voteOpen) {
       $('#main').innerHTML = my.sent
         ? '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '의 결과는 앞 화면에서 함께 봐요.</p></div>'
@@ -103,18 +108,17 @@
     const t = A.tableByNo(my.table);
     const sec = (k, title, hint) => '<div class="' + k + '"><h2>' + title + ' <small>' + hint + '</small></h2><div class="list">' +
       (bt[k].map(o => '<button class="opt' + (pick[k] === o.id ? ' on' : '') + '" data-k="' + k + '" data-id="' + o.id + '"><i class="no">' + o.no + '</i><span><b>' + esc(o.text) + '</b>' + (o.sub ? '<em>' + esc(o.sub) + '</em>' : '') + '</span><i class="r"></i></button>').join('') || '<p class="none">이 테이블은 제안이 없어요</p>') + '</div></div>';
-    $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span><button id="change">테이블 바꾸기</button></div>' +
+    $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span></div>' +
       sec('us', '🟢 주민이 직접 할 일', '하나만') + sec('ext', '🔵 기관 도움이 필요한 일', '하나만');
     $('#submit').hidden = false;
     $('#send').disabled = !pick.us && !pick.ext;
-    $('#send').textContent = my.sent ? '이대로 다시 투표하기' : '투표하기';
-    $('#sub-msg').textContent = my.sent ? '투표했어요. 바꾸려면 다시 고르고 눌러 주세요.' : (pick.us && pick.ext ? '' : '주민·기관 하나씩 골라 주세요');
+    $('#send').textContent = '투표하기';
+    $('#sub-msg').textContent = pick.us && pick.ext ? '한 번 누르면 바꿀 수 없어요' : '주민·기관 하나씩 골라 주세요';
   }
 
   $('#main').addEventListener('click', e => {
     const tb = e.target.closest('[data-t]');
     if (tb) { my.table = Number(tb.dataset.t); pick = { us: '', ext: '' }; my.sent = false; save(); lastKey = ''; render(); window.scrollTo(0, 0); return; }
-    if (e.target.closest('#change')) { my.table = 0; my.sent = false; save(); lastKey = ''; render(); return; }
     const o = e.target.closest('.opt'); if (!o) return;
     pick[o.dataset.k] = pick[o.dataset.k] === o.dataset.id ? '' : o.dataset.id;
     if (navigator.vibrate) navigator.vibrate(12);

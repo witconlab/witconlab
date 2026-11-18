@@ -133,7 +133,6 @@
     body.className = 'talk-body s' + cur.sub + (k ? ' one' : ' all');
     const renderers = [step1, step2, step3, step4, step5];
     body.innerHTML = renderers[cur.sub](ts, k);
-    const vq = $('#vqr'); if (vq && window.QRCode) new QRCode(vq, { text: new URL('tvote.html', location.href).href, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
     $('#ai-overlay').classList.toggle('on', cur.sub === 4 && !!(summary.job && summary.job.status === 'running' && Date.now() - summary.job.started < 8 * 60000));
   }
 
@@ -173,7 +172,7 @@
     const ballot = cur.ballot || {};
     if (Object.keys(ballot).length) {
       return '<div class="vwrap"><div class="grid3 vote n' + ts.length + '">' + ts.map(t => '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div>' + (ballot[t.no] ? voteBars(ballot[t.no], k) : '<div class="empty">투표할 제안이 없어요</div>') + '</div>').join('') + '</div>' +
-        (cur.voteOpen ? '<div class="vote-qr"><div id="vqr"></div><p><b>휴대폰으로 투표</b>내 테이블에서<br>🟢 주민 1개<br>🔵 외부 1개</p></div>' : '') + '</div>';
+        (cur.voteOpen ? '<div class="vote-qr"><div class="vq-card">📱</div><p><b>테이블 위 QR 카드를 찍어 투표</b>「③ 우선 과제」 칸<br>🟢 주민 1개 · 🔵 외부 1개<br>한 사람 한 번</p></div>' : '') + '</div>';
     }
     return '<div class="grid3 n' + ts.length + '">' + ts.map(t => {
       const d = A.tableData(items, t.no);
@@ -339,9 +338,8 @@
     $('#slo-rings').innerHTML = TOPIC_ORDER.concat(TOPIC_ORDER).map(c => '<i style="' + tv(c) + '"></i>').join('');
     svg.querySelectorAll('path').forEach(p => { const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len; });
     const split = t => [...t].map(ch => '<span class="ch">' + (ch === ' ' ? '&nbsp;' : ch) + '</span>').join('');
-    // 발제 장표의 주고받기: 사회자 → 참여자 → 사회자 → 참여자 → 다 함께
-    const ln = (who, t) => '<span class="ln"><em class="who">' + who + '</em>' + split(t) + '</span>';
-    $('#slo').innerHTML = ln('사회자', '함께 걷고!') + ln('참여자', '함께 가꾸고!') + ln('사회자', '함께 만드는!') + '<span class="big"><em class="who">참여자</em>광산!</span>';
+    const ln = t => '<span class="ln">' + split(t) + '</span>';
+    $('#slo').innerHTML = ln('함께 걷고!') + ln('함께 가꾸고!') + ln('함께 만드는!') + '<span class="big">광산!</span>';
   }
   function sloCountdown() {
     const box = $('#slo-count'), num = $('#slo-num'), arc = $('#slo-arc');

@@ -352,7 +352,7 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 /* ③ 테이블별 휴대폰 투표 */
 .vwrap { height: 100%; display: flex; gap: 14px; } .vwrap .grid3 { flex: 1; min-width: 0; }
 .vote-qr { flex: none; width: 250px; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #fff; color: #0f172a; border-radius: 18px; padding: 18px; text-align: center; }
-.vote-qr #vqr { width: 210px; height: 210px; } .vote-qr #vqr img, .vote-qr #vqr canvas { width: 100% !important; height: auto !important; }
+.vote-qr .vq-card { width: 150px; height: 150px; display: grid; place-items: center; font-size: 96px; background: #fff; border-radius: 18px; }
 .vote-qr p { font-size: 20px; line-height: 1.5; } .vote-qr p b { display: block; font-size: 26px; margin-bottom: 4px; }
 .vb { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
 .vb + .vb { margin-top: 6px; }
