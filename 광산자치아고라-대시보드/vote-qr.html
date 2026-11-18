@@ -11,21 +11,22 @@
   @page { size: A4; margin: 0; }
   .page { width: 210mm; height: 297mm; margin: 10mm auto; background: #fff; display: flex; flex-direction: column; }
   @media print { body { background: #fff; } .page { margin: 0; page-break-after: always; } .noprint { display: none; } }
-  /* A4 한 장에 테이블 2개 · 가운데 점선으로 잘라 테이블에 세워 두기 */
-  .card { flex: 1; padding: 11mm 14mm 9mm; display: flex; flex-direction: column; gap: 4mm; border-top: 6px solid var(--c); }
-  .card + .card { border-top: 1px dashed #999; box-shadow: inset 0 6px 0 var(--c); }
+  /* A4 한 장에 테이블 하나 */
+  .card { flex: 1; padding: 18mm 16mm 16mm; display: flex; flex-direction: column; gap: 10mm; border-top: 10mm solid var(--c); }
   .hd { display: flex; align-items: baseline; gap: 4mm; }
-  .hd b { font-size: 34pt; font-weight: 900; color: var(--c); line-height: 1; }
-  .hd span { font-size: 16pt; font-weight: 800; }
+  .hd b { font-size: 60pt; font-weight: 900; color: var(--c); line-height: 1; }
+  .hd span { font-size: 28pt; font-weight: 800; }
   .hd small { margin-left: auto; font-size: 10pt; color: #666; }
-  .row { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
-  .q { display: flex; flex-direction: column; align-items: center; gap: 2.5mm; border: 2px solid #111; border-radius: 6mm; padding: 5mm; text-align: center; }
-  .q .tag { font-size: 11pt; font-weight: 900; color: #fff; background: #111; padding: 1mm 4mm; border-radius: 99px; }
+  .row { flex: 1; display: grid; grid-template-rows: 1fr 1fr; gap: 10mm; }
+  .q { display: grid; grid-template-columns: 82mm 1fr; grid-template-rows: auto auto 1fr; column-gap: 8mm; row-gap: 3mm; align-items: start; border: 2.5px solid #111; border-radius: 7mm; padding: 8mm; }
+  .q .qr { grid-row: 1 / 4; }
+  .q .tag { justify-self: start; }
+  .q .tag { font-size: 14pt; font-weight: 900; color: #fff; background: #111; padding: 1mm 4mm; border-radius: 99px; }
   .q.like .tag { background: #e11d48; }
-  .q h3 { font-size: 16pt; font-weight: 900; }
-  .q .qr { width: 52mm; height: 52mm; }
+  .q h3 { font-size: 26pt; font-weight: 900; }
+  .q .qr { width: 82mm; height: 82mm; }
   .q .qr img, .q .qr canvas { width: 100% !important; height: auto !important; }
-  .q p { font-size: 10.5pt; line-height: 1.5; color: #333; }
+  .q p { font-size: 16pt; line-height: 1.5; color: #333; }
   .foot { font-size: 9.5pt; color: #555; text-align: center; }
   .printbtn { position: fixed; right: 16px; bottom: 16px; padding: 12px 18px; border: 0; border-radius: 12px; background: #111; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
 </style>
@@ -45,12 +46,12 @@
     var t = TOPICS[(n - 1) % 6];
     return '<section class="card" style="--c:' + t[1] + '"><div class="hd"><b>' + n + '</b><span>테이블 ' + n + '</span><small>2026 광산자치아고라</small></div>' +
       '<div class="row">' +
-      '<div class="q"><span class="tag">③ 우선 과제</span><h3>우리 테이블 투표</h3><div class="qr" data-u="' + base + 'tvote.html?t=' + n + '"></div><p>🟢 주민이 할 일 1개<br>🔵 기관 도움이 필요한 일 1개</p></div>' +
-      '<div class="q like"><span class="tag">⑦ 공감 · 응원</span><h3>모든 제안에 ♥</h3><div class="qr" data-u="' + base + 'vote.html"></div><p>함께 실천되기를 바라는 제안에<br>♥를 눌러 주세요</p></div>' +
+      '<div class="q"><div class="qr" data-u="' + base + 'tvote.html?t=' + n + '"></div><span class="tag">③ 우선 과제</span><h3>우리 테이블 투표</h3><p>🟢 주민이 할 일 1개<br>🔵 기관 도움이 필요한 일 1개</p></div>' +
+      '<div class="q like"><div class="qr" data-u="' + base + 'vote.html"></div><span class="tag">⑦ 공감 · 응원</span><h3>모든 제안에 ♥</h3><p>함께 실천되기를 바라는 제안에<br>♥를 눌러 주세요</p></div>' +
       '</div></section>';
   };
   var html = '';
-  for (var n = 1; n <= 12; n += 2) html += '<div class="page">' + card(n) + card(n + 1) + '</div>';
+  for (var n = 1; n <= 12; n++) html += '<div class="page">' + card(n) + '</div>';
   document.getElementById('pages').innerHTML = html;
   document.querySelectorAll('.qr').forEach(function (el) {
     new QRCode(el, { text: encodeURI(el.dataset.u), width: 480, height: 480, correctLevel: QRCode.CorrectLevel.M });
