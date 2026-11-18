@@ -239,14 +239,48 @@ function pushManual_(b) {
 
 // ─────────────────────────── 화면 상태 ───────────────────────────
 
+// 스크립트 속성 값 하나는 9KB까지라 2,500자씩 나눠 담음(한글 3바이트 → 7.5KB).
+// 휴대폰 150대가 10초마다 읽어도 하루 속성 읽기 한도(5만 번)를 쓰지 않도록 캐시에서 먼저 읽음.
+var STATE_CHUNK = 2500;
 function readState_() {
-  var s = prop_('STATE');
-  return s ? JSON.parse(s) : null;
+  var c = CacheService.getScriptCache(), s = c.get('STATE');
+  if (s === null) {
+    var p = PropertiesService.getScriptProperties().getProperties();
+    s = p.STATE || '';
+    for (var i = 1; i < Number(p.STATE_N || 1); i++) s += p['STATE_' + i] || '';
+    s = s || 'null';
+    try { c.put('STATE', s, 21600); } catch (e) { /* 캐시가 안 되면 다음에도 속성에서 */ }
+  }
+  return JSON.parse(s);
 }
 function writeState_(state) {
   state.updated = Date.now();
-  PropertiesService.getScriptProperties().setProperty('STATE', JSON.stringify(state));
+  var s = JSON.stringify(state), n = Math.max(1, Math.ceil(s.length / STATE_CHUNK)), put = { STATE_N: String(n) };
+  for (var i = 0; i < n; i++) put[i ? 'STATE_' + i : 'STATE'] = s.substr(i * STATE_CHUNK, STATE_CHUNK);
+  PropertiesService.getScriptProperties().setProperties(put);
+  var c = CacheService.getScriptCache();
+  try { c.put('STATE', s, 21600); } catch (e) { c.remove('STATE'); }
   return state;
+}
+function clearState_() {
+  var sp = PropertiesService.getScriptProperties();
+  sp.deleteProperty('STATE'); sp.deleteProperty('STATE_N');
+  CacheService.getScriptCache().remove('STATE');
+}
+
+// 캐시 값 하나는 100KB까지라 3만 자씩 나눠 담음 (AI 다듬기 입력처럼 클 수 있는 값)
+function cachePutBig_(key, s, ttl) {
+  var n = Math.max(1, Math.ceil(s.length / 30000)), put = {};
+  for (var i = 0; i < n; i++) put[key + '_' + i] = s.substr(i * 30000, 30000);
+  put[key + '_n'] = String(n);
+  CacheService.getScriptCache().putAll(put, ttl);
+}
+function cacheGetBig_(key) {
+  var c = CacheService.getScriptCache(), n = Number(c.get(key + '_n') || 0), keys = [];
+  for (var i = 0; i < n; i++) keys.push(key + '_' + i);
+  var got = c.getAll(keys);
+  if (!n || keys.some(function (k) { return got[k] == null; })) return null;
+  return keys.map(function (k) { return got[k]; }).join('');
 }
 
 // ─────────────────────────── AI 다듬기 · 주제별 요약 ───────────────────────────
@@ -382,7 +416,7 @@ function startSummarizeJob_(input) {
   if (!input || !input.length) throw new Error('정리할 기록이 없어요.');
   var job = prop_('SUMMARY_JOB') ? JSON.parse(prop_('SUMMARY_JOB')) : null;
   if (job && job.status === 'running' && Date.now() - job.started < 7 * 60000) return { job: job };
-  CacheService.getScriptCache().put('SUM_INPUT', JSON.stringify(input), 1800);
+  cachePutBig_('SUM_INPUT', JSON.stringify(input), 1800);
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'runSummarizeJob') ScriptApp.deleteTrigger(t);
   });
@@ -397,7 +431,7 @@ function runSummarizeJob() {
   var sp = PropertiesService.getScriptProperties();
   var job = { started: (JSON.parse(prop_('SUMMARY_JOB') || '{}').started) || Date.now() };
   try {
-    var input = JSON.parse(CacheService.getScriptCache().get('SUM_INPUT') || '[]');
+    var input = JSON.parse(cacheGetBig_('SUM_INPUT') || '[]');
     if (!input.length) throw new Error('정리할 입력이 사라졌어요. 다시 실행해 주세요.');
     summarize_(input);
     job.status = 'done';
@@ -660,7 +694,7 @@ function applyTemplateV2() {
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   resetLikes_();
   resetVotes_();
-  PropertiesService.getScriptProperties().deleteProperty('STATE');
+  clearState_();
   CacheService.getScriptCache().remove('feed');
 }
 
@@ -703,7 +737,7 @@ function resetForEvent() {
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   resetLikes_();
   resetVotes_();
-  PropertiesService.getScriptProperties().deleteProperty('STATE');
+  clearState_();
   CacheService.getScriptCache().remove('feed');
 }
 
