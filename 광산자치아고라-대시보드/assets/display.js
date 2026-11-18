@@ -351,7 +351,7 @@
     later(() => anim(box, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.4)' }], { duration: 350, easing: 'ease-in' }), 2950);
   }
   // 구호 연출 속도: 1 = 원래, 클수록 느리게 (3·2·1 카운트다운은 그대로 1초씩)
-  const SLO_SLOW = 1.6;
+  const SLO_SLOW = 2;
   function sloSequence() {
     const anim = (el, kf, o) => slo(el, kf, Object.assign({}, o, { duration: o.duration * SLO_SLOW, delay: (o.delay || 0) * SLO_SLOW }));
     const later = (fn, ms) => sloLater(fn, ms * SLO_SLOW);
