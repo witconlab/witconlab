@@ -24,7 +24,7 @@
   .sh b { font-size: 14pt; font-weight: 900; }
   .sh span { font-size: 9pt; font-weight: 700; color: #fff; background: var(--ink); padding: 0 6px; border-radius: 99px; }
   .sh em.q { font-style: normal; font-size: 9.5pt; color: var(--muted); font-weight: 700; }
-  .shots { display: flex; gap: 2.5mm; align-items: flex-start; height: var(--h, 64mm); }
+  .shots { display: flex; gap: 2.5mm; align-items: flex-start; height: var(--h, 62mm); }
   .shots figure { height: 100%; display: flex; flex-direction: column; }
   .shots img { height: calc(100% - 4.5mm); width: auto; border-radius: 5px; border: 1px solid #d6d3d1; display: block; }
   .shots figcaption { font-size: 8pt; font-weight: 800; color: var(--muted); margin-top: .8mm; white-space: nowrap; }
@@ -36,6 +36,12 @@
   .who li { font-size: 8.8pt; line-height: 1.45; }
   .who ul { padding-left: 14px; }
   .key { display: inline-block; font-size: 8.5pt; font-weight: 800; padding: 0 5px; border-radius: 4px; background: #fff; border: 1px solid #a8a29e; }
+  .row2 { display: grid; grid-template-columns: 98mm 1fr; gap: 3.5mm; align-items: start; }
+  .row2 figure img { width: 100%; height: auto; border-radius: 5px; border: 1px solid #d6d3d1; display: block; }
+  .row2 figcaption { font-size: 8pt; font-weight: 800; color: var(--muted); margin-top: .8mm; }
+  .rc { display: flex; flex-direction: column; gap: 2.5mm; }
+  .rc .who { grid-template-columns: 1fr; margin-top: 0; gap: 2mm; }
+  .rc .duo { display: grid; grid-template-columns: 22mm 1fr; gap: 2mm; align-items: start; }
 </style>
 </head>
 <body>
@@ -77,27 +83,29 @@
 <section class="page">
   <div class="stage">
     <div class="sh"><b>시작 전</b><span>13:30~14:30</span><em class="q">기록 문서 열기 · QR 카드 놓기</em></div>
-    <div class="shots">
-      <figure><img src="assets/flow/doc-real.jpg"><figcaption>기록자: 연습장 → 📂 실제 문서로</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/scr-wait.jpg"><figcaption>대형 화면: 참석 등록 · 연결 12/12</figcaption></figure>
-    </div>
-    <div class="who">
+    <div class="row2">
+      <figure><img src="assets/flow/gdoc-0.jpg"><figcaption>✍️ 실제 Google 문서 · 📌 쓰는 법 탭 (왼쪽에 단계별 탭)</figcaption></figure>
+      <div class="rc">
+        <figure><img src="assets/flow/scr-wait.jpg"><figcaption>🖥 대형 화면: 참석 등록 · 연결 12/12</figcaption></figure>
+        <div class="who">
       <div class="f"><h4>🎤 진행자</h4><ul><li>테이블 번호 QR 카드(A4)를 참가자가 보이게 놓기</li><li>기록자와 단계별 질문·시간, ⑤ 제출 신호 맞추기</li></ul></div>
       <div class="r"><h4>✍️ 기록자</h4><ul><li>연습장 맨 끝 탭 <b>📂 실제 문서로</b> → 내 테이블 번호 → 새 탭에 실제 문서</li><li>문서 제목의 번호·주제 확인, <b>📌 쓰는 법</b>에 참여 동 적기</li><li>“보기 전용”이면 바로 관제반에</li></ul></div>
+    </div>
+      </div>
     </div>
   </div>
 
   <div class="stage">
     <div class="sh"><b>① 이용 경험 나누기</b><span>14:30 · 15분</span><em class="q">“우리는 이곳에서 어떤 경험을 하고 있나요?”</em></div>
-    <div class="shots">
-      <figure><img src="assets/flow/doc-1.jpg"><figcaption>기록자 문서 ① 탭</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/scr-1.jpg"><figcaption>대형 화면: 😊 좋았던 · 😣 불편한 · 💡 개선점</figcaption></figure>
-    </div>
-    <div class="who">
+    <div class="row2">
+      <figure><img src="assets/flow/gdoc-1.jpg"><figcaption>✍️ 기록자 Google 문서 · ① 탭</figcaption></figure>
+      <div class="rc">
+        <figure><img src="assets/flow/scr-1.jpg"><figcaption>🖥 대형 화면: 😊 좋았던 · 😣 불편한 · 💡 개선점</figcaption></figure>
+        <div class="who">
       <div class="f"><h4>🎤 진행자</h4><ul><li>한 사람씩 좋았던 점·불편한 점·개선점</li><li>「어디서·언제 — 무엇이」로 짧게 말하도록 돕기</li></ul></div>
       <div class="r"><h4>✍️ 기록자 · ① 탭</h4><ul><li>참여자 1, 2 … 줄에 한 사람씩, 세 칸 중 말한 칸만</li><li>서로 다른 경험은 합치지 않기 · 이름·연락처 금지</li></ul></div>
+    </div>
+      </div>
     </div>
   </div>
   <div class="foot"><span>기록 연습장: witconlab.github.io/witconlab/광산자치아고라-대시보드/practice.html</span><span>흐름도 2/5</span></div>
@@ -107,25 +115,26 @@
 <section class="page">
   <div class="stage">
     <div class="sh"><b>② 함께 할 일 제안하기</b><span>14:45 · 15분</span><em class="q">“이 공간의 경험이 더 좋은 변화로 바뀌려면 어떤 변화가 필요할까요?”</em></div>
-    <div class="shots">
-      <figure><img src="assets/flow/doc-2.jpg"><figcaption>기록자 문서 ② 탭</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/scr-2.jpg"><figcaption>대형 화면: 테이블별 🟢 주민 · 🔵 외부 제안</figcaption></figure>
-    </div>
-    <div class="who">
+    <div class="row2">
+      <figure><img src="assets/flow/gdoc-2.jpg"><figcaption>✍️ 기록자 Google 문서 · ② 탭</figcaption></figure>
+      <div class="rc">
+        <figure><img src="assets/flow/scr-2.jpg"><figcaption>🖥 대형 화면: 테이블별 🟢 주민 · 🔵 외부 제안</figcaption></figure>
+        <div class="who">
       <div class="f"><h4>🎤 진행자</h4><ul><li>제안마다 <b>짧은 제목</b>을 붙여 주기</li><li>“주민이 직접 할 일은?” / “기관 도움이 필요한 일은?” 나눠 묻기</li><li>③ 전에 제안을 모두 말하게 하기 (늦게 쓴 제안은 투표 후보에 안 들어감)</li></ul></div>
       <div class="r"><h4>✍️ 기록자 · ② 탭</h4><ul><li>제안 하나 = 한 줄, <b>제안 제목 | 핵심 내용</b></li><li>주민 일은 🟢 초록 줄, 기관 일은 🔵 파란 줄</li><li>회색 예시 줄은 건드리지 않기. 번호는 화면이 붙임</li></ul></div>
+    </div>
+      </div>
     </div>
   </div>
 
   <div class="stage">
     <div class="sh"><b>③ 우선 과제 선정하기</b><span>15:00 · 5분</span><em class="q">“여러 제안 중 무엇을 먼저 이야기해 볼까요?”</em></div>
-    <div class="shots" style="--h:50mm">
-      <figure><img src="assets/flow/ph-tvote.jpg"><figcaption>참가자 휴대폰</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/scr-3.jpg"><figcaption>대형 화면: 표 막대 + QR</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/doc-3.jpg"><figcaption>기록자 문서 ③ 탭</figcaption></figure>
+    <div class="row2" style="grid-template-columns:90mm 1fr">
+      <figure><img src="assets/flow/gdoc-3.jpg"><figcaption>✍️ 기록자 Google 문서 · ③ 탭 (투표 뒤 옮겨 적기)</figcaption></figure>
+      <div class="rc">
+        <figure><img src="assets/flow/scr-3.jpg"><figcaption>🖥 대형 화면: 표 막대 + QR</figcaption></figure>
+        <div style="display:grid;grid-template-columns:26mm 1fr;gap:2mm;align-items:end"><figure><img src="assets/flow/ph-tvote.jpg"></figure><figcaption>📱 참가자 휴대폰<br>QR 카드 위 칸을 찍으면 우리 테이블 후보가 나와요. 🟢 1개 + 🔵 1개 → 투표하기</figcaption></div>
+      </div>
     </div>
     <div class="who">
       <div class="f"><h4>🎤 진행자</h4><ul><li>QR 카드 <b>위 칸</b>(③ 우리 테이블 투표)을 찍게 안내. 미리 찍어 두면 투표가 열릴 때 바로 보임</li><li>🟢 주민 1개 + 🔵 외부 1개 → <span class="key">투표하기</span>. 어려운 분은 옆 분이 돕기</li><li>마감 뒤 화면의 우리 테이블 1위를 소리 내어 확인. 동점이면 손들기</li></ul></div>
@@ -139,27 +148,29 @@
 <section class="page">
   <div class="stage">
     <div class="sh"><b>④ 실행방법 구체화하기</b><span>15:05 · 20분</span><em class="q">“이 일을 실제로 추진하려면 어떻게 시작하면 좋을까요?”</em></div>
-    <div class="shots">
-      <figure><img src="assets/flow/doc-4.jpg"><figcaption>기록자 문서 ④ 탭</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/scr-4.jpg"><figcaption>대형 화면: 테이블별 실행방법</figcaption></figure>
-    </div>
-    <div class="who">
+    <div class="row2">
+      <figure><img src="assets/flow/gdoc-4.jpg"><figcaption>✍️ 기록자 Google 문서 · ④ 탭</figcaption></figure>
+      <div class="rc">
+        <figure><img src="assets/flow/scr-4.jpg"><figcaption>🖥 대형 화면: 테이블별 실행방법</figcaption></figure>
+        <div class="who">
       <div class="f"><h4>🎤 진행자</h4><ul><li>과제마다 현황 → 바라는 모습 → 제안 → 첫걸음(언제·어디서·동별 역할) → 함께할 이웃</li><li>못 정한 것은 ‘추후 협의’로 넘기기</li><li>현장에 없는 기관은 ‘협조 요청’으로 말하기</li></ul></div>
       <div class="r"><h4>✍️ 기록자 · ④ 탭</h4><ul><li><b>과제 1 실행방법</b>, <b>과제 2 실행방법</b> 표의 다섯 칸</li><li>과제가 하나면 과제 2 표는 비우기</li><li>끝날 무렵 관제반이 AI 다듬기를 돌려요 (쓰기는 계속 가능)</li></ul></div>
+    </div>
+      </div>
     </div>
   </div>
 
   <div class="stage">
     <div class="sh"><b>⑤ 테이블 결과 확인하기</b><span>15:25 · 5분</span><em class="q">“우리의 의견이 잘 담겼나요?”</em></div>
-    <div class="shots">
-      <figure><img src="assets/flow/doc-5.jpg"><figcaption>기록자 문서 ⑤ 탭</figcaption></figure>
-      <div class="ar">→</div>
-      <figure><img src="assets/flow/scr-5.jpg"><figcaption>대형 화면: 테이블별 의제 제안서</figcaption></figure>
-    </div>
-    <div class="who">
+    <div class="row2">
+      <figure><img src="assets/flow/gdoc-5.jpg"><figcaption>✍️ 기록자 Google 문서 · ⑤ 탭</figcaption></figure>
+      <div class="rc">
+        <figure><img src="assets/flow/scr-5.jpg"><figcaption>🖥 대형 화면: 테이블별 의제 제안서</figcaption></figure>
+        <div class="who">
       <div class="f"><h4>🎤 진행자</h4><ul><li>화면의 우리 제안서 다섯 항목을 읽어 주기</li><li>AI가 다듬은 문장이 원래 뜻과 같은지 참여자와 확인</li><li>다 되면 <b>“제출해 주세요”</b> 신호</li></ul></div>
       <div class="r"><h4>✍️ 기록자 · ⑤ 탭</h4><ul><li>고칠 곳은 <b>④ 탭</b>에서 바로 고치기 (화면도 바뀜) → ⑤에 메모</li><li>AI 문장이 원래 말과 다르면 <b>✨ 칸</b>에 적기</li><li>신호 뒤 <b>최종 제출</b> 칸에 ‘제출’. 그 뒤로는 고치지 않기</li></ul></div>
+    </div>
+      </div>
     </div>
   </div>
   <div class="foot"><span>문의: 중앙 관제반</span><span>흐름도 4/5</span></div>
