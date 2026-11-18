@@ -43,11 +43,11 @@
   base = decodeURI(base);
   var card = function (n) {
     var t = TOPICS[(n - 1) % 6];
-    return '<section class="card" style="--c:' + t[1] + '"><div class="hd"><b>' + n + '</b><span>테이블 ' + n + ' · ' + t[0] + '</span><small>2026 광산자치아고라</small></div>' +
+    return '<section class="card" style="--c:' + t[1] + '"><div class="hd"><b>' + n + '</b><span>테이블 ' + n + '</span><small>2026 광산자치아고라</small></div>' +
       '<div class="row">' +
       '<div class="q"><span class="tag">③ 우선 과제</span><h3>우리 테이블 투표</h3><div class="qr" data-u="' + base + 'tvote.html?t=' + n + '"></div><p>🟢 주민이 할 일 1개<br>🔵 기관 도움이 필요한 일 1개</p></div>' +
       '<div class="q like"><span class="tag">⑦ 공감 · 응원</span><h3>모든 제안에 ♥</h3><div class="qr" data-u="' + base + 'vote.html"></div><p>함께 실천되기를 바라는 제안에<br>♥를 눌러 주세요</p></div>' +
-      '</div><p class="foot">미리 찍어 두면 시간이 될 때 화면이 자동으로 열려요 · 로그인·개인정보 입력 없음</p></section>';
+      '</div></section>';
   };
   var html = '';
   for (var n = 1; n <= 12; n += 2) html += '<div class="page">' + card(n) + card(n + 1) + '</div>';
