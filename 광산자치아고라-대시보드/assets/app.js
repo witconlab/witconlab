@@ -147,14 +147,17 @@
   const trim = (s, n) => (s = String(s || '')).length > n ? s.slice(0, n - 1) + '…' : s;
 
   // ── 테이블 ──
-  let tables = LS.get('agora-tables-cache-v2', null) || DEFAULT_TABLES;
+  // 예전 버전이 저장해 둔 목록(12개·옛 주제 road 등)은 버리고 기본 13개로 (옛 주제 키가 남으면 관제 패널이 멈춤)
+  const fixTopic = t => Object.assign({}, t, { topic: TOPICS[t.topic] ? t.topic : defaultTopic(t.no) });
+  const cachedTables = LS.get('agora-tables-cache-v2', null);
+  let tables = Array.isArray(cachedTables) && cachedTables.length === TABLE_COUNT ? cachedTables.map(fixTopic) : DEFAULT_TABLES;
   const tableByNo = no => tables.find(t => t.no === Number(no)) || { no: Number(no), topic: defaultTopic(no), dongs: '', space: '' };
   const tablesOf = topic => tables.filter(t => t.topic === topic);
   async function loadTables() {
     if (MODE !== 'live') return tables;
     const r = await apiGet('config');
     if (r && r.tables && r.tables.length) {
-      tables = r.tables.map(t => Object.assign({}, t, { topic: TOPICS[t.topic] ? t.topic : defaultTopic(t.no) }));
+      tables = r.tables.map(fixTopic);
       LS.set('agora-tables-cache-v2', tables);
     }
     return tables;
