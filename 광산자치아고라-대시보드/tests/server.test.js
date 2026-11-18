@@ -41,6 +41,11 @@ assert.deepStrictEqual(rows[1], [['참여자 1'], ['물소리', '산책로 넓�
 assert.deepStrictEqual(A.parseDoc(rows).map(x => x.field + ':' + x.text), ['good:물소리', 'good:산책로 넓음', 'better:벤치', 'ext:조명 정비']);
 
 // 3) ③ 테이블별 투표: 후보 밖 id 는 버리고, 기기마다 마지막 표만 셈
+// 가짜 스프레드시트(기록 시트용)
+const sheets = {};
+const mkSheet = () => { const rows = []; return { rows, getLastRow: () => rows.length, appendRow: r => rows.push(r), getRange: (r, c, n) => ({ setValues: v => { rows.splice(r - 1, n, ...v); } }) }; };
+gs.SpreadsheetApp = { getActiveSpreadsheet: () => ({ getSheetByName: n => sheets[n], insertSheet: n => (sheets[n] = mkSheet()) }) };
+const kinds = () => (sheets.log ? sheets.log.rows.slice(1).map(r => r[1]) : []);
 // Google 한도를 흉내: 속성 값 하나 9KB, 캐시 값 하나 100KB. 속성 읽기 횟수를 셈
 const store = {}, cache = {}; let propReads = 0;
 const bytes = v => Buffer.byteLength(String(v));
@@ -54,7 +59,15 @@ gs.vote_({ device: 'b', table: 3, us: 't3n2', ext: 'zzz' });        // 외부 �
 gs.vote_({ device: 'a', table: 3, us: 't3n2', ext: 't3n3' });       // 다시 누르면 바뀜
 assert.deepStrictEqual(J(gs.readVotes_()), { counts: { t3n2: 2, t3n3: 1 }, people: 2 });
 assert.ok(gs.vote_({ device: 'c', table: 9, us: 't3n1' }).error);    // 후보 없는 테이블
+gs.writeState_({ voteOpen: false, ballot: J(gs.readState_()).ballot }); // 투표 마치기 → 결과 스냅숏
+const vrows = sheets.votes.rows;
+assert.deepStrictEqual(J(vrows[0].slice(2)), ['테이블', '구분', '번호', '제안', '설명', '표 수']);
+assert.deepStrictEqual(J(vrows.slice(1).map(r => [r[1], r[2], r[3], r[7]])), [['투표 마치기', 3, '주민', 0], ['투표 마치기', 3, '주민', 2], ['투표 마치기', 3, '외부', 1]]);
+assert.ok(kinds().includes('투표 마치기') && kinds().includes('화면'));
 gs.resetVotes_(); assert.deepStrictEqual(J(gs.readVotes_()).people, 0);
+assert.ok(kinds().includes('투표 초기화 직전'));                         // 지우기 전에 남김
+const raw = JSON.parse(sheets.log.rows.find(r => r[1] === '투표 초기화 직전')[3]);
+assert.deepStrictEqual(raw.devices, { a: '3|t3n2|t3n3', b: '3|t3n2|' });
 gs.writeState_({ voteOpen: false });
 assert.ok(gs.vote_({ device: 'a', table: 3, us: 't3n1' }).error);
 
@@ -81,6 +94,16 @@ assert.strictEqual(propReads, 0);
 gs.clearState_();
 assert.strictEqual(gs.readState_(), null);
 assert.ok(gs.like_({ device: 'a', ids: [] }).error);                 // 상태가 없으면 공감 닫힘
+
+// 4-1) 공감: 카드·열기·마치기·초기화 모두 기록, 큰 자료는 옆 칸으로 나눔
+gs.writeState_({ likeOpen: true, cards: [{ id: 'c1', table: 1, topic: 'river', text: '산책로' }, { id: 'c2', table: 2, topic: 'park', text: '벤치' }] });
+gs.like_({ device: 'p', ids: ['c1', 'c2'] }); gs.like_({ device: 'q', ids: ['c1'] });
+gs.writeState_({ likeOpen: false, cards: J(gs.readState_()).cards });
+assert.deepStrictEqual(J(sheets.likes.rows.slice(1).map(r => [r[2], r[4], r[7]])), [['c1', '강', 2], ['c2', '공원', 1]]);
+gs.pushManual_({ key: 'SECRET', table: 4, field: 'good', task: 0, text: '한 줄' });
+assert.ok(!JSON.stringify(sheets.log.rows).includes('SECRET'));          // 비밀번호는 남기지 않음
+gs.log_('검수 저장', '큰 자료', { x: ko(60000) });
+assert.ok(sheets.log.rows[sheets.log.rows.length - 1].length >= 5 && sheets.log.rows.every(r => r.every(c => String(c).length <= 50000)));
 
 // 5) AI 다듬기 입력이 100KB를 넘어도 캐시에 나눠 담기
 const input = JSON.stringify(Array.from({ length: 900 }, (_, i) => ({ table: i % 13 + 1, text: ko(60) })));

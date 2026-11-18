@@ -5,7 +5,10 @@
  *  - tables  시트 : 13개 테이블 설정(주제·동·대상공간·기록 Docs 링크)
  *  - summary 시트 : AI가 다듬은 의제 제안서·주제별 요약(JSON 한 칸씩, 관제 패널에서 검수)
  *  - manual  시트 : 관제반 수동 푸시
- *  - likes   시트 : 행사 후 exportLikes() 를 실행하면 공감 결과가 기록됨
+ *  - likes   시트 : 공감을 마치거나 초기화할 때마다 카드별 공감 수를 덧붙임(지우지 않음)
+ *  - votes   시트 : ③ 투표를 마치거나 초기화할 때마다 후보별 표 수를 덧붙임(지우지 않음)
+ *  - log     시트 : 모든 진행 기록(화면 단계·투표·공감·AI 입력과 결과·검수 저장·수동 푸시·초기화). 지우지 않음
+ *  행사 뒤 archiveAfterEvent() → 기록 문서 13개와 이 시트를 날짜 폴더에 복사해 보관
  *
  * 스크립트 속성: ADMIN_KEY(필수), GEMINI_API_KEY, GEMINI_MODEL(선택), GEMINI_FALLBACK(선택)
  *
@@ -14,7 +17,7 @@
  *  (13개 문서가 표 양식으로 바뀌고, tables 시트 B열이 주제로 바뀝니다. 문서 안 기존 기록은 지워집니다)
  */
 
-var SHEETS = { tables: 'tables', summary: 'summary', manual: 'manual', likes: 'likes' };
+var SHEETS = { tables: 'tables', summary: 'summary', manual: 'manual', likes: 'likes', votes: 'votes', log: 'log' };
 var REREAD_MS = 20000;  // 수정 시각이 그대로여도 이만큼 지난 문서는 차례로 다시 읽음
 
 // 4개 주제 · 13개 테이블 (assets/app.js 의 TOPICS 와 같게 유지)
@@ -233,6 +236,7 @@ function readManual_() {
 
 function pushManual_(b) {
   sheet_(SHEETS.manual).appendRow([new Date(), b.table, b.field || 'good', b.task || 0, b.text]);
+  log_('수동 푸시', '테이블 ' + b.table + ' · ' + (b.field || 'good') + ' · ' + b.text, { table: b.table, field: b.field, task: b.task, text: b.text });
   CacheService.getScriptCache().remove('feed');
   return { ok: true };
 }
@@ -254,12 +258,14 @@ function readState_() {
   return JSON.parse(s);
 }
 function writeState_(state) {
+  var prev = readState_() || {};
   state.updated = Date.now();
   var s = JSON.stringify(state), n = Math.max(1, Math.ceil(s.length / STATE_CHUNK)), put = { STATE_N: String(n) };
   for (var i = 0; i < n; i++) put[i ? 'STATE_' + i : 'STATE'] = s.substr(i * STATE_CHUNK, STATE_CHUNK);
   PropertiesService.getScriptProperties().setProperties(put);
   var c = CacheService.getScriptCache();
   try { c.put('STATE', s, 21600); } catch (e) { c.remove('STATE'); }
+  try { logStateChange_(prev, state); } catch (e) { console.log('진행 기록 실패: ' + e.message); }
   return state;
 }
 function clearState_() {
@@ -302,7 +308,8 @@ function readSummary_() {
   };
 }
 
-function saveSummary_(data) {
+function saveSummary_(data, why) {
+  log_(why || '검수 저장', Object.keys(data.tables || {}).length + '개 테이블 · ' + Object.keys(data.topics || {}).length + '개 주제', data);
   var sh = sheet_(SHEETS.summary);
   sh.clearContents();
   var rows = [['키', '내용(JSON)']];
@@ -379,7 +386,7 @@ function summarize_(input) {
   r.parsed.tables.forEach(function (t) { out.tables[t.no] = { tasks: (t.tasks || []).slice(0, 2) }; });
   r.parsed.topics.forEach(function (p) { out.topics[p.topic] = { summary: p.summary, points: (p.points || []).slice(0, 4) }; });
   PropertiesService.getScriptProperties().setProperty('SUMMARY_SRC', 'gemini:' + r.model);
-  return saveSummary_(out);
+  return saveSummary_(out, 'AI 결과 (' + r.model + ')');
 }
 
 /** 모델을 차례로 시도. 붐빔(429·500·503)은 한 번 더, 없는 모델(404)은 다음 모델로 */
@@ -417,6 +424,7 @@ function startSummarizeJob_(input) {
   var job = prop_('SUMMARY_JOB') ? JSON.parse(prop_('SUMMARY_JOB')) : null;
   if (job && job.status === 'running' && Date.now() - job.started < 7 * 60000) return { job: job };
   cachePutBig_('SUM_INPUT', JSON.stringify(input), 1800);
+  log_('AI 실행', input.length + '개 테이블 기록을 보냄', input);
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'runSummarizeJob') ScriptApp.deleteTrigger(t);
   });
@@ -442,6 +450,7 @@ function runSummarizeJob() {
   }
   job.finished = Date.now();
   sp.setProperty('SUMMARY_JOB', JSON.stringify(job));
+  if (job.status === 'failed') log_('AI 실패', job.error);
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'runSummarizeJob') ScriptApp.deleteTrigger(t);
   });
@@ -497,6 +506,7 @@ function readLikes_() {
 }
 
 function resetLikes_() {
+  snapshotLikes_('공감 초기화 직전', ((readState_() || {}).cards) || []);
   var sp = PropertiesService.getScriptProperties();
   Object.keys(sp.getProperties()).forEach(function (k) { if (k.indexOf(LIKE_PREFIX) === 0) sp.deleteProperty(k); });
   return { ok: true };
@@ -529,22 +539,105 @@ function readVotes_() {
   return { counts: counts, people: people };
 }
 function resetVotes_() {
+  snapshotVotes_('투표 초기화 직전', ((readState_() || {}).ballot) || {});
   var sp = PropertiesService.getScriptProperties();
   Object.keys(sp.getProperties()).forEach(function (k) { if (k.indexOf(VOTE_PREFIX) === 0) sp.deleteProperty(k); });
   return { ok: true };
 }
 
 /** 행사 후 실행: 카드별 공감 수를 likes 시트에 기록 (화면에는 숫자를 보이지 않음) */
+/** 편집기에서 실행: 지금 공감 수를 likes 시트에 덧붙임 (공감을 마칠 때 자동으로도 남음) */
 function exportLikes() {
-  var r = readLikes_();
-  var sh = sheet_(SHEETS.likes);
-  sh.clearContents();
-  sh.appendRow(['카드', '테이블', '주제', '제안', '공감 수']);
-  (((readState_() || {}).cards) || []).forEach(function (c) {
-    sh.appendRow([c.id, c.table, TOPICS[c.topic] || c.topic, c.text, r.counts[c.id] || 0]);
+  snapshotLikes_('수동 내보내기', ((readState_() || {}).cards) || []);
+}
+
+// ─────────────────────────── 기록 보관 ───────────────────────────
+// 모든 진행 내용을 log 시트에 덧붙임(지우는 함수 없음). 큰 내용은 JSON 을 4만5천 자씩 옆 칸으로 나눔(칸 하나 5만 자 한도).
+
+function log_(kind, note, obj) {
+  try {
+    var sh = sheet_(SHEETS.log);
+    if (!sh.getLastRow()) sh.appendRow(['시각', '종류', '내용', '자료(JSON, 길면 옆 칸으로 이어짐)']);
+    var row = [new Date(), kind, String(note || '')];
+    if (obj !== undefined) { var j = JSON.stringify(obj); for (var i = 0; i < j.length; i += 45000) row.push(j.substr(i, 45000)); }
+    sh.appendRow(row);
+  } catch (e) { console.log('기록 실패: ' + kind + ' ' + e.message); }
+}
+
+/** 화면 상태가 바뀔 때: 단계·주제·투표·공감 열고 닫기를 남기고, 마칠 때 결과를 스냅숏 */
+function logStateChange_(a, b) {
+  var keys = ['stage', 'sub', 'topic', 'auto', 'polished', 'sim', 'voteOpen', 'likeOpen', 'sloganCue'];
+  var diff = keys.filter(function (k) { return JSON.stringify(a[k]) !== JSON.stringify(b[k]); })
+    .map(function (k) { return k + '=' + JSON.stringify(b[k]); });
+  if (b.voteOpen && !a.voteOpen) log_('투표 열기', Object.keys(b.ballot || {}).length + '개 테이블 후보', b.ballot);
+  if (a.voteOpen && !b.voteOpen) snapshotVotes_('투표 마치기', a.ballot || {});
+  if (JSON.stringify(a.cards || []) !== JSON.stringify(b.cards || [])) log_('공감 카드', (b.cards || []).length + '장', b.cards || []);
+  if (a.likeOpen && !b.likeOpen) snapshotLikes_('공감 마치기', a.cards || []);
+  if (diff.length) log_('화면', diff.join(' · '));
+}
+
+function devicesWith_(prefix) {
+  var props = PropertiesService.getScriptProperties().getProperties(), out = {};
+  Object.keys(props).forEach(function (k) { if (k.indexOf(prefix) === 0) out[k.slice(prefix.length)] = props[k]; });
+  return out;
+}
+
+/** ③ 투표 결과: 기기별 원자료는 log, 후보별 표 수는 votes 시트에 덧붙임 */
+function snapshotVotes_(why, ballot) {
+  var raw = devicesWith_(VOTE_PREFIX), counts = {};
+  Object.keys(raw).forEach(function (d) { raw[d].split('|').slice(1).forEach(function (id) { if (id) counts[id] = (counts[id] || 0) + 1; }); });
+  var n = Object.keys(raw).length;
+  if (!n) { log_(why, '투표한 기기 없음'); return; }
+  log_(why, '투표한 기기 ' + n + '대', { ballot: ballot, counts: counts, devices: raw });
+  var sh = sheet_(SHEETS.votes), now = new Date(), rows = [];
+  if (!sh.getLastRow()) sh.appendRow(['시각', '계기', '테이블', '구분', '번호', '제안', '설명', '표 수']);
+  Object.keys(ballot || {}).sort(function (x, y) { return x - y; }).forEach(function (no) {
+    ['us', 'ext'].forEach(function (k) {
+      (ballot[no][k] || []).forEach(function (o) { rows.push([now, why, Number(no), k === 'us' ? '주민' : '외부', o.no, o.text, o.sub || '', counts[o.id] || 0]); });
+    });
   });
-  sh.appendRow([]);
-  sh.appendRow(['참여 기기', r.people]);
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, 8).setValues(rows);
+}
+
+/** ⑦ 공감 결과: 기기별 원자료는 log, 카드별 공감 수는 likes 시트에 덧붙임 */
+function snapshotLikes_(why, cards) {
+  var raw = devicesWith_(LIKE_PREFIX), counts = {};
+  Object.keys(raw).forEach(function (d) { raw[d].split(',').forEach(function (id) { if (id) counts[id] = (counts[id] || 0) + 1; }); });
+  var n = Object.keys(raw).length;
+  if (!n) { log_(why, '공감한 기기 없음'); return; }
+  log_(why, '공감한 기기 ' + n + '대', { cards: cards, counts: counts, devices: raw });
+  var sh = sheet_(SHEETS.likes), now = new Date();
+  if (!sh.getLastRow()) sh.appendRow(['시각', '계기', '카드', '테이블', '주제', '제안', '설명', '공감 수']);
+  var rows = (cards || []).map(function (c) { return [now, why, c.id, c.table, TOPICS[c.topic] || c.topic, c.text, c.sub || '', counts[c.id] || 0]; });
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, 8).setValues(rows);
+}
+
+/** 행사 뒤 편집기에서 실행: 투표·공감 결과를 한 번 더 남기고, 기록 문서 13개와 이 시트를 날짜 폴더에 사본으로 보관.
+ *  사본은 나만 볼 수 있음(공유 안 됨). 원본 문서는 그대로 — 편집을 막으려면 lockDocsAfterEvent() */
+function archiveAfterEvent() {
+  var st = readState_() || {};
+  snapshotVotes_('행사 후 보관', st.ballot || {});
+  snapshotLikes_('행사 후 보관', st.cards || []);
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HHmm');
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), me = DriveApp.getFileById(ss.getId());
+  var parents = me.getParents(), folder = (parents.hasNext() ? parents.next() : DriveApp.getRootFolder()).createFolder('광산자치아고라 기록 보관 ' + stamp);
+  readTables_().forEach(function (t) {
+    if (!t.docId) return;
+    try { var f = DriveApp.getFileById(t.docId); f.makeCopy(f.getName(), folder); }
+    catch (e) { Logger.log('테이블 ' + t.no + ' 문서 복사 실패: ' + e.message); }
+  });
+  SpreadsheetApp.flush();
+  me.makeCopy(ss.getName() + ' (보관 ' + stamp + ')', folder);
+  log_('행사 후 보관', folder.getUrl());
+  Logger.log('보관 폴더: ' + folder.getUrl());
+}
+
+/** 행사 뒤 편집기에서 실행(선택): 기록 문서 13개를 「링크가 있는 사용자 = 보기만」으로. 개별로 추가한 편집자는 그대로 */
+function lockDocsAfterEvent() {
+  readTables_().forEach(function (t) {
+    if (t.docId) DriveApp.getFileById(t.docId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  });
+  log_('문서 잠금', '기록 문서 링크 공유를 보기 전용으로');
 }
 
 // ─────────────────────────── 문서 양식 ───────────────────────────
@@ -732,6 +825,7 @@ function shareDocsForEditing() {
 
 /** 행사 직전: 리허설 기록 지우기(13개 문서를 빈 표 양식으로) + 요약·수동·공감·화면 상태 초기화 */
 function resetForEvent() {
+  log_('행사 초기화', 'resetForEvent 실행 — 이 줄 위는 리허설 기록');
   readTables_().forEach(function (t) { if (t.docId) writeDoc_(t.docId, t); });
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
