@@ -322,8 +322,9 @@
   ];
   let sloAnims = [], sloTimers = [], sloRaf = 0;
   let lastCue = Number(A.LS.get('agora-last-cue', 0));
-  const anim = (el, kf, opt) => { const a = el.animate(kf, Object.assign({ fill: 'both' }, opt)); sloAnims.push(a); return a; };
-  const later = (fn, ms) => sloTimers.push(setTimeout(fn, ms));
+  const slo = (el, kf, opt) => { const a = el.animate(kf, Object.assign({ fill: 'both' }, opt)); sloAnims.push(a); return a; };
+  const sloLater = (fn, ms) => sloTimers.push(setTimeout(fn, ms));
+  const anim = slo, later = sloLater;
   function sloStop() { sloAnims.forEach(a => a.cancel()); sloAnims = []; sloTimers.forEach(clearTimeout); sloTimers = []; cancelAnimationFrame(sloRaf); }
   function sloBuild() {
     const svg = $('#slo-lines');
@@ -349,7 +350,11 @@
     }, i * 1000));
     later(() => anim(box, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.4)' }], { duration: 350, easing: 'ease-in' }), 2950);
   }
+  // 구호 연출 속도: 1 = 원래, 클수록 느리게 (3·2·1 카운트다운은 그대로 1초씩)
+  const SLO_SLOW = 1.6;
   function sloSequence() {
+    const anim = (el, kf, o) => slo(el, kf, Object.assign({}, o, { duration: o.duration * SLO_SLOW, delay: (o.delay || 0) * SLO_SLOW }));
+    const later = (fn, ms) => sloLater(fn, ms * SLO_SLOW);
     [...document.querySelectorAll('#slo-lines path')].forEach((p, i) => {
       const len = p.getTotalLength();
       p.style.strokeDasharray = len;
@@ -382,7 +387,7 @@
     const t0 = performance.now();
     (function frame(t) {
       dots.forEach((c, k) => {
-        const i = Math.floor(k / 3), ph = ((t - t0) / 2600 + (k % 3) / 3 + i * .17) % 1;
+        const i = Math.floor(k / 3), ph = ((t - t0) / (2600 * SLO_SLOW) + (k % 3) / 3 + i * .17) % 1;
         const pt = mains[i].getPointAtLength(lens[i] * ph);
         c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y);
         c.setAttribute('opacity', (Math.sin(ph * Math.PI) * .95).toFixed(2));

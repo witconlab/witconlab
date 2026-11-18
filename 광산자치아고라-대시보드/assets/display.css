@@ -324,7 +324,7 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 .slo .ln { display: block; overflow: hidden; font-size: 150px; padding: 0 .06em .04em; }
 .slo .ch { display: inline-block; transform: translateY(115%); }
 .slo .big { display: block; font-size: 270px; opacity: 0; padding-bottom: 14px; background: linear-gradient(90deg, var(--river), var(--park), var(--road), var(--common), var(--river)); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
-.slo .big.flow { animation: gradFlow 6s linear infinite; }
+.slo .big.flow { animation: gradFlow 9s linear infinite; }
 @keyframes gradFlow { to { background-position: 150% 0; } }
 .slo-sub { font-size: 40px; font-weight: 600; color: var(--muted); margin-top: 26px; opacity: 0; }
 .slo-icons { display: flex; justify-content: center; gap: 26px; margin-top: 34px; }
