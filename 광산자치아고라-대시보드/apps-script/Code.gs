@@ -60,9 +60,9 @@ var DOC_TABLES = [
     groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], color: '#dcfce7', n: 5, label: '🟢 주민 ' },
       { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'], color: '#dbeafe', n: 4, label: '🔵 외부 ' }] },
   { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-    guide: '참가자가 테이블 위 QR 카드로 투표해요(한 사람 한 번). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안을 ② 표에서 제목·핵심 내용 그대로 옮겨 적어요. 「투표 결과」 두 줄은 관제반이 투표를 마치면 자동으로 채워져요 — 비워 두세요.',
+    guide: '참가자가 테이블 위 QR 카드로 투표해요(한 사람 한 번). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안이 선정 과제예요. 관제반이 투표를 마치면 선정 과제(1위)와 투표 결과가 자동으로 채워져요. 동점이거나 표가 없으면 테이블에서 정해 선정 과제 칸에 직접 적어요.',
     sel: [['제안 제목 ✍️', '② 표의 제목 그대로'], ['핵심 내용 ✍️', '② 표의 핵심 내용 그대로']], ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
-    rows: [['선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표'], ['선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표'],
+    rows: [['선정 과제 1 · 🟢 주민', '1위 자동 기록 · 동점이면 직접 적어요'], ['선정 과제 2 · 🔵 외부', '1위 자동 기록 · 동점이면 직접 적어요'],
       ['투표 결과 · 🟢 주민', TALLY_DESC], ['투표 결과 · 🔵 외부', TALLY_DESC]] },
   { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?',
     guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
@@ -628,9 +628,12 @@ function voteLines_(ballot, raw) {
       var lines = opts.map(function (o) { return o.no + '번 ' + o.text + ' — ' + (counts[o.id] || 0) + '표'; });
       var max = Math.max.apply(null, [0].concat(opts.map(function (o) { return counts[o.id] || 0; })));
       var top = opts.filter(function (o) { return max && (counts[o.id] || 0) === max; });
-      var sum = people + '명 투표' + (top.length === 1 ? ' · 최다 ' + top[0].no + '번 ' + top[0].text + ' ' + max + '표'
-        : top.length > 1 ? ' · 동점 ' + top.map(function (o) { return o.no + '번'; }).join('·') + ' ' + max + '표 (테이블에서 정해요)' : '');
-      r[k] = { lines: lines.length ? lines : ['후보 없음'], sum: opts.length ? sum : '후보 없음' };
+      var sum = people + '명 투표' + (top.length === 1 ? ' · 1위 ' + top[0].no + '번 ' + top[0].text + ' ' + max + '표 → 선정 과제 자동 기록'
+        : top.length > 1 ? ' · 동점 ' + top.map(function (o) { return o.no + '번'; }).join('·') + ' ' + max + '표 → 테이블에서 정해 선정 과제에 직접 적어요'
+        : ' · 표 없음 → 선정 과제에 직접 적어요');
+      var w = top.length === 1 ? top[0] : null, full = w && (w.full || [w.text, w.sub]);
+      r[k] = { lines: lines.length ? lines : ['후보 없음'], sum: opts.length ? sum : '후보 없음',
+        pick: full ? { title: full[0] || full[1] || '', body: full[0] ? full[1] || '' : '' } : null };
     });
     out[no] = r;
   });
@@ -663,9 +666,20 @@ function writeVoteDoc_(tabs, r) {
   (tabs || []).forEach(function (tab) {
     tab.asDocumentTab().getBody().getTables().forEach(function (table) {
       if (!/^③/.test(table.getCell(0, 0).getText())) return;
+      var newLayout = /제안\s*제목/.test(table.getCell(0, 1).getText());
       for (var i = 1; i < table.getNumRows(); i++) {
         var row = table.getRow(i), label = row.getCell(0).getText().split('\n')[0];
-        if (!/^투표\s*결과/.test(label) || row.getNumCells() < 3) continue;
+        if (row.getNumCells() < 3) continue;
+        var pm = label.match(/^선정\s*과제\s*(\d)/);
+        if (pm) {  // 1위가 하나일 때만 덮어씀(동점·0표면 기록자가 쓴 그대로)
+          var pk = r[pm[1] === '2' ? 'ext' : 'us'].pick;
+          if (!pk) continue;
+          if (newLayout) { row.getCell(1).setText(pk.title); row.getCell(2).setText(pk.body); }
+          else row.getCell(2).setText(pk.body ? pk.title + ' — ' + pk.body : pk.title);  // 예전 양식: 항목 | 예시 | 답
+          hit = true;
+          continue;
+        }
+        if (!/^투표\s*결과/.test(label)) continue;
         var k = /외부/.test(label) ? ['ext'] : /주민/.test(label) ? ['us'] : ['us', 'ext'];  // 예전 양식(한 줄)이면 둘 다
         var tag = k.length > 1;
         row.getCell(1).setText(k.map(function (x) { return r[x].lines.map(function (l) { return (tag ? (x === 'us' ? '🟢 ' : '🔵 ') : '') + l; }).join('\n'); }).join('\n'));

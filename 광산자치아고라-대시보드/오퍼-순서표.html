@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광산자치아고라 오퍼 순서표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="assets/guide.css?v=20261116a">
+<style>
+  table.cue td, table.cue th { font-size: 8.3pt; padding: .6mm 1.5mm; line-height: 1.33; }
+  table.cue td:first-child { white-space: nowrap; font-weight: 800; }
+  table.cue tr.sec td { background: #1c1917; color: #fff; font-weight: 800; font-size: 8.8pt; padding: .8mm 1.6mm; }
+  table.cue tr.key td { background: #fef9c3; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .box { border: 1.5px solid var(--ink); border-radius: 3mm; padding: 2.5mm 3.5mm; }
+  .box h3 { font-size: 10.5pt; margin-bottom: 1.2mm; }
+  .box li { font-size: 9pt; line-height: 1.5; }
+  table.dense2 td, table.dense2 th { font-size: 8.5pt; padding: .7mm 2mm; line-height: 1.4; }
+  .warn { background: #fee2e2; border-radius: 2mm; padding: 2mm 3mm; font-size: 9pt; line-height: 1.5; margin-top: 2mm; }
+  ul.check li { font-size: 9.2pt; }
+</style>
+</head>
+<body>
+
+<!-- ───────── 1쪽: 시작 전 · 화면 구성 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+  <div class="eyebrow">2026 광산자치아고라 · 관제 패널 · 대형 스크린 오퍼 순서표</div>
+  <h1>오퍼는 진행자 멘트를 듣고 버튼을 누릅니다</h1>
+  <p class="lead">대형 스크린은 관제 패널이 정한 단계를 따라갑니다. 오퍼는 <b>관제 노트북 한 대</b>에서 버튼을 누르고, 같은 화면의 <b>스크린 미리보기</b>로 결과를 확인합니다. 두 명이면 한 명은 단계·투표·공감·구호, 한 명은 기록 현황·AI 검수를 맡아요.</p>
+
+  <h2><b>1</b>행사 당일 오전 (12:30–13:20)</h2>
+  <ul class="check">
+    <li><b>resetForEvent</b> 실행 (Apps Script 편집기) — 문서 13개가 새 양식(③ 표 포함)으로 다시 만들어지고 리허설 기록·투표·공감이 비워져요. <b>행사 시작 뒤에는 절대 실행하지 않음</b></li>
+    <li><b>스크린 PC</b>: 대형 스크린 주소 열기 → 화면 두 번 클릭해 전체화면 → 오른쪽 위 빨간 <b>LIVE</b> 확인. 절전·화면보호기·알림 끄기</li>
+    <li><b>관제 노트북</b>: 관제 패널(control.html) → <b>⌘R 새로고침</b> → 연결 설정에 비밀번호 → 위쪽에 빨간 경고 줄이 없는지</li>
+    <li>관제 패널 맨 아래 <b>시뮬레이션 · 자동 기록 시뮬레이션</b>이 <b>꺼져 있는지</b> (켜져 있으면 가짜 기록이 화면에 떠요)</li>
+    <li><b>시간표 자동 전환</b>은 <b>끔</b> — 진행자 멘트에 맞춰 직접 넘깁니다</li>
+    <li>테이블마다 <b>투표 QR 카드</b>(13장, 테이블 번호가 들어 있음)가 놓였는지</li>
+    <li>휴대폰으로 아무 테이블 QR 카드를 찍어 「투표 시간이 되면 여기서 바로 골라요」가 뜨는지</li>
+    <li>예비 인터넷: 관제 노트북·스크린 PC용 휴대폰 테더링 준비</li>
+  </ul>
+
+  <h2><b>2</b>관제 패널에서 늘 볼 곳</h2>
+  <div class="two">
+    <div class="box"><h3>🖥 스크린 미리보기 (왼쪽 위)</h3><ul>
+      <li>대형 스크린과 같은 화면. 버튼을 누른 뒤 <b>여기서 바뀌었는지</b> 확인</li>
+      <li>위쪽 「마지막 변경 hh:mm」이 방금 시각이면 서버에 반영된 것</li>
+      <li>「서버에 보내는 중…」이 오래가면 Wi‑Fi 확인</li></ul></div>
+    <div class="box"><h3>📋 테이블 기록 현황</h3><ul>
+      <li>테이블마다 ①·②·③·④·⑤ 칸 수. <b>0이 오래가는 테이블</b>은 기록자에게 가 보기</li>
+      <li>③ 칸이 0이면 선정 과제가 비어 있음(동점 등) → 기록자가 직접 적는 중인지 확인</li>
+      <li>✨ 메모가 뜨면 AI 문장을 고쳐 다시 저장</li></ul></div>
+    <div class="box"><h3>🗳 ③ 테이블별 휴대폰 투표</h3><ul>
+      <li>투표한 사람 수와 테이블별 1위가 실시간으로 보여요</li>
+      <li>「투표 마치기」 1분 뒤 각 문서 ③ 탭에 <b>선정 과제(1위)·투표 결과가 자동</b>으로 들어가요</li>
+      <li><b>동점·0표</b> 테이블은 자동으로 안 들어가요 → 기록자가 직접</li></ul></div>
+    <div class="box"><h3>♥ ⑦ 공감 · 응원</h3><ul>
+      <li>공감 카드 목록과 카드별 ♥ 수, 참여 기기 수</li>
+      <li>잘못된 카드는 눌러서 빼기(☐) — 화면에서 바로 빠져요</li>
+      <li>대형 화면에는 숫자 없이 하트만 떠요</li></ul></div>
+  </div>
+  <div class="warn">⚠️ <b>빨간 버튼</b>(투표 초기화 · 공감 초기화 · 시뮬레이션 기록 지우기)은 행사 중 누르지 않습니다. 눌러도 직전 결과는 관제 시트 log에 남지만, 화면과 집계는 비워져요.</div>
+
+  <div class="foot"><span>2026. 11. 19.(목) 14:00–16:00 · 광산구청 7층 윤상원홀</span><span>오퍼 순서표 1/2</span></div>
+</section>
+
+<!-- ───────── 2쪽: 시간순 큐시트 ───────── -->
+<section class="page">
+  <div class="bar"><i style="background:var(--river)"></i><i style="background:var(--park)"></i><i style="background:var(--road)"></i><i style="background:var(--common)"></i></div>
+  <h2 style="margin-top:0"><b>3</b>시간순 큐시트 <span style="font-size:9.5pt;color:var(--muted);font-weight:600">시간보다 진행자 멘트가 먼저입니다</span></h2>
+  <table class="cue">
+    <tr><th style="width:9%">시간</th><th style="width:19%">신호(진행)</th><th style="width:27%">관제 패널에서</th><th style="width:22%">대형 스크린에</th><th>확인할 것</th></tr>
+    <tr class="sec"><td colspan="5">1부</td></tr>
+    <tr><td>13:30</td><td>입장 시작</td><td><span class="btn">참석 등록</span></td><td>대기 화면 · 기록 연결 13/13</td><td>13/13이 아니면 빠진 번호 문서 공유 확인</td></tr>
+    <tr><td>14:00</td><td>사회자 개회</td><td><span class="btn">1부 여는마당</span></td><td>여는마당</td><td></td></tr>
+    <tr><td>14:20</td><td>발제 시작</td><td><span class="btn">주제 발제</span></td><td>주제 발제</td><td>발표 자료를 다른 PC로 띄우면 화면 전환 담당과 맞추기</td></tr>
+    <tr class="sec"><td colspan="5">의제공론화 (테이블 숙의)</td></tr>
+    <tr><td>14:30</td><td>「① 이용 경험」 안내</td><td><span class="btn">의제공론화</span> → <span class="btn">①</span> · 보여 줄 주제 <span class="btn">전체</span> 또는 <span class="btn">자동 순환</span></td><td>① 질문 + 테이블별 카드</td><td>기록 현황에서 ① 칸이 늘어나는지</td></tr>
+    <tr><td>14:45</td><td>「② 함께 할 일」 안내</td><td><span class="btn">②</span></td><td>② 제안(번호 자동)</td><td>주민·외부 제안이 테이블마다 1개 이상인지</td></tr>
+    <tr class="key"><td>15:00</td><td>「③ 투표합니다. 테이블 QR 카드를 찍어 주세요」</td><td><span class="btn">투표 열기</span> (③으로 넘어가며 ② 제안이 후보로 고정)</td><td>테이블별 표 막대 + 「테이블 위 QR 카드」 안내</td><td>투표 수가 오르는지. ② 마감 전에 열지 않기(늦게 쓴 제안은 후보에 없음)</td></tr>
+    <tr class="key"><td>15:04</td><td>진행자 「투표 마감」</td><td><span class="btn">투표 마치기</span></td><td>표 막대 결과 (QR 안내 사라짐)</td><td>1분 뒤 기록 현황 ③ 칸이 채워지는지. 동점 테이블은 기록자에게 직접 적도록</td></tr>
+    <tr><td>15:05</td><td>「④ 실행방법」 안내</td><td><span class="btn">④</span></td><td>④ 제안서 진행</td><td>④ 칸이 늘어나는지</td></tr>
+    <tr class="key"><td>15:20</td><td>④ 끝나갈 무렵</td><td><span class="btn">AI 다듬기 실행</span> (1~3분)</td><td>(그대로)</td><td>끝나면 아래 칸에 테이블별 문장·주제별 요약. 실패하면 「원문으로 채울까요?」 확인</td></tr>
+    <tr class="key"><td>15:25</td><td>「⑤ 결과 확인」 안내</td><td><span class="btn">⑤</span> → 검수 → <span class="btn">검수 내용 저장</span> → <b>화면에 다듬은 문장 쓰기</b> 켜기</td><td>⑤ 테이블 결과</td><td>기록에 없는 말·개인정보가 없는지. ✨ 메모 뜬 곳 고치기</td></tr>
+    <tr class="sec"><td colspan="5">2부</td></tr>
+    <tr><td>15:30</td><td>「주제별 결과 공유」</td><td><span class="btn">⑥ 주제별 결과 공유</span> → 주제 버튼 <span class="btn">강</span> <span class="btn">산</span> <span class="btn">하천</span> <span class="btn">공원</span> 차례로</td><td>주제 하나씩 크게</td><td>발표하는 주제와 화면 주제가 같은지</td></tr>
+    <tr class="key"><td>15:43</td><td>⑥ 끝나갈 무렵</td><td><span class="btn">공감 카드 만들기</span> → 목록 확인, 잘못된 카드 빼기</td><td>(그대로)</td><td>카드가 테이블마다 1~2장인지. 검수 저장 뒤에 만들기</td></tr>
+    <tr class="key"><td>15:45</td><td>「⑦ 공감 · 응원」 안내</td><td><span class="btn">공감 열기</span></td><td>공감 화면 + QR</td><td>참여 기기 수가 오르는지</td></tr>
+    <tr><td>15:53</td><td>진행자 「공감 마감」</td><td><span class="btn">공감 마치기</span></td><td>공감 결과</td><td>likes 시트에 자동으로 남음</td></tr>
+    <tr class="key"><td>15:55</td><td>사회자 「다 함께 구호!」</td><td><span class="btn">3 · 2 · 1 구호 외치기</span></td><td>카운트다운 → 구호 4줄</td><td>한 번만 누르기</td></tr>
+  </table>
+
+  <h2><b>4</b>문제가 생기면</h2>
+  <table class="dense2">
+    <tr><th style="width:30%">이럴 때</th><th>이렇게</th></tr>
+    <tr><td>빨간 경고 줄</td><td>비밀번호 오류 → <span class="btn">비밀번호 다시 입력</span>. 그 전에 누른 버튼은 반영 안 됨 → 다시 누르기</td></tr>
+    <tr><td>스크린이 멈추거나 이상함</td><td>스크린 PC에서 새로고침(F5/⌘R) → 두 번 클릭해 전체화면. 단계는 서버에 있어 그대로 돌아와요</td></tr>
+    <tr><td>관제 패널 오류 문구</td><td>⌘R 새로고침. 그래도 같으면 다른 브라우저(크롬)로 열기</td></tr>
+    <tr><td>③ 결과가 문서에 안 들어감</td><td>1~2분 기다린 뒤에도 비면 기록자가 화면의 1위를 직접 적기 (관제 시트 log 「투표 결과 → 문서」 줄에 실패 테이블이 적혀요)</td></tr>
+    <tr><td>한 테이블 기록이 안 뜸</td><td>기록자에게 가서 탭·칸 확인. 급하면 <b>수동 푸시</b>(테이블·칸·과제 고르고 한 줄)</td></tr>
+    <tr><td>Wi‑Fi 끊김</td><td>관제 노트북·스크린 PC를 테더링으로. 끊긴 동안 스크린은 마지막 화면 유지</td></tr>
+  </table>
+  <p class="note">행사 뒤: Apps Script 편집기에서 <b>archiveAfterEvent</b>(문서 13개·관제 시트 사본 보관) → 필요하면 <b>lockDocsAfterEvent</b>(문서 보기 전용). resetForEvent는 실행하지 않습니다.</p>
+
+  <div class="foot"><span>자세한 설명은 관제 가이드</span><span>오퍼 순서표 2/2</span></div>
+</section>
+
+<button class="printbtn noprint" onclick="window.print()">인쇄 / PDF 저장</button>
+</body>
+</html>

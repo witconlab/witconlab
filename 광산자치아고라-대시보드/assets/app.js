@@ -74,9 +74,9 @@
         { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'] }],
       rows: [1, 2, 3, 4, 5].map(n => ['us', '🟢 주민 ' + n]).concat([1, 2, 3, 4].map(n => ['ext', '🔵 외부 ' + n])) },
     { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-      guide: '참가자가 테이블 위 QR 카드로 투표해요(한 사람 한 번). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안을 ② 표에서 제목·핵심 내용 그대로 옮겨 적어요. 「투표 결과」 두 줄은 관제반이 투표를 마치면 자동으로 채워져요 — 비워 두세요.',
+      guide: '참가자가 테이블 위 QR 카드로 투표해요(한 사람 한 번). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안이 선정 과제예요. 관제반이 투표를 마치면 선정 과제(1위)와 투표 결과가 자동으로 채워져요. 동점이거나 표가 없으면 테이블에서 정해 선정 과제 칸에 직접 적어요.',
       sel: [['제안 제목 ✍️', '② 표의 제목 그대로'], ['핵심 내용 ✍️', '② 표의 핵심 내용 그대로']], ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
-      rows: [['pick', '선정 과제 1 · 🟢 주민', '주민 제안 중 가장 많은 표'], ['pick', '선정 과제 2 · 🔵 외부', '외부 제안 중 가장 많은 표'],
+      rows: [['pick', '선정 과제 1 · 🟢 주민', '1위 자동 기록 · 동점이면 직접 적어요'], ['pick', '선정 과제 2 · 🔵 외부', '1위 자동 기록 · 동점이면 직접 적어요'],
         ['tally', '투표 결과 · 🟢 주민', TALLY_DESC], ['tally', '투표 결과 · 🔵 외부', TALLY_DESC]] },
     { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?', task: 0,
       guide: '선정 과제 1을 다섯 칸에 정리해요. 정하지 못한 칸은 ‘추후 협의’라고 써요. ⑤에서 고칠 곳이 나오면 이 탭에서 바로 고쳐요.',
@@ -514,7 +514,7 @@
     const out = {};
     tables.forEach(t => {
       const nums = numbered(tableData(items, t.no));
-      const opt = i => { const [h, b] = splitTitle(i.text); return { id: 't' + t.no + 'n' + i.no, no: i.no, text: trim(h || b, 30), sub: h ? trim(b, 40) : '' }; };
+      const opt = i => { const [h, b] = splitTitle(i.text); return { id: 't' + t.no + 'n' + i.no, no: i.no, text: trim(h || b, 30), sub: h ? trim(b, 40) : '', full: [h, b] }; };
       const us = nums.filter(i => i.kind === 'us').map(opt), ext = nums.filter(i => i.kind === 'ext').map(opt);
       if (us.length || ext.length) out[t.no] = { us, ext };
     });

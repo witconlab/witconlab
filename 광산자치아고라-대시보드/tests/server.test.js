@@ -112,18 +112,20 @@ assert.strictEqual(gs.readState_(), null);
 assert.ok(gs.like_({ device: 'a', ids: [] }).error);                 // 상태가 없으면 공감 닫힘
 
 // 3-1) 투표 결과 → 테이블 문서 ③ 「투표 결과 · 주민/외부」 줄
-const bal = { 3: { us: [{ id: 't3n1', no: 1, text: '함께 걷기' }, { id: 't3n2', no: 2, text: '사진 기록단' }], ext: [{ id: 't3n3', no: 3, text: '조명 정비' }, { id: 't3n4', no: 4, text: '표지판' }] } };
+const bal = { 3: { us: [{ id: 't3n1', no: 1, text: '함께 걷기', full: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'] }, { id: 't3n2', no: 2, text: '사진 기록단' }], ext: [{ id: 't3n3', no: 3, text: '조명 정비' }, { id: 't3n4', no: 4, text: '표지판' }] } };
 const vl = J(gs.voteLines_(bal, { a: '3|t3n1|t3n3', b: '3|t3n1|t3n4', c: '3|t3n2|', d: '5|t5n1|' }));
-assert.deepStrictEqual(vl[3].us, { lines: ['1번 함께 걷기 — 2표', '2번 사진 기록단 — 1표'], sum: '3명 투표 · 최다 1번 함께 걷기 2표' });
-assert.deepStrictEqual(vl[3].ext, { lines: ['3번 조명 정비 — 1표', '4번 표지판 — 1표'], sum: '2명 투표 · 동점 3번·4번 1표 (테이블에서 정해요)' });
+assert.deepStrictEqual(vl[3].us, { lines: ['1번 함께 걷기 — 2표', '2번 사진 기록단 — 1표'], sum: '3명 투표 · 1위 1번 함께 걷기 2표 → 선정 과제 자동 기록', pick: { title: '함께 걷기', body: '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기' } });
+assert.deepStrictEqual(vl[3].ext, { lines: ['3번 조명 정비 — 1표', '4번 표지판 — 1표'], sum: '2명 투표 · 동점 3번·4번 1표 → 테이블에서 정해 선정 과제에 직접 적어요', pick: null });
 const dcell = () => { let txt = ''; return { getText: () => txt, setText: v => { txt = v; } }; };
 const drow = label => { const cs = [{ getText: () => label + '\n설명' }, dcell(), dcell()]; return { getNumCells: () => 3, getCell: c => cs[c] }; };
-const drows = [drow('③ 우선 과제 선정하기'), drow('선정 과제 1 · 🟢 주민'), drow('투표 결과 · 🟢 주민'), drow('투표 결과 · 🔵 외부')];
-const dtable = { getCell: () => ({ getText: () => '③ 우선 과제 선정하기' }), getNumRows: () => drows.length, getRow: i => drows[i] };
+const drows = [drow('③ 우선 과제 선정하기'), drow('선정 과제 1 · 🟢 주민'), drow('투표 결과 · 🟢 주민'), drow('투표 결과 · 🔵 외부'), drow('선정 과제 2 · 🔵 외부')];
+drows[4].getCell(1).setText('기록자가 쓴 것');
+const dtable = { getCell: (r, c) => ({ getText: () => c === 1 ? '제안 제목 ✍️' : '③ 우선 과제 선정하기' }), getNumRows: () => drows.length, getRow: i => drows[i] };
 assert.ok(gs.writeVoteDoc_([{ asDocumentTab: () => ({ getBody: () => ({ getTables: () => [dtable] }) }), getChildTabs: () => [] }], vl[3]));
 assert.strictEqual(drows[2].getCell(1).getText(), '1번 함께 걷기 — 2표\n2번 사진 기록단 — 1표');
-assert.strictEqual(drows[3].getCell(2).getText(), '2명 투표 · 동점 3번·4번 1표 (테이블에서 정해요)');
-assert.strictEqual(drows[1].getCell(1).getText(), '');                 // 선정 과제 줄은 건드리지 않음
+assert.strictEqual(drows[3].getCell(2).getText(), '2명 투표 · 동점 3번·4번 1표 → 테이블에서 정해 선정 과제에 직접 적어요');
+assert.deepStrictEqual([drows[1].getCell(1).getText(), drows[1].getCell(2).getText()], ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기']);  // 1위 하나 → 자동
+assert.strictEqual(drows[4].getCell(1).getText(), '기록자가 쓴 것');   // 동점 → 기록자가 쓴 그대로
 
 // 4-1) 공감: 카드·열기·마치기·초기화 모두 기록, 큰 자료는 옆 칸으로 나눔
 gs.writeState_({ likeOpen: true, cards: [{ id: 'c1', table: 1, topic: 'river', text: '산책로' }, { id: 'c2', table: 2, topic: 'park', text: '벤치' }] });
