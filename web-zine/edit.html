@@ -114,12 +114,12 @@
 
 <section class="sheet ed-sheet" id="sheet-title" aria-label="제목" inert>
   <div class="sheet-head"><h2 class="hand">쪽 제목</h2><button type="button" class="sheet-x" data-close aria-label="닫기"><svg><use href="#i-close"/></svg></button></div>
-  <input class="input ed-title-input" id="titleInput" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="이 쪽의 제목 (20자까지)">
+  <textarea class="input ed-title-input" id="titleInput" rows="2" maxlength="30" autocomplete="off" placeholder="이 쪽의 제목 (두 줄까지, 줄을 바꾸려면 엔터)"></textarea>
   <div class="ed-row"><span class="ed-label">글씨체</span>
     <div class="seg" id="titleFont"><button type="button" data-font="sans">기본</button><button type="button" data-font="hand" class="hand">손글씨</button><button type="button" data-font="serif" class="serif">명조</button></div>
   </div>
   <div class="ed-row"><span class="ed-label">크기</span>
-    <div class="ed-range"><span aria-hidden="true">작게</span><input type="range" id="titleSize" min="0.04" max="0.12" step="0.005" aria-label="제목 크기"><span aria-hidden="true">크게</span></div>
+    <div class="ed-range"><span aria-hidden="true">작게</span><input type="range" id="titleSize" min="0.04" max="0.16" step="0.005" aria-label="제목 크기"><span aria-hidden="true">크게</span></div>
   </div>
   <div class="ed-row"><span class="ed-label">형광펜</span><div class="swatches" id="titleHl"></div></div>
   <p class="ed-note">제목은 쪽 위에서 끌어서 옮기고, 모서리 점을 끌어서 크기를 바꿀 수 있어요.</p>
@@ -135,6 +135,10 @@
   <div class="ed-row"><span class="ed-label">무늬</span>
     <div class="seg" id="bgPattern"><button type="button" data-pattern="dots">점</button><button type="button" data-pattern="grid">모눈</button><button type="button" data-pattern="none">없음</button></div>
   </div>
+  <div class="ed-row" id="tplRow" hidden><span class="ed-label">틀</span>
+    <button type="button" class="btn" id="tplA">A · 큰 제목 틀 넣기</button>
+  </div>
+  <p class="ed-note" id="tplNote" hidden></p>
 </section>
 
 <div class="ed-toast" id="toast" role="status" hidden></div>

@@ -405,6 +405,15 @@ const app = {
     if (JSON.stringify(next.pages[pageIndex]) !== JSON.stringify(page())) commit(next);
   },
   setBackground(k) { if (page().background !== k) commit(M.setBackground(zine, pageIndex, k)); },
+  pageIndex: () => pageIndex,
+  canTemplate: (i) => M.TEMPLATE_PAGES.includes(i),
+  async applyTemplate() {
+    const d = new Date();
+    const opts = { name: zine.name || '', date: `${d.getFullYear()}년 ${d.getMonth() + 1}월`, fit: fitTextHeight };
+    await fontsFor(`${opts.name} 지음 만든 사람 만든 날 한 줄 소개 눌러서 고쳐 주세요 우리 동네 기록 노트 ${opts.date}`);
+    commit(M.applyTemplateA(zine, pageIndex, opts), { select: null });
+    toast('틀을 넣었어요. 마음에 안 들면 되돌리기를 눌러요.');
+  },
   setPattern(p) { if (page().pattern !== p) commit(M.setPattern(zine, pageIndex, p)); },
 };
 

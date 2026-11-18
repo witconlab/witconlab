@@ -6,7 +6,10 @@ export const PATTERNS = ['dots', 'grid', 'none'];
 export const HIGHLIGHTS = { lavender: '#c9b8e8', sky: '#a9cdf2', lemon: '#fbe58a', pink: '#f6b8c4', white: '#ffffff' };
 export const FONTS = ['sans', 'hand', 'serif']; // 'sans' = Pretendard (default when absent), 'hand' = Nanum Pen Script, 'serif' = Nanum Myeongjo
 // Optional page fields (absent in older zines and in the server's empty zine): titleFont, titleSize.
-export const TITLE_SIZE = { def: 0.06, min: 0.04, max: 0.12 }; // fraction of page height
+export const TITLE_SIZE = { def: 0.06, min: 0.04, max: 0.16 }; // fraction of page height
+export const TITLE_MAX = 30; // characters; at most 2 lines (one line break)
+// Title as typed: up to 2 lines, each trimmed, no empty second line.
+export const cleanTitle = (s) => String(s ?? '').split('\n').map((l) => l.trim()).filter((l, i) => l || i === 0).slice(0, 2).join('\n').slice(0, TITLE_MAX).trim();
 export const PAGE_LABELS = ['표지', '2', '3', '4', '5', '6', '7', '뒷표지'];
 
 const PAGE_W_MM = 105;
@@ -136,8 +139,8 @@ export function cropOf(el) {
   if (!(w > 0.001) || !(h > 0.001) || Number.isNaN(x) || Number.isNaN(y)) return null;
   return { x, y, w, h };
 }
-// Where the picture sits inside a photo element (polaroid: 92% x 80% with a white frame).
-export const photoInset = (frame) => (frame === 'polaroid' ? { x: 0.04, y: 0.04, w: 0.92, h: 0.8 } : { x: 0, y: 0, w: 1, h: 1 });
+// Where the picture sits inside a photo element (polaroid: 86% x 72% with a white frame).
+export const photoInset = (frame) => (frame === 'polaroid' ? { x: 0.07, y: 0.07, w: 0.86, h: 0.72 } : { x: 0, y: 0, w: 1, h: 1 });
 // Element height (page fraction) that shows a picture of pixel aspect `aspect` (w/h) uncut at width w.
 // pageRatio = page width / page height.
 export function photoHeight(w, frame, aspect, pageRatio) {
@@ -191,4 +194,33 @@ export function outsideSafeArea(el) {
   const sx = SAFE_MM / PAGE_W_MM;
   const sy = SAFE_MM / PAGE_H_MM;
   return el.x < sx || el.y < sy || el.x + el.w > 1 - sx || el.y + el.h > 1 - sy;
+}
+
+// ---------- 틀 A (큰 제목) for the cover and the back cover ----------
+// fit(el) -> height of a text element (the editor measures with canvas). Text it adds is marked tpl:'A' so
+// applying again replaces it instead of piling up. Undo restores the page as it was.
+export const TEMPLATE_PAGES = [0, PAGE_COUNT - 1];
+export function applyTemplateA(zine, pageIndex, { name = '', date = '', fit }) {
+  return withPage(zine, pageIndex, (p) => {
+    let els = p.elements.filter((e) => e.tpl !== 'A');
+    const maxZ = els.reduce((m, e) => Math.max(m, e.z), 0);
+    const text = (t, y, size) => {
+      const el = { id: randomId(), type: 'text', text: t, style: { size, color: 'ink', align: 'center' }, x: 0.1, w: 0.8, rotate: 0, z: maxZ + 1, tpl: 'A' };
+      el.h = fit(el);
+      el.y = y === 'mid' ? 0.5 - el.h / 2 : y;
+      return el;
+    };
+    if (pageIndex === 0) {
+      const photo = els.filter((e) => e.type === 'photo').sort((a, b) => a.z - b.z)[0];
+      if (photo) {
+        let w = 0.76, h = photo.h * (w / photo.w);
+        if (h > 0.44) { w *= 0.44 / h; h = 0.44; }
+        els = els.map((e) => (e === photo ? { ...e, x: 0.5 - w / 2, y: 0.4, w, h, rotate: 0 } : e));
+      }
+      if (name) els = [...els, text(`${name} 지음`, 0.88, 0.04)];
+      return { ...p, title: p.title || '우리 동네\n기록 노트', titleBox: { x: 0.06, y: 0.07, w: 0.88 }, titleSize: 0.12, elements: els };
+    }
+    const lines = [`만든 사람  ${name || '__________'}`, `만든 날  ${date || '__________'}`, '', '한 줄 소개', '(눌러서 고쳐 주세요)'];
+    return { ...p, elements: [...els, text(lines.join('\n'), 'mid', 0.045)] };
+  });
 }

@@ -104,6 +104,10 @@ textarea.in { resize: vertical; line-height: 1.45; }
 @media (min-width: 680px) { .nav { justify-content: center; } }
 
 /* result + plan sheet */
+.send { margin: 10px 0 0; font-size: 17px; font-weight: 600; color: var(--ink-soft); }
+.send.ok { color: #2e7d4f; }
+.send.err { color: #c0392b; }
+.bt.small { min-height: 40px; padding: 0 14px; font-size: 16px; }
 .res-top h1 { font-size: 30px; }
 .ph-chip { padding: 0 6px; border: 1.5px dashed var(--ink-soft); border-radius: 6px; color: var(--ink-soft); font-size: 18px; }
 .sheet {

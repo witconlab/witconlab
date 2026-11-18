@@ -64,6 +64,7 @@ function main() {
   // ----- roster -----
   async function refresh() {
     clearNotes();
+    loadPlans(); // the one-pager list refreshes with the roster
     try {
       const res = await admin('adminList');
       students = sortStudents(res.students || []);
@@ -298,6 +299,27 @@ function main() {
   });
   $('a3Btn').addEventListener('click', a3Pdf);
   $('stkBtn').addEventListener('click', addSticker);
+
+  // ----- 5차시 원페이퍼 -----
+  async function loadPlans() {
+    try {
+      const plans = (await admin('adminListPlans')).plans || [];
+      $('planSummary').textContent = `원페이퍼 ${plans.length}장`;
+      $('planEmpty').hidden = plans.length > 0;
+      $('planShow').hidden = !plans.length;
+      const ol = $('planList'); ol.textContent = '';
+      plans.forEach((p, i) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `plans.html#${i + 1}`;
+        a.textContent = (p.answers && p.answers.title) || '(제목 없음)';
+        const by = document.createElement('small');
+        by.textContent = ` · ${p.name || '이름 없음'} · ${fmtUpdated(p.submittedAt)}`;
+        li.append(a, by); ol.append(li);
+      });
+    } catch (e) { fail(e); }
+  }
+  $('planReload').addEventListener('click', loadPlans);
 
   function enter() {
     $('loginView').hidden = true;

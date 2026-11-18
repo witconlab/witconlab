@@ -108,6 +108,18 @@ export function createMock({ storage = globalThis.localStorage, now = Date.now }
       }
       return found ? { ok: true, data: found.data, mime: found.mime } : AUTH();
     },
+    submitPlan(st, b) {
+      if (typeof b.planId !== 'string' || !/^[a-z0-9]{8,32}$/.test(b.planId) || !b.answers || typeof b.answers !== 'object') return fail('BAD_INPUT', '원페이퍼 내용이 올바르지 않아요.');
+      const name = typeof b.name === 'string' ? b.name.trim().slice(0, 40) : '';
+      const rec = { planId: b.planId, name, answers: b.answers, submittedAt: new Date(now()).toISOString() };
+      if (JSON.stringify(rec).length > 20000) return fail('TOO_BIG', '원페이퍼 글이 너무 길어요.');
+      (st.plans ||= {})[b.planId] = rec;
+      return { ok: true };
+    },
+    adminListPlans(st, b) {
+      if (!st.admins[b.adminToken]) return AUTH();
+      return { ok: true, plans: Object.values(st.plans || {}).sort((x, y) => (x.submittedAt < y.submittedAt ? -1 : 1)) };
+    },
     listStickers(st) { return { ok: true, stickers: st.stickers.map(({ id, name }) => ({ id, name })) }; },
     getSticker(st, b) {
       const s = st.stickers.find((x) => x.id === b.id);

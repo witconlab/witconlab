@@ -86,8 +86,8 @@ test('polaroid photo inset', async () => {
   page.elements[0].w = 1; page.elements[0].h = 1;
   const ctx = await render(page, { width: 100, height: 100 });
   const d = ctx.calls.find((c) => c.name === 'drawImage');
-  // drawn in the element's local box (origin = box top-left): x+4, y+4, 92x80 of a 100x100 box
-  assert.deepEqual(d.args.slice(-4), [4, 4, 92, 80]);
+  // drawn in the element's local box (origin = box top-left): x+7, y+7, 86x72 of a 100x100 box
+  assert.deepEqual(d.args.slice(-4).map((v) => Math.round(v * 1e6) / 1e6), [7, 7, 86, 72]);
 });
 
 test('page number only on pages 2-7', async () => {
@@ -98,6 +98,11 @@ test('page number only on pages 2-7', async () => {
   assert.equal(cover.calls.filter((c) => c.name === 'fillText').length, 0);
   assert.equal(back.calls.filter((c) => c.name === 'fillText').length, 0);
   assert.ok(mid.calls.some((c) => c.name === 'fillText' && c.args[0] === '3'));
+});
+
+test('no highlight band when the highlighter is off', async () => {
+  const ctx = await render({ ...pageWith(), title: '안녕', titleHighlight: 'none' });
+  assert.equal(ctx.calls.filter((c) => c.name === 'fillRect').length, 1); // background only
 });
 
 test('title highlight drawn before title text', async () => {
@@ -165,11 +170,11 @@ test('tape outline is a monotone loop; svgs have explicit size; number sits insi
   for (const s of BUILTIN_STICKERS.filter((s) => s.svg)) assert.match(s.svg, /<svg[^>]* width="\d+" height="\d+"/);
 });
 
-test('page number: bottom-right inside the frame, Pretendard 600, 70% ink, no underline', async () => {
+test('page number: bottom centre inside the frame, Pretendard 600, 70% ink, no underline', async () => {
   const ctx = await render(pageWith(), { pageNumber: 3 });
   const t = ctx.calls.find((c) => c.name === 'fillText' && c.args[0] === '3');
   const sx = (5 / 105) * W, sy = (5 / 148) * H;
-  assert.ok(t.args[1] > W / 2 && t.args[1] < W - sx, 'x inside right frame');
+  assert.equal(t.args[1], W / 2, 'x centred');
   assert.ok(t.args[2] > H / 2 && t.args[2] < H - sy, 'y inside bottom frame');
   assert.match(t.font, /^600 4\.5px Pretendard/);
   assert.equal(t.alpha, 0.7);
@@ -188,7 +193,9 @@ test('fonts: Pretendard by default, hand font when chosen; title size from the p
   assert.match(ctx2.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^400 10px "Nanum Pen Script"/);
   assert.match(ctx2.calls.find((c) => c.name === 'fillText' && c.args[0] === '가').font, /^400 5\.5px "Nanum Pen Script"/);
   const huge = await render({ ...base, title: '제목', titleSize: 3 });
-  assert.match(huge.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^700 12px /);
+  assert.match(huge.calls.find((c) => c.name === 'fillText' && c.args[0] === '제목').font, /^700 16px /);
+  const two = await render({ ...base, title: '우리 동네\n기록 노트', titleSize: 0.16 });
+  assert.deepEqual(two.calls.filter((c) => c.name === 'fillText' && /우리|기록/.test(c.args[0])).map((c) => c.args[0]), ['우리 동네', '기록 노트']);
 });
 
 test('photo crop: draws the cropped source rect (9-arg drawImage), cover-fit into the box', async () => {
@@ -213,10 +220,10 @@ test('photo crop: polaroid inset still applies', async () => {
   page.elements[0].x = 0; page.elements[0].y = 0;
   const ctx = await render(page);
   const d = ctx.calls.find((c) => c.name === 'drawImage');
-  assert.deepEqual(d.args.slice(-4), [4, 4, 92, 80]);
+  assert.deepEqual(d.args.slice(-4).map((v) => Math.round(v * 1e6) / 1e6), [7, 7, 86, 72]);
   const [sx, sy, sw, sh] = d.args.slice(1, 5);
   assert.ok(sx >= 50 - 1e-9 && sx + sw <= 150 + 1e-9 && sy >= 0 && sy + sh <= 100 + 1e-9);
-  assert.ok(Math.abs(sw / sh - 92 / 80) < 1e-9);
+  assert.ok(Math.abs(sw / sh - 86 / 72) < 1e-9);
 });
 
 test('photo without crop is unchanged (centre cover of the whole image)', async () => {

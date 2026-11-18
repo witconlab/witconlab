@@ -35,6 +35,9 @@
   .stk-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; }
   .stk-row .input { flex: 1 1 160px; min-height: 44px; }
   ul.fails { margin: 6px 0 0; padding-left: 20px; }
+  .plan-list { margin: 10px 0 0; padding-left: 24px; columns: 2 220px; font-size: 16px; }
+  .plan-list a { color: var(--ink); font-weight: 700; }
+  .plan-list small { color: var(--ink-soft); }
   @media (max-width: 640px) {
     h1 { font-size: 34px; }
     table, tbody, tr, td { display: block; }
@@ -85,6 +88,16 @@
         <thead><tr><th></th><th>이름</th><th>채운 쪽</th><th>마지막 수정</th><th>완성</th><th>잠김</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
+    </section>
+
+    <section class="card">
+      <div class="bar">
+        <h2 class="hand grow" id="planSummary">원페이퍼</h2>
+        <button class="btn sm" id="planReload" type="button">불러오기</button>
+        <a class="btn btn-primary sm" id="planShow" href="plans.html">전체보기 (슬라이드)</a>
+      </div>
+      <p class="empty" id="planEmpty" hidden>아직 보낸 원페이퍼가 없어요. 5차시에 원페이퍼를 다 만들면 여기에 모여요.</p>
+      <ol class="plan-list" id="planList"></ol>
     </section>
 
     <section class="card">

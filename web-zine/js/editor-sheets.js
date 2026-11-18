@@ -1,6 +1,6 @@
 // Editor bottom sheets: stickers, caption text, page title, background.
 import { BUILTIN_STICKERS, getSticker } from './stickers.js';
-import { PAPERS, TEXT_COLORS, HIGHLIGHTS, fontOf, titleSizeOf } from './model.js';
+import { PAPERS, TEXT_COLORS, HIGHLIGHTS, fontOf, titleSizeOf, cleanTitle } from './model.js';
 import { DEFAULT_TEXT_SIZE } from './render.js';
 
 const $ = (id) => document.getElementById(id);
@@ -13,7 +13,7 @@ const TABS = [
 const TAB_GROUPS = { face: ['face'], doodle: ['doodle', 'tape'], star: ['star'], number: ['number'], alpha: ['alpha'], letter: ['letter'] };
 const PAPER_NAMES = { cream: '크림', yellow: '노랑', sky: '하늘', lime: '연두', white: '흰색' };
 const COLOR_NAMES = { ink: '검정', red: '빨강', blue: '파랑', white: '흰색' };
-const HL_NAMES = { lavender: '보라', sky: '하늘', lemon: '레몬', pink: '분홍', white: '흰색' };
+const HL_NAMES = { lavender: '보라', sky: '하늘', lemon: '레몬', pink: '분홍', white: '흰색', none: '형광펜 없음' };
 const DEFAULT_SIZE = DEFAULT_TEXT_SIZE;
 
 function readRecent() {
@@ -260,7 +260,7 @@ export function createSheets(app) {
   let hl = 'sky';
   let tFont = 'sans';
   const showTitleFont = fontPicker($('titleFont'), titleInput, (f) => { tFont = f; showTitleFont(f); });
-  swatches(titleHl, Object.entries(HIGHLIGHTS).map(([k, c]) => [k, c, HL_NAMES[k] || k]), 'hl', (k) => { hl = k; mark(titleHl, 'hl', k); });
+  swatches(titleHl, [...Object.entries(HIGHLIGHTS), ['none', '#ffffff']].map(([k, c]) => [k, c, HL_NAMES[k] || k]), 'hl', (k) => { hl = k; mark(titleHl, 'hl', k); });
   function openTitle() {
     const p = app.page();
     titleInput.value = p.title || '';
@@ -273,12 +273,13 @@ export function createSheets(app) {
     focusLater('sheet-title', titleInput);
   }
   const commitTitle = () => {
-    const t = titleInput.value.trim().slice(0, 20);
+    const t = cleanTitle(titleInput.value);
     close();
     app.setTitle(t, hl, { font: tFont, size: Number(titleSize.value) });
   };
   $('titleOk').addEventListener('click', commitTitle);
-  titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); commitTitle(); } });
+  // Enter makes the second line; a third line is not allowed (the 확인 button saves)
+  titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing && titleInput.value.includes('\n')) e.preventDefault(); });
   $('titleClear').addEventListener('click', () => { titleInput.value = ''; titleInput.focus(); });
 
   // ---- background ----
@@ -291,7 +292,14 @@ export function createSheets(app) {
     mark(bgPaper, 'paper', p.background);
     mark(bgPattern, 'pattern', p.pattern);
   }
-  function openBg() { syncBg(); open('sheet-bg'); }
+  function openBg() {
+    syncBg();
+    const i = app.pageIndex();
+    $('tplRow').hidden = $('tplNote').hidden = !app.canTemplate(i);
+    $('tplNote').textContent = i === 0 ? '위에 두 줄 큰 제목, 아래에 첫 사진, 맨 아래에 "이름 지음"이 놓여요.' : '가운데에 "만든 사람 · 만든 날 · 한 줄 소개" 글이 놓여요.';
+    open('sheet-bg');
+  }
+  $('tplA').addEventListener('click', () => { close(); app.applyTemplate(); });
 
   return {
     open: (name, arg) => ({ sticker: openStickers, text: openText, title: openTitle, bg: openBg }[name])(arg),

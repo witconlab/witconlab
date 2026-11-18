@@ -348,3 +348,21 @@ test('names are NFC-normalized (NFD input reaches the same zine)', () => {
   assert.equal(r.created, false);
   assert.equal(r.zine.name, nfc);
 });
+
+test('one-pager: anyone can submit, resubmitting overwrites, only the teacher can list', () => {
+  const { call, drive } = setup();
+  const answers = { name: '김순자', title: '송정동 간판 이야기' };
+  assert.equal(call('submitPlan', { planId: 'abcd1234', name: '김순자', answers }).ok, true);
+  assert.equal(call('submitPlan', { planId: 'abcd1234', name: '김순자', answers: { ...answers, title: '고친 제목' } }).ok, true);
+  assert.equal(call('submitPlan', { planId: 'zzzz9999', name: '3번 테이블', answers: { title: '골목 지도' } }).ok, true);
+  assert.equal(call('submitPlan', { planId: '../x', answers }).error, 'BAD_INPUT');
+  assert.equal(call('submitPlan', { planId: 'abcd1234', answers: { big: 'x'.repeat(30000) } }).error, 'TOO_BIG');
+  assert.equal(call('adminListPlans', {}).ok, false);
+  const adminToken = call('adminLogin', { password: 'teacher-pw' }).adminToken;
+  const { plans } = call('adminListPlans', { adminToken });
+  assert.deepEqual(plans.map((p) => p.answers.title).sort(), ['고친 제목', '골목 지도']);
+  // the one-pager folder never shows up as a student
+  assert.ok(drive.find('웹진/원페이퍼/abcd1234.json'));
+  assert.equal(call('adminList', { adminToken }).students.length, 0);
+  assert.equal(call('login', { name: '원페이퍼', pin: '1234' }).ok, false);
+});

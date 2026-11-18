@@ -6,6 +6,8 @@
 
 var ROOT_NAME = '웹진';
 var STICKER_FOLDER = 'stickers';
+var PLAN_FOLDER = '원페이퍼'; // 5차시 원페이퍼: <planId>.json 하나에 한 사람(또는 한 테이블)
+var PLAN_MAX = 20000; // 원페이퍼 JSON 최대 글자 수
 var PAGE_COUNT = 8;
 var TOKEN_TTL = 6 * 60 * 60; // 초
 var MAX_FAILS = 5;
@@ -80,6 +82,8 @@ function dispatch_(b) {
     case 'getPhoto': return getPhoto_(b);
     case 'listStickers': return listStickers_();
     case 'getSticker': return getSticker_(b);
+    case 'submitPlan': return submitPlan_(b);
+    case 'adminListPlans': return adminListPlans_(b);
     case 'adminLogin': return locked_(function () { return adminLogin_(b); });
     case 'adminList': return adminList_(b);
     case 'adminGetZine': return adminGetZine_(b);
@@ -224,7 +228,7 @@ function makeAuth_(pin) {
 function validName_(name) {
   if (typeof name !== 'string') return null;
   var n = name.normalize('NFC').replace(/^\s+|\s+$/g, '');
-  if (!n || n.length > 20 || /[\/\\]/.test(n) || n === STICKER_FOLDER) return null;
+  if (!n || n.length > 20 || /[\/\\]/.test(n) || n === STICKER_FOLDER || n === PLAN_FOLDER) return null;
   return n;
 }
 
@@ -443,6 +447,38 @@ function adminAddSticker_(b) {
   return { ok: true };
 }
 
+// ---------- 5차시 원페이퍼 ----------
+
+// 로그인 없이 받는다(이름만 적고 쓰는 화면). 기기마다 만든 planId 파일 하나를 덮어쓰므로 같은 사람이 고쳐 보내도 한 장.
+function planFolder_() { return child_(rootFolder_(), PLAN_FOLDER, true); }
+
+function submitPlan_(b) {
+  var id = typeof b.planId === 'string' && /^[a-z0-9]{8,32}$/.test(b.planId) ? b.planId : null;
+  var name = typeof b.name === 'string' ? b.name.normalize('NFC').replace(/^\s+|\s+$/g, '').slice(0, 40) : '';
+  var answers = b.answers && typeof b.answers === 'object' && !Array.isArray(b.answers) ? b.answers : null;
+  if (!id || !answers) return fail_('BAD_INPUT', '원페이퍼 내용이 올바르지 않아요.');
+  var json = JSON.stringify({ planId: id, name: name, answers: answers, submittedAt: new Date().toISOString() });
+  if (json.length > PLAN_MAX) return fail_('TOO_BIG', '원페이퍼 글이 너무 길어요.');
+  var folder = planFolder_();
+  var file = earliest_(folder.getFilesByName(id + '.json'));
+  if (file) file.setContent(json);
+  else folder.createFile(id + '.json', json, 'application/json');
+  return { ok: true };
+}
+
+function adminListPlans_(b) {
+  if (!isAdmin_(b)) return AUTH_FAIL();
+  var it = planFolder_().getFiles();
+  var plans = [];
+  while (it.hasNext()) {
+    var f = it.next();
+    if (!alive_(f)) continue;
+    try { plans.push(JSON.parse(f.getBlob().getDataAsString())); } catch (err) { /* 깨진 파일은 건너뜀 */ }
+  }
+  plans.sort(function (x, y) { return String(x.submittedAt) < String(y.submittedAt) ? -1 : 1; });
+  return { ok: true, plans: plans };
+}
+
 // ---------- 관리자 ----------
 
 // 학생과 같은 규칙: 5번 틀리면 10분 잠금.
@@ -486,7 +522,7 @@ function adminList_(b) {
   var students = [];
   while (it.hasNext()) {
     var folder = it.next();
-    if (folder.getName() === STICKER_FOLDER || !alive_(folder)) continue;
+    if (folder.getName() === STICKER_FOLDER || folder.getName() === PLAN_FOLDER || !alive_(folder)) continue;
     var zine = readZine_(folder);
     if (!zine) continue;
     var f = getFail_(folder.getName());

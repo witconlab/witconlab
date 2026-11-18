@@ -149,7 +149,7 @@ test('title font/size: optional with defaults and clamping', async () => {
   const z = createEmptyZine('a');
   assert.equal(titleSizeOf(z.pages[1]), TITLE_SIZE.def);
   assert.equal(fontOf(z.pages[1].titleFont), 'sans');
-  assert.equal(setTitleSize(z, 1, 0.5).pages[1].titleSize, 0.12);
+  assert.equal(setTitleSize(z, 1, 0.5).pages[1].titleSize, 0.16);
   assert.equal(setTitleSize(z, 1, 0.01).pages[1].titleSize, 0.04);
   assert.equal(setTitleSize(z, 1, 0.08).pages[1].titleSize, 0.08);
   assert.equal(setTitleFont(z, 1, 'hand').pages[1].titleFont, 'hand');
@@ -174,7 +174,7 @@ test('setPhotoCrop keeps width and centre, height follows aspect (polaroid inset
   assert.equal(snap(z), before);
   const e = z2.pages[1].elements[0];
   assert.equal(e.w, 0.6);
-  assert.ok(Math.abs(e.h - (0.6 * 0.92 * 0.7) / 0.8) < 1e-12);
+  assert.ok(Math.abs(e.h - (0.6 * 0.86 * 0.7) / 0.72) < 1e-12);
   assert.ok(Math.abs(e.y + e.h / 2 - 0.45) < 1e-12 && Math.abs(e.x - 0.2) < 1e-12);
   assert.deepEqual(e.crop, { x: 0.1, y: 0.1, w: 0.5, h: 0.5 });
   assert.equal(photoHeight(1, 'none', 2, 1), 0.5);
@@ -214,4 +214,30 @@ test('setPhotoCrop keeps the element on the page', async () => {
   const id = z.pages[1].elements[0].id;
   const e = setPhotoCrop(z, 1, id, { x: 0, y: 0, w: 0.2, h: 1 }, 0.3, 0.7).pages[1].elements[0];
   assert.ok(e.y >= 0 && e.y + e.h <= 1 + 1e-12 && e.x >= 0 && e.x + e.w <= 1 + 1e-12, JSON.stringify(e));
+});
+
+test('cleanTitle keeps at most two trimmed lines and 30 characters', async () => {
+  const { cleanTitle } = await import('../js/model.js');
+  assert.equal(cleanTitle('  우리 동네 \n 기록 노트 \n셋째'), '우리 동네\n기록 노트');
+  assert.equal(cleanTitle('한 줄\n\n'), '한 줄');
+  assert.equal(cleanTitle('가'.repeat(40)).length, 30);
+});
+
+test('template A: cover gets a big two-line title, first photo below, name; applying again does not pile up', async () => {
+  const { applyTemplateA, TEMPLATE_PAGES } = await import('../js/model.js');
+  const fit = () => 0.06;
+  let z = addElement(createEmptyZine('김순자'), 0, { type: 'photo', src: 'p', frame: 'polaroid', x: 0.1, y: 0.1, w: 0.5, h: 0.4 });
+  z = applyTemplateA(z, 0, { name: '김순자', fit });
+  z = applyTemplateA(z, 0, { name: '김순자', fit });
+  const p = z.pages[0];
+  assert.equal(p.title, '우리 동네\n기록 노트');
+  assert.equal(p.titleSize, 0.12);
+  const photo = p.elements.find((e) => e.type === 'photo');
+  assert.ok(Math.abs(photo.w - 0.55) < 1e-9 && Math.abs(photo.h - 0.44) < 1e-9 && photo.y === 0.4); // aspect kept, fits the lower half
+  assert.deepEqual(p.elements.filter((e) => e.tpl === 'A').map((e) => e.text), ['김순자 지음']);
+  const back = applyTemplateA(z, 7, { name: '김순자', date: '2026년 11월', fit }).pages[7];
+  assert.match(back.elements[0].text, /만든 사람  김순자\n만든 날  2026년 11월/);
+  assert.deepEqual(TEMPLATE_PAGES, [0, 7]);
+  const kept = applyTemplateA({ ...z, pages: z.pages.map((pg, i) => (i ? pg : { ...pg, title: '내 제목' })) }, 0, { fit }).pages[0];
+  assert.equal(kept.title, '내 제목');
 });

@@ -28,7 +28,7 @@ export function zineText(zines) {
 export function zineTitle(z) {
   const t = (z && z.title || '').trim();
   if (t) return t;
-  const p1 = (z && z.pages && z.pages[0] && z.pages[0].title || '').trim();
+  const p1 = (z && z.pages && z.pages[0] && z.pages[0].title || '').replace(/\s*\n\s*/g, ' ').trim();
   return p1 || '진';
 }
 

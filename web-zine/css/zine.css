@@ -176,7 +176,7 @@ button { cursor: pointer; }
 .ed-photo { position: absolute; inset: 0; overflow: hidden; }
 .ed-photo .ed-cover { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; }
 .ed-polaroid { overflow: visible; background: #fff; }
-.ed-polaroid .ed-cover { position: absolute; left: 4%; top: 4%; width: 92%; height: 80%; }
+.ed-polaroid .ed-cover { position: absolute; left: 7%; top: 7%; width: 86%; height: 72%; }
 .ed-contain, .ed-fill { display: block; width: 100%; height: 100%; max-width: none; }
 .ed-contain { object-fit: contain; }
 .ed-el-badge, .ed-el-fail {
@@ -256,10 +256,12 @@ button { cursor: pointer; }
 .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
 .swatch { width: 40px; height: 40px; padding: 0; border: 2px solid var(--ink); border-radius: 50%; background: var(--c); box-shadow: 2px 2px 0 rgba(43, 38, 32, .18); }
 .swatch[aria-pressed="true"] { outline: 3px solid var(--blue); outline-offset: 2px; }
+.swatch[data-hl="none"] { background: linear-gradient(135deg, #fff 45%, var(--red) 45% 55%, #fff 55%); }
 .swatch[data-hl="white"] { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px rgba(43, 38, 32, .55), 2px 2px 0 rgba(43, 38, 32, .18); }
 .ed-range { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
 .ed-range input { flex: 1; min-width: 0; accent-color: var(--blue); }
 .ed-textarea:not(.hand):not(.serif), .ed-title-input:not(.hand):not(.serif) { font-size: 19px; font-weight: 600; }
+.ed-title-input { min-height: 0; padding: 8px 14px; line-height: 1.25; resize: none; }
 .ed-textarea { min-height: 96px; padding: 8px 14px; font-size: 26px; line-height: 1.25; resize: none; }
 .ed-title-input { font-size: 26px; }
 .ed-note { margin: 12px 0 0; color: var(--ink-soft); font-size: 13px; }
@@ -288,7 +290,7 @@ button { cursor: pointer; }
 
 /* photo crop: the picture window and the positioned image (editor DOM; same maths as render.js coverSource) */
 .ed-crop-win { position: absolute; inset: 0; overflow: hidden; }
-.ed-polaroid .ed-crop-win { left: 4%; top: 4%; width: 92%; height: 80%; }
+.ed-polaroid .ed-crop-win { left: 7%; top: 7%; width: 86%; height: 72%; }
 .ed-crop-win img { position: absolute; display: block; max-width: none; visibility: hidden; }
 .ed-el.is-pending .ed-crop-win img, .ed-el.is-pending .ed-contain { opacity: .75; }
 

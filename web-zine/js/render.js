@@ -149,14 +149,17 @@ export function drawTitle(ctx, page, width, height) {
   const lines = wrapText((s) => ctx.measureText(s).width, page.title, boxW);
   const cx = (box.x + box.w / 2) * width;
   const pad = width * 0.03;
+  const hl = page.titleHighlight === 'none' ? null : HIGHLIGHTS[page.titleHighlight] || HIGHLIGHTS.sky;
   lines.forEach((l, i) => {
     const y = box.y * height + i * step;
     const bw = Math.min(boxW, ctx.measureText(l).width) + pad * 2;
+    if (hl) {
     ctx.save();
     ctx.globalAlpha = 0.7;
-    ctx.fillStyle = HIGHLIGHTS[page.titleHighlight] || HIGHLIGHTS.sky;
+    ctx.fillStyle = hl;
     ctx.fillRect(cx - bw / 2, y + step * 0.45, bw, step * 0.5);
     ctx.restore();
+    }
     ctx.fillStyle = TEXT_COLORS.ink;
     ctx.fillText(l, cx, y);
   });
@@ -204,15 +207,15 @@ export async function renderPage(ctx, page, opts) {
 
   const sx = (SAFE_MM / PAGE_W_MM) * width;
   const sy = (SAFE_MM / PAGE_H_MM) * height;
-  if (pageNumber >= 2 && pageNumber <= 7) { // bottom-right, inside the safe margin
+  if (pageNumber >= 2 && pageNumber <= 7) { // bottom centre, inside the safe margin
     const px = height * 0.045;
     ctx.save();
     ctx.font = PAGE_NUMBER_FONT(px);
     ctx.fillStyle = TEXT_COLORS.ink;
     ctx.globalAlpha = 0.7;
-    ctx.textAlign = 'right';
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(String(pageNumber), width - sx - width * 0.035, height - sy - height * 0.018);
+    ctx.fillText(String(pageNumber), width / 2, height - sy - height * 0.018);
     ctx.restore();
   }
 

@@ -329,6 +329,47 @@ function partHtml(p, a) {
   return `<div class="part"><label for="${id}" class="lab">${esc(p.label)}</label>${field}</div>`;
 }
 
+const randomId = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
+
+const H2C_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+let h2c = null;
+const loadH2C = () => (h2c ||= new Promise((ok, bad) => {
+  if (window.html2canvas) return ok(window.html2canvas);
+  const s = document.createElement('script');
+  s.src = H2C_URL; s.onload = () => ok(window.html2canvas); s.onerror = () => { h2c = null; bad(new Error('load')); };
+  document.head.append(s);
+}));
+
+// Picture of the plan sheet, laid out at tablet width (2 columns) whatever the phone size.
+// iPhone: share sheet ("이미지 저장" puts it in Photos). Others: a download (Android shows it in the gallery).
+async function saveImage(btn, sheet, plan) {
+  const label = btn.innerHTML;
+  btn.disabled = true; btn.textContent = '그림 만드는 중…';
+  try {
+    const html2canvas = await loadH2C();
+    const canvas = await html2canvas(sheet, {
+      scale: 2, backgroundColor: '#ffffff', windowWidth: 900,
+      onclone: (d) => { const s = d.getElementById('sheet'); s.style.width = '860px'; s.style.margin = '0'; s.style.boxShadow = 'none'; },
+    });
+    const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
+    const fname = `원페이퍼_${(plan.name || '나').replace(/[\\/:*?"<>|\s]+/g, '_')}.png`;
+    const file = new File([blob], fname, { type: 'image/png' });
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (ios && navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: '원페이퍼' }); } catch (e) { if (e.name !== 'AbortError') throw e; }
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = fname;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+  } catch {
+    alert('그림을 만들지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.');
+  } finally {
+    btn.disabled = false; btn.innerHTML = label;
+  }
+}
+
 export function startApp(root) {
   let st = load(); // { answers, step }
   if (!st.answers) st = { answers: {}, step: -1 };
@@ -390,19 +431,40 @@ export function startApp(root) {
         <h1>원페이퍼가 만들어졌어요</h1>
         <p class="lead">${missing ? `빈칸 <b>${missing}</b>곳은 <span class="ph-chip">(적어 주세요)</span>로 보여요. 질문으로 돌아가 채울 수 있어요.` : '모든 칸이 채워졌어요. 인쇄해서 발표해 보세요!'}</p>
         <div class="btns">
-          <button type="button" class="bt primary" id="print">${icon('book', 24)} 인쇄하기</button>
+          <button type="button" class="bt primary" id="saveImg">${icon('arrow', 24)} 이미지로 저장</button>
+          <button type="button" class="bt" id="print">${icon('book', 24)} 인쇄하기</button>
           <button type="button" class="bt" data-go="0">질문 고치기</button>
           <button type="button" class="bt ghost" id="reset">처음부터</button>
         </div>
+        <p class="send" id="sendState" role="status"></p>
       </div>
       ${planSheetHtml(plan, { sample: !!st.sample })}
     </section>`;
     root.querySelector('#print').onclick = () => window.print();
+    root.querySelector('#saveImg').onclick = (e) => saveImage(e.currentTarget, root.querySelector('#sheet'), plan);
+    sendToTeacher();
     root.querySelector('#reset').onclick = () => {
       if (!confirm('적은 답을 모두 지우고 처음부터 할까요?')) return;
       const name = sessionName();
       st = { answers: name ? { name } : {}, step: -1 }; persist(); go('intro');
     };
+  }
+
+  // The finished one-pager goes to the teacher's dashboard (one file per device; sending again replaces it).
+  async function sendToTeacher() {
+    const el = root.querySelector('#sendState');
+    if (!el) return;
+    if (st.sample) { el.textContent = '예시는 선생님께 보내지 않아요.'; return; }
+    if (!st.planId) { st.planId = randomId(); persist(); }
+    el.className = 'send'; el.textContent = '선생님께 보내는 중…';
+    try {
+      const { call } = await import('./api.js');
+      await call('submitPlan', { planId: st.planId, name: str(A().name), answers: A() });
+      el.className = 'send ok'; el.textContent = '✓ 선생님 화면에 보냈어요. 고치면 다시 보내져요.';
+    } catch {
+      el.className = 'send err'; el.innerHTML = '선생님께 보내지 못했어요. <button type="button" class="bt small" id="resend">다시 보내기</button>';
+      el.querySelector('#resend').onclick = sendToTeacher;
+    }
   }
 
   function go(to) {
