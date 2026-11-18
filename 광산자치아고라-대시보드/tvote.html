@@ -66,6 +66,9 @@
   const $ = s => document.querySelector(s);
   let my = A.LS.get('agora-my-tvote', {});          // {round, table, us, ext, sent}
   let pick = { us: my.us || '', ext: my.ext || '' };
+  // 테이블 QR(tvote.html?t=5)로 들어오면 그 테이블로 바로
+  const qt = Number(new URLSearchParams(location.search).get('t'));
+  if (qt >= 1 && qt <= 12 && qt !== my.table) { my = { round: my.round, table: qt }; pick = { us: '', ext: '' }; A.LS.set('agora-my-tvote', my); }
   let lastKey = '';
 
   function toast(msg, err) {
@@ -86,7 +89,7 @@
     if (!st.voteOpen) {
       $('#main').innerHTML = my.sent
         ? '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '의 결과는 앞 화면에서 함께 봐요.</p></div>'
-        : '<div class="state"><div class="big">⏳</div><h2>투표 시간이 되면 여기서 바로 골라요</h2><p>이 화면을 켜 두세요. 다시 QR을 찍지 않아도<br>투표가 열리면 제안이 자동으로 나타나요.</p></div>';
+        : '<div class="state"><div class="big">⏳</div>' + (my.table ? '<p><b>테이블 ' + my.table + '</b></p>' : '') + '<h2>투표 시간이 되면 여기서 바로 골라요</h2><p>이 화면을 켜 두세요. 다시 QR을 찍지 않아도<br>투표가 열리면 제안이 자동으로 나타나요.</p></div>';
       return;
     }
     if (!bt) {  // 내 테이블 고르기

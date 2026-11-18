@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>테이블별 투표 QR</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; color: #111; background: #e7e5e4; word-break: keep-all; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 0; }
+  .page { width: 210mm; height: 297mm; margin: 10mm auto; background: #fff; display: flex; flex-direction: column; }
+  @media print { body { background: #fff; } .page { margin: 0; page-break-after: always; } .noprint { display: none; } }
+  /* A4 한 장에 테이블 2개 · 가운데 점선으로 잘라 테이블에 세워 두기 */
+  .card { flex: 1; padding: 11mm 14mm 9mm; display: flex; flex-direction: column; gap: 4mm; border-top: 6px solid var(--c); }
+  .card + .card { border-top: 1px dashed #999; box-shadow: inset 0 6px 0 var(--c); }
+  .hd { display: flex; align-items: baseline; gap: 4mm; }
+  .hd b { font-size: 34pt; font-weight: 900; color: var(--c); line-height: 1; }
+  .hd span { font-size: 16pt; font-weight: 800; }
+  .hd small { margin-left: auto; font-size: 10pt; color: #666; }
+  .row { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  .q { display: flex; flex-direction: column; align-items: center; gap: 2.5mm; border: 2px solid #111; border-radius: 6mm; padding: 5mm; text-align: center; }
+  .q .tag { font-size: 11pt; font-weight: 900; color: #fff; background: #111; padding: 1mm 4mm; border-radius: 99px; }
+  .q.like .tag { background: #e11d48; }
+  .q h3 { font-size: 16pt; font-weight: 900; }
+  .q .qr { width: 52mm; height: 52mm; }
+  .q .qr img, .q .qr canvas { width: 100% !important; height: auto !important; }
+  .q p { font-size: 10.5pt; line-height: 1.5; color: #333; }
+  .foot { font-size: 9.5pt; color: #555; text-align: center; }
+  .printbtn { position: fixed; right: 16px; bottom: 16px; padding: 12px 18px; border: 0; border-radius: 12px; background: #111; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="pages"></div>
+<button class="printbtn noprint" onclick="window.print()">인쇄 / PDF 저장</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // 테이블 n → 주제 (관제 시트 기본 배치와 같음: 1·7 황룡강 …)
+  var TOPICS = [['황룡강', '#0284c7'], ['풍영정천', '#0d9488'], ['어등산', '#65a30d'], ['말미산', '#ca8a04'], ['신촌근린공원', '#ea580c'], ['대상공원', '#db2777']];
+  var base = location.protocol.indexOf('http') === 0 && location.hostname !== 'localhost'
+    ? new URL('.', location.href).href
+    : 'https://witconlab.github.io/witconlab/광산자치아고라-대시보드/';
+  base = decodeURI(base);
+  var card = function (n) {
+    var t = TOPICS[(n - 1) % 6];
+    return '<section class="card" style="--c:' + t[1] + '"><div class="hd"><b>' + n + '</b><span>테이블 ' + n + ' · ' + t[0] + '</span><small>2026 광산자치아고라</small></div>' +
+      '<div class="row">' +
+      '<div class="q"><span class="tag">③ 우선 과제 · 15:00쯤</span><h3>우리 테이블 투표</h3><div class="qr" data-u="' + base + 'tvote.html?t=' + n + '"></div><p>🟢 주민이 할 일 1개<br>🔵 기관 도움이 필요한 일 1개</p></div>' +
+      '<div class="q like"><span class="tag">⑦ 공감 · 응원 · 15:45쯤</span><h3>모든 제안에 ♥</h3><div class="qr" data-u="' + base + 'vote.html"></div><p>함께 실천되기를 바라는 제안에<br>♥를 여러 개 눌러요</p></div>' +
+      '</div><p class="foot">미리 찍어 두면 시간이 될 때 화면이 자동으로 열려요 · 로그인·개인정보 입력 없음</p></section>';
+  };
+  var html = '';
+  for (var n = 1; n <= 12; n += 2) html += '<div class="page">' + card(n) + card(n + 1) + '</div>';
+  document.getElementById('pages').innerHTML = html;
+  document.querySelectorAll('.qr').forEach(function (el) {
+    new QRCode(el, { text: encodeURI(el.dataset.u), width: 480, height: 480, correctLevel: QRCode.CorrectLevel.M });
+  });
+</script>
+</body>
+</html>
