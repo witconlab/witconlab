@@ -36,7 +36,7 @@
   td.l small { display: block; font-weight: 500; font-size: 12px; color: #6b7280; margin-top: 3px; }
   table.cols th:first-child { width: 16%; } table.cols th { width: auto; }
   table.cols td.ans textarea, table.pair td.ans textarea { min-height: 40px; }
-  table.pair th:first-child { width: 18%; } table.pair th:nth-child(2) { width: 30%; } table.pair th small { display: block; font-weight: 500; font-size: 11px; opacity: .8; }
+  table.pair th:first-child { width: 24%; } table.pair th small { display: block; font-weight: 500; font-size: 11px; opacity: .8; }
   tr.band td { font-size: 14px; padding: 8px 10px; } tr.band small { color: #475569; font-size: 12px; }
   tr.band.us td, tr.g-us td.l { background: #dcfce7; } tr.band.ext td, tr.g-ext td.l { background: #dbeafe; }
   tr.exr td { color: #6b7280; font-style: italic; font-size: 13px; background: #fafafa; }
@@ -126,8 +126,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261119d"></script>
-<script src="assets/app.js?v=20261119d"></script>
+<script src="config.js?v=20261119e"></script>
+<script src="assets/app.js?v=20261119e"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -187,14 +187,14 @@
         }
         if (s.pair) {
           return head + '<table class="pair"><thead><tr><th>' + esc(s.head) + '</th>' + s.pair.map(([x, h]) => '<th>' + esc(x) + '<small>' + esc(h) + '</small></th>').join('') + '</tr></thead><tbody>' +
-            s.groups.map(g => '<tr class="band ' + g.field + '"><td colspan="3"><b>' + esc(g.band) + '</b> <small>' + esc(g.desc) + '</small></td></tr>' +
-              '<tr class="exr"><td>예시</td><td>' + esc(g.ex[0]) + '</td><td>' + esc(g.ex[1]) + '</td></tr>' +
-              s.rows.map(([f, label], ri) => f !== g.field ? '' : '<tr class="g-' + f + '"><td class="l">' + esc(label) + '</td>' + [0, 1].map(ci => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + s.pair[ci][0])).join('') + '</tr>').join('')).join('') + '</tbody></table>';
+            s.groups.map(g => '<tr class="band ' + g.field + '"><td colspan="' + (1 + s.pair.length) + '"><b>' + esc(g.band) + '</b> <small>' + esc(g.desc) + '</small></td></tr>' +
+              '<tr class="exr"><td>예시</td>' + g.ex.map(x => '<td>' + esc(x) + '</td>').join('') + '</tr>' +
+              s.rows.map(([f, label], ri) => f !== g.field ? '' : '<tr class="g-' + f + '"><td class="l">' + esc(label) + '</td>' + s.pair.map((x, ci) => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + x[0])).join('') + '</tr>').join('')).join('') + '</tbody></table>';
         }
-        if (s.sel) {  // ③ 선정 과제·투표 결과: 제안 제목 | 핵심 내용
+        if (s.sel) {  // ③ 선정 과제·투표 결과: 제안 내용
           return head + '<table class="pair"><thead><tr><th>' + esc(s.head) + '</th>' + s.sel.map(([x, h]) => '<th>' + esc(x) + '<small>' + esc(h) + '</small></th>').join('') + '</tr></thead><tbody>' +
-            '<tr class="exr"><td>예시</td><td>' + esc(s.ex[0]) + '</td><td>' + esc(s.ex[1]) + '</td></tr>' +
-            s.rows.map(([f, label, desc], ri) => '<tr class="' + (f === 'pick' ? (/외부/.test(label) ? 'g-ext' : 'g-us') : '') + '"><td class="l">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td>' + [0, 1].map(ci => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + s.sel[ci][0])).join('') + '</tr>').join('') + '</tbody></table>';
+            '<tr class="exr"><td>예시</td>' + s.ex.map(x => '<td>' + esc(x) + '</td>').join('') + '</tr>' +
+            s.rows.map(([f, label, desc], ri) => '<tr class="' + (f === 'pick' ? (/외부/.test(label) ? 'g-ext' : 'g-us') : '') + '"><td class="l">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td>' + s.sel.map((x, ci) => cellHtml('T' + ti + 'R' + ri + 'C' + ci, label + ' ' + x[0])).join('') + '</tr>').join('') + '</tbody></table>';
         }
         return head + '<table><thead><tr><th>' + esc(s.head) + '</th><th>예시 (이렇게 쓰면 돼요)</th><th>우리 테이블 답 ✍️</th></tr></thead><tbody>' +
           s.rows.map(([f, label, desc, ex], ri) => '<tr><td class="l" data-ex="' + esc(ex ? '예) ' + ex : '') + '">' + esc(label) + (desc ? '<small>' + esc(desc) + '</small>' : '') + '</td><td class="ex">' + esc(ex) + '</td>' + cellHtml('T' + ti + 'R' + ri, s.head + ' ' + label) + '</tr>').join('') + '</tbody></table>';
@@ -214,8 +214,7 @@
     if (lines.some(l => l.length > 60)) return ['warn', '한 줄이 길어요. 엔터로 나누거나 짧게 써 주세요.'];
     if (sl.field === 'done' && lines.length && !/제출/.test(all)) return ['warn', '모두 동의하면 ‘제출’이라고 써요.'];
     if (A.TASK_FIELDS.includes(sl.field) && sl.task === 0 && !lines.length) return ['', '못 정하면 ‘추후 협의’'];
-    if (sl.col != null && lines.length > 1) return ['warn', '한 줄에 제안 하나. 다음 제안은 아래 줄에 써요.'];
-    if (sl.col === 0 && lines.length && !(cells[k.replace(/C0$/, 'C1')] || []).length) return ['', '옆 칸에 핵심 내용도'];
+    if (sl.col != null && sl.field !== 'tally' && lines.length > 1) return ['warn', '한 줄에 제안 하나. 다음 제안은 아래 줄에 써요.'];
     if (lines.length > 1) return ['ok', '카드 ' + lines.length + '장으로 올라가요'];
     return ['', ''];
   }
@@ -251,7 +250,7 @@
     const M = [
       ['① 참여자 두 명 이상의 이야기를 각자 줄에', new Set(['good', 'bad', 'better'].flatMap(f => SLOTS.filter(x => x.field === f && (cells[x.key] || []).length).map(x => x.key.replace(/C\d+$/, '')))).size >= 2],
       ['② [주민실천] 두 칸 이상 + [외부협력] 한 칸 이상', new Set(slotsOf('us').filter(k => (cells[k] || []).length).map(k => k.replace(/C\d+$/, ''))).size >= 2 && has('ext')],
-      ['③ 선정 과제 🟢 주민·🔵 외부를 ②에서 제목·핵심 내용 그대로', SLOTS.filter(x => x.field === 'pick' && (cells[x.key] || []).length).length >= 4],
+      ['③ 선정 과제 🟢 주민·🔵 외부를 ②의 제안 내용 그대로', SLOTS.filter(x => x.field === 'pick' && (cells[x.key] || []).length).length >= 2],
       ['④ 과제 1의 다섯 칸 모두 (못 정하면 ‘추후 협의’)', TASK_FIELDS.every(f => has(f, 0))],
       ['⑤ 「최종 제출」에 ‘제출’', /제출/.test(linesOf('done').join(' '))]
     ];
@@ -283,11 +282,11 @@
     cells = {};
     TEMPLATE.forEach((s, ti) => {
       if (s.cols) { s.cols.forEach((f, ci) => { cells['T' + ti + 'R0C' + ci] = [s.ex[ci]]; }); cells['T' + ti + 'R1C0'] = ['아이들과 주말마다 산책해요']; cells['T' + ti + 'R1C1'] = ['비 오면 길이 미끄러워요']; }
-      else if (s.pair) s.groups.forEach(g => { const ri = s.rows.findIndex(r => r[0] === g.field); cells['T' + ti + 'R' + ri + 'C0'] = [g.ex[0]]; cells['T' + ti + 'R' + ri + 'C1'] = [g.ex[1]]; });
-      else if (s.sel) { cells['T' + ti + 'R0C0'] = [s.ex[0]]; cells['T' + ti + 'R0C1'] = [s.ex[1]]; cells['T' + ti + 'R2C0'] = ['1번 함께 걷기 — 7표', '2번 사진 기록단 — 3표']; cells['T' + ti + 'R2C1'] = ['10명 투표 · 1번 함께 걷기 7표']; }
+      else if (s.pair) s.groups.forEach(g => { const ri = s.rows.findIndex(r => r[0] === g.field); g.ex.forEach((x, ci) => { cells['T' + ti + 'R' + ri + 'C' + ci] = [x]; }); });
+      else if (s.sel) { cells['T' + ti + 'R0C0'] = [s.ex[0]]; cells['T' + ti + 'R2C0'] = ['10명 투표 · 1위 1번 7표 → 선정 과제 자동 기록', '1번 두 동 함께 걷기 — 7표', '2번 사진 기록단 — 3표']; }
       else s.rows.forEach(([, , , ex], ri) => { if (ex) cells['T' + ti + 'R' + ri] = [ex]; });
     });
-    const us = slotsOf('us'); cells[us[2]] = ['사진 기록단']; cells[us[3]] = ['산책로 변화를 사진으로 남기기'];
+    const us = slotsOf('us'); cells[us[1]] = ['산책로 변화를 사진으로 남기는 사진 기록단 만들기'];
     save(); buildPaper(); render();
   };
 

@@ -55,13 +55,13 @@ var DOC_TABLES = [
     guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
     cols: ['좋았던 점', '불편한 점', '개선점'], ex: ['제방길 아침 — 물소리 들으며 걷기 좋아요', '제방길 저녁 — 조명이 어두워 혼자 걷기 무서워요', '산책로 중간 — 쉬어 갈 벤치가 더 있으면 좋겠어요'], people: 14 },
   { tab: '② 함께 할 일', head: '② 함께 할 일 제안하기', q: '우리의 경험을 바탕으로, 이곳이 어떻게 달라지면 좋을까요?',
-    guide: '제안 하나에 한 줄. 주민이 직접 할 일은 🟢 초록 줄에, 기관 도움이 필요한 일은 🔵 파란 줄에 써요. 둘 다 필요하면 같은 제목으로 양쪽에 역할을 나눠 적어요. 화면에 번호가 자동으로 붙어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
-    pair: [['제안 제목 ✍️', '짧게, 이름처럼'], ['핵심 내용 ✍️', '무엇을 어떻게, 한 문장']],
-    groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], color: '#dcfce7', n: 5, label: '🟢 주민 ' },
-      { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['안내표지 정비', '연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'], color: '#dbeafe', n: 4, label: '🔵 외부 ' }] },
+    guide: '제안 하나에 한 줄, 「제안 내용」 한 칸에 무엇을 어떻게 할지 한 문장으로 써요. 주민이 직접 할 일은 🟢 초록 줄에, 기관 도움이 필요한 일은 🔵 파란 줄에 써요. 둘 다 필요하면 양쪽 줄에 역할을 나눠 적어요. 화면에 번호가 자동으로 붙어요. 한 사람의 생각인지 테이블이 함께 확인한 것인지 구분해요.',
+    pair: [['제안 내용 ✍️', '무엇을 어떻게 할지, 한 문장으로']],
+    groups: [{ field: 'us', band: '🟢 주민이 직접 할 일', desc: '모임 · 캠페인 · 정화 · 돌봄 · 기록 · 교육', ex: ['두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'], color: '#dcfce7', n: 5, label: '🟢 주민 ' },
+      { field: 'ext', band: '🔵 기관 도움이 필요한 일', desc: '구청 · 행정복지센터 · 기관 / 시설 정비 · 안전 · 예산 · 제도', ex: ['연결길 안내표지를 새로 달아 주세요 (구청 공원녹지과)'], color: '#dbeafe', n: 4, label: '🔵 외부 ' }] },
   { tab: '③ 우선 과제', head: '③ 우선 과제 선정하기', q: '여러 제안 중 무엇을 먼저 이야기해 볼까요?',
-    guide: '참가자가 테이블 위 QR 카드로 투표해요(한 사람 한 번). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안이 선정 과제예요. 관제반이 투표를 마치면 선정 과제(1위)와 투표 결과가 자동으로 채워져요. 동점이거나 표가 없으면 테이블에서 정해 선정 과제 칸에 직접 적어요.',
-    sel: [['제안 제목 ✍️', '② 표의 제목 그대로'], ['핵심 내용 ✍️', '② 표의 핵심 내용 그대로']], ex: ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
+    guide: '참가자가 테이블 위 QR 카드로 투표해요(한 사람 한 번). 🟢 주민·🔵 외부에서 가장 많은 표를 받은 제안이 선정 과제예요. 관제반이 투표를 마치면 선정 과제(1위)와 투표 결과가 자동으로 채워져요. 동점이거나 표가 없으면 테이블에서 정해 ② 표의 제안 내용을 선정 과제 칸에 직접 옮겨 적어요.',
+    sel: [['제안 내용 ✍️', '② 표에 쓴 제안 그대로']], ex: ['두 동 주민이 한 달에 한 번 함께 걷고 길 살피기'],
     rows: [['선정 과제 1 · 🟢 주민', '1위 자동 기록 · 동점이면 직접 적어요'], ['선정 과제 2 · 🔵 외부', '1위 자동 기록 · 동점이면 직접 적어요'],
       ['투표 결과 · 🟢 주민', TALLY_DESC], ['투표 결과 · 🔵 외부', TALLY_DESC]] },
   { tab: '④ 실행방법', head: '④ 과제 1 실행방법', q: '이 제안을 실천하려면 무엇부터 시작하면 좋을까요?',
@@ -74,8 +74,8 @@ var DOC_TABLES = [
   { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요',
     rows: [['현황·제안배경', '', ''], ['우리가 바라는 모습', '', ''], ['우리의 제안', '', ''], ['우리가 시작할 첫걸음', '', ''], ['함께하고 싶은 이웃', WITH_DESC, '']] },
   { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '정리된 내용이 우리가 이야기한 뜻과 맞나요?',
-    guide: '진행자가 다섯 항목을 읽어 주면, 고칠 곳은 ④ 탭에서 바로 고쳐요(화면도 바로 바뀌어요). 기록과 화면이 같은지 확인하고, 진행자의 최종 확인 신호 뒤에 ‘제출’이라고 써요.',
-    rows: [['고친 곳·빠진 의견 메모', '무엇을 고쳤는지 짧게', '첫걸음 날짜를 ‘추후 협의’로 고침'],
+    guide: '⑤에서는 새 내용을 쓰지 않아요. ④에 쓴 다섯 칸이 그대로 우리 테이블 「의제 제안서」가 되어 화면에 떠요. ① 진행자가 제안서를 읽어 줘요 → ② 고칠 곳은 ④ 탭의 그 칸에서 고쳐요(화면도 바로 바뀌어요) → ③ 무엇을 고쳤는지 아래 메모 칸에 → ④ AI가 다듬은 문장이 원래 뜻과 다르면 ✨ 칸에 → ⑤ 모두 확인하면 ‘제출’.',
+    rows: [['고친 곳·빠진 의견 메모', '④ 탭에서 고친 뒤, 무엇을 고쳤는지 짧게', '첫걸음 날짜를 ‘추후 협의’로 고침'],
       ['✨ AI 다듬은 문장 확인', 'AI가 다듬은 문장이 화면에 뜨면 원래 발언과 비교해 다른 점을 적어요', '“줍깅”이 “환경정화”로 바뀜 → 원래 말로 되돌려 주세요'],
       ['최종 제출', '진행자의 최종 확인 신호 뒤에', '제출']] }
 ];
@@ -681,15 +681,17 @@ function writeVoteDoc_(tabs, r) {
   (tabs || []).forEach(function (tab) {
     tab.asDocumentTab().getBody().getTables().forEach(function (table) {
       if (!/^③/.test(table.getCell(0, 0).getText())) return;
-      var newLayout = /제안\s*제목/.test(table.getCell(0, 1).getText());
+      var newLayout = /제안\s*제목/.test(table.getCell(0, 1).getText());  // 두 칸 양식(제목 | 핵심 내용)
+      var oneCol = /제안\s*내용/.test(table.getCell(0, 1).getText());   // 한 칸 양식(제안 내용)
       for (var i = 1; i < table.getNumRows(); i++) {
         var row = table.getRow(i), label = row.getCell(0).getText().split('\n')[0];
-        if (row.getNumCells() < 3) continue;
+        if (row.getNumCells() < (oneCol ? 2 : 3)) continue;
         var pm = label.match(/^선정\s*과제\s*(\d)/);
         if (pm) {  // 1위가 하나일 때만 덮어씀(동점·0표면 기록자가 쓴 그대로)
           var pk = r[pm[1] === '2' ? 'ext' : 'us'].pick;
           if (!pk) continue;
-          if (newLayout) { row.getCell(1).setText(pk.title); row.getCell(2).setText(pk.body); }
+          if (oneCol) row.getCell(1).setText(pk.body ? pk.title + ' — ' + pk.body : pk.title);
+          else if (newLayout) { row.getCell(1).setText(pk.title); row.getCell(2).setText(pk.body); }
           else row.getCell(2).setText(pk.body ? pk.title + ' — ' + pk.body : pk.title);  // 예전 양식: 항목 | 예시 | 답
           hit = true;
           continue;
@@ -697,6 +699,7 @@ function writeVoteDoc_(tabs, r) {
         if (!/^투표\s*결과/.test(label)) continue;
         var k = /외부/.test(label) ? ['ext'] : /주민/.test(label) ? ['us'] : ['us', 'ext'];  // 예전 양식(한 줄)이면 둘 다
         var tag = k.length > 1;
+        if (oneCol) { row.getCell(1).setText(r[k[0]].sum + '\n' + r[k[0]].lines.join('\n')); hit = true; continue; }
         row.getCell(1).setText(k.map(function (x) { return r[x].lines.map(function (l) { return (tag ? (x === 'us' ? '🟢 ' : '🔵 ') : '') + l; }).join('\n'); }).join('\n'));
         row.getCell(2).setText(k.map(function (x) { return (tag ? (x === 'us' ? '🟢 ' : '🔵 ') : '') + r[x].sum; }).join('\n'));
         hit = true;
@@ -804,31 +807,33 @@ function writeTable_(body, s) {
 function pairRows_(s) {
   var rows = [];
   s.groups.forEach(function (g) {
-    rows.push({ kind: 'band', g: g, cells: [g.band, '', ''] });
-    rows.push({ kind: 'ex', g: g, cells: ['예시', g.ex[0], g.ex[1]] });
-    for (var n = 1; n <= g.n; n++) rows.push({ kind: 'in', g: g, cells: [g.label + n, '', ''] });
+    var blank = s.pair.map(function () { return ''; });
+    rows.push({ kind: 'band', g: g, cells: [g.band].concat(blank) });
+    rows.push({ kind: 'ex', g: g, cells: ['예시'].concat(g.ex) });
+    for (var n = 1; n <= g.n; n++) rows.push({ kind: 'in', g: g, cells: [g.label + n].concat(blank) });
   });
   return rows;
 }
 function writePairTable_(body, s) {
   var rows = pairRows_(s);
-  var table = body.appendTable([[s.head, s.pair[0][0], s.pair[1][0]]].concat(rows.map(function (r) { return r.cells; })));
+  var nc = 1 + s.pair.length;
+  var table = body.appendTable([[s.head].concat(s.pair.map(function (p) { return p[0]; }))].concat(rows.map(function (r) { return r.cells; })));
   table.setColumnWidth(0, 130);
-  table.setColumnWidth(1, 150);
+  if (nc > 2) table.setColumnWidth(1, 150);
   var hd = table.getRow(0);
-  for (var c = 0; c < 3; c++) {
+  for (var c = 0; c < nc; c++) {
     hd.getCell(c).setBackgroundColor('#1f2937').editAsText().setBold(true).setForegroundColor('#ffffff');
     if (c) hd.getCell(c).appendParagraph(s.pair[c - 1][1]).editAsText().setBold(false).setFontSize(8).setForegroundColor('#d1d5db');
   }
   rows.forEach(function (r, i) {
     var row = table.getRow(i + 1);
     if (r.kind === 'band') {
-      for (c = 0; c < 3; c++) row.getCell(c).setBackgroundColor(r.g.color);
+      for (c = 0; c < nc; c++) row.getCell(c).setBackgroundColor(r.g.color);
       row.getCell(0).editAsText().setBold(true).setFontSize(11);
       gray_(row.getCell(0).appendParagraph(r.g.desc).editAsText().setBold(false), 8);
     } else if (r.kind === 'ex') {
       row.getCell(0).setBackgroundColor('#f9fafb');
-      for (c = 0; c < 3; c++) gray_(row.getCell(c).editAsText(), 9);
+      for (c = 0; c < nc; c++) gray_(row.getCell(c).editAsText(), 9);
     } else {
       row.getCell(0).setBackgroundColor(r.g.color).editAsText().setBold(true);
     }
@@ -837,21 +842,22 @@ function writePairTable_(body, s) {
 
 /** ③ 표: 항목 | 제안 제목 | 핵심 내용. 선정 과제 두 줄(기록자) + 투표 결과 두 줄(투표를 마치면 서버가 채움) */
 function writeSelTable_(body, s) {
-  var table = body.appendTable([[s.head, s.sel[0][0], s.sel[1][0]], ['예시', s.ex[0], s.ex[1]]].concat(s.rows.map(function (r) { return [r[0], '', '']; })));
+  var nc = 1 + s.sel.length, blank = s.sel.map(function () { return ''; });
+  var table = body.appendTable([[s.head].concat(s.sel.map(function (p) { return p[0]; })), ['예시'].concat(s.ex)].concat(s.rows.map(function (r) { return [r[0]].concat(blank); })));
   table.setColumnWidth(0, 130);
-  table.setColumnWidth(1, 150);
+  if (nc > 2) table.setColumnWidth(1, 150);
   var hd = table.getRow(0), c;
-  for (c = 0; c < 3; c++) {
+  for (c = 0; c < nc; c++) {
     hd.getCell(c).setBackgroundColor('#1f2937').editAsText().setBold(true).setForegroundColor('#ffffff');
     if (c) hd.getCell(c).appendParagraph(s.sel[c - 1][1]).editAsText().setBold(false).setFontSize(8).setForegroundColor('#d1d5db');
   }
   table.getRow(1).getCell(0).setBackgroundColor('#f9fafb');
-  for (c = 0; c < 3; c++) gray_(table.getRow(1).getCell(c).editAsText(), 9);
+  for (c = 0; c < nc; c++) gray_(table.getRow(1).getCell(c).editAsText(), 9);
   s.rows.forEach(function (r, i) {
     var row = table.getRow(i + 2), color = /^투표/.test(r[0]) ? '#fef9c3' : /외부/.test(r[0]) ? '#dbeafe' : '#dcfce7';
     row.getCell(0).setBackgroundColor(color).editAsText().setBold(true);
     gray_(row.getCell(0).appendParagraph(r[1]).editAsText().setBold(false), 8);
-    if (/^투표/.test(r[0])) for (c = 1; c < 3; c++) row.getCell(c).setBackgroundColor('#fefce8');
+    if (/^투표/.test(r[0])) for (c = 1; c < nc; c++) row.getCell(c).setBackgroundColor('#fefce8');
   });
 }
 
@@ -861,7 +867,7 @@ function withHint_(s, t) {
   if (!s.groups || !h) return s;
   var c = JSON.parse(JSON.stringify(s));
   c.guide = s.guide + '\n💬 ' + TOPICS[t.topic] + ' 보조질문: ' + h.q;
-  c.groups[0].ex = h.us; c.groups[1].ex = h.ext;
+  c.groups[0].ex = h.us.slice(1); c.groups[1].ex = h.ext.slice(1);  // 예시 = 제안 내용 한 문장
   return c;
 }
 

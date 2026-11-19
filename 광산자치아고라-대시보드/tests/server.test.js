@@ -15,10 +15,10 @@ J(gs.DOC_TABLES).forEach(s => {
     for (let i = 1; i <= s.people; i++) serverRows.push([['참여자 ' + i]].concat(s.cols.map(() => [])));
   } else if (s.pair) {
     serverRows.push([[s.head]].concat(s.pair));
-    J(gs.pairRows_(s)).forEach(r => serverRows.push(r.kind === 'band' ? [[r.g.band, r.g.desc], [], []] : r.cells.map(x => x ? [x] : [])));
+    J(gs.pairRows_(s)).forEach(r => serverRows.push(r.kind === 'band' ? [[r.g.band, r.g.desc]].concat(s.pair.map(() => [])) : r.cells.map(x => x ? [x] : [])));
   } else if (s.sel) {
-    serverRows.push([[s.head]].concat(s.sel), [['예시'], [s.ex[0]], [s.ex[1]]]);
-    s.rows.forEach(r => serverRows.push([[r[0], r[1]], [], []]));
+    serverRows.push([[s.head]].concat(s.sel), [['예시']].concat(s.ex.map(x => [x])));
+    s.rows.forEach(r => serverRows.push([[r[0], r[1]]].concat(s.sel.map(() => []))));
   } else {
     serverRows.push([[s.head], ['예시 (이렇게 쓰면 돼요)'], ['우리 테이블 답 ✍️']]);
     s.rows.forEach(r => serverRows.push([r[1] ? [r[0], r[1]] : [r[0]], r[2] ? [r[2]] : [], []]));
@@ -134,6 +134,17 @@ assert.strictEqual(drows[2].getCell(1).getText(), '1번 함께 걷기 — 2표\n
 assert.strictEqual(drows[3].getCell(2).getText(), '2명 투표 · 동점 3번·4번 1표 → 테이블에서 정해 선정 과제에 직접 적어요');
 assert.deepStrictEqual([drows[1].getCell(1).getText(), drows[1].getCell(2).getText()], ['함께 걷기', '두 동 주민이 한 달에 한 번 함께 걷고 길 살피기']);  // 1위 하나 → 자동
 assert.strictEqual(drows[4].getCell(1).getText(), '기록자가 쓴 것');   // 동점 → 기록자가 쓴 그대로
+// 한 칸 양식(항목 | 제안 내용): 선정 과제 = 「제목 — 내용」 한 칸, 투표 결과 = 요약 + 줄
+const orow = label => { const cs = [{ getText: () => label + '\n설명' }, dcell()]; return { getNumCells: () => 2, getCell: c => cs[c] }; };
+const orows = [orow('③ 우선 과제 선정하기'), orow('선정 과제 1 · 🟢 주민'), orow('선정 과제 2 · 🔵 외부'), orow('투표 결과 · 🟢 주민'), orow('투표 결과 · 🔵 외부')];
+const otable = { getCell: (r, c) => ({ getText: () => c === 1 ? '제안 내용 ✍️' : '③ 우선 과제 선정하기' }), getNumRows: () => orows.length, getRow: i => orows[i] };
+assert.ok(gs.writeVoteDoc_([{ asDocumentTab: () => ({ getBody: () => ({ getTables: () => [otable] }) }), getChildTabs: () => [] }], vl[3]));
+assert.strictEqual(orows[1].getCell(1).getText(), '함께 걷기 — 두 동 주민이 한 달에 한 번 함께 걷고 길 살피기');
+assert.strictEqual(orows[2].getCell(1).getText(), '');   // 동점 → 비워 둠
+assert.strictEqual(orows[3].getCell(1).getText(), '3명 투표 · 1위 1번 함께 걷기 2표 → 선정 과제 자동 기록\n1번 함께 걷기 — 2표\n2번 사진 기록단 — 1표');
+// 한 칸 양식 문서 읽기: 투표 결과 칸 첫 줄(요약)이 화면에
+const o3 = [[['③ 우선 과제 선정하기'], ['제안 내용 ✍️', '② 표에 쓴 제안 그대로']], [['예시'], ['두 동…']], [['선정 과제 1 · 🟢 주민', '설명'], ['한 달에 한 번 함께 걷기']], [['투표 결과 · 🟢 주민', '자동'], ['3명 투표 · 1위', '1번 — 2표']]];
+assert.deepStrictEqual(A.parseDoc(o3).map(x => x.field + x.task + ':' + x.text), ['pick0:한 달에 한 번 함께 걷기', 'tally0:3명 투표 · 1위', 'tally0:1번 — 2표']);
 
 // 4-1) 공감: 카드·열기·마치기·초기화 모두 기록, 큰 자료는 옆 칸으로 나눔
 gs.writeState_({ likeOpen: true, cards: [{ id: 'c1', table: 1, topic: 'river', text: '산책로' }, { id: 'c2', table: 2, topic: 'park', text: '벤치' }] });
