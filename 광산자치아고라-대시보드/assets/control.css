@@ -137,3 +137,6 @@ dialog::backdrop { background: rgba(0, 0, 0, .6); }
 .slides button b { display: block; font-size: 12px; margin: 4px 2px 0; line-height: 1.3; }
 .slides button small { display: block; font-size: 11px; color: var(--muted); margin: 0 2px 2px; }
 .slides button.on { border-color: #22d3ee; box-shadow: 0 0 0 2px #22d3ee55; }
+
+.topics.one-tables { grid-template-columns: repeat(7, 1fr); }
+.topics.one-tables button { padding: 7px 2px; }

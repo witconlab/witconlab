@@ -47,9 +47,12 @@
     const t = cur.topic || 'all';
     if (t === 'all') return null;
     if (t === 'auto') return TOPIC_ORDER[rotIdx()];
+    const one = oneTable(); if (one) return one.topic;
     return TOPICS[t] ? t : null;
   }
-  const viewTables = () => { const k = viewTopic(); return k ? A.tablesOf(k) : A.tables; };
+  // 관제 「테이블 하나 크게」: topic = 'T5' 처럼
+  const oneTable = () => { const m = String(cur.topic || '').match(/^T(\d+)$/); return m ? A.tableByNo(Number(m[1])) : null; };
+  const viewTables = () => { const one = oneTable(); if (one) return [one]; const k = viewTopic(); return k ? A.tablesOf(k) : A.tables; };
 
   function qbarHtml(question, k) {
     const dots = cur.topic === 'auto' ? '<div class="rot">' + TOPIC_ORDER.map(x => '<i class="' + (x === k ? 'on' : '') + '" style="' + tv(x) + '"></i>').join('') + '</div>' : '';
@@ -116,7 +119,7 @@
   // 같은 내용이면 다시 그리지 않음(애니메이션 유지)
   let lastSig = '';
   function renderBody() {
-    const sig = [cur.stage, cur.sub, viewTopic(), cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts), JSON.stringify(voteMeta)].join('|');
+    const sig = [cur.stage, cur.sub, viewTopic(), cur.topic, cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts), JSON.stringify(voteMeta)].join('|');
     if (sig === lastSig) return;
     lastSig = sig;
     if (cur.stage === 'talk') renderTalk();
@@ -226,7 +229,7 @@
   }
   function step5(ts, k) {
     return '<div class="checks">' + CHECKS.map((c, i) => '<span><b>' + (i + 1) + '</b>' + c + '</span>').join('') + '</div>' +
-      (k && ts.length <= 3 ? '<div class="sheets n' + ts.length + '">' + ts.map(t => propSheet(t, false)).join('') + '</div>'
+      (k && (ts.length <= 3 || oneTable()) ? '<div class="sheets n' + ts.length + '">' + ts.map(t => propSheet(t, false)).join('') + '</div>'
          : '<div class="grid4 props">' + ts.map(t => propSheet(t, true)).join('') + '</div>');
   }
 
@@ -252,8 +255,8 @@
     body.style.cssText = tv(k);
     body.innerHTML = '<div class="tf-hd">' +
       (s && s.summary ? '<div class="tf-sum"><small>✨ 주제별 결과 요약</small><p>' + esc(s.summary) + '</p>' + (s.points && s.points.length ? '<div class="tf-pts">' + s.points.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' : '') + '</div>' : '<div class="tf-sum"><p class="dim">주제별 요약은 관제반이 AI 정리 후 띄워요</p></div>') + '</div>' +
-      (A.tablesOf(k).length > 3 ? '<div class="grid4 props">' + A.tablesOf(k).map(t => propSheet(t, true)).join('') + '</div>'
-        : '<div class="sheets n' + A.tablesOf(k).length + '">' + A.tablesOf(k).map(t => propSheet(t, false)).join('') + '</div>');
+      (viewTables().length > 3 ? '<div class="grid4 props">' + viewTables().map(t => propSheet(t, true)).join('') + '</div>'
+        : '<div class="sheets n' + viewTables().length + '">' + viewTables().map(t => propSheet(t, false)).join('') + '</div>');
   }
 
   // ── ⑦ 공감·응원 ──

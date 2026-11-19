@@ -57,6 +57,8 @@
   // ── 주제 ──
   $('#topics').innerHTML = '<button data-t="all">전체 ' + A.tables.length + '개</button><button data-t="auto">자동 순환</button>' +
     TOPIC_ORDER.map(k => '<button data-t="' + k + '" style="' + tv(k) + '">' + TOPICS[k].name + '<small>' + TOPICS[k].place + ' · ' + A.tablesOf(k).map(t => t.no).join('·') + '</small></button>').join('');
+  $('#one-tables').innerHTML = A.tables.map(t => '<button data-t="T' + t.no + '" style="' + tv(t.topic) + '">T' + t.no + '</button>').join('');
+  $('#one-tables').onclick = e => { const b = e.target.closest('button'); if (b) act(() => A.setState({ topic: b.dataset.t })); };
   $('#topics').onclick = e => { const b = e.target.closest('button'); if (b) act(() => A.setState({ topic: b.dataset.t })); };
 
   $('#slogan-go').onclick = () => act(() => A.setState({ stage: 'slogan', sloganCue: Date.now(), auto: false }), '구호 카운트다운 시작!');
@@ -74,7 +76,7 @@
     const st = A.state, eff = A.effective(), sched = A.scheduledStage();
     document.querySelectorAll('#stages .stg').forEach(b => { b.classList.toggle('on', b.dataset.k === eff.stage); b.classList.toggle('sched', b.dataset.k === sched.stage); });
     document.querySelectorAll('#subs .stg').forEach(b => b.classList.toggle('on', eff.stage === 'talk' && Number(b.dataset.i) === eff.sub));
-    document.querySelectorAll('#topics button').forEach(b => b.classList.toggle('on', b.dataset.t === (st.topic || 'all')));
+    document.querySelectorAll('#topics button, #one-tables button').forEach(b => b.classList.toggle('on', b.dataset.t === (st.topic || 'all')));
     $('#auto').checked = !!st.auto;
     $('#polished').checked = !!st.polished;
     $('#sim').checked = !!st.sim;
