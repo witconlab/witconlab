@@ -390,3 +390,6 @@ body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-s
 #deck { position: absolute; inset: 0; z-index: 50; background: #fff; display: grid; place-items: center; }
 #deck[hidden] { display: none; }
 #deck img { width: 100%; height: 100%; object-fit: contain; }
+
+/* ⑥ 화면에서 공감이 열려 있을 때 */
+.like-on { margin-left: auto; align-self: center; white-space: nowrap; font-size: 22px; font-weight: 900; color: #fff; background: #e11d48; border-radius: 99px; padding: 8px 18px; }

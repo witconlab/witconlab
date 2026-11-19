@@ -125,7 +125,7 @@
   // 같은 내용이면 다시 그리지 않음(애니메이션 유지)
   let lastSig = '';
   function renderBody() {
-    const sig = [cur.stage, cur.sub, viewTopic(), cur.topic, cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts), JSON.stringify(voteMeta)].join('|');
+    const sig = [cur.stage, cur.sub, viewTopic(), cur.topic, cur.likeOpen, cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts), JSON.stringify(voteMeta)].join('|');
     if (sig === lastSig) return;
     lastSig = sig;
     if (cur.stage === 'talk') renderTalk();
@@ -242,7 +242,8 @@
   // ── ⑥ 주제별 결과 공유 ──
   function renderShare() {
     const k = viewTopic();
-    $('#share-bar').innerHTML = qbarHtml('같은 공간에 대해 어떤 의견이 나왔을까요?', k);
+    $('#share-bar').innerHTML = qbarHtml('같은 공간에 대해 어떤 의견이 나왔을까요?', k) +
+      (cur.likeOpen ? '<div class="like-on">♥ 공감 진행 중 · 테이블 QR 카드 아래 칸</div>' : '');
     const body = $('#share-body');
     // 주제별 요약: 관제에서 저장한 것(AI·검수)이 없으면 ④ 원문으로 바로 정리
     const auto = A.ruleSummary(items).topics || {};
