@@ -201,6 +201,10 @@
     btn.disabled = false; $('#ai-msg').textContent = '';
   };
   $('#save-sum').onclick = () => act(async () => { summary = await A.saveSummary(collectSummary()); renderSummary(); }, '저장했어요. 스크린에 바로 반영됩니다.');
+  $('#run-rule').onclick = async () => {
+    if (Object.keys(summary.tables || {}).length && !confirm('지금 검수 칸 내용을 ④ 원문 정리로 바꿀까요?')) return;
+    await act(async () => { summary = await A.saveSummary(A.ruleSummary(items)); renderSummary(); }, '④ 원문으로 정리했어요. 아래에서 고친 뒤 「검수 내용 저장」 → 「화면에 다듬은 문장 쓰기」를 켜면 고친 문장이 나가요');
+  };
   $('#polished').onchange = e => act(() => A.setState({ polished: e.target.checked }), e.target.checked ? '다듬은 문장으로 보여 줘요' : '원문으로 보여 줘요');
 
   // ── 공감 ──

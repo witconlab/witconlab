@@ -244,7 +244,9 @@
     const k = viewTopic();
     $('#share-bar').innerHTML = qbarHtml('같은 공간에 대해 어떤 의견이 나왔을까요?', k);
     const body = $('#share-body');
-    const tsum = x => (summary.topics || {})[x];
+    // 주제별 요약: 관제에서 저장한 것(AI·검수)이 없으면 ④ 원문으로 바로 정리
+    const auto = A.ruleSummary(items).topics || {};
+    const tsum = x => (summary.topics || {})[x] || auto[x];
     if (!k) {
       body.className = 'share-body all';
       body.innerHTML = '<div class="topics4">' + TOPIC_ORDER.map(x => {
@@ -260,7 +262,7 @@
     body.className = 'share-body one';
     body.style.cssText = tv(k);
     body.innerHTML = '<div class="tf-hd">' +
-      (s && s.summary ? '<div class="tf-sum"><small>✨ 주제별 결과 요약</small><p>' + esc(s.summary) + '</p>' + (s.points && s.points.length ? '<div class="tf-pts">' + s.points.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' : '') + '</div>' : '<div class="tf-sum"><p class="dim">주제별 요약은 관제반이 AI 정리 후 띄워요</p></div>') + '</div>' +
+      (s && s.summary ? '<div class="tf-sum"><small>' + (s.auto ? '주제별 결과 (④ 원문으로 정리)' : '주제별 결과 요약') + '</small><p>' + esc(s.summary) + '</p>' + (s.points && s.points.length ? '<div class="tf-pts">' + s.points.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' : '') + '</div>' : '<div class="tf-sum"><p class="dim">주제별 요약은 관제반이 AI 정리 후 띄워요</p></div>') + '</div>' +
       (viewTables().length > 3 ? '<div class="grid4 props">' + viewTables().map(t => propSheet(t, true)).join('') + '</div>'
         : '<div class="sheets n' + viewTables().length + '">' + viewTables().map(t => propSheet(t, false)).join('') + '</div>');
   }

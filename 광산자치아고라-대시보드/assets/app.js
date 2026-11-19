@@ -502,8 +502,8 @@
     TOPIC_ORDER.forEach(k => {
       const ts = tablesOf(k).filter(t => out.tables[t.no]);
       if (!ts.length) return;
-      const titles = ts.flatMap(t => out.tables[t.no].tasks.map(x => x.title));
-      out.topics[k] = { summary: TOPICS[k].name + '에서 ' + ts.map(t => '테이블 ' + t.no).join('·') + '이(가) ' + titles.slice(0, 3).join(', ') + '을(를) 제안했어요.', points: titles.slice(0, 4) };
+      const titles = [...new Set(ts.flatMap(t => out.tables[t.no].tasks.map(x => x.title)).filter(Boolean))];
+      out.topics[k] = { summary: TOPICS[k].name + '(' + TOPICS[k].place + ') 테이블 ' + ts.map(t => t.no).join('·') + '에서 ' + titles.length + '개 과제를 제안했어요: ' + titles.slice(0, 3).join(', ') + (titles.length > 3 ? ' 등' : '') + '.', points: titles.slice(0, 4), auto: true };
     });
     return out;
   }

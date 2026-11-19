@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>광산자치아고라 관제 패널</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/control.css?v=20261119o">
+<link rel="stylesheet" href="assets/control.css?v=20261119p">
 </head>
 <body>
 <header class="top">
@@ -82,6 +82,7 @@
       <p class="muted small"><b>한꺼번에(선택)</b>: 「AI 다듬기 실행」은 13개 테이블과 ⑥ 주제별 요약을 함께 만들어요. 퍼실이 다듬은 테이블은 덮어쓰지 않아요. ④가 끝나면 실행 → 아래에서 고칠 곳을 고치고 저장 → 「화면에 다듬은 문장 쓰기」를 켜세요. 끄면 기록자가 쓴 원문이 그대로 나갑니다. 켠 뒤 기록자가 원래 발언과 대조해 적은 <b>✨ 메모</b>가 「테이블 기록 현황」에 뜨면 그 부분을 고쳐 다시 저장하세요. 빨간 <b>⑥</b> 메모는 공유 화면 오류 신고입니다.</p>
       <div class="row" style="margin-top:10px">
         <button class="btn primary" id="run-ai">AI 다듬기 실행</button>
+        <button class="btn" id="run-rule" title="AI 없이 ④ 원문으로 제안서·주제별 요약을 만들어 아래에서 고칠 수 있게">📄 원문으로 정리 (AI 없이)</button>
         <button class="btn" id="save-sum" disabled>검수 내용 저장</button>
         <label class="switch"><input type="checkbox" id="polished"><span></span>화면에 다듬은 문장 쓰기</label>
       </div>
@@ -150,8 +151,8 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<script src="config.js?v=20261119o"></script>
-<script src="assets/app.js?v=20261119o"></script>
-<script src="assets/control.js?v=20261119o"></script>
+<script src="config.js?v=20261119p"></script>
+<script src="assets/app.js?v=20261119p"></script>
+<script src="assets/control.js?v=20261119p"></script>
 </body>
 </html>
