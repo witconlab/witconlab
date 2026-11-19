@@ -95,16 +95,22 @@
 
   // ── 기록 현황 ──
   let items = [];
+  let submSeen = null;
   async function pollFeed() {
     try { items = await A.loadFeed(); } catch (e) { $('#feed-sum').textContent = '기록을 불러오지 못했어요: ' + e.message; return; }
-    $('#feed-sum').textContent = '총 ' + items.length + '줄';
+    // ④ 작성 완료 「제출」: 개수 + 새로 제출하면 소리·알림
+    const subm = A.tables.filter(t => A.tableData(items, t.no).done).map(t => t.no);
+    $('#feed-sum').textContent = '총 ' + items.length + '줄 · ④ 제출 ' + subm.length + '/' + A.tables.length;
+    const freshSub = submSeen ? subm.filter(n => !submSeen.includes(n)) : [];
+    submSeen = subm;
+    if (freshSub.length) { toast('📝 테이블 ' + freshSub.join(', ') + ' ④ 작성 완료 제출 (' + subm.length + '/' + A.tables.length + ')'); ding(); }
     $('#docs').innerHTML = A.tables.map(t => {
       const d = A.tableData(items, t.no);
       const mine = items.filter(i => i.table === t.no);
       const last = mine[mine.length - 1];
       const steps = [d.good.length + d.bad.length + d.better.length, '주' + d.us.length + '·외' + d.ext.length, d.picks.length, A.filled(d.tasks[0]) + A.filled(d.tasks[1]), d.done ? '✓' : d.check.length];
       const link = t.docId ? '<a href="https://docs.google.com/document/d/' + esc(t.docId) + '/edit" target="_blank" rel="noopener">문서 열기</a>' : '';
-      return '<div class="doc ' + (A.docOk[t.no] ? 'ok' : '') + '" style="' + tv(t.topic) + '"><div class="doc-hd"><b>T' + t.no + ' ' + TOPICS[t.topic].name + '</b><i></i></div>' +
+      return '<div class="doc ' + (A.docOk[t.no] ? 'ok' : '') + '" style="' + tv(t.topic) + (d.done ? ';box-shadow:inset 0 0 0 2px #22c55e' : '') + '"><div class="doc-hd"><b>T' + t.no + ' ' + TOPICS[t.topic].name + (d.done ? ' <span style="color:#4ade80">📝 제출</span>' : '') + '</b><i></i></div>' +
         '<small class="steps">' + steps.map((n, i) => '<span>' + '①②③④⑤'[i] + n + '</span>').join('') + '</small>' +
         '<small>' + (last ? hhmm(last.time) + ' ' + esc(last.text) : '아직 기록 없음') + '</small>' +
         // 기록자가 남긴 확인 메모: AI 문장 이의, ⑥ 공유 화면 오류(‘확인’이 아니면), ⑦ 추가 의견
