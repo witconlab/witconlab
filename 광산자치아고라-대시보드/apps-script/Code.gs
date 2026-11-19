@@ -386,7 +386,9 @@ function summarize_(input, keep) {
     contents: [{ role: 'user', parts: [{ text: prompt + '\n\n(topics 의 topic 값은 영문 키: ' + TOPIC_ORDER.map(function (k) { return k + '=' + topicLabel_(k); }).join(', ') + ')' }] }],
     generationConfig: { temperature: 0.3, responseMimeType: 'application/json', responseSchema: schema }
   });
-  var r = callGemini_(key, models, payload);
+  // 테이블 하나(퍼실 휴대폰)는 기다리기 어려우니 빠른 모델부터, 길어도 약 1분 반
+  if (keep) models = ['gemini-flash-lite-latest'].concat(models.filter(function (m) { return m !== 'gemini-flash-lite-latest'; }));
+  var r = callGemini_(key, models, payload, keep ? 90000 : 300000);
   var out = { tables: {}, topics: {} };
   r.parsed.tables.forEach(function (t) { out.tables[t.no] = { tasks: (t.tasks || []).slice(0, 2) }; });
   r.parsed.topics.forEach(function (p) { out.topics[p.topic] = { summary: p.summary, points: (p.points || []).slice(0, 4) }; });
@@ -450,8 +452,8 @@ function confirmTable_(b) {
 
 /** 모델을 돌아가며 시도. 붐빔(429·500·503)이면 다음 모델로 → 한 바퀴 돌면 점점 길게 쉬고 다시(최대 약 5분).
  *  없는 모델(404 등)은 빼고 계속 */
-function callGemini_(key, models, payload) {
-  var errors = [], live = models.slice(), started = Date.now(), LIMIT = 300000;
+function callGemini_(key, models, payload, limitMs) {
+  var errors = [], live = models.slice(), started = Date.now(), LIMIT = limitMs || 300000;
   for (var round = 0; live.length && Date.now() - started < LIMIT; round++) {
     if (round) Utilities.sleep(Math.min(30000, 6000 * round));
     for (var i = 0; i < live.length; i++) {
