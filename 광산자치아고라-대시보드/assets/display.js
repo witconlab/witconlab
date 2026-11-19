@@ -140,7 +140,7 @@
 
   function renderTalk() {
     const k = viewTopic(), ts = viewTables();
-    $('#qbar').innerHTML = qbarHtml(SUBSTEPS[cur.sub].q, k);
+    $('#qbar').innerHTML = qbarHtml(SUBSTEPS[cur.sub].q, k) + (cur.likeOpen ? '<div class="like-on">♥ 공감 진행 중 · 테이블 QR 카드 아래 칸</div>' : '');
     const body = $('#talk-body');
     body.className = 'talk-body s' + cur.sub + (k ? ' one' : ' all');
     const renderers = [step1, step2, step3, step4, step5];

@@ -229,9 +229,9 @@
   $('#like-open').onclick = () => {
     const cards = (A.state.cards || []).length ? A.state.cards : makeCards().filter(c => !c.off);
     if (!cards.length) { toast('공감 카드가 없어요. 「공감 카드 만들기」를 먼저 눌러 주세요', true); return; }
-    // ⑥ 주제별 공유 중이면 화면은 ⑥ 그대로 두고 공감만 열기(참가자는 QR 카드 아래 칸)
-    const inShare = A.effective().stage === 'share';
-    act(() => A.setState({ stage: inShare ? 'share' : 'like', likeOpen: true, cards, auto: false }), inShare ? '공감을 열었어요 · 화면은 ⑥ 그대로 (⑦ 화면은 「⑦ 공감·응원」 버튼)' : '공감을 열었어요');
+    // ④~⑤ 의제공론화나 ⑥ 주제별 공유 중이면 화면은 그대로 두고 공감만 열기(참가자는 QR 카드 아래 칸)
+    const eff = A.effective(), keep = eff.stage === 'share' || eff.stage === 'talk';
+    act(() => A.setState(keep ? { likeOpen: true, cards, auto: false } : { stage: 'like', likeOpen: true, cards, auto: false }), keep ? '공감을 열었어요 · 화면은 그대로 (⑦ 화면은 「⑦ 공감·응원」 버튼)' : '공감을 열었어요');
   };
   $('#like-close').onclick = () => act(() => A.setState({ likeOpen: false }), '공감을 마쳤어요');
   $('#like-reset').onclick = () => { if (confirm('모든 공감을 지울까요?')) act(async () => { await A.resetLikes(); await A.setState({ likeRound: Date.now() }); }, '공감을 초기화했어요'); };
