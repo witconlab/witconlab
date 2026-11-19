@@ -17,7 +17,7 @@
  *  (13개 문서가 표 양식으로 바뀌고, tables 시트 B열이 주제로 바뀝니다. 문서 안 기존 기록은 지워집니다)
  */
 
-var SHEETS = { tables: 'tables', summary: 'summary', manual: 'manual', likes: 'likes', votes: 'votes', log: 'log' };
+var SHEETS = { tables: 'tables', summary: 'summary', manual: 'manual', likes: 'likes', votes: 'votes', log: 'log', ai: 'ai' };
 var REREAD_MS = 20000;  // 수정 시각이 그대로여도 이만큼 지난 문서는 차례로 다시 읽음
 
 // 4개 주제 · 13개 테이블 (assets/app.js 의 TOPICS 와 같게 유지)
@@ -46,10 +46,14 @@ var US_DESC = '주민이 직접 할 수 있는 일 · 모임, 캠페인, 정화�
 var EXT_DESC = '구청·행정복지센터·기관의 도움이 필요한 일 · 시설 정비, 안전, 예산·제도 지원 등';
 var TALLY_DESC = '투표를 마치면 자동으로 채워져요 · 비워 두세요';
 var WITH_DESC = '참여할 주민·모임 / 도움이 필요한 기관 · 현장에 없는 곳은 ‘참여 제안’·‘협조 요청’으로';
+// ④ 탭 맨 아래: 다섯 칸을 다 채우면 ‘제출’ (예전 ⑤의 최종 제출을 옮김)
+var SUBMIT_TABLE = { tab: '④ 실행방법', head: '④ 작성 완료', q: '다섯 칸을 다 채우고 확인했나요?',
+  guide: '과제 1(과제 2)의 다섯 칸을 다 채우고 테이블과 확인했으면 오른쪽 칸에 ‘제출’이라고 써요. 그러면 테이블 퍼실이 휴대폰에서 결과를 확인하고 확정해요.',
+  rows: [['최종 제출', '다섯 칸을 다 채우고 테이블과 확인했으면', '제출']] };
 function rep_(row, n) { var a = []; for (var i = 0; i < n; i++) a.push(row); return a; }
 var DOC_TABLES = [
   { tab: '📌 쓰는 법', head: '📌 시작 전 준비', q: '테이블 정보를 확인해요',
-    guide: '테이블 번호·주제는 문서 제목에 있어요. 참여 동을 적고, 진행자와 단계별 질문·시간·제출 방법(⑤에서 ‘제출’)을 맞춰요. 관제반에 「기록 연결」이 초록불인지 확인해요.',
+    guide: '테이블 번호·주제는 문서 제목에 있어요. 참여 동을 적고, 진행자와 단계별 질문·시간·제출 방법(④ 맨 아래 ‘제출’)을 맞춰요. 관제반에 「기록 연결」이 초록불인지 확인해요.',
     rows: [['참여 동', '이 테이블 주민들의 동', '첨단1동, 첨단2동']] },
   { tab: '① 이용 경험', head: '① 이용 경험 나누기', q: '우리는 이곳에서 어떤 경험을 하고 있나요?',
     guide: '참여자 한 사람이 한 줄씩 써요(이름 대신 번호). 「장소·상황 — 핵심」으로 쓰고, 서로 다른 경험은 합치지 말고 따로 적어요. 말하지 않은 칸은 비워 두세요.',
@@ -73,11 +77,11 @@ var DOC_TABLES = [
       ['함께하고 싶은 이웃', WITH_DESC, '인근 아파트 주민모임(참여 제안), 주민자치회, 공원 관리부서(협조 요청)']] },
   { tab: '④ 실행방법', head: '④ 과제 2 실행방법', q: '선정 과제가 하나뿐이면 이 표는 비워 두세요',
     rows: [['현황·제안배경', '', ''], ['우리가 바라는 모습', '', ''], ['우리의 제안', '', ''], ['우리가 시작할 첫걸음', '', ''], ['함께하고 싶은 이웃', WITH_DESC, '']] },
+  SUBMIT_TABLE,
   { tab: '⑤ 결과 확인', head: '⑤ 테이블 결과 확인', q: '정리된 내용이 우리가 이야기한 뜻과 맞나요?',
-    guide: '⑤에서는 새 내용을 쓰지 않아요. ④에 쓴 다섯 칸이 그대로 우리 테이블 「의제 제안서」가 되어 화면에 떠요. ① 진행자가 제안서를 읽어 줘요 → ② 고칠 곳은 ④ 탭의 그 칸에서 고쳐요(화면도 바로 바뀌어요) → ③ 무엇을 고쳤는지 아래 메모 칸에 → ④ AI가 다듬은 문장이 원래 뜻과 다르면 ✨ 칸에 → ⑤ 모두 확인하면 ‘제출’.',
+    guide: '⑤에서는 새 내용을 쓰지 않아요. ④에 쓴 다섯 칸이 그대로 우리 테이블 「의제 제안서」가 돼요. 고칠 곳은 ④ 탭의 그 칸에서 고치고(화면도 바로 바뀌어요), 무엇을 고쳤는지는 아래 메모 칸에, AI 문장이 원래 뜻과 다르면 ✨ 칸에 적어요. AI 다듬기와 확정은 테이블 퍼실이 휴대폰으로 해요.',
     rows: [['고친 곳·빠진 의견 메모', '④ 탭에서 고친 뒤, 무엇을 고쳤는지 짧게', '첫걸음 날짜를 ‘추후 협의’로 고침'],
-      ['✨ AI 다듬은 문장 확인', 'AI가 다듬은 문장이 화면에 뜨면 원래 발언과 비교해 다른 점을 적어요', '“줍깅”이 “환경정화”로 바뀜 → 원래 말로 되돌려 주세요'],
-      ['최종 제출', '진행자의 최종 확인 신호 뒤에', '제출']] }
+      ['✨ AI 다듬은 문장 확인', 'AI가 다듬은 문장이 화면에 뜨면 원래 발언과 비교해 다른 점을 적어요', '“줍깅”이 “환경정화”로 바뀜 → 원래 말로 되돌려 주세요']] }
 ];
 
 // ─────────────────────────── 라우팅 ───────────────────────────
@@ -392,6 +396,7 @@ function summarize_(input, keep) {
   var out = { tables: {}, topics: {} };
   r.parsed.tables.forEach(function (t) { out.tables[t.no] = { tasks: (t.tasks || []).slice(0, 2) }; });
   r.parsed.topics.forEach(function (p) { out.topics[p.topic] = { summary: p.summary, points: (p.points || []).slice(0, 4) }; });
+  try { logAiPairs_(input, out, r.model, keep ? '테이블에서' : '관제 한꺼번에'); } catch (e) { console.log('ai 시트 기록 실패: ' + e.message); }
   if (keep) return { out: out, model: r.model };   // 테이블 하나만 다듬을 때: 저장은 부른 쪽에서
   PropertiesService.getScriptProperties().setProperty('SUMMARY_SRC', 'gemini:' + r.model);
   // 테이블에서 퍼실이 다듬은 문장은 한꺼번에 다시 돌려도 지키기
@@ -1162,4 +1167,60 @@ function checkRecords() {
   out.push('트리거: ' + (ScriptApp.getProjectTriggers().map(function (t) { return t.getHandlerFunction(); }).join(', ') || '없음'));
   out.forEach(function (l) { console.log(l); });
   return out;
+}
+
+/** 편집기에서 한 번 실행(문서 내용은 그대로): ④ 탭 맨 아래에 「④ 작성 완료 · 최종 제출」 표를 더하고,
+ *  ⑤ 표의 빈 「최종 제출」 줄은 빼고 ⑤ 안내문을 새 글로. 이미 있으면 건너뜀 */
+function addSubmitToDocs() {
+  var done = [], skip = [], fail = [];
+  readTables_().forEach(function (t) {
+    if (!t.docId) return;
+    try {
+      var doc = DocumentApp.openById(t.docId), added = false;
+      doc.getTabs().forEach(function (tab) {
+        var title = tab.getTitle(), body = tab.asDocumentTab().getBody();
+        if (title === SUBMIT_TABLE.tab) {
+          var has = body.getTables().some(function (tb) { return /^④ 작성 완료/.test(tb.getCell(0, 0).getText()); });
+          if (!has) { writeTable_(body, SUBMIT_TABLE); body.appendParagraph(''); added = true; }
+        }
+        if (/^⑤/.test(title)) {
+          body.getTables().forEach(function (tb) {
+            if (!/^⑤/.test(tb.getCell(0, 0).getText())) return;
+            for (var i = tb.getNumRows() - 1; i > 0; i--) {
+              var row = tb.getRow(i);
+              if (/^최종 제출/.test(row.getCell(0).getText()) && !row.getCell(row.getNumCells() - 1).getText().trim()) tb.removeRow(i);
+            }
+          });
+          body.getParagraphs().forEach(function (p) { if (/^⑤에서는 새 내용을 쓰지 않아요/.test(p.getText())) p.setText(DOC_TABLES.filter(function (s) { return /^⑤/.test(s.head); })[0].guide); });
+        }
+        body.replaceText('⑤에서 ‘제출’', '④ 맨 아래 ‘제출’');
+      });
+      doc.saveAndClose();
+      CacheService.getScriptCache().remove('doc' + t.no);
+      (added ? done : skip).push(t.no);
+    } catch (e) { fail.push(t.no + '(' + e.message + ')'); }
+  });
+  CacheService.getScriptCache().remove('feed');
+  log_('④ 제출 칸 추가', '추가: ' + (done.join(', ') || '없음') + ' / 이미 있음: ' + (skip.join(', ') || '없음') + (fail.length ? ' / 실패: ' + fail.join(', ') : ''));
+  console.log('추가 ' + done.join(',') + ' | 건너뜀 ' + skip.join(',') + ' | 실패 ' + fail.join(','));
+}
+
+
+/** ai 시트: 원문(기록자가 쓴 그대로)과 AI 문장을 항목마다 나란히 (지우지 않음) */
+function logAiPairs_(input, out, model, how) {
+  var sh = sheet_(SHEETS.ai), now = new Date(), rows = [];
+  if (!sh.getLastRow()) sh.appendRow(['시각', '방식', '모델', '테이블', '과제', '항목', '원문 (기록자)', 'AI 문장']);
+  var LBL = { title: '과제 이름', bg: '현황·제안배경', want: '바라는 모습', prop: '우리의 제안', first: '첫걸음', with: '함께하고 싶은 이웃', us: '주민이 맡을 일', ext: '외부에 요청할 일' };
+  (input || []).forEach(function (t) {
+    var ai = ((out.tables || {})[t.no] || (out.tables || {})[String(t.no)] || {}).tasks || [];
+    var n = Math.max((t.tasks || []).length, ai.length);
+    for (var k = 0; k < n; k++) {
+      var raw = (t.tasks || [])[k] || {}, a = ai[k] || {};
+      Object.keys(LBL).forEach(function (f) {
+        var rv = f === 'title' ? ((t.picks || [])[k] || '') : f === 'us' || f === 'ext' ? '' : (raw[f] || '');
+        if (rv || a[f]) rows.push([now, how, model, t.no, k + 1, LBL[f], rv, a[f] || '']);
+      });
+    }
+  });
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, 8).setValues(rows);
 }

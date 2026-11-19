@@ -25,7 +25,7 @@ J(gs.DOC_TABLES).forEach(s => {
   }
 });
 assert.deepStrictEqual(serverRows, A.rowsFromCells({}));
-assert.strictEqual(serverRows.length, 54);
+assert.strictEqual(serverRows.length, 55);  // ④ 작성 완료(제출) 표 포함
 assert.deepStrictEqual(J(gs.DOC_TABLES).map(s => s.tab), A.TEMPLATE.map(s => s.tab));
 
 // 2) DocumentApp 탭(가짜 객체) → 표 행 (UrlFetch 없이 읽는 경로)

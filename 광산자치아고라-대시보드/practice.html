@@ -126,8 +126,8 @@
   </section>
 </div>
 
-<script src="config.js?v=20261119j"></script>
-<script src="assets/app.js?v=20261119j"></script>
+<script src="config.js?v=20261119k"></script>
+<script src="assets/app.js?v=20261119k"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -252,7 +252,7 @@
       ['② [주민실천] 두 칸 이상 + [외부협력] 한 칸 이상', new Set(slotsOf('us').filter(k => (cells[k] || []).length).map(k => k.replace(/C\d+$/, ''))).size >= 2 && has('ext')],
       ['③ 선정 과제 🟢 주민·🔵 외부를 ②의 제안 내용 그대로', SLOTS.filter(x => x.field === 'pick' && (cells[x.key] || []).length).length >= 2],
       ['④ 과제 1의 다섯 칸 모두 (못 정하면 ‘추후 협의’)', TASK_FIELDS.every(f => has(f, 0))],
-      ['⑤ 「최종 제출」에 ‘제출’', /제출/.test(linesOf('done').join(' '))]
+      ['④ 맨 아래 「최종 제출」에 ‘제출’', /제출/.test(linesOf('done').join(' '))]
     ];
     $('#missions').innerHTML = M.map(([l, ok]) => '<li class="' + (ok ? 'ok' : '') + '"><i>' + (ok ? '✓' : '') + '</i>' + l + '</li>').join('');
     const n = M.filter(m => m[1]).length;
