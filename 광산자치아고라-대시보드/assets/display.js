@@ -405,8 +405,19 @@
       sloRaf = requestAnimationFrame(frame);
     })(t0);
   }
-  function playSlogan(withCount) { sloStop(); sloBuild(); if (withCount) { sloCountdown(); later(sloSequence, 3100); } else sloSequence(); }
+  const sloClearStill = () => document.querySelectorAll('#slo .ch, #slo .big, #slo-sub, #slo-icons span, #slo-lines path').forEach(el => { el.style.transform = ''; el.style.opacity = ''; });
+  function playSlogan(withCount) { sloStop(); sloBuild(); sloClearStill(); if (withCount) { sloCountdown(); later(sloSequence, 3100); } else sloSequence(); }
+  // 모션 없이: 움직임 없이 구호 네 줄·「광산!」·파이팅을 한 번에
+  function sloStill() {
+    sloStop(); sloBuild();
+    document.querySelectorAll('#slo .ch').forEach(ch => { ch.style.transform = 'none'; });
+    const big = document.querySelector('#slo .big'); big.style.opacity = 1; big.classList.remove('flow');
+    $('#slo-sub').style.opacity = 1;
+    document.querySelectorAll('#slo-icons span').forEach(el => { el.style.opacity = 1; });
+    document.querySelectorAll('#slo-lines path').forEach(p => { p.style.strokeDashoffset = 0; p.style.opacity = .3; });
+  }
   function runSlogan(entered) {
+    if (cur.sloganStill) { if (entered || !document.querySelector('#slo .big[style*="opacity: 1"]')) sloStill(); return; }
     const cue = cur.sloganCue || 0;
     if (cue > lastCue && Date.now() - cue < 30000) { lastCue = cue; A.LS.set('agora-last-cue', cue); playSlogan(true); }
     else if (entered) playSlogan(false);

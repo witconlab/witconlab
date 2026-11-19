@@ -61,7 +61,8 @@
   $('#one-tables').onclick = e => { const b = e.target.closest('button'); if (b) act(() => A.setState({ topic: b.dataset.t })); };
   $('#topics').onclick = e => { const b = e.target.closest('button'); if (b) act(() => A.setState({ topic: b.dataset.t })); };
 
-  $('#slogan-go').onclick = () => act(() => A.setState({ stage: 'slogan', sloganCue: Date.now(), auto: false }), '구호 카운트다운 시작!');
+  $('#slogan-go').onclick = () => act(() => A.setState({ stage: 'slogan', sloganCue: Date.now(), sloganStill: false, auto: false }), '구호 카운트다운 시작!');
+  $('#slogan-still').onclick = () => act(() => A.setState({ stage: 'slogan', sloganStill: true, auto: false }), '구호 화면(모션 없이)을 띄웠어요');
 
   // ── 발표 장표 (주제 발제 PDF 1–14쪽) ──
   const SLIDES = ['표지 · 생활공간을 잇고', '함께 쓰는 공간 6곳', '왜 동의 경계를 넘어야 할까', '함께 쓰는 공간은 왜 돌보기 어려울까', '2가지 처방과 세 번째 길', '오늘 공론의 방향, 3가지 연결', '이어야 할 관계', '제안의 힘 · 오늘의 약속', '오늘 공론장의 흐름', '테이블 결과, 5가지로 정리', '오늘의 공통질문', '⑥ 주제별 결과 공유하기', '⑦ 공감·응원 나누기', '마무리 구호'];
