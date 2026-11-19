@@ -518,7 +518,7 @@
   function buildCards(items, summary, usePolished) {
     const out = [];
     tables.forEach(t => proposals(t.no, items, summary, usePolished).forEach((p, k) => {
-      out.push({ id: 't' + t.no + 'k' + k, table: t.no, topic: t.topic, text: trim(p.title, 24), sub: trim(p.prop && p.prop !== p.title ? p.prop : p.first, 40) });
+      out.push({ id: 't' + t.no + 'k' + k, table: t.no, topic: t.topic, text: trim(p.title, 80), sub: trim(p.prop && p.prop !== p.title ? p.prop : p.first, 120) });  // 휴대폰에서 끝까지 읽히게
     }));
     return out;
   }
