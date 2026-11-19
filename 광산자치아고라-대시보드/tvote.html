@@ -44,6 +44,12 @@
   .state h2 { justify-content: center; margin-top: 12px; }
   .state p { color: var(--muted); margin-top: 8px; line-height: 1.6; font-size: 17px; }
   .toast { position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #0f172a; color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; font-size: 16px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .fac { margin: 28px 2px 0; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 14px 16px; background: #fff; text-align: left; }
+  .fac b { font-size: 16px; }
+  .fac p { font-size: 15px; color: var(--muted); margin: 4px 0 10px; line-height: 1.5; }
+  .fac button { width: 100%; border: 0; border-radius: 12px; padding: 14px; font: inherit; font-size: 17px; font-weight: 900; color: #fff; background: #ea580c; }
+  .fac button.ghost { background: #f1f5f9; color: var(--muted); font-size: 15px; padding: 10px; }
+  .fac .ok { color: #15803d; font-weight: 900; font-size: 17px; }
   .toast.on { opacity: 1; } .toast.err { background: #b91c1c; }
 </style>
 </head>
@@ -57,8 +63,8 @@
 <div class="submit" id="submit" hidden><button id="send">투표하기</button><p id="sub-msg"></p></div>
 <div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261119a"></script>
-<script src="assets/app.js?v=20261119a"></script>
+<script src="config.js?v=20261119b"></script>
+<script src="assets/app.js?v=20261119b"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -82,13 +88,17 @@
     if ((st.voteRound || 0) !== (my.round || 0)) { my = { round: st.voteRound || 0, table: my.table }; pick = { us: '', ext: '' }; save(); }
     const ballot = st.ballot || {};
     const bt = my.table && ballot[my.table];
-    const key = [st.voteOpen, JSON.stringify(ballot), my.table, pick.us, pick.ext, my.sent].join('|');
+    const key = [st.voteOpen, JSON.stringify(ballot), my.table, pick.us, pick.ext, my.sent, my.done].join('|');
+    // 테이블 퍼실 전용: 우리 테이블 투표가 끝나면 관제반에 알림
+    const fac = () => !st.voteOpen || !bt ? '' : '<div class="fac"><b>🙋 테이블 퍼실 전용</b>' + (my.done
+      ? '<p class="ok">✅ 테이블 ' + my.table + ' 투표 완료를 관제반에 알렸어요</p><button class="ghost" data-done="0">잘못 눌렀어요 · 알림 취소</button>'
+      : '<p>우리 테이블 참가자가 모두 투표했으면 눌러 주세요. 관제반에 알림이 가요.</p><button data-done="1">✅ 테이블 ' + my.table + ' 투표 완료 알리기</button>') + '</div>';
     if (key === lastKey) return;
     lastKey = key;
     $('#submit').hidden = true;
     if (my.sent && bt) {  // 한 번 투표하면 끝 (다시 투표 없음)
       const name = (k, id) => { const o = (bt[k] || []).find(x => x.id === id); return o ? o.no + '. ' + esc(o.text) : '고르지 않음'; };
-      $('#main').innerHTML = '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '<br>🟢 ' + name('us', my.us) + '<br>🔵 ' + name('ext', my.ext) + '</p><p>결과는 앞 화면에서 함께 봐요.</p></div>';
+      $('#main').innerHTML = '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '<br>🟢 ' + name('us', my.us) + '<br>🔵 ' + name('ext', my.ext) + '</p><p>결과는 앞 화면에서 함께 봐요.</p></div>' + fac();
       return;
     }
     if (!st.voteOpen) {
@@ -109,14 +119,26 @@
     const sec = (k, title, hint) => '<div class="' + k + '"><h2>' + title + ' <small>' + hint + '</small></h2><div class="list">' +
       (bt[k].map(o => '<button class="opt' + (pick[k] === o.id ? ' on' : '') + '" data-k="' + k + '" data-id="' + o.id + '"><i class="no">' + o.no + '</i><span><b>' + esc(o.text) + '</b>' + (o.sub ? '<em>' + esc(o.sub) + '</em>' : '') + '</span><i class="r"></i></button>').join('') || '<p class="none">이 테이블은 제안이 없어요</p>') + '</div></div>';
     $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span></div>' +
-      sec('us', '🟢 주민이 직접 할 일', '하나만') + sec('ext', '🔵 기관 도움이 필요한 일', '하나만');
+      sec('us', '🟢 주민이 직접 할 일', '하나만') + sec('ext', '🔵 기관 도움이 필요한 일', '하나만') + fac();
     $('#submit').hidden = false;
     $('#send').disabled = !pick.us && !pick.ext;
     $('#send').textContent = '투표하기';
     $('#sub-msg').textContent = pick.us && pick.ext ? '한 번 누르면 바꿀 수 없어요' : '주민·기관 하나씩 골라 주세요';
   }
 
-  $('#main').addEventListener('click', e => {
+  $('#main').addEventListener('click', async e => {
+    const db = e.target.closest('[data-done]');
+    if (db) {
+      const done = db.dataset.done === '1';
+      if (done && !confirm('테이블 ' + my.table + ' 투표가 모두 끝났다고 관제반에 알릴까요?\n(테이블 퍼실만 눌러 주세요)')) return;
+      db.disabled = true;
+      try {
+        const r = await A.voteDone(my.table, done);
+        if (r && r.error) throw new Error(r.error);
+        my.done = done; save(); toast(done ? '✅ 관제반에 알렸어요' : '알림을 취소했어요');
+      } catch (err) { toast(err.message || '전송 실패. 잠시 후 다시 눌러 주세요', true); }
+      lastKey = ''; render(); return;
+    }
     const tb = e.target.closest('[data-t]');
     if (tb) { my.table = Number(tb.dataset.t); pick = { us: '', ext: '' }; my.sent = false; save(); lastKey = ''; render(); window.scrollTo(0, 0); return; }
     const o = e.target.closest('.opt'); if (!o) return;

@@ -105,6 +105,7 @@ function doPost(e) {
   try {
     if (body.action === 'like') return json_(like_(body));
     if (body.action === 'vote') return json_(vote_(body));
+    if (body.action === 'voteDone') return json_(voteDone_(body));
     if (body.key !== prop_('ADMIN_KEY')) return json_({ error: '관제 비밀번호가 맞지 않아요.' });
     switch (body.action) {
       case 'setState':    return json_({ state: writeState_(body.state) });
@@ -530,18 +531,32 @@ function vote_(b) {
 }
 function readVotes_() {
   var props = PropertiesService.getScriptProperties().getProperties();
-  var counts = {}, people = 0;
+  var counts = {}, people = 0, tables = {}, done = {};
   Object.keys(props).forEach(function (k) {
+    if (k.indexOf(DONE_PREFIX) === 0) { done[k.slice(DONE_PREFIX.length)] = props[k]; return; }
     if (k.indexOf(VOTE_PREFIX) !== 0) return;
     people++;
-    props[k].split('|').slice(1).forEach(function (id) { if (id) counts[id] = (counts[id] || 0) + 1; });
+    var p = props[k].split('|');
+    tables[p[0]] = (tables[p[0]] || 0) + 1;
+    p.slice(1).forEach(function (id) { if (id) counts[id] = (counts[id] || 0) + 1; });
   });
-  return { counts: counts, people: people };
+  return { counts: counts, people: people, tables: tables, done: done };
 }
 function resetVotes_() {
   snapshotVotes_('투표 초기화 직전', ((readState_() || {}).ballot) || {});
   var sp = PropertiesService.getScriptProperties();
-  Object.keys(sp.getProperties()).forEach(function (k) { if (k.indexOf(VOTE_PREFIX) === 0) sp.deleteProperty(k); });
+  Object.keys(sp.getProperties()).forEach(function (k) { if (k.indexOf(VOTE_PREFIX) === 0 || k.indexOf(DONE_PREFIX) === 0) sp.deleteProperty(k); });
+  return { ok: true };
+}
+// ③ 테이블 퍼실이 「우리 테이블 투표 완료」를 알림 (done=false면 취소). 관제 패널·대형 화면이 votes로 읽어요
+var DONE_PREFIX = 'vdone_';
+function voteDone_(b) {
+  var no = Number(b.table);
+  if (!((readState_() || {}).ballot || {})[no]) return { error: '이 테이블은 투표할 제안이 없어요.' };
+  var sp = PropertiesService.getScriptProperties();
+  if (b.done === false) sp.deleteProperty(DONE_PREFIX + no);
+  else sp.setProperty(DONE_PREFIX + no, Utilities.formatDate(new Date(), 'Asia/Seoul', 'HH:mm:ss'));
+  log_(b.done === false ? '③ 투표 완료 취소' : '③ 테이블 투표 완료', '테이블 ' + no);
   return { ok: true };
 }
 

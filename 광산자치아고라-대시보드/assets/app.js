@@ -523,9 +523,18 @@
   async function loadVotes() {
     if (MODE === 'live') return apiGet('votes');
     const b = LS.get('agora-tvotes-v1', {});
-    const counts = {};
-    Object.values(b).forEach(v => [v.us, v.ext].forEach(id => { if (id) counts[id] = (counts[id] || 0) + 1; }));
-    return { counts, people: Object.keys(b).length };
+    const counts = {}, tables = {};
+    Object.values(b).forEach(v => { tables[v.table] = (tables[v.table] || 0) + 1; [v.us, v.ext].forEach(id => { if (id) counts[id] = (counts[id] || 0) + 1; }); });
+    return { counts, people: Object.keys(b).length, tables, done: LS.get('agora-tvdone-v1', {}) };
+  }
+  /** 테이블 퍼실의 「우리 테이블 투표 완료」 알림 (done=false면 취소) */
+  async function voteDone(table, done) {
+    if (MODE === 'live') return apiPost({ action: 'voteDone', table, done });
+    if (!(state.ballot || {})[table]) throw new Error('이 테이블은 투표할 제안이 없어요.');
+    const d = LS.get('agora-tvdone-v1', {});
+    if (done === false) delete d[table]; else d[table] = hhmm(new Date());
+    LS.set('agora-tvdone-v1', d);
+    return { ok: true };
   }
   /** 내 표 {table, us, ext} (us·ext 는 후보 id, 하나만 골라도 됨) */
   async function castVote(v) {
@@ -538,7 +547,7 @@
   }
   async function resetVotes() {
     if (MODE === 'live') return apiPost({ action: 'resetVotes', key: adminKey() });
-    LS.set('agora-tvotes-v1', {});
+    LS.set('agora-tvotes-v1', {}); LS.set('agora-tvdone-v1', {});
   }
   function simVote() {
     const nos = Object.keys(state.ballot || {}); if (!state.voteOpen || !nos.length) return;
@@ -617,7 +626,7 @@
     LS.set('agora-likes-v2', b);
   }
   function resetDemo() {
-    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-tvotes-v1', 'agora-seen-v2'].forEach(LS.del);
+    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-tvotes-v1', 'agora-tvdone-v1', 'agora-seen-v2'].forEach(LS.del);
     Object.keys(seen).forEach(k => delete seen[k]);
   }
 
@@ -638,7 +647,7 @@
     parseDoc, rowsFromCells, loadFeed, pushManual, tableData, proposals, filled, numbered, splitTitle, aiInput,
     loadSummary, saveSummary, summarize, ruleSummary,
     deviceId, buildCards, loadLikes, like, resetLikes,
-    buildBallot, loadVotes, castVote, resetVotes,
+    buildBallot, loadVotes, castVote, voteDone, resetVotes,
     simTick, simLike, simVote, resetDemo,
     esc, hash, hhmm, pad, toMin, nowMin, sleep, trim, topicIcon, adminKey, apiGet
   };

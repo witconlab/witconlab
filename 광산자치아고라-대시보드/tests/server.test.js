@@ -71,8 +71,16 @@ gs.writeState_({ voteOpen: true, ballot: { 3: { us: [{ id: 't3n1' }, { id: 't3n2
 assert.deepStrictEqual(J(gs.vote_({ device: 'a', table: 3, us: 't3n1', ext: 't3n3' })), { ok: true, us: 't3n1', ext: 't3n3' });
 gs.vote_({ device: 'b', table: 3, us: 't3n2', ext: 'zzz' });        // 외부 후보가 아니면 빈칸
 gs.vote_({ device: 'a', table: 3, us: 't3n2', ext: 't3n3' });       // 다시 누르면 바뀜
-assert.deepStrictEqual(J(gs.readVotes_()), { counts: { t3n2: 2, t3n3: 1 }, people: 2 });
+assert.deepStrictEqual(J(gs.readVotes_()), { counts: { t3n2: 2, t3n3: 1 }, people: 2, tables: { 3: 2 }, done: {} });
 assert.ok(gs.vote_({ device: 'c', table: 9, us: 't3n1' }).error);    // 후보 없는 테이블
+// 테이블 퍼실의 「투표 완료」 알림 → votes.done, 취소, 후보 없는 테이블은 거절
+gs.Utilities = { formatDate: () => '15:03:10', sleep() {} };
+assert.ok(gs.voteDone_({ table: 3 }).ok);
+assert.deepStrictEqual(J(gs.readVotes_()).done, { 3: '15:03:10' });
+assert.ok(gs.voteDone_({ table: 9 }).error);
+assert.ok(gs.voteDone_({ table: 3, done: false }).ok); assert.deepStrictEqual(J(gs.readVotes_()).done, {});
+gs.voteDone_({ table: 3 });
+assert.ok(kinds().includes('③ 테이블 투표 완료') && kinds().includes('③ 투표 완료 취소'));
 gs.writeState_({ voteOpen: false, ballot: J(gs.readState_()).ballot }); // 투표 마치기 → 결과 스냅숏
 const vrows = sheets.votes.rows;
 assert.deepStrictEqual(J(vrows[0].slice(2)), ['테이블', '구분', '번호', '제안', '설명', '표 수']);
@@ -80,7 +88,7 @@ assert.deepStrictEqual(J(vrows.slice(1).map(r => [r[1], r[2], r[3], r[7]])), [['
 assert.ok(kinds().includes('투표 마치기') && kinds().includes('화면'));
 assert.deepStrictEqual(triggers.map(x => x.getHandlerFunction()), ['writeVoteDocs']);   // 문서 기록은 트리거로
 assert.deepStrictEqual(J(JSON.parse(gs.cacheGetBig_('VOTE_DOCS'))[3].us.lines.map(l => l.split(' — ')[1])), ['0표', '2표']);
-gs.resetVotes_(); assert.deepStrictEqual(J(gs.readVotes_()).people, 0);
+gs.resetVotes_(); assert.deepStrictEqual(J(gs.readVotes_()).people, 0); assert.deepStrictEqual(J(gs.readVotes_()).done, {});
 assert.ok(kinds().includes('투표 초기화 직전'));                         // 지우기 전에 남김
 const raw = JSON.parse(sheets.log.rows.find(r => r[1] === '투표 초기화 직전')[3]);
 assert.deepStrictEqual(raw.devices, { a: '3|t3n2|t3n3', b: '3|t3n2|' });

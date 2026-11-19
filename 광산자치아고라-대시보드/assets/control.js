@@ -202,9 +202,18 @@
   }
 
   // ── ③ 테이블별 투표 ──
-  let voteInfo = { counts: {}, people: 0 };
+  let voteInfo = { counts: {}, people: 0, tables: {}, done: {} }, doneSeen = null;
+  // 테이블 퍼실이 「투표 완료」를 누르면 소리 + 알림(관제 노트북 화면 오른쪽 위)
+  function ding() { try { const c = new AudioContext(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = 880; g.gain.setValueAtTime(.25, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .6); o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .6); } catch (e) { /* 소리 없이 */ } }
+  function notifyDone(nos, total) {
+    const all = Object.keys(voteInfo.done).length;
+    const msg = '✅ 테이블 ' + nos.join(', ') + ' 투표 완료 (' + all + '/' + total + ')' + (all >= total ? ' · 모든 테이블 완료!' : '');
+    toast(msg); ding();
+    try { if (window.Notification && Notification.permission === 'granted') new Notification('③ 투표 완료 알림', { body: msg }); } catch (e) { /* 무시 */ }
+  }
   $('#open-vote').onclick = () => window.open('tvote.html' + demoQs, 'agora-tvote');
   $('#vote-open').onclick = () => {
+    try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* 무시 */ }
     const ballot = A.buildBallot(items);
     if (!Object.keys(ballot).length) { toast('아직 ② 제안이 없어요', true); return; }
     act(() => A.setState({ stage: 'talk', sub: 2, voteOpen: true, ballot, auto: false }), Object.keys(ballot).length + '개 테이블 투표를 열었어요');
@@ -215,13 +224,22 @@
     const ballot = A.state.ballot || {};
     const c = voteInfo.counts;
     const top = list => { const best = list.slice().sort((a, b) => (c[b.id] || 0) - (c[a.id] || 0))[0]; return best && c[best.id] ? best.no + '번 ' + best.text + ' · ' + c[best.id] + '표' : '—'; };
-    $('#vote-sum').textContent = (A.state.voteOpen ? '진행 중 · ' : '') + voteInfo.people + '명 참여';
-    const nos = Object.keys(ballot).map(Number).sort((a, b) => a - b);
-    $('#vote-list').innerHTML = nos.length ? nos.map(no => { const t = A.tableByNo(no); return '<li style="' + tv(t.topic) + '"><span></span><span class="t">T' + no + '</span><span>🟢 ' + esc(top(ballot[no].us)) + '<br>🔵 ' + esc(top(ballot[no].ext)) + '</span><span class="v">' + [...ballot[no].us, ...ballot[no].ext].reduce((n, o) => n + (c[o.id] || 0), 0) + '</span></li>'; }).join('')
-      : '<li class="empty">② 제안이 쌓이면 「투표 열기」를 눌러 주세요.</li>';
+    const nos = Object.keys(ballot).map(Number).sort((a, b) => a - b), done = voteInfo.done || {}, nd = nos.filter(n => done[n]).length;
+    $('#vote-sum').textContent = (A.state.voteOpen ? '진행 중 · ' : '') + voteInfo.people + '명 참여 · 완료 테이블 ' + nd + '/' + nos.length;
+    const chips = nos.length ? '<li style="display:flex;flex-wrap:wrap;gap:6px;border:0;padding:4px 0">' + nos.map(no => '<span style="padding:4px 10px;border-radius:8px;font-weight:800;' + (done[no] ? 'background:#16a34a;color:#fff' : 'background:rgba(148,163,184,.15);color:#94a3b8') + '">' + (done[no] ? '✅ ' : '') + 'T' + no + '</span>').join('') + '</li>' : '';
+    $('#vote-list').innerHTML = chips + (nos.length ? nos.map(no => { const t = A.tableByNo(no); return '<li style="' + tv(t.topic) + (done[no] ? ';background:rgba(34,197,94,.16)' : '') + '"><span></span><span class="t">T' + no + '</span><span>' + (done[no] ? '<b style="color:#4ade80">✅ 퍼실 완료 ' + esc(done[no]) + '</b><br>' : '') + '🟢 ' + esc(top(ballot[no].us)) + '<br>🔵 ' + esc(top(ballot[no].ext)) + '</span><span class="v">' + ((voteInfo.tables || {})[no] || 0) + '명</span></li>'; }).join('')
+      : '<li class="empty">② 제안이 쌓이면 「투표 열기」를 눌러 주세요.</li>');
   }
   async function pollVotes() {
-    try { const r = await A.loadVotes(); if (JSON.stringify(r) !== JSON.stringify(voteInfo)) { voteInfo = { counts: r.counts || {}, people: r.people || 0 }; renderVotes(); } } catch (e) { /* 다음 회차 */ }
+    try {
+      const r = await A.loadVotes();
+      if (JSON.stringify(r) === JSON.stringify(voteInfo)) return;
+      voteInfo = { counts: r.counts || {}, people: r.people || 0, tables: r.tables || {}, done: r.done || {} };
+      const fresh = doneSeen ? Object.keys(voteInfo.done).filter(n => !doneSeen[n]).map(Number).sort((a, b) => a - b) : [];
+      doneSeen = voteInfo.done;
+      if (fresh.length) notifyDone(fresh, Object.keys(A.state.ballot || {}).length);
+      renderVotes();
+    } catch (e) { /* 다음 회차 */ }
   }
 
   // ── 시뮬레이션 ──

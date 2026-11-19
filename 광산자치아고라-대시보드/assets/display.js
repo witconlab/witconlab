@@ -38,7 +38,7 @@
   let items = [];
   let summary = { tables: {}, topics: {}, at: 0 };
   let likeCounts = null;
-  let voteCounts = {};
+  let voteCounts = {}, voteMeta = { tables: {}, done: {} };
 
   // 보여 줄 주제: null = 전체, 'auto' = 15초마다 돌아가며
   const ROTATE_MS = 15000;
@@ -113,7 +113,7 @@
   // 같은 내용이면 다시 그리지 않음(애니메이션 유지)
   let lastSig = '';
   function renderBody() {
-    const sig = [cur.stage, cur.sub, viewTopic(), cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts)].join('|');
+    const sig = [cur.stage, cur.sub, viewTopic(), cur.polished, items.map(i => i.id).join(','), summary.at, JSON.stringify(cur.cards || []), cur.voteOpen, JSON.stringify(cur.ballot || {}), JSON.stringify(voteCounts), JSON.stringify(voteMeta)].join('|');
     if (sig === lastSig) return;
     lastSig = sig;
     if (cur.stage === 'talk') renderTalk();
@@ -171,7 +171,7 @@
   function step3(ts, k) {
     const ballot = cur.ballot || {};
     if (Object.keys(ballot).length) {
-      return '<div class="vwrap"><div class="grid3 vote n' + ts.length + '">' + ts.map(t => '<div class="pc" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '</div>' + (ballot[t.no] ? voteBars(ballot[t.no], k) : '<div class="empty">투표할 제안이 없어요</div>') + '</div>').join('') + '</div>' +
+      return '<div class="vwrap"><div class="grid3 vote n' + ts.length + '">' + ts.map(t => '<div class="pc' + (voteMeta.done[t.no] ? ' vdone' : '') + '" style="' + tv(t.topic) + '"><div class="pc-hd"><b>' + t.no + '</b>' + TOPICS[t.topic].name + '<span class="vppl">' + (voteMeta.done[t.no] ? '✅ 완료 · ' : '') + (voteMeta.tables[t.no] || 0) + '명</span></div>' + (ballot[t.no] ? voteBars(ballot[t.no], k) : '<div class="empty">투표할 제안이 없어요</div>') + '</div>').join('') + '</div>' +
         (cur.voteOpen ? '<div class="vote-qr"><div class="vq-card">📱</div><p><b>테이블 위 QR 카드를 찍어 투표</b>「③ 우선 과제」 칸<br>🟢 주민 1개 · 🔵 외부 1개<br>한 사람 한 번</p></div>' : '') + '</div>';
     }
     return '<div class="grid3 n' + ts.length + '">' + ts.map(t => {
@@ -299,7 +299,8 @@
       }
       if (s === 'talk' && cur.sub === 2 && Object.keys(cur.ballot || {}).length) {
         const r = await A.loadVotes();
-        if (JSON.stringify(r.counts || {}) !== JSON.stringify(voteCounts)) { voteCounts = r.counts || {}; renderBody(true); }
+        const meta = { tables: r.tables || {}, done: r.done || {} };
+        if (JSON.stringify(r.counts || {}) !== JSON.stringify(voteCounts) || JSON.stringify(meta) !== JSON.stringify(voteMeta)) { voteCounts = r.counts || {}; voteMeta = meta; renderBody(true); }
       }
       if (s === 'like') {
         const r = await A.loadLikes();
