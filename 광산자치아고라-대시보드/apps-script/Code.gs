@@ -733,6 +733,7 @@ function archiveAfterEvent() {
   var st = readState_() || {};
   snapshotVotes_('행사 후 보관', st.ballot || {});
   snapshotLikes_('행사 후 보관', st.cards || []);
+  snapshotDocs_('행사 후 보관', true);
   var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HHmm');
   var ss = SpreadsheetApp.getActiveSpreadsheet(), me = DriveApp.getFileById(ss.getId());
   var parents = me.getParents(), folder = (parents.hasNext() ? parents.next() : DriveApp.getRootFolder()).createFolder('광산자치아고라 기록 보관 ' + stamp);
@@ -964,6 +965,7 @@ function shareDocsForEditing() {
 
 /** 행사 직전: 리허설 기록 지우기(13개 문서를 빈 표 양식으로) + 요약·수동·공감·화면 상태 초기화 */
 function resetForEvent() {
+  snapshotDocs_('초기화 직전', true);  // 지우기 전에 문서 13개 내용을 log에 보관
   log_('행사 초기화', 'resetForEvent 실행 — 이 줄 위는 리허설 기록');
   readTables_().forEach(function (t) { if (t.docId) writeDoc_(t.docId, t); });
   sheet_(SHEETS.summary).clearContents().appendRow(['키', '내용(JSON)']);
@@ -1043,4 +1045,60 @@ function fillSampleTabs_(tabs, S) {
     });
     fillSampleTabs_(tab.getChildTabs(), S);
   });
+}
+
+
+// ───────────── 기록 문서 보관: 문서 13개 표 내용을 관제 시트 log에 복사 ─────────────
+/** force=false면 지난 보관 뒤 바뀐 문서만. 테이블마다 log 한 줄(종류 「문서 보관」, 자료 칸 = 표 행 JSON) */
+function snapshotDocs_(why, force) {
+  var sp = PropertiesService.getScriptProperties(), saved = [], fail = [];
+  readTables_().forEach(function (t) {
+    if (!t.docId) return;
+    try {
+      var at = DriveApp.getFileById(t.docId).getLastUpdated().getTime(), key = 'DOCSNAP_' + t.no;
+      if (!force && Number(sp.getProperty(key) || 0) === at) return;   // 안 바뀜
+      var rows = docTabsRows_(DocumentApp.openById(t.docId).getTabs());
+      log_('문서 보관', why + ' · 테이블 ' + t.no, { table: t.no, docId: t.docId, updated: new Date(at).toISOString(), rows: rows });
+      sp.setProperty(key, String(at));
+      saved.push(t.no);
+    } catch (e) { fail.push(t.no + '(' + e.message + ')'); }
+  });
+  if (fail.length) log_('문서 보관 실패', why + ' · ' + fail.join(', '));
+  return { saved: saved, fail: fail };
+}
+/** 10분마다 트리거가 실행: 바뀐 문서만 보관 */
+function autoSnapshotDocs() { snapshotDocs_('10분 자동 보관', false); }
+/** 편집기에서 한 번 실행: 지금 한 번 보관 + 10분마다 자동 보관 시작 (행사 끝나면 stopDocBackup) */
+function startDocBackup() {
+  stopDocBackup();
+  ScriptApp.newTrigger('autoSnapshotDocs').timeBased().everyMinutes(10).create();
+  var r = snapshotDocs_('자동 보관 시작', true);
+  console.log('보관한 문서: ' + r.saved.join(', ') + (r.fail.length ? ' / 실패: ' + r.fail.join(', ') : '') + ' · 10분마다 자동 보관 켜짐');
+  return r;
+}
+function stopDocBackup() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'autoSnapshotDocs') ScriptApp.deleteTrigger(t); });
+}
+
+/** 편집기에서 실행(읽기만): 기록이 잘 남는지 점검 → 실행 로그에 결과 */
+function checkRecords() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), out = [];
+  Object.keys(SHEETS).forEach(function (k) { var sh = ss.getSheetByName(SHEETS[k]); out.push('시트 ' + SHEETS[k] + ': ' + (sh ? sh.getLastRow() + '줄' : '없음')); });
+  var log = ss.getSheetByName(SHEETS.log);
+  if (log && log.getLastRow() > 1) {
+    var n = Math.min(400, log.getLastRow() - 1), rows = log.getRange(log.getLastRow() - n + 1, 1, n, 3).getValues(), count = {};
+    rows.forEach(function (r) { count[r[1]] = (count[r[1]] || 0) + 1; });
+    out.push('log 최근 ' + n + '줄 종류: ' + Object.keys(count).map(function (k) { return k + ' ' + count[k]; }).join(', '));
+    out.push('log 마지막: ' + rows.slice(-3).map(function (r) { return Utilities.formatDate(new Date(r[0]), 'Asia/Seoul', 'HH:mm') + ' ' + r[1] + ' ' + String(r[2]).slice(0, 40); }).join(' | '));
+  }
+  readTables_().forEach(function (t) {
+    if (!t.docId) return out.push('테이블 ' + t.no + ': 문서 없음');
+    try {
+      var f = DriveApp.getFileById(t.docId);
+      out.push('테이블 ' + t.no + ': 공유 ' + f.getSharingAccess() + '/' + f.getSharingPermission() + ' · 수정 ' + Utilities.formatDate(f.getLastUpdated(), 'Asia/Seoul', 'HH:mm') + ' · 표 줄 ' + docTabsRows_(DocumentApp.openById(t.docId).getTabs()).length);
+    } catch (e) { out.push('테이블 ' + t.no + ': 열기 실패 ' + e.message); }
+  });
+  out.push('트리거: ' + (ScriptApp.getProjectTriggers().map(function (t) { return t.getHandlerFunction(); }).join(', ') || '없음'));
+  out.forEach(function (l) { console.log(l); });
+  return out;
 }
