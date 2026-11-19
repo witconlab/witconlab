@@ -379,13 +379,15 @@
       anim(r, [{ transform: 'scale(.3)', opacity: first ? .95 : .35 }, { transform: 'scale(' + (first ? 7.5 : 4.5) + ')', opacity: 0 }],
         first ? { duration: 1700, delay: 3250 + i * 100, easing: 'cubic-bezier(.1,.7,.3,1)' } : { duration: 2400, delay: 6200 + (i - half) * 140, iterations: Infinity, easing: 'cubic-bezier(.2,.6,.4,1)' });
     });
-    document.querySelectorAll('#slo .ln').forEach((ln, li) => { [...ln.children].forEach((ch, j) => anim(ch, [{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 760, delay: 3450 + li * 620 + j * 55, easing: 'cubic-bezier(.2,.9,.25,1.08)' })); });
+    // 함께 걷고! → (외칠 틈) → 함께 가꾸고! → … 한 줄씩. LINE_GAP = 한 줄 외치는 시간
+    const LINE_GAP = 1400, BIG_AT = 3450 + 3 * LINE_GAP;  // ×SLO_SLOW(2) → 실제 한 줄에 약 2.8초
+    document.querySelectorAll('#slo .ln').forEach((ln, li) => { [...ln.children].forEach((ch, j) => anim(ch, [{ transform: 'translateY(115%)' }, { transform: 'none' }], { duration: 760, delay: 3450 + li * LINE_GAP + j * 55, easing: 'cubic-bezier(.2,.9,.25,1.08)' })); });
     const big = document.querySelector('#slo .big');
     big.classList.remove('flow');
-    anim(big, [{ opacity: 0, transform: 'scale(1.9)', filter: 'blur(28px)' }, { opacity: 1, transform: 'scale(.95)', filter: 'blur(0)', offset: .7 }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], { duration: 1100, delay: 5370, easing: 'cubic-bezier(.2,.8,.2,1)' });
-    later(() => big.classList.add('flow'), 6520);
-    anim($('#slo-sub'), [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: 6420, easing: 'ease-out' });
-    document.querySelectorAll('#slo-icons span').forEach((el, i) => anim(el, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 600, delay: 6770 + i * 110, easing: 'cubic-bezier(.2,1.5,.4,1)' }));
+    anim(big, [{ opacity: 0, transform: 'scale(1.9)', filter: 'blur(28px)' }, { opacity: 1, transform: 'scale(.95)', filter: 'blur(0)', offset: .7 }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], { duration: 1100, delay: BIG_AT, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    later(() => big.classList.add('flow'), BIG_AT + 1150);
+    anim($('#slo-sub'), [{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: BIG_AT + 2400, easing: 'ease-out' });
+    document.querySelectorAll('#slo-icons span').forEach((el, i) => anim(el, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 600, delay: BIG_AT + 2750 + i * 110, easing: 'cubic-bezier(.2,1.5,.4,1)' }));
     later(sloPulses, 3400);
   }
   function sloPulses() {
