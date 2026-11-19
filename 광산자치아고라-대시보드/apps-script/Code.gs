@@ -330,6 +330,7 @@ function summarize_(input) {
   if (!key) throw new Error('스크립트 속성에 GEMINI_API_KEY 가 없어요.');
   var models = [prop_('GEMINI_MODEL') || 'gemini-3.8-flash']
     .concat((prop_('GEMINI_FALLBACK') || 'gemini-3.5-flash,gemini-flash-latest').split(','))
+    .concat(['gemini-flash-lite-latest'])  // 붐빌 때 마지막 예비(가벼운 모델)
     .map(function (m) { return m.trim(); })
     .filter(function (m, i, a) { return m && a.indexOf(m) === i; });
 
@@ -390,33 +391,49 @@ function summarize_(input) {
   return saveSummary_(out, 'AI 결과 (' + r.model + ')');
 }
 
-/** 모델을 차례로 시도. 붐빔(429·500·503)은 한 번 더, 없는 모델(404)은 다음 모델로 */
+/** 모델을 돌아가며 시도. 붐빔(429·500·503)이면 다음 모델로 → 한 바퀴 돌면 점점 길게 쉬고 다시(최대 약 5분).
+ *  없는 모델(404 등)은 빼고 계속 */
 function callGemini_(key, models, payload) {
-  var errors = [];
-  var started = Date.now();
-  for (var i = 0; i < models.length; i++) {
-    for (var attempt = 0; attempt < 2; attempt++) {
-      if (Date.now() - started > 180000) { errors.push('시간 초과'); i = models.length; break; }
-      if (attempt) Utilities.sleep(3000);
-      var t0 = Date.now();
-      var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + models[i] + ':generateContent', {
-        method: 'post', contentType: 'application/json', headers: { 'x-goog-api-key': key },
-        muteHttpExceptions: true, payload: payload
-      });
-      var code = res.getResponseCode();
-      console.log('Gemini ' + models[i] + ' → ' + code + ', ' + ((Date.now() - t0) / 1000).toFixed(1) + '초');
+  var errors = [], live = models.slice(), started = Date.now(), LIMIT = 300000;
+  for (var round = 0; live.length && Date.now() - started < LIMIT; round++) {
+    if (round) Utilities.sleep(Math.min(30000, 6000 * round));
+    for (var i = 0; i < live.length; i++) {
+      if (Date.now() - started > LIMIT) break;
+      var t0 = Date.now(), res, code;
+      try {
+        res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + live[i] + ':generateContent', {
+          method: 'post', contentType: 'application/json', headers: { 'x-goog-api-key': key },
+          muteHttpExceptions: true, payload: payload
+        });
+        code = res.getResponseCode();
+      } catch (e) { code = 'net'; }
+      console.log('Gemini ' + live[i] + ' → ' + code + ', ' + ((Date.now() - t0) / 1000).toFixed(1) + '초');
       if (code === 200) {
-        var data = JSON.parse(res.getContentText());
-        var text = data.candidates[0].content.parts
-          .filter(function (p) { return p.text && !p.thought; })
-          .map(function (p) { return p.text; }).join('');
-        return { model: models[i], parsed: JSON.parse(text) };
+        try {
+          var data = JSON.parse(res.getContentText());
+          var text = data.candidates[0].content.parts
+            .filter(function (p) { return p.text && !p.thought; })
+            .map(function (p) { return p.text; }).join('');
+          return { model: live[i], parsed: JSON.parse(text) };
+        } catch (e) { code = 'bad-json'; }  // 답이 잘렸으면 다음 시도
       }
-      errors.push(models[i] + ' ' + code);
-      if ([429, 500, 503].indexOf(code) < 0) break;
+      errors.push(live[i] + ' ' + code);
+      if ([429, 500, 502, 503, 504, 'net', 'bad-json'].indexOf(code) < 0) { live.splice(i, 1); i--; }  // 다시 해도 안 되는 오류 → 이 모델 빼기
     }
   }
-  throw new Error('Gemini 실패 (' + errors.join(', ') + '). 잠시 뒤 다시 실행하거나 원문 그대로 쓰세요.');
+  throw new Error('Gemini 실패 (' + errors.slice(-6).join(', ') + ' 등 ' + errors.length + '번). 잠시 뒤 다시 실행하거나 원문 그대로 쓰세요.');
+}
+
+/** 편집기에서 실행: 지금 Gemini가 답하는지 짧게 확인(키는 서버 안에서만 씀) */
+function checkGemini() {
+  var key = prop_('GEMINI_API_KEY');
+  if (!key) return console.log('GEMINI_API_KEY 없음');
+  var models = [prop_('GEMINI_MODEL') || 'gemini-3.8-flash'].concat((prop_('GEMINI_FALLBACK') || 'gemini-3.5-flash,gemini-flash-latest').split(',')).concat(['gemini-flash-lite-latest'])
+    .map(function (m) { return m.trim(); }).filter(function (m, i, a) { return m && a.indexOf(m) === i; });
+  var r = callGemini_(key, models, JSON.stringify({ contents: [{ role: 'user', parts: [{ text: '{"ok":true} 를 그대로 JSON으로 답하세요.' }] }],
+    generationConfig: { responseMimeType: 'application/json' } }));
+  console.log('Gemini 정상: ' + r.model + ' → ' + JSON.stringify(r.parsed));
+  return r.model;
 }
 
 /** 웹 요청 안에서 기다리지 않고 1초 뒤 일회용 트리거로 실행. 입력은 캐시에 잠시 보관 */
