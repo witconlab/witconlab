@@ -219,7 +219,7 @@
   function propSheet(t, compact) {
     const d = A.tableData(items, t.no);
     const ps = A.proposals(t.no, items, summary, cur.polished);
-    const head = '<div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + (d.dongs ? ' · ' + esc(d.dongs) : '') + ' · 의제 제안서</span>' + (d.done ? '<em class="done">✓ 제출</em>' : '') + (ps.some(p => p.polished) ? '<em class="ai">✨ 표현 다듬음</em>' : '') + '</div>';
+    const head = '<div class="sh-hd"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + (d.dongs ? ' · ' + esc(d.dongs) : '') + ' · 의제 제안서</span>' + (d.done ? '<em class="done">✓ 제출</em>' : '') + (ps.some(p => p.polished) ? '<em class="ai">✨ 표현 다듬음</em>' : '') + ((summary.confirm || {})[t.no] ? '<em class="done">✅ 퍼실 확인</em>' : '') + '</div>';
     if (!ps.length) return '<div class="sheet" style="' + tv(t.topic) + '">' + head + '<div class="empty">④에서 정리한 내용이 여기에 모여요</div></div>';
     return '<div class="sheet" style="' + tv(t.topic) + '">' + head + ps.map(p =>
       '<div class="sh-task"><h3>' + esc(p.title) + kindTag(p.kind) + '</h3>' +
@@ -299,7 +299,7 @@
     try {
       if (s === 'share' || s === 'like' || (s === 'talk' && cur.sub === 4)) {
         const next = await A.loadSummary();
-        const changed = next.at !== summary.at || JSON.stringify(next.job) !== JSON.stringify(summary.job);
+        const changed = next.at !== summary.at || JSON.stringify(next.job) !== JSON.stringify(summary.job) || JSON.stringify(next.confirm || {}) !== JSON.stringify(summary.confirm || {});
         summary = next;
         if (changed) renderBody(true);
       }

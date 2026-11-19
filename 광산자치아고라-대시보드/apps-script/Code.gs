@@ -106,6 +106,8 @@ function doPost(e) {
     if (body.action === 'like') return json_(like_(body));
     if (body.action === 'vote') return json_(vote_(body));
     if (body.action === 'voteDone') return json_(voteDone_(body));
+    if (body.action === 'aiTable') return json_(aiTable_(body));
+    if (body.action === 'confirmTable') return json_(confirmTable_(body));
     if (body.key !== prop_('ADMIN_KEY')) return json_({ error: '관제 비밀번호가 맞지 않아요.' });
     switch (body.action) {
       case 'setState':    return json_({ state: writeState_(body.state) });
@@ -305,7 +307,8 @@ function readSummary_() {
   return {
     tables: tables, topics: topics,
     at: prop_('SUMMARY_AT') ? Number(prop_('SUMMARY_AT')) : 0, source: prop_('SUMMARY_SRC') || '',
-    job: prop_('SUMMARY_JOB') ? JSON.parse(prop_('SUMMARY_JOB')) : null
+    job: prop_('SUMMARY_JOB') ? JSON.parse(prop_('SUMMARY_JOB')) : null,
+    confirm: readConfirm_()
   };
 }
 
@@ -325,7 +328,7 @@ function saveSummary_(data, why) {
  * input: 관제 패널이 보낸 테이블별 정리 내용
  *   [{ no, topic, picks:[..], us:[..], ext:[..], tasks:[{bg,want,prop,first,with}], check:[..] }]
  */
-function summarize_(input) {
+function summarize_(input, keep) {
   var key = prop_('GEMINI_API_KEY');
   if (!key) throw new Error('스크립트 속성에 GEMINI_API_KEY 가 없어요.');
   var models = [prop_('GEMINI_MODEL') || 'gemini-3.8-flash']
@@ -387,8 +390,62 @@ function summarize_(input) {
   var out = { tables: {}, topics: {} };
   r.parsed.tables.forEach(function (t) { out.tables[t.no] = { tasks: (t.tasks || []).slice(0, 2) }; });
   r.parsed.topics.forEach(function (p) { out.topics[p.topic] = { summary: p.summary, points: (p.points || []).slice(0, 4) }; });
+  if (keep) return { out: out, model: r.model };   // 테이블 하나만 다듬을 때: 저장은 부른 쪽에서
   PropertiesService.getScriptProperties().setProperty('SUMMARY_SRC', 'gemini:' + r.model);
+  // 테이블에서 퍼실이 다듬은 문장은 한꺼번에 다시 돌려도 지키기
+  var prev = readSummary_();
+  Object.keys(prev.tables || {}).forEach(function (no) { if (prev.tables[no] && prev.tables[no].byTable) out.tables[no] = prev.tables[no]; });
   return saveSummary_(out, 'AI 결과 (' + r.model + ')');
+}
+
+// ── ⑤ 테이블에서: 퍼실 휴대폰으로 우리 테이블만 AI 다듬기 → 확정 ──
+var CONFIRM_PREFIX = 'CONFIRM_';
+function readConfirm_() {
+  var props = PropertiesService.getScriptProperties().getProperties(), out = {};
+  Object.keys(props).forEach(function (k) { if (k.indexOf(CONFIRM_PREFIX) === 0) { try { out[k.slice(CONFIRM_PREFIX.length)] = JSON.parse(props[k]); } catch (e) { /* 무시 */ } } });
+  return out;
+}
+/** 테이블 요약 한 개만 바꿔 저장(다른 테이블·주제 요약은 그대로). 여러 테이블이 동시에 눌러도 차례로 */
+function mergeTableSummary_(no, val, why) {
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var cur = readSummary_(), data = { tables: cur.tables || {}, topics: cur.topics || {} };
+    if (val) data.tables[no] = val; else delete data.tables[no];
+    return saveSummary_(data, why);
+  } finally { lock.releaseLock(); }
+}
+function aiTable_(b) {
+  var no = Number(b.table), st = readState_() || {};
+  if (!(no >= 1 && no <= 30)) return { error: '테이블 번호가 없어요.' };
+  if (st.stage !== 'talk' || (st.sub || 0) < 3) return { error: '④·⑤ 단계에서만 다듬을 수 있어요.' };
+  var t = b.input || {};
+  if (Number(t.no) !== no || !(t.tasks || []).length) return { error: '④에 정리된 내용이 없어요. 기록자에게 확인해 주세요.' };
+  var c = CacheService.getScriptCache();
+  if (c.get('AIT_' + no)) return { error: '지금 다듬는 중이에요. 30초 뒤에 다시 눌러 주세요.' };
+  c.put('AIT_' + no, '1', 30);
+  log_('AI 실행 (테이블)', '테이블 ' + no, t);
+  try {
+    var r = summarize_([t], true), tb = r.out.tables[no] || r.out.tables[String(no)];
+    if (!tb || !(tb.tasks || []).length) throw new Error('AI가 빈 결과를 줬어요');
+    tb.byTable = true; tb.model = r.model; tb.at = Date.now();
+    mergeTableSummary_(no, tb, 'AI 결과 (테이블 ' + no + ', ' + r.model + ')');
+    return { ok: true, table: tb };
+  } catch (e) {
+    log_('AI 실패 (테이블)', '테이블 ' + no + ' · ' + e.message);
+    return { error: 'AI 다듬기에 실패했어요. 원문으로 확정하거나 잠시 뒤 다시 눌러 주세요.' };
+  } finally { c.remove('AIT_' + no); }
+}
+/** use: 'ai' = 다듬은 문장으로 확정 / 'raw' = 원문으로 확정(AI 문장은 지움) / 'cancel' = 확정 취소 */
+function confirmTable_(b) {
+  var no = Number(b.table), use = String(b.use || '');
+  if (!(no >= 1 && no <= 30) || ['ai', 'raw', 'cancel'].indexOf(use) < 0) return { error: '잘못된 요청이에요.' };
+  var sp = PropertiesService.getScriptProperties(), cur = (readSummary_().tables || {})[no];
+  if (use === 'ai' && !(cur && cur.byTable)) return { error: 'AI 문장이 아직 없어요. 먼저 「AI로 다듬기」를 눌러 주세요.' };
+  if (use === 'raw' && cur && cur.byTable) mergeTableSummary_(no, null, '원문으로 확정 (테이블 ' + no + ')');
+  if (use === 'cancel') sp.deleteProperty(CONFIRM_PREFIX + no);
+  else sp.setProperty(CONFIRM_PREFIX + no, JSON.stringify({ use: use, at: Date.now() }));
+  log_(use === 'cancel' ? '⑤ 퍼실 확정 취소' : '⑤ 퍼실 확정', '테이블 ' + no + ' · ' + (use === 'ai' ? 'AI 문장' : use === 'raw' ? '원문' : ''));
+  return { ok: true, confirm: readConfirm_() };
 }
 
 /** 모델을 돌아가며 시도. 붐빔(429·500·503)이면 다음 모델로 → 한 바퀴 돌면 점점 길게 쉬고 다시(최대 약 5분).
@@ -972,6 +1029,8 @@ function resetForEvent() {
   sheet_(SHEETS.manual).clearContents().appendRow(['시각', '테이블', '항목', '과제', '내용']);
   resetLikes_();
   resetVotes_();
+  var sp0 = PropertiesService.getScriptProperties();
+  Object.keys(sp0.getProperties()).forEach(function (k) { if (k.indexOf(CONFIRM_PREFIX) === 0) sp0.deleteProperty(k); });
   clearState_();
   CacheService.getScriptCache().remove('feed');
 }

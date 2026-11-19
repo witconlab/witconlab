@@ -140,3 +140,8 @@ dialog::backdrop { background: rgba(0, 0, 0, .6); }
 
 .topics.one-tables { grid-template-columns: repeat(7, 1fr); }
 .topics.one-tables button { padding: 7px 2px; }
+
+.cf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.cf-chips span { padding: 4px 10px; border-radius: 8px; font-weight: 800; background: rgba(148,163,184,.15); color: #94a3b8; }
+.cf-chips span.on { background: #16a34a; color: #fff; }
+.cf-chips b { width: 100%; font-size: 13px; }

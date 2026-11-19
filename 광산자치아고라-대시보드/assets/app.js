@@ -414,7 +414,8 @@
   /** 화면에 쓸 의제 제안서: 과제별 {title, bg, want, prop, first, with, us, ext, polished} */
   function proposals(no, items, summary, usePolished) {
     const d = tableData(items, no);
-    const ai = usePolished && summary && summary.tables && summary.tables[no] && summary.tables[no].tasks || [];
+    const st = summary && summary.tables && summary.tables[no];
+    const ai = (usePolished || (st && st.byTable)) && st && st.tasks || [];   // 테이블에서 다듬은 문장은 늘 적용
     const out = [];
     [0, 1].forEach(k => {
       const raw = d.tasks[k], pick = d.picks.find(p => p.task === k);
@@ -437,7 +438,28 @@
   // ── AI 다듬기 · 주제별 요약 ──
   async function loadSummary() {
     if (MODE === 'live') return apiGet('summary');
-    return LS.get('agora-summary-v2', { tables: {}, topics: {}, at: 0, source: '' });
+    return Object.assign(LS.get('agora-summary-v2', { tables: {}, topics: {}, at: 0, source: '' }), { confirm: LS.get('agora-confirm-v1', {}) });
+  }
+  /** ⑤ 퍼실 휴대폰: 우리 테이블만 AI 다듬기 */
+  async function aiTable(no, items) {
+    const input = aiInput(items).find(t => t.no === Number(no));
+    if (!input || !input.tasks.some(filled)) throw new Error('④에 정리된 내용이 없어요. 기록자에게 확인해 주세요.');
+    if (MODE === 'live') return apiPost({ action: 'aiTable', table: Number(no), input }, 2);
+    await sleep(1200);
+    const s = LS.get('agora-summary-v2', { tables: {}, topics: {} });
+    const tb = { byTable: true, model: 'demo', at: Date.now(), tasks: input.tasks.map((k, i) => Object.assign({ title: trim((input.picks[i] || k.prop || '과제').replace(/ \((우리|외부)\)$/, ''), 20), us: '', ext: '' }, k)) };
+    s.tables = Object.assign({}, s.tables, { [no]: tb }); s.at = Date.now(); LS.set('agora-summary-v2', s);
+    return { ok: true, table: tb };
+  }
+  /** use: 'ai' | 'raw' | 'cancel' */
+  async function confirmTable(no, use) {
+    if (MODE === 'live') return apiPost({ action: 'confirmTable', table: Number(no), use });
+    const c = LS.get('agora-confirm-v1', {}), s = LS.get('agora-summary-v2', { tables: {}, topics: {} });
+    if (use === 'ai' && !(s.tables[no] && s.tables[no].byTable)) throw new Error('AI 문장이 아직 없어요.');
+    if (use === 'raw' && s.tables[no] && s.tables[no].byTable) { delete s.tables[no]; s.at = Date.now(); LS.set('agora-summary-v2', s); }
+    if (use === 'cancel') delete c[no]; else c[no] = { use, at: Date.now() };
+    LS.set('agora-confirm-v1', c);
+    return { ok: true, confirm: c };
   }
   async function saveSummary(data) {
     if (MODE === 'live') return apiPost({ action: 'saveSummary', key: adminKey(), data });
@@ -627,7 +649,7 @@
     LS.set('agora-likes-v2', b);
   }
   function resetDemo() {
-    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-tvotes-v1', 'agora-tvdone-v1', 'agora-seen-v2'].forEach(LS.del);
+    ['agora-vdocs-v2b', 'agora-manual-v2', 'agora-summary-v2', 'agora-likes-v2', 'agora-tvotes-v1', 'agora-tvdone-v1', 'agora-confirm-v1', 'agora-seen-v2'].forEach(LS.del);
     Object.keys(seen).forEach(k => delete seen[k]);
   }
 
@@ -648,7 +670,7 @@
     parseDoc, rowsFromCells, loadFeed, pushManual, tableData, proposals, filled, numbered, splitTitle, aiInput,
     loadSummary, saveSummary, summarize, ruleSummary,
     deviceId, buildCards, loadLikes, like, resetLikes,
-    buildBallot, loadVotes, castVote, voteDone, resetVotes, slideOn,
+    buildBallot, loadVotes, castVote, voteDone, resetVotes, slideOn, aiTable, confirmTable,
     simTick, simLike, simVote, resetDemo,
     esc, hash, hhmm, pad, toMin, nowMin, sleep, trim, topicIcon, adminKey, apiGet
   };

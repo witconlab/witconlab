@@ -61,6 +61,18 @@
   .res .row em { font-style: normal; font-weight: 900; text-align: right; }
   .res .note { font-size: 14px; color: #b45309; font-weight: 700; margin-top: 2px; }
   .res .meta { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  /* ⑤ 퍼실 결과 확인 */
+  .five .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin-top: 12px; }
+  .five .card h3 { font-size: 18px; margin-bottom: 6px; } .five .card h3 small { font-size: 13px; color: var(--muted); font-weight: 700; }
+  .five .card.ai { border: 2px solid #a855f7; background: #faf5ff; }
+  .five dl { display: grid; grid-template-columns: 92px 1fr; gap: 4px 10px; font-size: 15px; line-height: 1.45; }
+  .five dt { color: var(--muted); font-weight: 800; font-size: 13px; padding-top: 2px; }
+  .five .btns { display: grid; gap: 8px; margin-top: 14px; }
+  .five .btns button { border: 0; border-radius: 12px; padding: 14px; font: inherit; font-size: 17px; font-weight: 900; color: #fff; background: #0f172a; }
+  .five .btns button.ai { background: #7c3aed; } .five .btns button.ok { background: #16a34a; } .five .btns button.light { background: #f1f5f9; color: var(--muted); font-size: 14px; padding: 10px; }
+  .five .btns button:disabled { opacity: .5; }
+  .five .done { background: #dcfce7; color: #166534; font-weight: 900; border-radius: 12px; padding: 12px 14px; margin-top: 12px; font-size: 16px; }
+  .five .hint { font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
   .toast.on { opacity: 1; } .toast.err { background: #b91c1c; }
 </style>
 </head>
@@ -74,8 +86,8 @@
 <div class="submit" id="submit" hidden><button id="send">투표하기</button><p id="sub-msg"></p></div>
 <div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261119h"></script>
-<script src="assets/app.js?v=20261119h"></script>
+<script src="config.js?v=20261119i"></script>
+<script src="assets/app.js?v=20261119i"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -86,7 +98,23 @@
   // 테이블 QR(tvote.html?t=5)로 들어오면 그 테이블로 바로
   const qt = Number(new URLSearchParams(location.search).get('t'));
   if (qt >= 1 && qt <= A.TABLE_COUNT && qt !== my.table) { my = { round: my.round, table: qt }; pick = { us: '', ext: '' }; A.LS.set('agora-my-tvote', my); }
-  let lastKey = '', res = null;   // res: 퍼실이 불러온 투표 집계 {counts, tables, at}
+  let lastKey = '', res = null;
+  let five = { items: null, summary: null, busy: '' };   // ⑤ 퍼실 결과 확인
+  const F_LBL = { bg: '현황·배경', want: '바라는 모습', prop: '우리의 제안', first: '첫걸음', with: '함께할 이웃' };
+  const propHtml = (ps, cls, title) => '<div class="card ' + cls + '"><h3>' + title + '</h3>' + (ps.length ? ps.map(p => '<p style="font-weight:900;margin:8px 0 4px">★ ' + esc(p.title || '') + '</p><dl>' +
+    Object.keys(F_LBL).map(f => '<dt>' + F_LBL[f] + '</dt><dd>' + esc(p[f] || '추후 협의') + '</dd>').join('') + '</dl>').join('') : '<p class="hint">④에 정리된 내용이 아직 없어요.</p>') + '</div>';
+  function fiveHtml(no) {
+    if (!five.items) return '<div class="btns"><button data-five="load">📄 우리 테이블 제안서 불러오기</button></div>';
+    const sm = five.summary || {}, cf = (sm.confirm || {})[no], st = (sm.tables || {})[no], hasAi = !!(st && st.byTable);
+    const raw = A.proposals(no, five.items, null, false), ai = hasAi ? A.proposals(no, five.items, sm, false) : [];
+    return (cf ? '<div class="done">✅ ' + (cf.use === 'ai' ? 'AI 문장으로' : '원문으로') + ' 확정했어요 · ' + A.hhmm(cf.at) + '</div>' : '') +
+      propHtml(raw, '', '📄 기록자가 쓴 원문 <small>④ 탭 그대로</small>') + (hasAi ? propHtml(ai, 'ai', '✨ AI가 다듬은 문장 <small>원래 뜻과 같은지 확인</small>') : '') +
+      '<div class="btns">' + (five.busy === 'ai' ? '<button class="ai" disabled>✨ AI가 다듬는 중… (최대 몇 분)</button>' : '<button class="ai" data-five="ai"' + (raw.length ? '' : ' disabled') + '>✨ ' + (hasAi ? 'AI로 다시 다듬기' : 'AI로 다듬기') + '</button>') +
+      (hasAi ? '<button class="ok" data-five="cf-ai">✅ AI 문장으로 확정</button>' : '') +
+      '<button class="ok" data-five="cf-raw"' + (raw.length ? '' : ' disabled') + '>✅ 원문으로 확정' + (hasAi ? ' (AI 문장 안 씀)' : '') + '</button>' +
+      '<button class="light" data-five="load">🔄 새로고침 (기록자가 ④를 고친 뒤)</button>' + (cf ? '<button class="light" data-five="cf-cancel">확정 취소</button>' : '') + '</div>' +
+      '<p class="hint">고칠 곳은 기록자가 ④ 탭에서 고친 뒤 「새로고침」. 확정하면 관제반과 앞 화면에 「✅ 퍼실 확인」이 떠요.</p>';
+  }   // res: 퍼실이 불러온 투표 집계 {counts, tables, at}
   function resHtml(bt) {
     const c = res.counts || {};
     const part = (k, title) => {
@@ -119,9 +147,21 @@
         '<button class="res-btn" data-res="1">📊 우리 테이블 투표 결과 ' + (res ? '새로고침' : '보기') + '</button>' + (res ? resHtml(bt) : '') +
         (st.voteOpen ? '<button class="link" data-done="0">잘못 눌렀어요 · 알림 취소</button>' : '') + '</div>';
     };
-    if (key === lastKey) return;
-    lastKey = key;
+    const isFive = st.stage === 'talk' && (st.sub || 0) >= 3 && my.table && !st.voteOpen;
+    const key2 = key + '|' + isFive + '|' + my.fac + '|' + JSON.stringify(five);
+    if (key2 === lastKey) return;
+    lastKey = key2;
     $('#submit').hidden = true;
+    const hd = document.querySelector('header');
+    hd.querySelector('small').textContent = '2026 광산자치아고라 · ' + (isFive ? '⑤ 테이블 결과 확인' : '③ 우선 과제 선정');
+    hd.querySelector('h1').textContent = isFive ? '우리 테이블 결과를 함께 확인해요' : '우리 테이블이 먼저 할 일을 골라 주세요';
+    hd.querySelector('p').innerHTML = isFive ? '테이블 퍼실이 원문과 AI 문장을 확인하고 확정해요.' : '🟢 주민이 할 일 1개, 🔵 기관 도움이 필요한 일 1개.<br>투표는 한 번만 할 수 있어요.';
+    if (isFive) {  // ④·⑤: 퍼실이 우리 테이블 결과를 확인·AI 다듬기·확정
+      const tt = A.tableByNo(my.table);
+      $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + my.table + '</b><span>' + TOPICS[tt.topic].name + ' · ⑤ 결과 확인</span>' + (my.fac ? '' : '<button data-fac="1">퍼실용 · 결과 확인</button>') + '</div>' +
+        (my.fac ? '<div class="five">' + fiveHtml(my.table) + '</div>' : '<div class="state"><div class="big">📝</div><h2>우리 테이블 결과를 정리하는 중이에요</h2><p>테이블 퍼실이 함께 확인해요.</p></div>');
+      return;
+    }
     if (my.sent && bt) {  // 한 번 투표하면 끝 (다시 투표 없음)
       const name = (k, id) => { const o = (bt[k] || []).find(x => x.id === id); return o ? o.no + '. ' + esc(o.text) : '고르지 않음'; };
       $('#main').innerHTML = '<div class="state"><div class="big">🗳</div><h2>투표해 주셔서 고맙습니다</h2><p>테이블 ' + my.table + '<br>🟢 ' + name('us', my.us) + '<br>🔵 ' + name('ext', my.ext) + '</p><p>결과는 테이블 퍼실이 알려 드려요.</p></div>' + fac();
@@ -155,6 +195,31 @@
   }
 
   $('#main').addEventListener('click', async e => {
+    if (e.target.closest('[data-fac]')) {
+      if (!confirm('테이블 퍼실만 눌러 주세요.\n우리 테이블 결과 확인 화면을 열까요?')) return;
+      my.fac = true; save(); lastKey = ''; render(); return;
+    }
+    const fb = e.target.closest('[data-five]');
+    if (fb) {
+      const act = fb.dataset.five, no = my.table;
+      const reload = async () => { five.items = await A.loadFeed(); five.summary = await A.loadSummary(); };
+      try {
+        if (act === 'load') { fb.disabled = true; await reload(); }
+        if (act === 'ai') {
+          if (!five.items) await reload();
+          five.busy = 'ai'; lastKey = ''; render();
+          const r = await A.aiTable(no, five.items); if (r && r.error) throw new Error(r.error);
+          five.summary = await A.loadSummary(); toast('✨ 다듬었어요. 원래 뜻과 같은지 확인해 주세요');
+        }
+        if (/^cf-/.test(act)) {
+          const use = act.slice(3);
+          if (use !== 'cancel' && !confirm(use === 'ai' ? 'AI가 다듬은 문장으로 확정할까요?' : '기록자가 쓴 원문으로 확정할까요?')) return;
+          const r = await A.confirmTable(no, use); if (r && r.error) throw new Error(r.error);
+          five.summary = await A.loadSummary(); toast(use === 'cancel' ? '확정을 취소했어요' : '✅ 확정했어요. 관제반에 알림이 가요');
+        }
+      } catch (err) { toast(err.message || '잠시 후 다시 눌러 주세요', true); }
+      five.busy = ''; lastKey = ''; render(); return;
+    }
     const rb = e.target.closest('[data-res]');
     if (rb) {
       rb.disabled = true;

@@ -158,10 +158,20 @@
     });
     return out;
   }
+  // ⑤ 퍼실 확정 칩 + 새로 확정되면 소리·알림
+  let cfSeen = null;
+  function renderConfirm(cf) {
+    const nos = A.tables.map(t => t.no), n = nos.filter(no => cf[no]).length;
+    $('#cf-chips').innerHTML = '<b>⑤ 퍼실 확정 ' + n + '/' + nos.length + '</b>' + nos.map(no => '<span class="' + (cf[no] ? 'on' : '') + '">' + (cf[no] ? (cf[no].use === 'ai' ? '✨' : '📄') + ' ' : '') + 'T' + no + '</span>').join('');
+    const fresh = cfSeen ? Object.keys(cf).filter(no => !cfSeen[no]) : [];
+    cfSeen = cf;
+    if (fresh.length) { toast('✅ 테이블 ' + fresh.join(', ') + ' 결과 확정 (' + n + '/' + nos.length + ')' + (n >= nos.length ? ' · 모두 확정!' : '')); ding(); }
+  }
   async function loadSummary() {
     if (dirty) return;
     try {
       const next = await A.loadSummary();
+      renderConfirm(next.confirm || {});
       if (next.at !== summary.at) { summary = next; renderSummary(); }
     } catch (e) { $('#sum-status').textContent = '불러오기 실패'; }
   }

@@ -163,4 +163,27 @@ gs.cachePutBig_('SUM_INPUT', input, 1800);
 assert.strictEqual(gs.cacheGetBig_('SUM_INPUT'), input);
 delete cache.SUM_INPUT_1;
 assert.strictEqual(gs.cacheGetBig_('SUM_INPUT'), null);               // 조각이 빠지면 없음으로
+
+// 7) ⑤ 테이블에서 AI 다듬기 → 퍼실 확정 (다른 테이블 요약은 그대로)
+gs.LockService = { getScriptLock: () => ({ waitLock() {}, tryLock: () => true, releaseLock() {} }) };
+store.GEMINI_API_KEY = 'k';
+gs.callGemini_ = () => ({ model: 'm', parsed: { tables: [{ no: 4, tasks: [{ title: '다듬음', bg: 'b', want: 'w', prop: 'p', first: 'f', with: 'x', us: '', ext: '' }] }], topics: [] } });
+let SUM = { tables: { 2: { tasks: [{ title: '관제가 다듬음' }] } }, topics: { river: { summary: 's', points: [] } } };   // summary 시트 대신
+gs.saveSummary_ = d => { SUM = JSON.parse(JSON.stringify({ tables: d.tables, topics: d.topics })); return gs.readSummary_(); };
+gs.readSummary_ = () => Object.assign(JSON.parse(JSON.stringify(SUM)), { confirm: gs.readConfirm_() });
+gs.writeState_({ stage: 'talk', sub: 1 });
+assert.ok(gs.aiTable_({ table: 4, input: { no: 4, tasks: [{ prop: '원문' }] } }).error);   // ④ 전에는 안 됨
+gs.writeState_({ stage: 'talk', sub: 4 });
+assert.ok(gs.aiTable_({ table: 4, input: { no: 5, tasks: [{}] } }).error);                // 다른 테이블 입력은 거절
+assert.ok(gs.confirmTable_({ table: 4, use: 'ai' }).error);                                 // AI 문장 없이 AI 확정 불가
+const at = J(gs.aiTable_({ table: 4, input: { no: 4, tasks: [{ prop: '원문' }] } }));
+assert.ok(at.ok && at.table.byTable && at.table.tasks[0].title === '다듬음');
+let sm = J(gs.readSummary_());
+assert.strictEqual(sm.tables[2].tasks[0].title, '관제가 다듬음'); assert.strictEqual(sm.topics.river.summary, 's');   // 다른 것 그대로
+assert.ok(gs.confirmTable_({ table: 4, use: 'ai' }).ok);
+assert.strictEqual(J(gs.readSummary_()).confirm[4].use, 'ai');
+assert.ok(gs.confirmTable_({ table: 4, use: 'raw' }).ok);                                   // 원문으로 → AI 문장 지움
+sm = J(gs.readSummary_()); assert.ok(!sm.tables[4] && sm.tables[2] && sm.confirm[4].use === 'raw');
+assert.ok(gs.confirmTable_({ table: 4, use: 'cancel' }).ok); assert.ok(!J(gs.readSummary_()).confirm[4]);
+assert.ok(kinds().includes('AI 실행 (테이블)') && kinds().includes('⑤ 퍼실 확정'));
 console.log('ok');
