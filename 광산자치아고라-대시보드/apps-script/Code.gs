@@ -991,3 +991,39 @@ function applyTopics13() {
   CacheService.getScriptCache().remove('feed');
   console.log('완료: ' + readTables_().length + '개 테이블');
 }
+
+/** 리허설용: resetForEvent 다음에 따로 실행 → 문서마다 📌 참여 동 · ① 이용 경험 · ② 함께 할 일에 예시를 채움
+ *  (③은 투표로, ④⑤는 기록자가 회색 예시를 보고 따라 쓰기). 행사 전에는 resetForEvent로 다시 비워요 */
+function fillRehearsalSamples() {
+  var done = [], fail = [];
+  readTables_().forEach(function (t) {
+    if (!t.docId) return;
+    var h = TOPIC_HINT[t.topic] || TOPIC_HINT.river, p = String(PLACES[t.topic] || '산책로').split('·')[0];
+    var S = {
+      dongs: '첨단1동, 첨단2동',
+      p1: [[p + ' 아침 — 걷기 좋고 공기가 맑아요', p + ' 저녁 — 조명이 어두워 혼자 걷기 무서워요', '쉬어 갈 벤치가 더 있으면 좋겠어요'],
+        ['주말 — 가족 단위로 많이 와서 활기차요', '쓰레기가 쌓여도 치우는 사람이 없어요', '두 동이 함께 치우는 날이 있으면 좋겠어요'],
+        [p + '에서 이웃을 자주 만나요', '안내표지가 없어 길을 헷갈려요', '안내표지를 알아보기 쉽게 바꿨으면 해요']],
+      us: [h.us[1], '두 동 주민이 사진 기록단을 만들어 ' + p + '의 변화를 남기기', '주말 아침 이웃과 함께 걷는 모임 만들기'],
+      ext: [h.ext[1], '쉬어 갈 벤치와 그늘막을 늘려 주세요']
+    };
+    try { fillSampleTabs_(DocumentApp.openById(t.docId).getTabs(), S); done.push(t.no); } catch (e) { fail.push(t.no + '(' + e.message + ')'); }
+  });
+  CacheService.getScriptCache().remove('feed');
+  log_('리허설 예시 채움', '채움: ' + (done.join(', ') || '없음') + (fail.length ? ' / 실패: ' + fail.join(', ') : ''));
+  return { done: done, fail: fail };
+}
+function fillSampleTabs_(tabs, S) {
+  (tabs || []).forEach(function (tab) {
+    tab.asDocumentTab().getBody().getTables().forEach(function (table) {
+      var h0 = table.getCell(0, 0).getText();
+      for (var i = 1; i < table.getNumRows(); i++) {
+        var row = table.getRow(i), n = row.getNumCells(), label = row.getCell(0).getText().split('\n')[0].trim(), m;
+        if (/^📌/.test(h0) && /^참여 동/.test(label)) row.getCell(n - 1).setText(S.dongs);
+        else if (/^①/.test(h0) && (m = label.match(/^참여자\s*(\d+)/)) && S.p1[m[1] - 1]) for (var c = 1; c < n && c <= 3; c++) row.getCell(c).setText(S.p1[m[1] - 1][c - 1]);
+        else if (/^②/.test(h0) && (m = label.match(/(주민|외부)\s*(\d)/))) { var v = (m[1] === '주민' ? S.us : S.ext)[m[2] - 1]; if (v) row.getCell(n - 1).setText(v); }
+      }
+    });
+    fillSampleTabs_(tab.getChildTabs(), S);
+  });
+}
