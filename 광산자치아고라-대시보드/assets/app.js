@@ -249,7 +249,7 @@
    *  항목 칸은 첫 문단만 이름으로 봄(아래 설명 문단은 무시). ① 표는 열마다 칸이 다름. */
   function parseDoc(rows) {
     const out = [];
-    let task = 0, colFields = null, pair = false;
+    let task = 0, colFields = null, pair = false, intro = false;
     (rows || []).forEach((cells, ri) => {
       if (!cells || cells.length < 2) return;
       const label = String((cells[0] || [])[0] || '').trim();
@@ -258,6 +258,7 @@
         const cf = cells.slice(1).map(c => fieldOf((c || [])[0]));
         colFields = cf.some(f => f && FIELDS[f].step === 0) ? cf : null;
         pair = /제안\s*(제목|내용)/.test(String((cells[1] || [])[0] || ''));  // ②·③ (예전 두 칸 양식도)
+        intro = /^📌/u.test(label);
         return;
       }
       if (/^예시/.test(label)) return;
@@ -282,7 +283,8 @@
         push(f, 0, [a && b ? a + ' — ' + b : a || b], 1);
         return;
       }
-      const field = fieldOf(label);
+      let field = fieldOf(label);
+      if (!field && intro && cells.length >= 3) field = 'dongs';   // 📌 표에서 「참여 동」 항목 이름을 지워 덮어쓴 경우에도 답 칸을 참여 동으로
       if (!field) return;
       const t = field === 'pick' ? Math.max(0, Number((label.match(/\d/) || ['1'])[0]) - 1) : FIELDS[field].step === 3 ? task : 0;
       push(field, t, cells.length >= 3 ? cells[cells.length - 1] : cells[1], cells.length - 1);
