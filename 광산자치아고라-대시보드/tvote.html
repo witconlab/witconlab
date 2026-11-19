@@ -45,6 +45,7 @@
   .state p { color: var(--muted); margin-top: 8px; line-height: 1.6; font-size: 17px; }
   .toast { position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #0f172a; color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; font-size: 16px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
   /* 테이블 퍼실용: 눈에 띄지 않게 맨 아래 작은 글씨 */
+  .tbar button[data-done] { font-size: 12px; padding: 6px 10px; color: #94a3b8; }
   .fac { margin: 40px 2px 0; padding-top: 12px; border-top: 1px solid var(--line); text-align: center; }
   .fac .link { border: 0; background: none; font: inherit; font-size: 13px; color: #94a3b8; text-decoration: underline; padding: 6px; }
   .fac .ok { font-size: 14px; color: #15803d; font-weight: 700; margin: 0 0 8px; }
@@ -73,8 +74,8 @@
 <div class="submit" id="submit" hidden><button id="send">투표하기</button><p id="sub-msg"></p></div>
 <div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261119e"></script>
-<script src="assets/app.js?v=20261119e"></script>
+<script src="config.js?v=20261119f"></script>
+<script src="assets/app.js?v=20261119f"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -144,9 +145,10 @@
     const t = A.tableByNo(my.table);
     const sec = (k, title, hint) => '<div class="' + k + '"><h2>' + title + ' <small>' + hint + '</small></h2><div class="list">' +
       (bt[k].map(o => '<button class="opt' + (pick[k] === o.id ? ' on' : '') + '" data-k="' + k + '" data-id="' + o.id + '"><i class="no">' + o.no + '</i><span><b>' + esc(o.text) + '</b>' + (o.sub ? '<em>' + esc(o.sub) + '</em>' : '') + '</span><i class="r"></i></button>').join('') || '<p class="none">이 테이블은 제안이 없어요</p>') + '</div></div>';
-    $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span></div>' +
-      sec('us', '🟢 주민이 직접 할 일', '하나만') + sec('ext', '🔵 기관 도움이 필요한 일', '하나만') + fac();
-    $('#submit').hidden = false;
+    // 퍼실은 투표하지 않으니, QR을 찍자마자 위쪽에서 바로 누를 수 있게(작은 버튼)
+    $('#main').innerHTML = '<div class="tbar"><b>테이블 ' + t.no + '</b><span>' + TOPICS[t.topic].name + '</span>' + (my.done ? '' : '<button data-done="1">퍼실용 · 투표 완료 알리기</button>') + '</div>' +
+      (my.done ? fac() : '') + sec('us', '🟢 주민이 직접 할 일', '하나만') + sec('ext', '🔵 기관 도움이 필요한 일', '하나만');
+    $('#submit').hidden = !!my.done;  // 완료를 알린 퍼실 휴대폰엔 투표 버튼 숨김
     $('#send').disabled = !pick.us && !pick.ext;
     $('#send').textContent = '투표하기';
     $('#sub-msg').textContent = pick.us && pick.ext ? '한 번 누르면 바꿀 수 없어요' : '주민·기관 하나씩 골라 주세요';
