@@ -96,6 +96,13 @@
   // ── 기록 현황 ──
   let items = [];
   let submSeen = null;
+  // 관제에서 테이블 하나씩 AI 다듬기 (④가 채워지면 버튼이 생김) → 아래 검수 칸에 들어오고 화면에 바로 적용
+  $('#docs').addEventListener('click', async e => {
+    const b = e.target.closest('[data-ai]'); if (!b) return;
+    const no = Number(b.dataset.ai); b.disabled = true; b.textContent = '✨ 다듬는 중…';
+    await act(async () => { const r = await A.aiTable(no, items); if (r && r.error) throw new Error(r.error); summary = await A.loadSummary(); renderSummary(); }, '테이블 ' + no + ' 다듬었어요. 아래 검수 칸에서 확인하세요');
+    pollFeed();
+  });
   async function pollFeed() {
     try { items = await A.loadFeed(); } catch (e) { $('#feed-sum').textContent = '기록을 불러오지 못했어요: ' + e.message; return; }
     // ④ 작성 완료 「제출」: 개수 + 새로 제출하면 소리·알림
@@ -116,7 +123,8 @@
         // 기록자가 남긴 확인 메모: AI 문장 이의, ⑥ 공유 화면 오류(‘확인’이 아니면), ⑦ 추가 의견
         d.aiCheck.map(i => '<small class="note ai">✨ ' + esc(i.text) + '</small>').join('') +
         d.shareCheck.filter(i => !/^확인/.test(i.text)).map(i => '<small class="note err">⑥ ' + esc(i.text) + '</small>').join('') +
-        d.extra.map(i => '<small class="note">⑦ ' + esc(i.text) + '</small>').join('') + link + '</div>';
+        d.extra.map(i => '<small class="note">⑦ ' + esc(i.text) + '</small>').join('') +
+        (A.filled(d.tasks[0]) ? '<button class="btn ai-one" data-ai="' + t.no + '" style="margin:4px 0;padding:4px 10px;font-size:12px">' + ((summary.tables[t.no] || {}).byTable ? '✨ 다듬음 · 다시' : '✨ 이 테이블 AI 다듬기') + '</button>' : '') + link + '</div>';
     }).join('');
   }
 
@@ -158,7 +166,7 @@
   function collectSummary() {
     const out = { tables: {}, topics: {} };
     document.querySelectorAll('.sum[data-no]').forEach(el => {
-      out.tables[el.dataset.no] = { tasks: [...el.querySelectorAll('.sum-task')].map(tk => { const o = {}; Object.keys(LBL).forEach(f => { o[f] = tk.querySelector('[data-f="' + f + '"]').value.trim(); }); return o; }) };
+      out.tables[el.dataset.no] = { byTable: !!(summary.tables[el.dataset.no] || {}).byTable, tasks: [...el.querySelectorAll('.sum-task')].map(tk => { const o = {}; Object.keys(LBL).forEach(f => { o[f] = tk.querySelector('[data-f="' + f + '"]').value.trim(); }); return o; }) };
     });
     document.querySelectorAll('.sum[data-topic]').forEach(el => {
       out.topics[el.dataset.topic] = { summary: el.querySelector('[data-f="summary"]').value.trim(), points: el.querySelector('[data-f="points"]').value.split(',').map(s => s.trim()).filter(Boolean) };
