@@ -191,6 +191,8 @@
     LS.set('agora-state-v2', state);
     emitState();
   }
+  /** 발제 장표: 띄운 단계에 머무는 동안만 보임 (단계를 넘기면 저절로 내려감) */
+  const slideOn = st => (st.slide && st.slideAt === st.stage + '/' + (st.sub || 0)) ? st.slide : 0;
   async function setState(patch) {
     const next = Object.assign({}, state, patch, { updated: Date.now() });
     // LIVE는 서버가 받아들인 뒤에만 바꿈(비밀번호가 틀리면 그대로)
@@ -647,7 +649,7 @@
     parseDoc, rowsFromCells, loadFeed, pushManual, tableData, proposals, filled, numbered, splitTitle, aiInput,
     loadSummary, saveSummary, summarize, ruleSummary,
     deviceId, buildCards, loadLikes, like, resetLikes,
-    buildBallot, loadVotes, castVote, voteDone, resetVotes,
+    buildBallot, loadVotes, castVote, voteDone, resetVotes, slideOn,
     simTick, simLike, simVote, resetDemo,
     esc, hash, hhmm, pad, toMin, nowMin, sleep, trim, topicIcon, adminKey, apiGet
   };

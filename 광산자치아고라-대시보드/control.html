@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>광산자치아고라 관제 패널</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/control.css?v=20261119b">
+<link rel="stylesheet" href="assets/control.css?v=20261119c">
 </head>
 <body>
 <header class="top">
@@ -46,6 +46,14 @@
       <div class="card-hd"><h2>보여 줄 주제</h2><span class="muted small">①~⑥ 화면에 함께 적용</span></div>
       <div class="topics" id="topics"></div>
       <p class="muted small" style="margin-top:8px">전체 = 12개 테이블 한 화면 · 자동 = 15초마다 주제를 돌아가며 · 주제를 누르면 그 주제(테이블 2개)만 크게</p>
+    </section>
+
+    <section class="card">
+      <div class="card-hd"><h2>발표 장표</h2><button class="btn ghost" id="slide-off">장표 내리기</button></div>
+      <p class="muted small">누르면 대형 스크린 전체에 장표가 떠요. 「장표 내리기」나 다음 단계로 넘기면 원래 화면으로 돌아와요.</p>
+      <h3>공론장 때 띄우면 좋은 장표</h3>
+      <div class="slides" id="slides-key"></div>
+      <details style="margin-top:8px"><summary class="muted small" style="cursor:pointer">주제 발제 전체 1–14</summary><div class="slides" id="slides-all"></div></details>
     </section>
 
     <section class="card">
@@ -137,8 +145,8 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<script src="config.js?v=20261119b"></script>
-<script src="assets/app.js?v=20261119b"></script>
-<script src="assets/control.js?v=20261119b"></script>
+<script src="config.js?v=20261119c"></script>
+<script src="assets/app.js?v=20261119c"></script>
+<script src="assets/control.js?v=20261119c"></script>
 </body>
 </html>

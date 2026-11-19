@@ -61,6 +61,15 @@
 
   $('#slogan-go').onclick = () => act(() => A.setState({ stage: 'slogan', sloganCue: Date.now(), auto: false }), '구호 카운트다운 시작!');
 
+  // ── 발표 장표 (주제 발제 PDF 1–14쪽) ──
+  const SLIDES = ['표지 · 생활공간을 잇고', '함께 쓰는 공간 6곳', '왜 동의 경계를 넘어야 할까', '함께 쓰는 공간은 왜 돌보기 어려울까', '2가지 처방과 세 번째 길', '오늘 공론의 방향, 3가지 연결', '이어야 할 관계', '제안의 힘 · 오늘의 약속', '오늘 공론장의 흐름', '테이블 결과, 5가지로 정리', '오늘의 공통질문', '⑥ 주제별 결과 공유하기', '⑦ 공감·응원 나누기', '마무리 구호'];
+  const KEY_SLIDES = [[8, '테이블 숙의 시작 전'], [9, '① 시작 때'], [11, '숙의 중 언제든'], [10, '④ 시작 때'], [12, '⑥ 시작 때'], [13, '⑦ 시작 때']];
+  const slideBtn = (n, when) => '<button data-s="' + n + '"><img src="assets/slides/t' + String(n).padStart(2, '0') + '.jpg" alt="" loading="lazy"><b>' + n + '. ' + esc(SLIDES[n - 1]) + '</b>' + (when ? '<small>' + esc(when) + '</small>' : '') + '</button>';
+  $('#slides-key').innerHTML = KEY_SLIDES.map(([n, w]) => slideBtn(n, w)).join('');
+  $('#slides-all').innerHTML = SLIDES.map((_, i) => slideBtn(i + 1)).join('');
+  document.querySelectorAll('.slides').forEach(el => { el.onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; const eff = A.effective(), n = Number(b.dataset.s); act(() => A.setState({ slide: n, slideAt: eff.stage + '/' + (eff.sub || 0) }), '장표 ' + n + ' 띄움'); }; });
+  $('#slide-off').onclick = () => act(() => A.setState({ slide: 0 }), '장표를 내렸어요');
+
   function renderState() {
     const st = A.state, eff = A.effective(), sched = A.scheduledStage();
     document.querySelectorAll('#stages .stg').forEach(b => { b.classList.toggle('on', b.dataset.k === eff.stage); b.classList.toggle('sched', b.dataset.k === sched.stage); });
@@ -74,6 +83,9 @@
     $('#like-close').disabled = !st.likeOpen;
     $('#now-label').textContent = '스크린: ' + (STAGES.find(s => s.key === eff.stage) || {}).label + (eff.stage === 'talk' ? ' · ' + SUBSTEPS[eff.sub].label : '') + (st.auto ? ' (자동)' : '');
     $('#sync').textContent = st.updated ? '마지막 변경 ' + hhmm(st.updated) : '';
+    const sl = A.slideOn(eff);
+    document.querySelectorAll('.slides [data-s]').forEach(b => b.classList.toggle('on', Number(b.dataset.s) === sl));
+    $('#slide-off').disabled = !sl;
     renderCards(); renderVotes();
   }
   A.onState(renderState);

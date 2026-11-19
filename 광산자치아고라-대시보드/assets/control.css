@@ -129,3 +129,11 @@ dialog::backdrop { background: rgba(0, 0, 0, .6); }
 .doc small.note { white-space: normal; color: #fde68a; margin-top: 3px; }
 .doc small.note.err { color: #fca5a5; font-weight: 700; }
 .doc small.note.ai { color: #fcd34d; }
+
+/* 발표 장표 */
+.slides { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+.slides button { border: 2px solid var(--line); background: var(--panel2); border-radius: 10px; padding: 4px; cursor: pointer; text-align: left; color: inherit; font: inherit; }
+.slides button img { width: 100%; aspect-ratio: 16 / 9; display: block; border-radius: 6px; background: #fff; }
+.slides button b { display: block; font-size: 12px; margin: 4px 2px 0; line-height: 1.3; }
+.slides button small { display: block; font-size: 11px; color: var(--muted); margin: 0 2px 2px; }
+.slides button.on { border-color: #22d3ee; box-shadow: 0 0 0 2px #22d3ee55; }

@@ -89,6 +89,9 @@
     renderBody(true);
     if (st.stage === 'slogan') runSlogan(changed); else if (changed) sloStop();
     if (changed) refreshSlow();
+    const sl = A.slideOn(st), deck = $('#deck');
+    deck.hidden = !sl;
+    if (sl) { const src = 'assets/slides/s' + String(sl).padStart(2, '0') + '.jpg'; if (deck.firstChild.getAttribute('src') !== src) deck.firstChild.src = src; }
   }
   A.onState(render);
 
