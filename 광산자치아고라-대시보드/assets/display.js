@@ -76,7 +76,13 @@
     const ok = A.tables.filter(t => A.docOk[t.no]).length;
     $('#hd-docs').innerHTML = '<div class="dots">' + A.tables.map(t => '<i class="' + (A.docOk[t.no] ? 'ok' : '') + '"></i>').join('') + '</div>기록 <b>' + ok + '/' + A.tables.length + '</b>';
     $('#wait-ok').textContent = ok + ' / ' + A.tables.length;
-    document.querySelectorAll('.wt').forEach(el => el.classList.toggle('ok', !!A.docOk[el.dataset.no]));
+    document.querySelectorAll('.wt').forEach(el => {
+      el.classList.toggle('ok', !!A.docOk[el.dataset.no]);
+      // 참여 동: 기록자가 문서 📌에 적은 동을 먼저, 없으면 관제 시트 값
+      const t = A.tableByNo(el.dataset.no), dongs = A.tableData(items, t.no).dongs || t.dongs || '';
+      const label = TOPICS[t.topic].name + (dongs ? ' · ' + dongs : '');
+      if (el.querySelector('span').textContent !== label) el.querySelector('span').textContent = label;
+    });
   }
 
   // ── 장면 전환 ──
