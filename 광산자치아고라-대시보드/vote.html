@@ -34,6 +34,10 @@
   .state h2 { justify-content: center; font-size: 24px; margin-top: 14px; }
   .state p { color: var(--muted); margin-top: 8px; line-height: 1.6; font-size: 17px; }
   .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #0f172a; color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; font-size: 16px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .nowbar { margin: 4px 2px 6px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 2px solid var(--c); font-size: 17px; font-weight: 800; }
+  .nowbar b { color: var(--c); }
+  .nowbar small { display: block; font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  #tabs a.now { background: var(--c); color: #fff; }
   .toast.on { opacity: 1; }
   .toast.err { background: #b91c1c; }
 </style>
@@ -48,8 +52,8 @@
 <main id="main"><div class="state"><p>불러오는 중…</p></div></main>
 <div class="toast" id="toast"></div>
 
-<script src="config.js?v=20261119q"></script>
-<script src="assets/app.js?v=20261119q"></script>
+<script src="config.js?v=20261119r"></script>
+<script src="assets/app.js?v=20261119r"></script>
 <script>
 (function () {
   const A = window.Agora;
@@ -68,7 +72,10 @@
     const st = A.state;
     if ((st.likeRound || 0) > round) { round = st.likeRound; mine = new Set(); A.LS.set('agora-my-likes', []); A.LS.set('agora-like-round', round); }
     const cards = st.cards || [];
-    const key = st.likeOpen + '|' + cards.map(c => c.id + c.text).join(',') + '|' + [...mine].join(',');
+    // 앞 화면이 보여 주는 주제(강·산·하천·공원, 또는 T번호의 주제) → 휴대폰에서도 그 주제를 맨 위로
+    const tm = String(st.topic || '').match(/^T(\d+)$/);
+    const now = tm ? A.tableByNo(Number(tm[1])).topic : TOPICS[st.topic] ? st.topic : '';
+    const key = st.likeOpen + '|' + now + '|' + cards.map(c => c.id + c.text).join(',') + '|' + [...mine].join(',');
     if (key === lastKey) return;
     lastKey = key;
     if (!st.likeOpen) {
@@ -80,10 +87,10 @@
     }
     const valid = new Set(cards.map(c => c.id));
     mine = new Set([...mine].filter(id => valid.has(id)));
-    const topics = TOPIC_ORDER.filter(k => cards.some(c => c.topic === k));
+    const topics = TOPIC_ORDER.filter(k => cards.some(c => c.topic === k)).sort((a, b) => (b === now) - (a === now));
     $('#tabs').hidden = false;
-    $('#tabs').innerHTML = topics.map(k => '<a href="#tp-' + k + '" style="--c:' + TOPICS[k].color + '">' + TOPICS[k].name + '</a>').join('');
-    $('#main').innerHTML = topics.map(k => '<h2 id="tp-' + k + '" style="--c:' + TOPICS[k].color + '"><i></i>' + TOPICS[k].name + '</h2><div class="list">' +
+    $('#tabs').innerHTML = topics.map(k => '<a href="#tp-' + k + '" class="' + (k === now ? 'now' : '') + '" style="--c:' + TOPICS[k].color + '">' + (k === now ? '📺 ' : '') + TOPICS[k].name + '</a>').join('');
+    $('#main').innerHTML = (now && topics.includes(now) ? '<div class="nowbar" style="--c:' + TOPICS[now].color + '">📺 지금 앞 화면: <b>' + TOPICS[now].name + '</b> · ' + esc(TOPICS[now].place) + '<small>다른 주제도 아래로 내려 ♥ 할 수 있어요</small></div>' : '') + topics.map(k => '<h2 id="tp-' + k + '" style="--c:' + TOPICS[k].color + '"><i></i>' + TOPICS[k].name + '</h2><div class="list">' +
       cards.filter(c => c.topic === k).map(c => '<button class="opt' + (mine.has(c.id) ? ' on' : '') + '" data-id="' + c.id + '" style="--c:' + TOPICS[k].color + '" aria-pressed="' + mine.has(c.id) + '"><span><small>테이블 ' + c.table + '</small><b>' + esc(c.text) + '</b>' + (c.sub ? '<em>' + esc(c.sub) + '</em>' : '') + '</span><i class="h">' + A.ICONS.heart + '</i></button>').join('') + '</div>').join('');
   }
 
