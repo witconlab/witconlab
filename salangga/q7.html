@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>살랑가 일곱 질문</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@500;700;900&family=Space+Grotesk:wght@700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+/* 발표 화면(web-zine 가이드)과 같은 말투의 한 장짜리 설문형 도구: 검은 바, 굵은 테두리, 노랑·하늘 카드 */
+:root{
+  --ink:#111; --paper:#fff; --yellow:#ffe9a8; --sky:#dbeefa; --lime:#e4f1d0; --cream:#f6efdc; --red:#e8473a; --blue:#2f6fb3; --muted:#555;
+  --f-body:'Pretendard','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-hand:'Nanum Pen Script','Noto Sans KR',cursive; --f-mono:'Space Mono',ui-monospace,monospace; --f-num:'Space Grotesk','Noto Sans KR',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;word-break:keep-all}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);color:var(--paper);display:flex;gap:12px;align-items:center;justify-content:space-between;
+  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar h1{margin:0;font-size:19px;font-weight:900;letter-spacing:-.04em}
+.bar h1 b{font-family:var(--f-num);color:var(--yellow)}
+.tabs{display:flex;gap:6px}
+.tabs a{color:var(--paper);text-decoration:none;font-size:14px;font-weight:700;padding:4px 10px;border:1px solid #555}
+.tabs a[aria-current="page"]{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+main{max-width:860px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+.card{background:var(--paper);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px}
+.kick{font:700 12px/1 var(--f-mono);letter-spacing:.06em;margin:0 0 8px}
+h2{margin:0 0 6px;font-size:clamp(22px,4.6vw,32px);font-weight:900;letter-spacing:-.04em;line-height:1.2}
+.say{font-family:var(--f-hand);font-size:24px;line-height:1.1;margin:6px 0 0}
+.lead{margin:0;color:var(--muted)}
+label{display:block;font-weight:800;margin:14px 0 6px}
+label small{font-weight:500;color:var(--muted)}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--ink);border-radius:0;background:var(--paper)}
+textarea{min-height:64px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-weight:700;font-size:15px;padding:7px 12px;border:2px solid var(--ink);background:var(--paper);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{font:inherit;font-weight:900;font-size:16px;padding:12px 18px;border:3px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+.btn.y{background:var(--yellow);color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.mine{background:var(--yellow)}
+.mine dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0}
+.mine dt{font-weight:900}
+.mine dd{margin:0}
+.q7{display:grid;gap:16px}
+.q{background:var(--paper);border:3px solid var(--ink);padding:16px;display:grid;gap:8px}
+.q:nth-child(odd){background:var(--sky)}
+.qh{display:flex;align-items:center;gap:10px}
+.L{font:700 18px/1 var(--f-num);width:34px;height:34px;display:grid;place-items:center;background:var(--red);color:var(--paper);flex:none}
+.qh b{font-size:19px;font-weight:900}
+.star{margin-left:auto;font:inherit;font-size:22px;line-height:1;background:none;border:2px solid var(--ink);width:40px;height:40px;cursor:pointer}
+.star[aria-pressed="true"]{background:var(--ink);color:var(--yellow)}
+.qq{margin:0;font-size:18px;font-weight:800}
+.hint{margin:0;font-size:14px;color:var(--muted)}
+.ai{margin:0;padding:8px 10px;border-left:4px solid var(--blue);background:var(--paper);font-size:15px}
+.ai::before{content:"Claude 제안 · ";font-weight:800;color:var(--blue)}
+.use{font:inherit;font-size:13px;font-weight:700;border:0;background:none;color:var(--blue);text-decoration:underline;cursor:pointer;justify-self:start;padding:0}
+.status{margin:10px 0 0;font-weight:700}
+.status.err{color:var(--red)}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.story{background:var(--paper);border:3px solid var(--ink);padding:14px;display:grid;gap:6px;min-width:0}
+.story h3{margin:0;font-size:18px;font-weight:900}
+.story .meta{font-size:13px;color:var(--muted)}
+.story ul{margin:4px 0 0;padding-left:0;list-style:none;display:grid;gap:4px}
+.story li{font-size:15px}
+.story li b{font-family:var(--f-num);display:inline-block;width:1.4em}
+.story li.s{font-weight:800}
+.story li.s::after{content:" ★"}
+.empty{color:var(--muted)}
+.method{background:var(--lime)}
+.method ol{margin:10px 0 0;padding-left:20px;display:grid;gap:6px}
+.crit{margin:12px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px}
+.picks{display:grid;gap:12px}
+.pk{background:var(--paper);border:3px solid var(--ink);padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:6px 14px;align-items:center}
+.pk.top{background:var(--yellow)}
+.pk .rank{font:700 28px/1 var(--f-num);min-width:1.6em;text-align:center}
+.pk .t{font-weight:800;font-size:17px}
+.pk .t small{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+.pk .sc{font:700 22px/1 var(--f-num)}
+.pk .cb{grid-column:2 / -1;display:flex;flex-wrap:wrap;gap:6px}
+.pk .cb button{font:inherit;font-size:14px;font-weight:800;padding:6px 10px;border:2px solid var(--ink);background:var(--paper);cursor:pointer}
+.pk .cb button[aria-pressed="true"]{background:var(--ink);color:var(--yellow)}
+.pk .cb span{font-size:13px;color:var(--muted);align-self:center}
+.host{background:var(--yellow);border-bottom:3px solid var(--ink);padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-weight:800;font-size:15px}
+.host button,.host a{font:inherit;font-size:14px;padding:6px 12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;text-decoration:none}
+.host button[aria-pressed="true"]{background:var(--ink);color:var(--yellow)}
+.host small{font-weight:600;font-size:13px}
+body.stage main{max-width:none;zoom:1.3}
+[hidden]{display:none!important}
+</style>
+
+<header class="bar">
+  <h1>살랑가 <b>7</b> 질문</h1>
+  <nav class="tabs" aria-label="화면">
+    <a href="#write" id="tWrite" aria-current="page">내 이야기</a>
+    <a href="#board" id="tBoard">모아 보기</a>
+    <a href="#pick" id="tPick">고르기</a>
+  </nav>
+</header>
+<div class="host" id="host" hidden><span>진행자 모드</span><a href="#board">모아 보기 열기</a><button type="button" id="stageBtn" aria-pressed="false">앞 화면 크게</button><small id="hostNote">이 띠는 진행자에게만 보여요. 여기서 올리면 칸이 비워져 여러 분 몫을 이어서 올릴 수 있어요.</small></div>
+
+<main id="vWrite">
+  <section class="card">
+    <p class="kick">STEP 1 · 내 이야기</p>
+    <h2>내 물건 하나와<br>안심을 건네고 싶은 한 사람.</h2>
+    <p class="lead">적은 내용이 아래 일곱 가지 질문 카드에 그대로 들어가요. 한 칸만 채워도 괜찮아요.</p>
+    <div class="row2">
+      <div><label for="fName">이름 또는 공방 이름 <small>(선택)</small></label><input type="text" id="fName" maxlength="30" placeholder="예: 살랑 가죽공방"></div>
+      <div><label for="fCraft">내 분야</label>
+        <select id="fCraft"><option>가죽</option><option>패브릭</option><option>비즈</option><option>손뜨개</option><option>향기</option><option>기타</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label for="fItem">내가 만드는 물건 하나</label><input type="text" id="fItem" maxlength="30" placeholder="예: 가죽 키링, 뜨개 파우치"></div>
+      <div><label for="fMat">주재료·기법 <small>(선택)</small></label><input type="text" id="fMat" maxlength="40" placeholder="예: 소가죽, 손바느질"></div>
+    </div>
+    <label>어떤 장면에 안심을 더할까요?</label>
+    <div class="chips" id="scenes" role="group" aria-label="안심 장면"></div>
+    <label for="fWho">안심을 건네고 싶은 사람 <small>(나 자신도 좋아요)</small></label>
+    <input type="text" id="fWho" maxlength="40" placeholder="예: 밤 10시에 퇴근하는 동료, 나 자신">
+    <label for="fMoment">그 사람이 가장 불안한 순간 <small>(말하기 싫으면 비워 두세요)</small></label>
+    <textarea id="fMoment" maxlength="200" placeholder="예: 버스에서 내려 가로등 없는 골목 300m를 걸을 때"></textarea>
+    <div class="btns">
+      <button class="btn" type="button" id="go">일곱 질문에 넣기 ↓</button>
+      <button class="btn ghost" type="button" id="demo">호루라기 예시로 채워 보기</button>
+    </div>
+  </section>
+
+  <section class="card method" id="method" hidden>
+    <p class="kick">HOW · 이렇게 해요</p>
+    <h2>있는 물건에 질문 7개.</h2>
+    <ol>
+      <li>카드마다 질문을 읽고 떠오르는 걸 한 줄 적어요. 정답은 없어요.</li>
+      <li>엉뚱해도 좋아요. 고르는 건 나중에 해요.</li>
+      <li>옆 공방 선생님 손을 빌리는 아이디어면 ★를 눌러요.</li>
+    </ol>
+    <p class="say">호루라기 예시는 이렇게 채웠어요. 내 물건으로 바꿔서 다시 해 보세요!</p>
+  </section>
+
+  <section id="step2" hidden>
+    <div class="card mine" id="mine"></div>
+    <div class="btns" id="aiRow" hidden>
+      <button class="btn y" type="button" id="ask">Claude에게 일곱 가지 제안 받기</button>
+    </div>
+    <p class="status" id="aiStatus" role="status"></p>
+    <div class="q7" id="q7" style="margin-top:16px"></div>
+    <section class="card" style="margin-top:22px">
+      <p class="kick">STEP 3 · 보내기</p>
+      <h2>★ 고른 걸 모둠에 보내요.</h2>
+      <div class="btns">
+        <button class="btn" type="button" id="send">모아 보기에 보내기</button>
+      </div>
+      <p class="status" id="sendStatus" role="status"></p>
+    </section>
+  </section>
+</main>
+
+<main id="vBoard" hidden>
+  <section class="card">
+    <p class="kick">BOARD · 모아 보기</p>
+    <h2>우리 조합의 일곱 질문.</h2>
+    <p class="lead" id="boardNote">보낸 이야기와 ★ 아이디어가 여기에 모여요. 앞 화면에 띄워 함께 봐요.</p>
+  </section>
+  <div class="board" id="board"></div>
+</main>
+
+<main id="vPick" hidden>
+  <section class="card">
+    <p class="kick">CHOOSE · 안심 4기준으로 고르기</p>
+    <h2>★ 아이디어마다<br>맞는 기준을 눌러요.</h2>
+    <p class="lead" id="pickNote">모두가 누른 기준 수를 더해 위에서부터 줄을 세워요. 다시 누르면 취소돼요.</p>
+    <ol class="crit"><li><b>안전</b> 밤길에 눈에 띄나, 한 손으로 쓰나, 소리를 낼 수 있나</li><li><b>편의</b> 가볍나, 가방에서 걸리지 않나, 피부·향 자극은 없나</li><li><b>돌봄</b> 만지면 안심되나, 누군가를 챙긴 흔적이 있나</li><li><b>오래</b> 자투리 재료를 쓰나, 고칠 수 있나, 포장이 과하지 않나</li></ol>
+    <p class="status" id="pickStatus" role="status"></p>
+  </section>
+  <div class="picks" id="picks"></div>
+</main>
+
+<script>window.SALANGGA_API='https://script.google.com/macros/s/AKfycbyZphSmKlKUyrZKougFBCh49V2KbHqGFvXMX-CLH7_SXfndj7p-xhOkJ8sbSvCuozXRjg/exec';</script>
+<script src="api-shim.js"></script>
+<script>
+const SCENES=['늦은 밤 귀갓길','혼자 사는 집·현관','대중교통·낯선 곳','위급할 때 연락','긴장 뒤 쉬는 시간'];
+const Q=[
+ {k:'S',n:'바꿔 보기',q:'재료를 바꾸면?'},
+ {k:'C',n:'합쳐 보기',q:'옆 공방 것과 합치면?'},
+ {k:'A',n:'빌려 오기',q:'다른 데서 잘 쓰는 걸 가져오면?'},
+ {k:'M',n:'키우고 줄이기',q:'크게·작게·가볍게 하면?'},
+ {k:'P',n:'다르게 쓰기',q:'다른 곳·다른 사람에게 쓰면?'},
+ {k:'E',n:'빼 보기',q:'없어도 되는 걸 빼면?'},
+ {k:'R',n:'뒤집어 보기',q:'주인공이나 순서를 바꾸면?'}];
+const HINT={
+ S:{가죽:'가죽으로 감싸 손에 따뜻하게, 반사 실로 꿰매기',패브릭:'반사 원단·형광 배색으로',비즈:'야광·반사 비즈로',손뜨개:'반사사를 섞어 뜨기',향기:'깨지지 않는 틴, 고체 향으로',기타:'밤에 빛나는 재료로'},
+ C:'가죽 케이스 · 비즈 줄 · 뜨개 커버 · 반사 원단 · 향 주머니 중 둘 이상',
+ A:'등산·자전거 안전용품, 아이 미아방지 이름표, 심판 호루라기 줄',
+ M:'어둠 속 손끝으로 찾는 크기, 몇 g이면 매일 들까?',
+ P:'현관, 버스 안, 침대 옆, 친구에게 주는 선물',
+ E:'장식·경고 문구·\'여자는 핑크\' 빼기, 한 손으로 쓰게',
+ R:'위험할 때 → 무사히 도착했을 때, 나 → 이웃·친구'};
+const DEMO={name:'예시',craft:'기타',item:'호루라기',mat:'플라스틱',scene:'늦은 밤 귀갓길',who:'밤 10시에 퇴근하는 30대 직장인',moment:'버스에서 내려 가로등 없는 골목 300m를 걸을 때',
+ ideas:{
+  S:'차가운 플라스틱 대신 가죽으로 감싸고 반사 실로 꿰맨 호루라기',
+  C:'호루라기 + 야광 비즈 손목줄 + 반사 원단 태그 → 늘 손목에 있는 호루라기 팔찌',
+  A:'등산 구조 호루라기처럼 바람 불어도 크게, 심판처럼 목에 거는 줄',
+  M:'입에 무는 곳을 크게 해서 손이 떨려도 바로 불게, 무게는 20g 안으로',
+  P:'천천히 불면 숨이 고르게 되는 \'숨 고르기 피리\' → 집에 와서 긴장 풀 때',
+  E:'빨간색·경고 문구를 빼고, 줄 대신 자석 똑딱이로 가방끈에 착',
+  R:'위험할 때 부는 것 → 집에 무사히 도착하면 \'삑\' 한 번, 가족·친구와 정한 안심 신호'},
+ stars:['C','P','R']};
+let st={name:'',craft:'가죽',item:'',mat:'',scene:'',who:'',moment:'',ideas:{},ai:{},stars:[]};
+const $=id=>document.getElementById(id);
+// 뷰어 밖(로컬 파일 등)에서는 claude 가 없으니 null 로 처리
+const use=n=>(window.claude&&window.claude.use)?window.claude.use(n):Promise.resolve(null);
+
+// 장면 칩
+SCENES.forEach(s=>{const b=document.createElement('button');b.type='button';b.textContent=s;b.setAttribute('aria-pressed','false');
+ b.onclick=()=>{st.scene=st.scene===s?'':s;paintScenes();};$('scenes').appendChild(b);});
+function paintScenes(){[...$('scenes').children].forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===st.scene)));}
+
+function readForm(){st.name=$('fName').value.trim();st.craft=$('fCraft').value;st.item=$('fItem').value.trim();st.mat=$('fMat').value.trim();st.who=$('fWho').value.trim();st.moment=$('fMoment').value.trim();}
+function fillForm(){$('fName').value=st.name;$('fCraft').value=st.craft;$('fItem').value=st.item;$('fMat').value=st.mat;$('fWho').value=st.who;$('fMoment').value=st.moment;paintScenes();}
+
+function renderMine(){
+ const m=$('mine');m.textContent='';
+ const k=document.createElement('p');k.className='kick';k.textContent='STEP 2 · 일곱 질문에 넣은 내 이야기';
+ const h=document.createElement('h2');h.textContent='「'+(st.item||'내 물건')+'」';
+ const dl=document.createElement('dl');
+ [['분야',st.craft+(st.mat?' · '+st.mat:'')],['장면',st.scene||'—'],['안심을 건넬 사람',st.who||'—'],['불안한 순간',st.moment||'—']].forEach(([a,b])=>{const dt=document.createElement('dt');dt.textContent=a;const dd=document.createElement('dd');dd.textContent=b;dl.append(dt,dd);});
+ m.append(k,h,dl);
+}
+function renderQ(){
+ const box=$('q7');box.textContent='';const item=st.item||'내 물건';
+ Q.forEach(o=>{
+  const c=document.createElement('article');c.className='q';
+  const hd=document.createElement('div');hd.className='qh';
+  const L=document.createElement('span');L.className='L';L.textContent=o.k;
+  const b=document.createElement('b');b.textContent=o.n;
+  const star=document.createElement('button');star.type='button';star.className='star';star.textContent='★';
+  star.setAttribute('aria-label',o.n+' 아이디어 고르기');star.setAttribute('aria-pressed',String(st.stars.includes(o.k)));
+  star.onclick=()=>{st.stars=st.stars.includes(o.k)?st.stars.filter(x=>x!==o.k):[...st.stars,o.k];star.setAttribute('aria-pressed',String(st.stars.includes(o.k)));};
+  hd.append(L,b,star);
+  const qq=document.createElement('p');qq.className='qq';qq.textContent='「'+item+'」, '+o.q;
+  const hint=document.createElement('p');hint.className='hint';
+  hint.textContent='힌트 · '+(o.k==='S'?(HINT.S[st.craft]||HINT.S.기타):HINT[o.k])+(st.scene?' · 장면: '+st.scene:'');
+  const ta=document.createElement('textarea');ta.id='idea-'+o.k;ta.maxLength=200;ta.placeholder='떠오르는 걸 한 줄';ta.value=st.ideas[o.k]||'';
+  ta.setAttribute('aria-label',o.n+' 내 아이디어');ta.oninput=()=>{st.ideas[o.k]=ta.value;};
+  c.append(hd,qq,hint,ta);
+  if(st.ai[o.k]){const ai=document.createElement('p');ai.className='ai';ai.textContent=st.ai[o.k];
+   const use=document.createElement('button');use.type='button';use.className='use';use.textContent='이 제안을 내 칸에 넣기';
+   use.onclick=()=>{ta.value=st.ai[o.k];st.ideas[o.k]=ta.value;};c.append(ai,use);}
+  box.appendChild(c);
+ });
+}
+let noDbMsg='';
+function showStep2(){renderMine();renderQ();$('step2').hidden=false;$('sendStatus').className='status';$('sendStatus').textContent=noDbMsg;}
+
+$('go').onclick=()=>{readForm();$('method').hidden=true;showStep2();$('mine').scrollIntoView({behavior:'smooth',block:'start'});};
+$('demo').onclick=()=>{st={...st,...JSON.parse(JSON.stringify(DEMO)),ai:{}};fillForm();$('method').hidden=false;showStep2();$('method').scrollIntoView({behavior:'smooth',block:'start'});};
+
+// Claude 제안(쓸 수 있는 사람에게만)
+let sample=null;
+use('sample').then(s=>{sample=s;$('aiRow').hidden=!s;}).catch(()=>{});
+$('ask').onclick=async()=>{
+ readForm();if(!sample)return;
+ $('ask').disabled=true;$('aiStatus').className='status';$('aiStatus').textContent='Claude가 생각하는 중이에요…';
+ const prompt=`너는 공예 협동조합 워크숍의 기획 도우미야. 아래 사람의 물건 하나에 SCAMPER 일곱 질문을 적용해 아이디어를 하나씩 제안해.
+조건:
+- 협동조합에는 가죽·패브릭·비즈·손뜨개·향기 공예가 7명 있다. 가능하면 다른 공방 기법을 함께 쓰는 아이디어로.
+- 주제는 '여성친화·안전'. 공포를 팔지 말고 안심·서로 챙김으로. 여성을 약자로 그리지 말 것. '여자는 핑크' 같은 고정관념 금지.
+- 스프레이 등 분사형 호신용품, 전자회로를 직접 만드는 아이디어는 제외(경보기는 인증받은 완제품을 넣는 것만 가능).
+- 각 항목은 한국어 한 문장, 60자 안팎, 쉬운 말.
+입력:
+분야: ${st.craft}
+물건: ${st.item||'(없음)'}
+재료·기법: ${st.mat||'(없음)'}
+장면: ${st.scene||'(없음)'}
+안심을 건넬 사람: ${st.who||'(없음)'}
+불안한 순간: ${st.moment||'(없음)'}
+출력: JSON 객체 하나만. 키는 S,C,A,M,P,E,R (S 바꿔 보기, C 합쳐 보기, A 빌려 오기, M 키우고 줄이기, P 다르게 쓰기, E 빼 보기, R 뒤집어 보기).`;
+ try{
+  const r=await sample.json(prompt,{modelTier:'quick'});
+  const ai={};Q.forEach(o=>{if(r&&typeof r[o.k]==='string')ai[o.k]=r[o.k].slice(0,200);});
+  // 지금 칸에 쓴 것 보존
+  Q.forEach(o=>{const t=$('idea-'+o.k);if(t)st.ideas[o.k]=t.value;});
+  st.ai=ai;renderQ();$('aiStatus').textContent='제안이 각 카드 아래에 붙었어요. 마음에 들면 내 칸에 넣어 고쳐 쓰세요.';
+ }catch(e){
+  $('aiStatus').className='status err';
+  $('aiStatus').textContent=e&&e.code==='rate_limited'?'잠시 뒤에 다시 눌러 주세요.':'지금은 제안을 받을 수 없어요. 직접 적어 주세요.';
+  if(e&&e.code==='not_granted')$('aiRow').hidden=true;
+ }finally{$('ask').disabled=false;}
+};
+
+// 보내기·모아 보기(db)
+let db=null,me=null,owner=false;
+Promise.all([use('db'),use('user')]).then(async([d,u])=>{
+ db=d;if(u){try{me=await u.id();}catch(e){}try{owner=(await u.isOwner())??false;}catch(e){}}
+ if(owner){$('host').hidden=false;if(!d)$('hostNote').textContent='진행자 모드 · 지금은 저장소에 연결되지 않았어요. 새로고침하거나 로그인 상태를 확인해 주세요.';}
+ if(!db){$('send').hidden=true;noDbMsg='이 화면에서는 보내기를 쓸 수 없어요. 카드를 사진으로 찍어 단톡방에 올려 주세요.';$('sendStatus').textContent=noDbMsg;
+  $('boardNote').textContent='이 화면에서는 모아 보기를 열 수 없어요. 진행자 화면에서 확인해 주세요.';$('pickNote').textContent='이 화면에서는 고르기를 열 수 없어요. 진행자 화면에서 함께 골라요.';return;}
+ watchBoard();watchChecks();
+}).catch(()=>{});
+$('send').onclick=async()=>{
+ readForm();Q.forEach(o=>{const t=$('idea-'+o.k);if(t)st.ideas[o.k]=t.value;});
+ if(!db)return;
+ if(!st.item&&!Object.values(st.ideas).some(v=>v&&v.trim())){$('sendStatus').className='status err';$('sendStatus').textContent='물건 이름이나 아이디어를 하나 이상 적어 주세요.';return;}
+ const data={name:st.name.slice(0,30),craft:st.craft,item:st.item.slice(0,30),mat:st.mat.slice(0,40),scene:st.scene,who:st.who.slice(0,40),moment:st.moment.slice(0,200),
+  ideas:Object.fromEntries(Q.map(o=>[o.k,(st.ideas[o.k]||'').slice(0,200)])),stars:st.stars.filter(k=>Q.some(o=>o.k===k)),at:Date.now()};
+ $('send').disabled=true;$('sendStatus').className='status';$('sendStatus').textContent='보내는 중…';
+ try{
+  if(owner||!me) await db.collection('stories').add(data); // 진행자는 여러 사람 몫을 대신 넣을 수 있게
+  else await db.collection('stories').doc(me).set(data);    // 참여자는 한 사람 한 장(다시 보내면 고쳐 써져요)
+  $('sendStatus').textContent='보냈어요! 위의 "모아 보기"에서 확인할 수 있어요.';
+ }catch(e){$('sendStatus').className='status err';$('sendStatus').textContent='보내지 못했어요. 권한이 없으면 카드를 사진으로 찍어 공유해 주세요.';}
+ finally{$('send').disabled=false;}
+};
+let unsub=null;
+function watchBoard(){
+ if(unsub)return;
+ const t=setTimeout(()=>{if(!$('board').children.length)$('board').innerHTML='<p class="empty">아직 불러오는 중이거나 보낸 이야기가 없어요.</p>';},10000);
+ unsub=db.collection('stories').orderBy('at','desc').limit(60).onSnapshot(snap=>{clearTimeout(t);rowsCache=snap.docs.map((d,i)=>({...(d.data()||{}),_id:String(d.id||i)}));paintBoard(rowsCache);paintPicks();},
+  ()=>{clearTimeout(t);$('board').innerHTML='<p class="empty">모아 보기를 불러오지 못했어요.</p>';});
+}
+function paintBoard(rows){
+ const b=$('board');b.textContent='';
+ if(!rows.length){const p=document.createElement('p');p.className='empty';p.textContent='아직 보낸 이야기가 없어요. 첫 번째로 보내 보세요!';b.appendChild(p);return;}
+ rows.forEach(r=>{
+  const c=document.createElement('article');c.className='story';
+  const h=document.createElement('h3');h.textContent='「'+String(r.item||'내 물건')+'」 '+String(r.name||'');
+  const m=document.createElement('p');m.className='meta';m.textContent=[r.craft,r.scene,r.who].filter(Boolean).map(String).join(' · ');
+  const ul=document.createElement('ul');const stars=Array.isArray(r.stars)?r.stars:[];const ideas=r.ideas&&typeof r.ideas==='object'?r.ideas:{};
+  [...Q].sort((a,b2)=>stars.includes(b2.k)-stars.includes(a.k)).forEach(o=>{const v=ideas[o.k];if(!v||typeof v!=='string'||!v.trim())return;
+   const li=document.createElement('li');if(stars.includes(o.k))li.className='s';const k=document.createElement('b');k.textContent=o.k;li.append(k,document.createTextNode(v));ul.appendChild(li);});
+  c.append(h,m,ul);b.appendChild(c);
+ });
+}
+
+// 고르기: 각 사람의 ★ 아이디어에 안심 4기준을 눌러요(checks/{내 id}에 내 선택만 저장)
+const CRIT=['안전','편의','돌봄','오래'];
+let rowsCache=[],checks=[],myMarks={},unsubC=null,saving=false;
+function watchChecks(){
+ if(unsubC||!db)return;
+ unsubC=db.collection('checks').onSnapshot(s=>{checks=s.docs.map(d=>({id:String(d.id||''),marks:(d.data()||{}).marks||{}}));
+  const mine=checks.find(c=>c.id===me);if(mine&&!saving)myMarks=JSON.parse(JSON.stringify(mine.marks));paintPicks();},
+  ()=>{$('pickStatus').className='status err';$('pickStatus').textContent='고르기를 불러오지 못했어요.';});
+}
+function starIdeas(){
+ const out=[];
+ rowsCache.forEach(r=>{const stars=Array.isArray(r.stars)?r.stars:[];const ideas=r.ideas&&typeof r.ideas==='object'?r.ideas:{};
+  Q.forEach(o=>{const v=ideas[o.k];if(stars.includes(o.k)&&typeof v==='string'&&v.trim())out.push({id:r._id+':'+o.k,k:o.k,n:o.n,text:v,who:String(r.name||''),item:String(r.item||'')});});});
+ return out;
+}
+function paintPicks(){
+ const box=$('picks');if(!box)return;box.textContent='';
+ const list=starIdeas();
+ if(!list.length){box.innerHTML='<p class="empty">아직 ★ 표시한 아이디어가 없어요. 일곱 질문에서 ★를 누르고 보내 주세요.</p>';return;}
+ list.forEach(x=>{x.score=0;checks.forEach(c=>{const m=c.marks[x.id];if(Array.isArray(m))x.score+=m.filter(i=>i>=0&&i<4).length;});});
+ list.sort((a,b)=>b.score-a.score);
+ list.forEach((x,i)=>{
+  const c=document.createElement('article');c.className='pk'+(i<2&&x.score>0?' top':'');
+  const r=document.createElement('span');r.className='rank';r.textContent=i+1;
+  const t=document.createElement('p');t.className='t';t.style.margin='0';t.textContent=x.text;
+  const sm=document.createElement('small');sm.textContent=x.k+' '+x.n+' · 「'+(x.item||'내 물건')+'」 '+x.who;t.appendChild(sm);
+  const sc=document.createElement('span');sc.className='sc';sc.textContent=x.score+'점';
+  const cb=document.createElement('div');cb.className='cb';
+  if(db&&me){CRIT.forEach((n,ci)=>{const b=document.createElement('button');b.type='button';b.textContent=n;
+    const on=(myMarks[x.id]||[]).includes(ci);b.setAttribute('aria-pressed',String(on));
+    b.onclick=()=>toggle(x.id,ci);cb.appendChild(b);});}
+  else{const s=document.createElement('span');s.textContent='로그인한 화면에서 기준을 누를 수 있어요.';cb.appendChild(s);}
+  c.append(r,t,sc,cb);box.appendChild(c);
+ });
+}
+async function toggle(id,ci){
+ const cur=new Set(myMarks[id]||[]);cur.has(ci)?cur.delete(ci):cur.add(ci);
+ myMarks[id]=[...cur].sort();if(!myMarks[id].length)delete myMarks[id];
+ const mine=checks.find(c=>c.id===me);if(mine)mine.marks=JSON.parse(JSON.stringify(myMarks));else checks.push({id:me,marks:JSON.parse(JSON.stringify(myMarks))});
+ paintPicks();saving=true;
+ try{await db.collection('checks').doc(me).set({marks:myMarks,at:Date.now()});$('pickStatus').className='status';$('pickStatus').textContent='';}
+ catch(e){$('pickStatus').className='status err';$('pickStatus').textContent='저장하지 못했어요. 다시 눌러 주세요.';}
+ finally{saving=false;}
+}
+
+// 화면 전환(#write / #board / #pick)
+function route(){const h=location.hash;const v=h==='#board'?'board':h==='#pick'?'pick':'write';
+ $('vWrite').hidden=v!=='write';$('vBoard').hidden=v!=='board';$('vPick').hidden=v!=='pick';
+ $('tWrite').setAttribute('aria-current',v==='write'?'page':'false');$('tBoard').setAttribute('aria-current',v==='board'?'page':'false');$('tPick').setAttribute('aria-current',v==='pick'?'page':'false');}
+window.addEventListener('hashchange',route);route();
+
+$('stageBtn').onclick=()=>{const on=document.body.classList.toggle('stage');$('stageBtn').setAttribute('aria-pressed',String(on));};
+</script>

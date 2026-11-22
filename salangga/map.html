@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>살랑가 공방 지도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@500;700;900&family=Space+Grotesk:wght@700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+/* 발표 화면(web-zine 가이드)과 같은 말투의 한 장짜리 설문형 도구: 검은 바, 굵은 테두리, 노랑·하늘 카드 */
+:root{
+  --ink:#111; --paper:#fff; --yellow:#ffe9a8; --sky:#dbeefa; --lime:#e4f1d0; --cream:#f6efdc; --red:#e8473a; --blue:#2f6fb3; --muted:#555;
+  --f-body:'Pretendard','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-hand:'Nanum Pen Script','Noto Sans KR',cursive; --f-mono:'Space Mono',ui-monospace,monospace; --f-num:'Space Grotesk','Noto Sans KR',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;word-break:keep-all}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);color:var(--paper);display:flex;gap:12px;align-items:center;justify-content:space-between;
+  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar h1{margin:0;font-size:19px;font-weight:900;letter-spacing:-.04em}
+.bar h1 b{font-family:var(--f-num);color:var(--yellow)}
+.tabs{display:flex;gap:6px}
+.tabs a{color:var(--paper);text-decoration:none;font-size:14px;font-weight:700;padding:4px 10px;border:1px solid #555}
+.tabs a[aria-current="page"]{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+main{max-width:860px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+.card{background:var(--paper);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px}
+.kick{font:700 12px/1 var(--f-mono);letter-spacing:.06em;margin:0 0 8px}
+h2{margin:0 0 6px;font-size:clamp(22px,4.6vw,32px);font-weight:900;letter-spacing:-.04em;line-height:1.2}
+.say{font-family:var(--f-hand);font-size:24px;line-height:1.1;margin:6px 0 0}
+.lead{margin:0;color:var(--muted)}
+label{display:block;font-weight:800;margin:14px 0 6px}
+label small{font-weight:500;color:var(--muted)}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--ink);border-radius:0;background:var(--paper)}
+textarea{min-height:64px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-weight:700;font-size:15px;padding:7px 12px;border:2px solid var(--ink);background:var(--paper);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{font:inherit;font-weight:900;font-size:16px;padding:12px 18px;border:3px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+.btn.y{background:var(--yellow);color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.status{margin:10px 0 0;font-weight:700}
+.status.err{color:var(--red)}
+.empty{color:var(--muted)}
+.sum{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.sum span{font-weight:800;padding:4px 10px;border:2px solid var(--ink);background:var(--paper)}
+.sum b{font-family:var(--f-num)}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.cc{background:var(--paper);border:3px solid var(--ink);padding:14px 16px;display:grid;gap:8px;min-width:0}
+.cc:nth-child(3n+1){background:var(--yellow)}.cc:nth-child(3n+2){background:var(--sky)}.cc:nth-child(3n){background:var(--lime)}
+.cc h3{margin:0;font-size:20px;font-weight:900;letter-spacing:-.03em}
+.cc .f{display:flex;flex-wrap:wrap;gap:4px}
+.cc .f i{font-style:normal;font-size:12px;font-weight:800;padding:2px 8px;background:var(--ink);color:var(--paper)}
+.cc dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:16px}
+.cc dt{font-weight:900}.cc dd{margin:0;overflow-wrap:anywhere}
+.cc .take{margin:0;padding-top:8px;border-top:2px dashed var(--ink);font-weight:700;font-size:15px}
+.mats{display:flex;flex-wrap:wrap;gap:8px}
+.mats span{font-weight:800;font-size:17px;padding:6px 12px;background:var(--paper);border:2px solid var(--ink)}
+main.wide{max-width:1400px}
+.host{background:var(--yellow);border-bottom:3px solid var(--ink);padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-weight:800;font-size:15px}
+.host button,.host a{font:inherit;font-size:14px;padding:6px 12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;text-decoration:none}
+.host button[aria-pressed="true"]{background:var(--ink);color:var(--yellow)}
+.host small{font-weight:600;font-size:13px}
+body.stage main{max-width:none;zoom:1.3}
+[hidden]{display:none!important}
+</style>
+
+<header class="bar">
+  <h1>살랑가 공방 지도 <b>7×1</b></h1>
+  <nav class="tabs" aria-label="화면">
+    <a href="#write" id="tWrite" aria-current="page">내 카드 쓰기</a>
+    <a href="#map" id="tMap">모두 보기</a>
+  </nav>
+</header>
+<div class="host" id="host" hidden><span>진행자 모드</span><a href="#map">모두 보기 열기</a><button type="button" id="stageBtn" aria-pressed="false">앞 화면 크게</button><small id="hostNote">이 띠는 진행자에게만 보여요. 여기서 올리면 칸이 비워져 여러 분 몫을 이어서 올릴 수 있어요.</small></div>
+
+<main id="vWrite">
+  <section class="card">
+    <p class="kick">공방 카드 · 1분이면 돼요</p>
+    <h2>내가 잘하는 것<br>한 가지씩.</h2>
+    <p class="lead">적은 내용은 앞 화면 '모두 보기'에 바로 모여요. 오늘 함께 만들 제품의 재료 지도가 됩니다.</p>
+    <label for="fName">이름 또는 공방 이름</label>
+    <input type="text" id="fName" maxlength="30" placeholder="예: 살랑 가죽공방">
+    <label id="lCraft">분야 <small>(여러 개 골라도 돼요)</small></label>
+    <div class="chips" id="crafts" role="group" aria-labelledby="lCraft"></div>
+    <div class="row2">
+      <div><label for="fTech">제일 잘하는 기법 하나</label><input type="text" id="fTech" maxlength="40" placeholder="예: 손바느질, 코바늘, 비즈 엮기"></div>
+      <div><label for="fMat">주로 쓰는 재료 하나</label><input type="text" id="fMat" maxlength="40" placeholder="예: 소가죽, 면사, 유리 비즈"></div>
+    </div>
+    <label for="fTake">"이 부분은 제가 맡을 수 있어요" <small>(선택)</small></label>
+    <input type="text" id="fTake" maxlength="60" placeholder="예: 경보기를 감싸는 가죽 케이스">
+    <div class="btns"><button class="btn" type="button" id="send">모두 보기에 올리기</button></div>
+    <p class="status" id="status" role="status"></p>
+  </section>
+</main>
+
+<main id="vMap" class="wide" hidden>
+  <section class="card">
+    <p class="kick">MAP · 우리가 가진 손</p>
+    <h2>일곱 공방의 기법과 재료.</h2>
+    <p class="lead" id="mapNote">휴대폰으로 올린 카드가 여기에 바로 모여요.</p>
+    <div class="sum" id="sum"></div>
+  </section>
+  <div class="map" id="map"></div>
+  <section class="card" id="matsCard" hidden>
+    <p class="kick">재료만 모아 보면</p>
+    <div class="mats" id="mats"></div>
+  </section>
+</main>
+
+<script>window.SALANGGA_API='https://script.google.com/macros/s/AKfycbyZphSmKlKUyrZKougFBCh49V2KbHqGFvXMX-CLH7_SXfndj7p-xhOkJ8sbSvCuozXRjg/exec';</script>
+<script src="api-shim.js"></script>
+<script>
+const CRAFTS=['가죽','패브릭','비즈','손뜨개','향기','토탈공예','기타'];
+const $=id=>document.getElementById(id);
+const use=n=>(window.claude&&window.claude.use)?window.claude.use(n):Promise.resolve(null);
+let picked=[];
+CRAFTS.forEach(c=>{const b=document.createElement('button');b.type='button';b.textContent=c;b.setAttribute('aria-pressed','false');
+ b.onclick=()=>{picked=picked.includes(c)?picked.filter(x=>x!==c):[...picked,c];b.setAttribute('aria-pressed',String(picked.includes(c)));};$('crafts').appendChild(b);});
+function msg(t,err){$('status').className='status'+(err?' err':'');$('status').textContent=t;}
+
+let db=null,me=null,owner=false;
+Promise.all([use('db'),use('user')]).then(async([d,u])=>{
+ db=d;if(u){try{me=await u.id();}catch(e){}try{owner=(await u.isOwner())??false;}catch(e){}}
+ if(owner){$('host').hidden=false;if(!d)$('hostNote').textContent='진행자 모드 · 지금은 저장소에 연결되지 않았어요. 새로고침하거나 로그인 상태를 확인해 주세요.';}
+ if(!db){$('send').hidden=true;msg('이 화면에서는 올리기를 쓸 수 없어요. 진행자에게 말로 알려 주세요.');$('mapNote').textContent='이 화면에서는 모두 보기를 열 수 없어요. 진행자 화면에서 확인해 주세요.';return;}
+ watch();
+}).catch(()=>{});
+
+$('send').onclick=async()=>{
+ if(!db)return;
+ const data={name:$('fName').value.trim().slice(0,30),crafts:picked.filter(c=>CRAFTS.includes(c)),tech:$('fTech').value.trim().slice(0,40),mat:$('fMat').value.trim().slice(0,40),take:$('fTake').value.trim().slice(0,60),at:Date.now()};
+ if(!data.tech&&!data.mat){msg('기법이나 재료를 하나 이상 적어 주세요.',true);return;}
+ $('send').disabled=true;msg('올리는 중…');
+ try{
+  if(owner||!me){await db.collection('crafts').add(data);['fName','fTech','fMat','fTake'].forEach(i=>$(i).value='');picked=[];[...$('crafts').children].forEach(b=>b.setAttribute('aria-pressed','false'));msg('올렸어요! 다음 분 것을 이어서 적을 수 있어요.');} // 진행자는 여러 사람 몫을 대신
+  else{await db.collection('crafts').doc(me).set(data);msg('올렸어요! 앞 화면에서 확인해 보세요. 고쳐서 다시 올리면 바뀌어요.');}
+ }catch(e){msg('올리지 못했어요. 진행자에게 말로 알려 주세요.',true);}
+ finally{$('send').disabled=false;}
+};
+
+let unsub=null;
+function watch(){
+ if(unsub)return;
+ const t=setTimeout(()=>{if(!$('map').children.length)$('map').innerHTML='<p class="empty">아직 불러오는 중이거나 올린 카드가 없어요.</p>';},10000);
+ unsub=db.collection('crafts').orderBy('at','asc').limit(40).onSnapshot(s=>{clearTimeout(t);paint(s.docs.map(d=>d.data()||{}));},
+  ()=>{clearTimeout(t);$('map').innerHTML='<p class="empty">불러오지 못했어요.</p>';});
+}
+function paint(rows){
+ const m=$('map');m.textContent='';$('sum').textContent='';$('mats').textContent='';
+ if(!rows.length){m.innerHTML='<p class="empty">아직 올린 카드가 없어요. 첫 번째로 올려 보세요!</p>';$('matsCard').hidden=true;return;}
+ const cnt={};
+ rows.forEach(r=>{
+  const cs=Array.isArray(r.crafts)?r.crafts.filter(c=>CRAFTS.includes(c)):[];cs.forEach(c=>cnt[c]=(cnt[c]||0)+1);
+  const c=document.createElement('article');c.className='cc';
+  const h=document.createElement('h3');h.textContent=String(r.name||'이름 없음');
+  const f=document.createElement('div');f.className='f';cs.forEach(x=>{const i=document.createElement('i');i.textContent=x;f.appendChild(i);});
+  const dl=document.createElement('dl');[['기법',r.tech],['재료',r.mat]].forEach(([a,b])=>{if(!b)return;const dt=document.createElement('dt');dt.textContent=a;const dd=document.createElement('dd');dd.textContent=String(b);dl.append(dt,dd);});
+  c.append(h,f,dl);
+  if(r.take){const p=document.createElement('p');p.className='take';p.textContent='"'+String(r.take)+'"';c.appendChild(p);}
+  m.appendChild(c);
+  if(r.mat){const s=document.createElement('span');s.textContent=String(r.mat);$('mats').appendChild(s);}
+ });
+ const all=document.createElement('span');all.innerHTML='카드 <b></b>장';all.querySelector('b').textContent=rows.length;$('sum').appendChild(all);
+ CRAFTS.filter(c=>cnt[c]).forEach(c=>{const s=document.createElement('span');s.textContent=c+' ';const b=document.createElement('b');b.textContent=cnt[c];s.appendChild(b);$('sum').appendChild(s);});
+ $('matsCard').hidden=!$('mats').children.length;
+}
+
+function route(){const map=location.hash==='#map';$('vWrite').hidden=map;$('vMap').hidden=!map;
+ $('tWrite').setAttribute('aria-current',map?'false':'page');$('tMap').setAttribute('aria-current',map?'page':'false');}
+window.addEventListener('hashchange',route);route();
+
+$('stageBtn').onclick=()=>{const on=document.body.classList.toggle('stage');$('stageBtn').setAttribute('aria-pressed',String(on));};
+</script>
