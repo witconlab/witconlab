@@ -168,3 +168,7 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 /* 들어 볼 소리 목록 */
 .tracks a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
 .tracks small { display: block; font-size: .7em; font-weight: 600; text-decoration: none; }
+.fig.wide { max-width: none; }
+.fig.wide img { max-height: 44vh; }
+.step.split.img-wide.on { grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); }
+.step.img-wide .fig img { max-height: 56vh; }
