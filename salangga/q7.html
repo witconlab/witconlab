@@ -70,6 +70,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .story li b{font-family:var(--f-num);display:inline-block;width:1.4em}
 .story li.s{font-weight:800}
 .story li.s::after{content:" ★"}
+.story li{display:flex;gap:6px;align-items:flex-start}
+.story li .tx{flex:1;min-width:0}
+.vote{flex:none;font:inherit;font-size:13px;font-weight:800;padding:2px 8px;border:2px solid var(--ink);background:var(--paper);cursor:pointer;white-space:nowrap}
+.vote[aria-pressed="true"]{background:var(--ink);color:var(--yellow)}
 .empty{color:var(--muted)}
 .method{background:var(--lime)}
 .method ol{margin:10px 0 0;padding-left:20px;display:grid;gap:6px}
@@ -162,7 +166,7 @@ body.stage main{max-width:none;zoom:1.3}
   <section class="card">
     <p class="kick">BOARD · 모아 보기</p>
     <h2>우리 조합의 일곱 질문.</h2>
-    <p class="lead" id="boardNote">보낸 이야기와 ★ 아이디어가 여기에 모여요. 앞 화면에 띄워 함께 봐요.</p>
+    <p class="lead" id="boardNote">보낸 이야기와 ★ 아이디어가 여기에 모여요. 마음에 드는 아이디어에 ♥를 누르면 '고르기'에 올라가요.</p>
   </section>
   <div class="board" id="board"></div>
 </main>
@@ -330,30 +334,37 @@ function paintBoard(rows){
   const m=document.createElement('p');m.className='meta';m.textContent=[r.craft,r.scene,r.who].filter(Boolean).map(String).join(' · ');
   const ul=document.createElement('ul');const stars=Array.isArray(r.stars)?r.stars:[];const ideas=r.ideas&&typeof r.ideas==='object'?r.ideas:{};
   [...Q].sort((a,b2)=>stars.includes(b2.k)-stars.includes(a.k)).forEach(o=>{const v=ideas[o.k];if(!v||typeof v!=='string'||!v.trim())return;
-   const li=document.createElement('li');if(stars.includes(o.k))li.className='s';const k=document.createElement('b');k.textContent=o.k;li.append(k,document.createTextNode(v));ul.appendChild(li);});
+   const li=document.createElement('li');if(stars.includes(o.k))li.className='s';const k=document.createElement('b');k.textContent=o.k;const tx=document.createElement('span');tx.className='tx';tx.textContent=v;li.append(k,tx);
+   const vid=r._id+':'+o.k;if(db&&me){const vb=document.createElement('button');vb.type='button';vb.className='vote';const on=myVotes.includes(vid);vb.setAttribute('aria-pressed',String(on));vb.setAttribute('aria-label','이 아이디어에 투표');vb.textContent='♥ '+voteCount(vid);vb.onclick=()=>vote(vid);li.appendChild(vb);}
+   ul.appendChild(li);});
   c.append(h,m,ul);b.appendChild(c);
  });
 }
 
 // 고르기: 각 사람의 ★ 아이디어에 안심 4기준을 눌러요(checks/{내 id}에 내 선택만 저장)
 const CRIT=['안전','편의','돌봄','오래'];
-let rowsCache=[],checks=[],myMarks={},unsubC=null,saving=false;
+let rowsCache=[],checks=[],myMarks={},myVotes=[],unsubC=null,saving=false;
+// 모아 보기 투표: ★를 안 눌렀어도 ♥ 받은 아이디어는 고르기에 올라가요(checks/{내 id}.votes)
+function voteCount(id){return checks.filter(c=>c.votes&&c.votes.includes(id)).length;}
+async function saveChecks(){saving=true;try{await db.collection('checks').doc(me).set({marks:myMarks,votes:myVotes,at:Date.now()});$('pickStatus').className='status';$('pickStatus').textContent='';}catch(e){$('pickStatus').className='status err';$('pickStatus').textContent='저장하지 못했어요. 다시 눌러 주세요.';}finally{saving=false;}}
+function syncMine(){const mine=checks.find(c=>c.id===me);const v={marks:JSON.parse(JSON.stringify(myMarks)),votes:[...myVotes]};if(mine)Object.assign(mine,v);else checks.push({id:me,...v});}
+async function vote(id){myVotes=myVotes.includes(id)?myVotes.filter(x=>x!==id):[...myVotes,id];syncMine();paintBoard(rowsCache);paintPicks();await saveChecks();}
 function watchChecks(){
  if(unsubC||!db)return;
- unsubC=db.collection('checks').onSnapshot(s=>{checks=s.docs.map(d=>({id:String(d.id||''),marks:(d.data()||{}).marks||{}}));
-  const mine=checks.find(c=>c.id===me);if(mine&&!saving)myMarks=JSON.parse(JSON.stringify(mine.marks));paintPicks();},
+ unsubC=db.collection('checks').onSnapshot(s=>{checks=s.docs.map(d=>{const x=d.data()||{};return {id:String(d.id||''),marks:x.marks||{},votes:Array.isArray(x.votes)?x.votes.map(String):[]};});
+  const mine=checks.find(c=>c.id===me);if(mine&&!saving){myMarks=JSON.parse(JSON.stringify(mine.marks));myVotes=[...mine.votes];}paintBoard(rowsCache);paintPicks();},
   ()=>{$('pickStatus').className='status err';$('pickStatus').textContent='고르기를 불러오지 못했어요.';});
 }
 function starIdeas(){
  const out=[];
  rowsCache.forEach(r=>{const stars=Array.isArray(r.stars)?r.stars:[];const ideas=r.ideas&&typeof r.ideas==='object'?r.ideas:{};
-  Q.forEach(o=>{const v=ideas[o.k];if(stars.includes(o.k)&&typeof v==='string'&&v.trim())out.push({id:r._id+':'+o.k,k:o.k,n:o.n,text:v,who:String(r.name||''),item:String(r.item||'')});});});
+  Q.forEach(o=>{const v=ideas[o.k];if((stars.includes(o.k)||voteCount(r._id+':'+o.k)>0)&&typeof v==='string'&&v.trim())out.push({id:r._id+':'+o.k,k:o.k,n:o.n,text:v,who:String(r.name||''),item:String(r.item||'')});});});
  return out;
 }
 function paintPicks(){
  const box=$('picks');if(!box)return;box.textContent='';
  const list=starIdeas();
- if(!list.length){box.innerHTML='<p class="empty">아직 ★ 표시한 아이디어가 없어요. 일곱 질문에서 ★를 누르고 보내 주세요.</p>';return;}
+ if(!list.length){box.innerHTML='<p class="empty">아직 ★나 ♥ 받은 아이디어가 없어요. 모아 보기에서 마음에 드는 아이디어에 ♥를 눌러 주세요.</p>';return;}
  list.forEach(x=>{x.score=0;checks.forEach(c=>{const m=c.marks[x.id];if(Array.isArray(m))x.score+=m.filter(i=>i>=0&&i<4).length;});});
  list.sort((a,b)=>b.score-a.score);
  list.forEach((x,i)=>{
@@ -373,11 +384,7 @@ function paintPicks(){
 async function toggle(id,ci){
  const cur=new Set(myMarks[id]||[]);cur.has(ci)?cur.delete(ci):cur.add(ci);
  myMarks[id]=[...cur].sort();if(!myMarks[id].length)delete myMarks[id];
- const mine=checks.find(c=>c.id===me);if(mine)mine.marks=JSON.parse(JSON.stringify(myMarks));else checks.push({id:me,marks:JSON.parse(JSON.stringify(myMarks))});
- paintPicks();saving=true;
- try{await db.collection('checks').doc(me).set({marks:myMarks,at:Date.now()});$('pickStatus').className='status';$('pickStatus').textContent='';}
- catch(e){$('pickStatus').className='status err';$('pickStatus').textContent='저장하지 못했어요. 다시 눌러 주세요.';}
- finally{saving=false;}
+  syncMine();paintPicks();await saveChecks();
 }
 
 // 화면 전환(#write / #board / #pick)
