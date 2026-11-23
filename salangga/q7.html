@@ -125,6 +125,7 @@ body.stage main{max-width:none;zoom:1.3}
     <textarea id="fMoment" maxlength="200" placeholder="예: 버스에서 내려 가로등 없는 골목 300m를 걸을 때"></textarea>
     <div class="btns">
       <button class="btn" type="button" id="go">일곱 질문에 넣기 ↓</button>
+      <button class="btn ghost" type="button" id="demo">호루라기 예시로 채워 보기</button>
     </div>
   </section>
 
@@ -253,6 +254,7 @@ function renderQ(){
 }
 let noDbMsg='';
 function showStep2(){renderMine();renderQ();$('step2').hidden=false;$('sendStatus').className='status';$('sendStatus').textContent=noDbMsg;}
+$('demo').onclick=()=>{st={...st,...JSON.parse(JSON.stringify(DEMO)),ai:{}};fillForm();$('method').hidden=false;showStep2();$('method').scrollIntoView({behavior:'smooth',block:'start'});};
 
 $('go').onclick=()=>{readForm();$('method').hidden=true;showStep2();$('mine').scrollIntoView({behavior:'smooth',block:'start'});};
 
