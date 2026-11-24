@@ -114,7 +114,7 @@ function main() {
       const act = cell(tr, '', undefined, 'act');
       const view = document.createElement('a');
       view.className = 'btn sm'; view.textContent = '보기';
-      view.href = `view.html?name=${encodeURIComponent(s.name)}`; view.target = '_blank'; view.rel = 'noopener';
+      view.href = `view.html?name=${encodeURIComponent(s.name)}`; view.target = '_blank'; view.rel = 'opener'; // 새 탭이 관리자 표시(sessionStorage)를 이어받아야 한다. 기본값(noopener)이면 학생 첫 화면으로 튕긴다
       act.append(view,
         btn('쪽 PDF', () => pagesPdf(s.name)),
         btn('비밀번호 바꾸기', () => resetPin(s.name)));
