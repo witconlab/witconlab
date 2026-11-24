@@ -50,9 +50,9 @@ function main() {
   }
 
   // Wraps an admin call; an expired token sends the teacher back to the login form.
-  async function admin(action, body = {}) {
+  async function admin(action, body = {}, opts) {
     try {
-      return await call(action, { ...body, adminToken: getAdminToken() });
+      return await call(action, { ...body, adminToken: getAdminToken() }, opts);
     } catch (e) {
       if (e && e.code === 'AUTH') { showLogin('다시 입장해 주세요. (시간이 지났어요)'); throw Object.assign(e, { handled: true }); }
       throw e;
@@ -66,11 +66,13 @@ function main() {
     clearNotes();
     loadPlans(); // the one-pager list refreshes with the roster
     try {
-      const res = await admin('adminList');
+      $('summary').textContent = '학생 목록을 불러오는 중이에요… (사람이 많으면 1분쯤 걸려요)';
+      // 서버가 학생 진을 하나씩 열어 보므로 50명이면 30초를 넘는다 → 이 요청만 5분까지 기다린다.
+      const res = await admin('adminList', {}, { timeoutMs: 5 * 60 * 1000 });
       students = sortStudents(res.students || []);
       for (const n of [...selected]) if (!students.some((s) => s.name === n)) selected.delete(n);
       render();
-    } catch (e) { fail(e); }
+    } catch (e) { $('summary').textContent = ''; fail(e); }
   }
 
   function cell(tr, label, text, cls) {

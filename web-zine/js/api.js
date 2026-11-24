@@ -60,13 +60,13 @@ export function useMock(apiUrl = API_URL, hostname = globalThis.location && glob
   return LOCAL_HOSTS.has(String(hostname || '')) && safe(() => ls().getItem('webzine.devMock')) === '1';
 }
 
-export async function call(action, body = {}) {
+export async function call(action, body = {}, opts = {}) {
   let res;
   if (useMock()) {
     mock ||= createMock();
     res = await mock({ action, ...body });
   } else {
-    res = await post(API_URL, { action, ...body });
+    res = await post(API_URL, { action, ...body }, opts);
   }
   if (!res || !res.ok) {
     const { ok, error, message, ...data } = res || {};
