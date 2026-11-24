@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>테이블 QR 카드 · 웹 진 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Space+Grotesk:wght@700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<style>
+  /* A4 세로 한 장 가득. 테이블 번호 없음 — 테이블 수만큼 출력. */
+  @page { size: A4 portrait; margin: 0; }
+  :root { --ink: #111; --yellow: #ffe9a8; --red: #e8473a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ddd; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; color: var(--ink); }
+  .page { width: 210mm; height: 297mm; background: #fff; margin: 10mm auto; padding: 16mm 16mm 12mm; position: relative; overflow: hidden;
+          display: flex; flex-direction: column; align-items: center; text-align: center; page-break-after: always; break-after: page; }
+  @media print { html, body { background: #fff; } .page { margin: 0; } }
+  h1 { margin: 6mm 0 10mm; font-size: 19mm; line-height: 1.15; letter-spacing: -.02em; font-weight: 900; }
+  h1 .hl { background: linear-gradient(transparent 58%, var(--yellow) 58%); }
+  .box { width: 140mm; height: 140mm; border: 1.2mm solid var(--ink); border-radius: 6mm; padding: 6mm; }
+  .box svg { width: 100%; height: 100%; display: block; }
+  .url { margin-top: 3mm; font-family: 'Space Mono', monospace; font-size: 4mm; }
+  ol { margin: 8mm 0 0; padding: 0; list-style: none; display: grid; gap: 3.2mm; text-align: left; }
+  ol li { display: flex; align-items: center; gap: 4mm; font-size: 7.4mm; font-weight: 700; }
+  ol li b { flex: none; width: 11mm; height: 11mm; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; font-family: 'Space Grotesk', sans-serif; font-size: 6mm; }
+  ol li small { font-weight: 500; font-size: 5.4mm; color: #444; }
+  .say { margin: 5mm 0 0; font-family: 'Nanum Pen Script', cursive; font-size: 10mm; color: #333; }
+  .copy { margin-top: auto; font-size: 3mm; color: #888; }
+</style>
+</head>
+<body>
+<main id="pages"></main>
+<template id="face">
+  <h1>휴대폰으로 <span class="hl">웹 진 만들기</span></h1>
+  <div class="box"></div>
+  <div class="url">witconlab.github.io/witconlab/web-zine</div>
+  <ol>
+    <li><b>1</b><span>카메라로 QR을 비춰요 <small>· 노란 글자를 눌러요</small></span></li>
+    <li><b>2</b><span>Safari · Chrome에서 열어요 <small>· 카카오톡 말고</small></span></li>
+    <li><b>3</b><span>이름 + 숫자 4자리 → 들어가기</span></li>
+  </ol>
+  <p class="say">이름과 숫자는 종이에 적어 두세요!</p>
+  <p class="copy">© 2026 위트콘텐츠연구소 · 이 자료는 시민기록교육 수업용으로 제작되었습니다.</p>
+</template>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+  var q = qrcode(0, 'M'); q.addData('https://witconlab.github.io/witconlab/web-zine/'); q.make();
+  var svg = q.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
+  var TABLES = ['']; // 테이블 번호 없이 한 장 (필요한 만큼 출력)
+  var host = document.getElementById('pages'), tpl = document.getElementById('face');
+  TABLES.forEach(function (n) {
+    var page = document.createElement('section'); page.className = 'page';
+    page.appendChild(tpl.content.cloneNode(true));
+    page.querySelector('.box').innerHTML = svg;
+    host.appendChild(page);
+  });
+</script>
+</body>
+</html>
