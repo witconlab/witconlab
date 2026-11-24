@@ -172,3 +172,29 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .fig.wide img { max-height: 44vh; }
 .step.split.img-wide.on { grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); }
 .step.img-wide .fig img { max-height: 56vh; }
+/* 웹도서: 표지·펼친 면을 한 장씩 넘겨 보기 */
+.book { display: flex; flex-direction: column; align-items: center; gap: 1.4vh; max-width: none; min-width: 0; }
+.book__stage { display: flex; align-items: center; justify-content: center; width: 100%; perspective: 1600px; }
+.book__spread { display: flex; box-shadow: 0 1.2vh 2.4vh rgba(0, 0, 0, .28); background: #fff; position: relative; }
+.book__spread img { display: block; height: min(48vh, 30vw); width: auto; } /* 두 쪽이 오른쪽 칸에 들어가게 */
+.book__spread:not(.is-single)::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4vh; transform: translateX(-50%); background: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,.16) 50%, rgba(0,0,0,0)); pointer-events: none; }
+.book__spread.turn-next { animation: bookNext .45s ease both; }
+.book__spread.turn-prev { animation: bookPrev .45s ease both; }
+@keyframes bookNext { from { opacity: 0; transform: rotateY(-14deg) translateX(6%); } to { opacity: 1; transform: none; } }
+@keyframes bookPrev { from { opacity: 0; transform: rotateY(14deg) translateX(-6%); } to { opacity: 1; transform: none; } }
+.book__bar { display: flex; align-items: center; gap: 1.2vw; }
+.book__bar button { font: 800 clamp(18px, 2vw, 34px)/1 var(--font-body); width: 2.2em; height: 1.6em; border: 3px solid var(--ink); background: var(--white); color: var(--ink); cursor: pointer; }
+.book__bar button:disabled { opacity: .25; cursor: default; }
+.book__pos { font-size: clamp(12px, 1.1vw, 20px); font-weight: 700; min-width: 7em; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .book__spread.turn-next, .book__spread.turn-prev { animation: none; } }
+/* 지난 시간 돌아보기 */
+.bars { margin: 0 0 1.6vh; padding: 0; list-style: none; display: grid; gap: 1vh; font-size: clamp(15px, min(1.7vw, 3vh), 32px); font-weight: 800; max-width: none; }
+.bars li { display: grid; grid-template-columns: 9.5em 1fr 3.2em; align-items: center; gap: 1vw; }
+.bars i { display: block; height: 1.3em; background: var(--ink); width: var(--w); }
+.bars b { font-family: var(--font-num); text-align: right; }
+.scans { display: grid; gap: 1.2vw; max-width: none; }
+.scans.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.scans.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.scans img { display: block; width: 100%; height: auto; border: 2px solid var(--ink); background: var(--white); box-shadow: 5px 5px 0 var(--ink); }
+.scans.two img { max-height: 24vh; object-fit: contain; }
+.scans.three img { max-height: 46vh; object-fit: contain; }
