@@ -71,6 +71,8 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .opts { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .opts.single { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 @media (min-width: 560px) { .opts.multi { grid-template-columns: 1fr 1fr; } }
+.etc-in { margin-top: 10px; width: 100%; }
+.etc-in[hidden] { display: none; }
 .opt {
   display: flex; align-items: center; gap: 14px; width: 100%; min-height: 66px; padding: 10px 16px;
   text-align: left; border: 2.5px solid var(--ink); border-radius: 18px; background: #fff;

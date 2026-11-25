@@ -50,3 +50,10 @@ test('schedule phases wrap around the year and skip short plans', () => {
   assert.deepEqual(schedulePhases(4, 0), []);
   assert.equal(buildPlan({ start: '11', dur: '3' }).schedule.split('\n')[0], '11~1월 (3개월)');
 });
+
+test('기타: the written words go into the plan, or "기타" when left blank', () => {
+  const p = buildPlan({ kinds: ['shop', 'etc'], kindsEtc: '정자나무', whyPicks: ['etc'] });
+  assert.match(p.target, /가게·간판, 정자나무/);
+  assert.match(p.background, /· 기타/);
+  for (const n of [1, 2, 3, 7, 8]) assert.ok(QUESTIONS[n - 1].parts.some((x) => x.type === 'multi' && x.options.some((o) => o[0] === 'etc')), `Q${n}`);
+});

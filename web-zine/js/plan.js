@@ -35,7 +35,7 @@ export const QUESTIONS = [
       { type: 'text', key: 'place', label: '어느 동네?', lines: 1, ph: '예) 광산구 송정동 골목' },
       { type: 'multi', key: 'kinds', cols: 2, label: '무엇을? (여러 개 골라도 돼요)', options: [
         ['shop', '가게·간판'], ['alley', '골목·길'], ['market', '시장'],
-        ['house', '집·마을'], ['nature', '나무·꽃'], ['people', '이웃 이야기'],
+        ['house', '집·마을'], ['nature', '나무·꽃'], ['people', '이웃 이야기'], ['etc', '기타'],
       ] },
       { type: 'text', key: 'what', label: '한마디로 적으면?', lines: 1, ph: '예) 40년 단골가게와 간판' },
     ],
@@ -46,7 +46,7 @@ export const QUESTIONS = [
     parts: [
       { type: 'multi', key: 'whyPicks', label: '이유를 골라 보세요', options: [
         ['gone', '곧 없어지거나 바뀔 것 같아서'], ['fewer', '기억하는 사람이 줄어서'], ['none', '남은 기록이 거의 없어서'],
-        ['young', '젊은 사람들이 잘 몰라서'], ['love', '내가 아끼는 곳이라서'],
+        ['young', '젊은 사람들이 잘 몰라서'], ['love', '내가 아끼는 곳이라서'], ['etc', '기타'],
       ] },
       { type: 'text', key: 'why', lines: 2, label: '내 물음표 한 줄 (왜 ~일까?)', ph: '예) 이 가게들은 언제부터 여기 있었을까?' },
     ],
@@ -57,7 +57,7 @@ export const QUESTIONS = [
     parts: [
       { type: 'multi', key: 'keepPicks', label: '남기고 싶은 것', options: [
         ['story', '가게와 사람의 이야기'], ['look', '지금 모습 (사진·그림)'], ['memory', '동네 사람들의 기억'],
-        ['sound', '동네의 소리와 말'], ['pride', '동네 자랑거리'],
+        ['sound', '동네의 소리와 말'], ['pride', '동네 자랑거리'], ['etc', '기타'],
       ] },
       { type: 'text', key: 'aha', lines: 2, label: '내 느낌표 한 줄 (아하, ~구나!)', ph: '예) 간판마다 40년이 들어 있구나!' },
     ],
@@ -100,7 +100,7 @@ export const QUESTIONS = [
     parts: [
       { type: 'multi', key: 'outputs', label: '만들 것 (여러 개)', options: [
         ['zine', '진 (작은 책)'], ['show', '작은 전시'], ['map', '동네 지도'],
-        ['card', '사진 엽서'], ['sound', '소리·영상 기록'], ['web', '웹 진 (온라인)'],
+        ['card', '사진 엽서'], ['sound', '소리·영상 기록'], ['web', '웹 진 (온라인)'], ['etc', '기타'],
       ] },
       { type: 'text', key: 'outDetail', lines: 2, label: '얼마나? (몇 부·몇 번)', ph: '예) 진 100부, 전시 1번' },
     ],
@@ -111,7 +111,7 @@ export const QUESTIONS = [
     parts: [
       { type: 'multi', key: 'effects', label: '좋아지는 것', options: [
         ['know', '이웃끼리 더 알게 돼요'], ['keep', '동네 이야기가 남아요'], ['shop', '가게에 손님이 와요'],
-        ['kids', '아이들이 동네를 배워요'], ['proud', '동네가 자랑스러워져요'],
+        ['kids', '아이들이 동네를 배워요'], ['proud', '동네가 자랑스러워져요'], ['etc', '기타'],
       ] },
       { type: 'text', key: 'good', lines: 2, label: '한 줄로 더 적으면', ph: '예) 골목에 다시 사람이 와요' },
     ],
@@ -183,7 +183,8 @@ const str = (v) => (v == null ? '' : String(v)).trim();
 const list = (v) => (Array.isArray(v) ? v : []);
 const optLabel = (key, id) => (partOf(key).options.find((o) => o[0] === id) || [])[1];
 const optHint = (key, id) => (partOf(key).options.find((o) => o[0] === id) || [])[2];
-const labels = (a, key) => list(a[key]).map((id) => optLabel(key, id)).filter(Boolean);
+// '기타'를 고르면 옆에 적은 말(<key>Etc)이 계획서에 들어간다.
+const labels = (a, key) => list(a[key]).map((id) => (id === 'etc' ? str(a[key + 'Etc']) || '기타' : optLabel(key, id))).filter(Boolean);
 const bullets = (arr) => arr.map((s) => '· ' + s);
 const join = (lines) => { const t = lines.filter((l) => str(l)).join('\n'); return t || PH; };
 const num = (v) => { const n = Number(String(v ?? '').replace(/[^0-9.]/g, '')); return Number.isFinite(n) && String(v ?? '').match(/[0-9]/) ? n : null; };
@@ -311,7 +312,7 @@ function partHtml(p, a) {
     return `<fieldset class="part"><legend>${esc(p.label)}</legend><div class="opts ${p.type}">
       ${p.options.map(([id, label, hint]) => `<button type="button" class="opt" data-key="${p.key}" data-id="${id}" data-type="${p.type}" aria-pressed="${on.includes(id)}">
         <span class="box">${icon('check', 22, 3)}</span><span class="ol">${esc(label)}${hint ? `<small>${esc(hint)}</small>` : ''}</span></button>`).join('')}
-    </div></fieldset>`;
+    </div>${p.options.some((o) => o[0] === 'etc') ? `<input class="in etc-in" data-key="${p.key}Etc" value="${esc(a[p.key + 'Etc'] ?? '')}" placeholder="기타: 직접 적어 주세요" aria-label="${esc(p.label)} 기타" autocomplete="off"${on.includes('etc') ? '' : ' hidden'}>` : ''}</fieldset>`;
   }
   if (p.type === 'budget') {
     const b = (v && typeof v === 'object') ? v : {};
@@ -429,11 +430,10 @@ export function startApp(root) {
     root.innerHTML = `<section class="screen result">
       <div class="res-top no-print">
         <h1>원페이퍼가 만들어졌어요</h1>
-        <p class="lead">${missing ? `빈칸 <b>${missing}</b>곳은 <span class="ph-chip">(적어 주세요)</span>로 보여요. 질문으로 돌아가 채울 수 있어요.` : '모든 칸이 채워졌어요. 인쇄해서 발표해 보세요!'}</p>
+        <p class="lead">${missing ? `빈칸 <b>${missing}</b>곳은 <span class="ph-chip">(적어 주세요)</span>로 보여요.` : '모든 칸이 채워졌어요. 인쇄해서 발표해 보세요!'}</p>
         <div class="btns">
           <button type="button" class="bt primary" id="saveImg">${icon('arrow', 24)} 이미지로 저장</button>
           <button type="button" class="bt" id="print">${icon('book', 24)} 인쇄하기</button>
-          <button type="button" class="bt" data-go="0">질문 고치기</button>
           <button type="button" class="bt ghost" id="reset">처음부터</button>
         </div>
         <p class="send" id="sendState" role="status"></p>
@@ -488,6 +488,8 @@ export function startApp(root) {
       const cur = list(a[key]);
       a[key] = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
       o.setAttribute('aria-pressed', String(a[key].includes(id)));
+      const etc = id === 'etc' && o.closest('fieldset').querySelector('.etc-in');
+      if (etc) { etc.hidden = !a[key].includes('etc'); if (!etc.hidden) etc.focus(); }
     } else if (type === 'single') {
       a[key] = a[key] === id ? '' : id;
       o.parentElement.querySelectorAll('.opt').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === a[key])));
