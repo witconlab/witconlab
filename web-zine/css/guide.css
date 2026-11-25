@@ -53,6 +53,7 @@ body {
 .list li { display: flex; gap: .6em; padding: .35em 0; border-top: 2px solid currentColor; }
 .list li:last-child { border-bottom: 2px solid currentColor; }
 .list b { font-family: var(--font-num); min-width: 1.4em; }
+.list em { font-style: normal; background: var(--yellow); padding: 0 .2em; }
 .qe { display: grid; grid-template-columns: auto 1fr; gap: .4em .8em; font-size: clamp(18px, 2.3vw, 42px); font-weight: 700; line-height: 1.35; margin: 0 0 2vh; }
 .qe dt { font-family: var(--font-num); font-weight: 700; width: 1.6em; height: 1.6em; display: grid; place-items: center; background: var(--ink); color: var(--white); }
 .qe dd { margin: 0; align-self: center; }
