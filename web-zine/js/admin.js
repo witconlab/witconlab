@@ -207,27 +207,54 @@ function main() {
     } finally { show($('a3Msg')); setBusy(false); }
   }
 
+  // shortcut: 8 people per file keeps jsPDF under browser memory (47 in one file crashed); lower it if big batches still fail.
+  const A3_BATCH = 8;
   async function a3Pdf() {
     if (busy || selected.size === 0) return;
     clearNotes(); show($('a3Warn'));
     const names = students.filter((s) => selected.has(s.name)).map((s) => s.name);
+    const parts = Math.ceil(names.length / A3_BATCH);
+    const skipped = []; // names whose zine or file could not be made
+    const failed = [];
     setBusy(true);
     try {
-      const zines = [];
-      for (let i = 0; i < names.length; i++) {
-        show($('a3Msg'), `A3 만드는 중… 불러오는 중 ${names[i]} (${i + 1}/${names.length})`);
-        zines.push((await admin('adminGetZine', { name: names[i] })).zine);
-      }
       const jsPDF = await loadJsPdf();
-      let cur = 0;
-      const { blob, failed } = await buildA3Pdf(zines, {
-        loaderFor: (z) => loaderFor(z.name), jsPDF, ensureFonts, guides: $('guides').checked,
-        onProgress: (d, t) => {
-          cur = Math.min(zines.length - 1, Math.floor((d - 1) / (t / zines.length)));
-          show($('a3Msg'), `A3 만드는 중… ${zines[cur].name || names[cur]} (${cur + 1}/${names.length})`);
-        },
-      });
-      download(blob, names.length === 1 ? `A3_${safeName(names[0])}.pdf` : `A3_${ymd()}_${names.length}명.pdf`);
+      for (let b = 0; b < names.length; b += A3_BATCH) {
+        const group = names.slice(b, b + A3_BATCH);
+        const part = parts > 1 ? ` [${b / A3_BATCH + 1}/${parts}번째 파일]` : '';
+        const zines = [];
+        for (let i = 0; i < group.length; i++) {
+          show($('a3Msg'), `A3 만드는 중…${part} 불러오는 중 ${group[i]} (${b + i + 1}/${names.length})`);
+          let zine = null;
+          for (let t = 0; t < 2 && !zine; t++) {
+            try { zine = (await admin('adminGetZine', { name: group[i] })).zine; } catch (e) { if (e && e.handled) throw e; }
+          }
+          if (zine) zines.push(zine); else skipped.push(group[i]);
+        }
+        if (!zines.length) continue;
+        try {
+          const r = await buildA3Pdf(zines, {
+            loaderFor: (z) => loaderFor(z.name), jsPDF, ensureFonts, guides: $('guides').checked,
+            onProgress: (d, t) => {
+              const cur = Math.min(zines.length - 1, Math.floor((d - 1) / (t / zines.length)));
+              show($('a3Msg'), `A3 만드는 중…${part} ${zines[cur].name} (${b + cur + 1}/${names.length})`);
+            },
+          });
+          failed.push(...r.failed);
+          const file = names.length === 1 ? `A3_${safeName(names[0])}.pdf`
+            : parts === 1 ? `A3_${ymd()}_${names.length}명.pdf`
+            : `A3_${ymd()}_${b + 1}-${b + group.length}번.pdf`;
+          download(r.blob, file);
+        } catch (e) {
+          console.error('A3 batch failed', e);
+          skipped.push(...zines.map((z) => z.name));
+        } finally {
+          for (const z of zines) loaders.delete(z.name); // free cached photos before the next file
+        }
+      }
+      const w = $('a3Warn');
+      const lines = [];
+      if (skipped.length) lines.push(`못 만든 사람: ${skipped.join(', ')} — 이 사람들만 다시 골라 눌러 주세요.`);
       if (failed.length) {
         const by = new Map();
         for (const f of failed) {
@@ -235,9 +262,10 @@ function main() {
           if (!by.has(k)) by.set(k, new Set());
           by.get(k).add(f.pageNumber);
         }
-        const lines = [...by].map(([n, ps]) => `${n}: ${[...ps].sort((a, b) => a - b).join(', ')}쪽`);
-        const w = $('a3Warn');
-        w.textContent = '사진을 불러오지 못해 PDF에서 빠진 곳이 있어요. 인터넷 연결을 확인하고 다시 받아 주세요. ';
+        for (const [n, ps] of by) lines.push(`${n}: ${[...ps].sort((a, b) => a - b).join(', ')}쪽 사진이 빠졌어요`);
+      }
+      if (lines.length) {
+        w.textContent = '일부를 만들지 못했어요. 인터넷 연결을 확인하고 다시 받아 주세요. ';
         const ul = document.createElement('ul'); ul.className = 'fails';
         for (const l of lines) { const li = document.createElement('li'); li.textContent = l; ul.append(li); }
         w.append(ul); w.hidden = false;
