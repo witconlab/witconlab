@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { A3, A6, IMPOSITION, panelRect, CUT_LINE, FOLD_LINES } from '../js/imposition.js';
+import { A3, A6, IMPOSITION, panelRect, printRect, SAFE, CUT_LINE, FOLD_LINES } from '../js/imposition.js';
 
 test('top row is 5,4,3,2 rotated 180', () => {
   const top = IMPOSITION.filter((s) => s.row === 0).sort((a, b) => a.col - b.col);
@@ -24,4 +24,12 @@ test('constants', () => {
   assert.deepStrictEqual(A6, { w: 105, h: 148.5 });
   assert.deepStrictEqual(CUT_LINE, { x1: 105, x2: 315, y: 148.5 });
   assert.equal(FOLD_LINES.length, 4);
+});
+test('printRect: same shape as the panel, inside it with at least SAFE mm on every side', () => {
+  for (const slot of IMPOSITION) {
+    const p = panelRect(slot), r = printRect(slot);
+    assert.ok(Math.abs(r.w / r.h - p.w / p.h) < 1e-9);
+    assert.ok(r.x - p.x >= SAFE - 1e-9 && r.y - p.y >= SAFE - 1e-9);
+    assert.ok(p.x + p.w - (r.x + r.w) >= SAFE - 1e-9 && p.y + p.h - (r.y + r.h) >= SAFE - 1e-9);
+  }
 });

@@ -1,6 +1,6 @@
 // PDF output: page-order A6 PDF and A3 fold-imposed PDF (one sheet per zine).
 import { renderPage } from './render.js';
-import { IMPOSITION, panelRect, A3, A6, CUT_LINE, FOLD_LINES } from './imposition.js';
+import { IMPOSITION, printRect, A3, A6, CUT_LINE, FOLD_LINES } from './imposition.js';
 
 export const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
 
@@ -121,7 +121,7 @@ export async function buildA3Pdf(zines, opts = {}) {
         const f = await renderOnto(canvas, zine.pages[slot.page - 1], PANEL_PX.w, PANEL_PX.h, slot.page, load);
         for (const x of f) failed.push({ ...x, pageNumber: slot.page, name: zine.name });
         const src = slot.rotate === 180 ? rotate180Onto(rotCanvas, canvas, PANEL_PX.w, PANEL_PX.h) : canvas;
-        const r = panelRect(slot);
+        const r = printRect(slot);
         pdf.addImage(src.toDataURL('image/jpeg', JPEG_Q), 'JPEG', r.x, r.y, r.w, r.h);
         onProgress?.(++done, total);
       }
