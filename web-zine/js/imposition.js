@@ -25,3 +25,13 @@ export const FOLD_LINES = [
   { x1: 210, y1: 0, x2: 210, y2: 297 },
   { x1: 315, y1: 0, x2: 315, y2: 297 },
 ];
+
+// 프린터는 종이 끝 3–5mm를 못 찍어서 '맞춤'으로 줄여 찍는다 → 접는 선이 종이 반접기와 어긋나 쪽 길이가 달라진다.
+// 그래서 그림은 칸 안쪽에 비율 그대로 줄여 넣고 둘레를 비워 둔다. 실제 크기로 찍어도 잘리는 건 빈 여백뿐.
+export const SAFE = 5; // mm
+export function printRect(slot) {
+  const r = panelRect(slot);
+  const s = Math.min((r.w - 2 * SAFE) / r.w, (r.h - 2 * SAFE) / r.h);
+  const w = r.w * s, h = r.h * s;
+  return { x: r.x + (r.w - w) / 2, y: r.y + (r.h - h) / 2, w, h };
+}

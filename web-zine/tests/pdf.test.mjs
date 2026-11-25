@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildPagesPdf, buildA3Pdf, ensureFonts, zineText, zineTitle } from '../js/pdf.js';
 import { createEmptyZine, addElement } from '../js/model.js';
+import { IMPOSITION, printRect } from '../js/imposition.js';
 
 function setup() {
   const log = [];
@@ -131,7 +132,7 @@ test('a3 pdf places page 1 at x=315,y=148.5', async () => {
   const imgs = s.log.filter((l) => l.n === 'addImage');
   assert.equal(imgs.length, 8);
   // slot order follows IMPOSITION: index 7 is page 1
-  assert.deepEqual(imgs[7].a.slice(2), [315, 148.5, 105, 148.5]);
+  assert.deepEqual(imgs[7].a.slice(2), Object.values(printRect(IMPOSITION[7])));
   // page 1 panel is canvas 11 (4 rotated slots use 2 canvases each), unrotated -> its own data url
   const p1 = s.shot(imgs[7].a[0]);
   assert.ok(!p1.ops.some((o) => o.n === 'rotate'));
@@ -143,7 +144,7 @@ test('page 5 image rotated 180', async () => {
   const s = setup();
   await buildA3Pdf([createEmptyZine('a')], { jsPDF: s.FakePdf, loadImage: s.loadImage, createCanvas: s.createCanvas, ensureFonts: async () => {} });
   const imgs = s.log.filter((l) => l.n === 'addImage');
-  assert.deepEqual(imgs[0].a.slice(2), [0, 0, 105, 148.5]);
+  assert.deepEqual(imgs[0].a.slice(2), Object.values(printRect(IMPOSITION[0])));
   const rot = s.shot(imgs[0].a[0]);
   assert.equal(rot.canvas, s.canvases[1]); // the rotated scratch canvas, not the render canvas
   assert.deepEqual(rot.ops.find((o) => o.n === 'rotate').a, [Math.PI]);
