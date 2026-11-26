@@ -439,9 +439,12 @@ export function startApp(root) {
           <button type="button" class="bt" id="print">${icon('book', 24)} 인쇄하기</button>
           <button type="button" class="bt ghost" id="reset">처음부터</button>
         </div>
-        ${missing ? `<div class="fill-empty"><p>빈칸을 눌러 바로 채워 보세요</p><div class="btns">
-          ${empty.map((f) => `<button type="button" class="bt" data-fix="${f.q[f.q.length - 1] - 1}">${icon('pen', 20)} ${esc(f.label)} 채우기</button>`).join('')}
-        </div></div>` : ''}
+        <div class="fill-empty"><p>${missing ? '빈칸은 채우고, 바꾸고 싶은 칸은 고쳐 보세요' : '바꾸고 싶은 칸을 눌러 고쳐 보세요'}</p><div class="btns">
+          ${[...empty, ...FIELDS.filter((f) => !empty.includes(f))].map((f) => {
+            const fill = empty.includes(f);
+            return `<button type="button" class="bt${fill ? '' : ' ghost'}" data-fix="${f.q[f.q.length - 1] - 1}">${icon('pen', 20)} ${esc(f.label)} ${fill ? '채우기' : '고치기'}</button>`;
+          }).join('')}
+        </div></div>
         <p class="send" id="sendState" role="status"></p>
       </div>
       ${planSheetHtml(plan, { sample: !!st.sample })}
