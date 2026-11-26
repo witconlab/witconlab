@@ -205,6 +205,9 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .thanks-photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 6px solid var(--white); box-shadow: 6px 6px 0 var(--red); }
 .thanks-photos img:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
 
-/* 5차시 수여식: 따뜻한 실사 사진 */
-.fig.warm img { max-height: 60vh; width: auto; border: 8px solid var(--white); box-shadow: 8px 8px 0 var(--ink); transform: rotate(2deg); }
-.credit { margin: 4vh 0 0; font-size: clamp(10px, .8vw, 13px); opacity: .6; }
+/* 5차시 마지막 장: 선생님들 작품 속 사진 두 장 */
+.thanks-photos.two { margin: 0; grid-template-columns: 1fr 1fr; align-items: center; }
+.thanks-photos.two img, .thanks-photos.two img:first-child { grid-column: auto; aspect-ratio: 3 / 4; }
+.thanks-photos.two img:first-child { transform: rotate(-2deg); }
+.thanks-photos.two img:last-of-type { transform: rotate(2deg) translateY(3vh); }
+.thanks-photos.two figcaption { grid-column: 1 / -1; margin-top: 4vh; text-align: center; font-family: var(--font-hand); font-size: clamp(18px, 2vw, 34px); color: var(--white); }
