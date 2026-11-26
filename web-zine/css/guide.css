@@ -199,3 +199,8 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .scans img { display: block; width: 100%; height: auto; border: 2px solid var(--ink); background: var(--white); box-shadow: 5px 5px 0 var(--ink); }
 .scans.two img { max-height: 24vh; object-fit: contain; }
 .scans.three img { max-height: 46vh; object-fit: contain; }
+
+/* 5차시 마지막 장: 실사 사진 세 장 */
+.thanks-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6vh; }
+.thanks-photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 6px solid var(--white); box-shadow: 6px 6px 0 var(--red); }
+.thanks-photos img:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
