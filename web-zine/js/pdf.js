@@ -1,6 +1,6 @@
 // PDF output: page-order A6 PDF and A3 fold-imposed PDF (one sheet per zine).
 import { renderPage } from './render.js';
-import { IMPOSITION, printRect, A3, A6, CUT_LINE, FOLD_LINES } from './imposition.js';
+import { IMPOSITION, printRect, A3, A6, CUT_LINE, FOLD_LINES, TRIM_LINES } from './imposition.js';
 
 export const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
 
@@ -134,6 +134,9 @@ export async function buildA3Pdf(zines, opts = {}) {
         pdf.setDrawColor('#e8473a');
         pdf.setLineWidth(0.3);
         pdf.line(CUT_LINE.x1, CUT_LINE.y, CUT_LINE.x2, CUT_LINE.y);
+        pdf.setDrawColor('#999999');
+        pdf.setLineWidth(0.2);
+        for (const l of TRIM_LINES) pdf.line(l.x1, l.y1, l.x2, l.y2);
       }
     }
   } finally { release(canvas, rotCanvas); }
