@@ -19,6 +19,15 @@ export function panelRect(slot) {
 
 export const CUT_LINE = { x1: 105, x2: 315, y: 148.5 };
 
+// 프린터 '맞춤(여백 있게)'으로 줄여 찍으면 그림이 종이보다 작아진다 → 이 테두리를 따라 흰 여백을 잘라 내면 종이=그림이 되어 접는 선이 다시 맞는다.
+const T = 0.5; // mm, 실제 크기로 찍을 때 잘리는 걸 줄이려 아주 살짝 안쪽
+export const TRIM_LINES = [
+  { x1: T, y1: T, x2: 420 - T, y2: T },
+  { x1: 420 - T, y1: T, x2: 420 - T, y2: 297 - T },
+  { x1: 420 - T, y1: 297 - T, x2: T, y2: 297 - T },
+  { x1: T, y1: 297 - T, x2: T, y2: T },
+];
+
 export const FOLD_LINES = [
   { x1: 0, y1: 148.5, x2: 420, y2: 148.5 },
   { x1: 105, y1: 0, x2: 105, y2: 297 },

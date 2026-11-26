@@ -174,13 +174,17 @@ test('guides draw fold lines (0.2mm #cccccc dashed) and cut line (0.3mm #e8473a)
   const s = setup();
   await buildA3Pdf([createEmptyZine('a')], { jsPDF: s.FakePdf, loadImage: s.loadImage, createCanvas: s.createCanvas, ensureFonts: async () => {} });
   const lines = s.log.filter((l) => l.n === 'line');
-  assert.equal(lines.length, 5);
+  assert.equal(lines.length, 9);
   const i = s.log.findIndex((l) => l.n === 'line');
   assert.deepEqual(s.log.slice(i - 3, i).map((l) => l.n), ['color', 'width', 'dash']);
   assert.equal(s.log[i - 3].c, '#cccccc'); assert.equal(s.log[i - 2].w, 0.2);
   assert.deepEqual(lines[4].a, [105, 148.5, 315, 148.5]);
   const cutColor = s.log.slice(0, s.log.lastIndexOf(lines[4])).filter((l) => l.n === 'color').pop();
   assert.equal(cutColor.c, '#e8473a');
+  // trim border hugs the sheet edge so cutting it off leaves paper = picture (for printers that shrink to fit)
+  const trim = lines.slice(5).map((l) => l.a);
+  assert.deepEqual(trim[0], [0.5, 0.5, 419.5, 0.5]);
+  assert.deepEqual(trim[2], [419.5, 296.5, 0.5, 296.5]);
 });
 
 test('guides=false draws no lines', async () => {
