@@ -204,3 +204,7 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--blue); outline-
 .thanks-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6vh; }
 .thanks-photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 6px solid var(--white); box-shadow: 6px 6px 0 var(--red); }
 .thanks-photos img:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+
+/* 5차시 수여식: 따뜻한 실사 사진 */
+.fig.warm img { max-height: 60vh; width: auto; border: 8px solid var(--white); box-shadow: 8px 8px 0 var(--ink); transform: rotate(2deg); }
+.credit { margin: 4vh 0 0; font-size: clamp(10px, .8vw, 13px); opacity: .6; }
