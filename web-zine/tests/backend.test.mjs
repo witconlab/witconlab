@@ -366,3 +366,15 @@ test('one-pager: anyone can submit, resubmitting overwrites, only the teacher ca
   assert.equal(call('adminList', { adminToken }).students.length, 0);
   assert.equal(call('login', { name: '원페이퍼', pin: '1234' }).ok, false);
 });
+
+test('adminList keeps going when one zine.json is broken', () => {
+  const { call, drive } = setup();
+  call('login', { name: '김민지', pin: '1234' });
+  call('login', { name: '이서준', pin: '5678' });
+  drive.find('웹진/김민지/zine.json')._bytes = Array.from(Buffer.from('{broken'));
+  const { adminToken } = call('adminLogin', { password: 'teacher-pw' });
+  const res = call('adminList', { adminToken });
+  assert.equal(res.ok, true);
+  assert.equal(res.students.find((s) => s.name === '김민지').broken, true);
+  assert.equal(res.students.find((s) => s.name === '이서준').broken, undefined);
+});
