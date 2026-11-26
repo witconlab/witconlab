@@ -411,7 +411,9 @@ export function startApp(root) {
       <p class="to">${icon('arrow', 20)} 계획서의 <b>${q.to.map(esc).join('</b>, <b>')}</b> 칸으로 옮겨져요</p>
       <nav class="btns nav">
         <button type="button" class="bt" data-go="${i === 0 ? 'intro' : i - 1}">이전</button>
-        <button type="button" class="bt primary" data-go="${i === total - 1 ? 'result' : i + 1}">${i === total - 1 ? '원페이퍼 보기' : '다음'} ${icon('arrow', 24, 2.4)}</button>
+        ${st.fixing
+          ? `<button type="button" class="bt primary" data-go="result">원페이퍼로 돌아가기 ${icon('arrow', 24, 2.4)}</button>`
+          : `<button type="button" class="bt primary" data-go="${i === total - 1 ? 'result' : i + 1}">${i === total - 1 ? '원페이퍼 보기' : '다음'} ${icon('arrow', 24, 2.4)}</button>`}
       </nav>
     </section>`;
     updateTotal();
@@ -426,7 +428,8 @@ export function startApp(root) {
 
   function result() {
     const plan = buildPlan(A());
-    const missing = FIELDS.filter((f) => plan[f.key] === PH).length;
+    const empty = FIELDS.filter((f) => plan[f.key] === PH);
+    const missing = empty.length;
     root.innerHTML = `<section class="screen result">
       <div class="res-top no-print">
         <h1>원페이퍼가 만들어졌어요</h1>
@@ -436,6 +439,9 @@ export function startApp(root) {
           <button type="button" class="bt" id="print">${icon('book', 24)} 인쇄하기</button>
           <button type="button" class="bt ghost" id="reset">처음부터</button>
         </div>
+        ${missing ? `<div class="fill-empty"><p>빈칸을 눌러 바로 채워 보세요</p><div class="btns">
+          ${empty.map((f) => `<button type="button" class="bt" data-fix="${f.q[f.q.length - 1] - 1}">${icon('pen', 20)} ${esc(f.label)} 채우기</button>`).join('')}
+        </div></div>` : ''}
         <p class="send" id="sendState" role="status"></p>
       </div>
       ${planSheetHtml(plan, { sample: !!st.sample })}
@@ -468,6 +474,7 @@ export function startApp(root) {
   }
 
   function go(to) {
+    if (to === 'intro' || to === 'result') st.fixing = false;
     if (to === 'intro') { st.step = -1; intro(); }
     else if (to === 'result') { st.step = total; result(); }
     else { st.step = Number(to); question(st.step); }
@@ -478,6 +485,8 @@ export function startApp(root) {
   }
 
   root.addEventListener('click', (e) => {
+    const fx = e.target.closest('[data-fix]');
+    if (fx) { st.fixing = true; go(fx.dataset.fix); return; }
     const g = e.target.closest('[data-go]');
     if (g) { go(g.dataset.go); return; }
     const o = e.target.closest('.opt');
