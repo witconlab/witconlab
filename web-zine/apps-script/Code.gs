@@ -184,7 +184,58 @@ function zineFile_(name, folder) {
 
 function readStudentZine_(name) {
   var file = zineFile_(name);
-  return file ? JSON.parse(file.getBlob().getDataAsString()) : null;
+  return file ? parseZineFile_(file) : null;
+}
+
+// zine.json이 비었거나 깨졌으면(드라이브 쓰기가 중간에 끊긴 경우 등) 드라이브가 남겨 둔 이전 버전 중
+// 가장 최근의 멀쩡한 것으로 되살린다. 되살릴 것이 없을 때만 오류를 낸다.
+function parseZineFile_(file) {
+  var zine = tryZine_(file.getBlob().getDataAsString());
+  if (zine) return zine;
+  var good = lastGoodRevision_(file.getId());
+  if (!good) throw new Error('zine.json을 읽을 수 없고 되살릴 이전 버전도 없어요: ' + file.getId());
+  file.setContent(good.text);
+  console.warn('zine.json 되살림 ' + file.getId() + ' <- ' + good.time);
+  return good.zine;
+}
+
+function tryZine_(text) {
+  try {
+    var z = JSON.parse(text);
+    return z && Array.isArray(z.pages) && z.pages.length === PAGE_COUNT ? z : null;
+  } catch (err) { return null; }
+}
+
+function lastGoodRevision_(fileId) {
+  var api = 'https://www.googleapis.com/drive/v3/files/' + fileId + '/revisions';
+  var opt = { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true };
+  var res = UrlFetchApp.fetch(api + '?pageSize=1000&fields=revisions(id,modifiedTime)', opt);
+  if (res.getResponseCode() !== 200) return null;
+  var revs = JSON.parse(res.getContentText()).revisions || []; // 오래된 것부터
+  for (var i = revs.length - 1; i >= 0 && i >= revs.length - 30; i--) { // 최근 30개만 본다
+    var r = UrlFetchApp.fetch(api + '/' + revs[i].id + '?alt=media', opt);
+    if (r.getResponseCode() !== 200) continue;
+    var text = r.getContentText('UTF-8');
+    var zine = tryZine_(text);
+    if (zine) return { zine: zine, text: text, time: revs[i].modifiedTime };
+  }
+  return null;
+}
+
+// 편집기에서 한 번 실행: 모든 학생의 zine.json을 확인해 깨진 것을 되살린다(처음 실행 때 권한 허용 창이 떠요).
+function checkAllZines() {
+  var it = rootFolder_().getFolders();
+  var fixed = [], broken = [];
+  while (it.hasNext()) {
+    var folder = it.next();
+    var name = folder.getName();
+    if (name === STICKER_FOLDER || name === PLAN_FOLDER || !alive_(folder)) continue;
+    var f = earliest_(folder.getFilesByName('zine.json'));
+    if (!f || tryZine_(f.getBlob().getDataAsString())) continue;
+    try { parseZineFile_(f); fixed.push(name); } catch (err) { broken.push(name); }
+  }
+  Logger.log('되살림: ' + (fixed.join(', ') || '없음') + ' / 되살리지 못함: ' + (broken.join(', ') || '없음'));
+  return { fixed: fixed, broken: broken };
 }
 
 function writeStudentZine_(name, zine, folder) {
@@ -199,7 +250,7 @@ function writeStudentZine_(name, zine, folder) {
 // 관리자 목록처럼 폴더를 차례로 훑을 때 쓴다.
 function readZine_(folder) {
   var f = earliest_(folder.getFilesByName('zine.json'));
-  return f ? JSON.parse(f.getBlob().getDataAsString()) : null;
+  return f ? parseZineFile_(f) : null;
 }
 
 function publicZine_(zine) {
@@ -276,7 +327,7 @@ function login_(b) {
     var made = (function () {
       var folder = studentFolder_(name, true);
       var existing = zineFile_(name, folder);
-      if (existing) return { zine: JSON.parse(existing.getBlob().getDataAsString()) };
+      if (existing) return { zine: parseZineFile_(existing) };
       var fresh = emptyZine_(name);
       fresh.auth = makeAuth_(b.pin);
       fresh.updatedAt = new Date().toISOString();
@@ -286,7 +337,7 @@ function login_(b) {
       idCache_().put('id_zine_' + name, winner.getId(), ID_TTL);
       if (winner.getId() === mine.getId()) return { zine: fresh, created: true };
       mine.setTrashed(true); // 다른 기기가 한발 먼저 만들었다
-      return { zine: JSON.parse(winner.getBlob().getDataAsString()) };
+      return { zine: parseZineFile_(winner) };
     })();
     if (made.created) {
       return { ok: true, token: newToken_('tok_', name), zine: publicZine_(made.zine), created: true };

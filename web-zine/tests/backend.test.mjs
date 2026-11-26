@@ -378,3 +378,29 @@ test('adminList keeps going when one zine.json is broken', () => {
   assert.equal(res.students.find((s) => s.name === '김민지').broken, true);
   assert.equal(res.students.find((s) => s.name === '이서준').broken, undefined);
 });
+
+test('empty zine.json is restored from the last good Drive revision', () => {
+  const g = setup();
+  const { call, drive, ctx } = g;
+  const a = call('login', { name: '윤화진', pin: '1234' });
+  assert.equal(call('save', { token: a.token, zine: { ...a.zine, title: '바닥 무늬' } }).ok, true);
+  const file = drive.find('웹진/윤화진/zine.json');
+  const good = file.getBlob().getDataAsString();
+  file.setContent(''); // 드라이브 쓰기가 끊겨 빈 파일이 된 상황
+  const revs = [{ id: 'r1', text: good, modifiedTime: 't1' }, { id: 'r2', text: '', modifiedTime: 't2' }];
+  ctx.ScriptApp = { getOAuthToken: () => 'tok' };
+  ctx.UrlFetchApp = {
+    fetch(url) {
+      const m = url.match(/revisions\/(\w+)\?alt=media/);
+      const body = m ? revs.find((r) => r.id === m[1]).text : JSON.stringify({ revisions: revs.map(({ id, modifiedTime }) => ({ id, modifiedTime })) });
+      return { getResponseCode: () => 200, getContentText: () => body };
+    },
+  };
+  const b = call('login', { name: '윤화진', pin: '1234' });
+  assert.equal(b.ok, true);
+  assert.equal(b.zine.title, '바닥 무늬');
+  assert.equal(file.getBlob().getDataAsString(), good); // 파일도 되살아남
+  const adminToken = call('adminLogin', { password: 'teacher-pw' }).adminToken;
+  const row = call('adminList', { adminToken }).students.find((s) => s.name === '윤화진');
+  assert.equal(row.broken, undefined);
+});
