@@ -103,7 +103,7 @@ function main() {
       sel.append(cb);
       cell(tr, '이름', s.name, 'nm');
       cell(tr, '채운 쪽', `${s.filledPages}/${PAGE_COUNT}`);
-      cell(tr, '마지막 수정', fmtUpdated(s.updatedAt));
+      cell(tr, '마지막 수정', s.broken ? '불러오지 못함' : fmtUpdated(s.updatedAt));
       const done = cell(tr, '완성');
       if (s.done) { const b = document.createElement('span'); b.className = 'badge badge-lime'; b.textContent = '완성'; done.append(b); } else done.textContent = '작업 중';
       const lock = cell(tr, '잠김');

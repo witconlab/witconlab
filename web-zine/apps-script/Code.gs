@@ -522,17 +522,23 @@ function adminList_(b) {
   var students = [];
   while (it.hasNext()) {
     var folder = it.next();
-    if (folder.getName() === STICKER_FOLDER || folder.getName() === PLAN_FOLDER || !alive_(folder)) continue;
-    var zine = readZine_(folder);
-    if (!zine) continue;
-    var f = getFail_(folder.getName());
-    students.push({
-      name: folder.getName(),
-      filledPages: filledPages_(zine),
-      updatedAt: zine.updatedAt,
-      done: !!zine.done,
-      lockedUntil: f.until && f.until > now ? f.until : null
-    });
+    var name = folder.getName();
+    if (name === STICKER_FOLDER || name === PLAN_FOLDER || !alive_(folder)) continue;
+    try { // 한 사람 파일이 깨지거나 드라이브가 잠깐 실패해도 목록 전체가 멈추지 않게
+      var zine = readZine_(folder);
+      if (!zine) continue;
+      var f = getFail_(name);
+      students.push({
+        name: name,
+        filledPages: filledPages_(zine),
+        updatedAt: zine.updatedAt,
+        done: !!zine.done,
+        lockedUntil: f.until && f.until > now ? f.until : null
+      });
+    } catch (err) {
+      console.error('adminList ' + name, err);
+      students.push({ name: name, filledPages: 0, updatedAt: null, done: false, lockedUntil: null, broken: true });
+    }
   }
   return { ok: true, students: students };
 }
