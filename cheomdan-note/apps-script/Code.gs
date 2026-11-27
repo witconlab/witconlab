@@ -5,6 +5,7 @@
  * 배포: 배포 > 새 배포 > 웹 앱, 실행 계정 "나", 액세스 "모든 사용자".
  */
 var SHEET_ID = '1aORW62T9rslCllr4FSUI0yfMmt_NI3G_qMfVdfMB_Bk'; // 우리 동네 기록 노트 시트
+var ADMIN_KEY = 'ADMIN_KEY_HERE'; // 관리자 링크의 ?k= 값. 저장소에는 올리지 않고 Apps Script 편집기에만 적는다
 var COLS = { people: 'name', tables: 'table', staff: 'writer' };
 var MAX_JSON = 20000;   // 한 줄 내용 최대 글자 수
 var MAX_ROWS = 2000;    // 시트 하나 최대 줄 수 (장난 저장 막기)
@@ -21,7 +22,14 @@ function doPost(e) {
   return out_(res);
 }
 
-function doGet() {
+// 관리자: 전부 읽기. 기록자: 자기 노트(id) 한 줄만.
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (!isAdmin_(p.key)) {
+    if (p.col !== 'people' || !p.id) return out_({ ok: false, error: 'forbidden' });
+    var mine = rows_('people').filter(function (r) { return r.id === String(p.id); });
+    return out_({ ok: true, data: { people: mine, tables: [], staff: [] } });
+  }
   var all = {};
   Object.keys(COLS).forEach(function (c) { all[c] = rows_(c); });
   return out_({ ok: true, data: all });
@@ -29,6 +37,7 @@ function doGet() {
 
 function save_(b) {
   if (!COLS.hasOwnProperty(b.col)) return { ok: false, error: 'bad_col' };
+  if (b.col !== 'people' && !isAdmin_(b.key)) return { ok: false, error: 'forbidden' };
   if (!/^[A-Za-z0-9_-]{1,40}$/.test(String(b.id || ''))) return { ok: false, error: 'bad_id' };
   var d = clean_(b.data);
   if (!d) return { ok: false, error: 'bad_data' };
@@ -57,6 +66,10 @@ function save_(b) {
 }
 
 // 글자·참거짓 값만, 키 이름은 영문·숫자만 남긴다
+function isAdmin_(k) {
+  return ADMIN_KEY !== 'ADMIN_KEY_HERE' && ADMIN_KEY.length >= 12 && k === ADMIN_KEY;
+}
+
 function clean_(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
   var o = {}, n = 0;

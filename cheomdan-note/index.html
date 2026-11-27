@@ -258,8 +258,16 @@ function read(form){ const o={}; for (const f of form.elements){ if(!f.name) con
 function fill(form,d){ for (const f of form.elements){ if(!f.name || !(f.name in d)) continue; const v=d[f.name];
   if(f.type==="radio") f.checked = (f.value===v); else if(f.type==="checkbox") f.checked=!!v; else f.value = typeof v==="string" ? v : ""; } }
 
+// 관리자 링크(?k=키)로 한 번 열면 이 기기에 기억. 기록자는 「내 노트」만 본다. 진짜 막는 일은 저장소가 키로 한다.
+const qk = new URLSearchParams(location.search).get("k");
+if(qk){ store.set("admin-key", qk); history.replaceState(null, "", location.pathname + location.hash); }
+const KEY = store.get("admin-key") || "";
+const ADMIN = !!KEY;
+if(!ADMIN) document.querySelector("nav").hidden = true;
+
 // 탭
-const TABS=["me","table","staff","board"];
+const TABS = ADMIN ? ["me","table","staff","board"] : ["me"];
+["table","staff","board"].forEach(x => { if(!ADMIN) $("#pane-"+x).hidden = true; });
 function show(){ const t = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "me";
   TABS.forEach(x => { $("#pane-"+x).hidden = (x!==t); $(`nav a[data-tab="${x}"]`).toggleAttribute("aria-current", x===t); if(x===t) $(`nav a[data-tab="${x}"]`).setAttribute("aria-current","page"); }); }
 addEventListener("hashchange", show); show();
@@ -276,7 +284,7 @@ $("#pane-me").addEventListener("submit", async e => { e.preventDefault(); const 
   if(!db){ status(f,"이 휴대폰에만 임시로 남았어요."); return; }
   let id = store.get("me-id"); if(!id){ id=newId(); store.set("me-id",id); }
   const d = read(f); if(!d.name){ status(f,"이름을 먼저 적어 주세요."); $("#me-name").focus(); return; }
-  try{ status(f,"저장하는 중…"); await db.doc("people/"+id).set({...d, session:SESSION, updatedAt:new Date().toISOString()}); status(f,"저장했어요. 「모아 보기」에서 볼 수 있어요."); }
+  try{ status(f,"저장하는 중…"); await db.doc("people/"+id).set({...d, session:SESSION, updatedAt:new Date().toISOString()}); status(f, ADMIN ? "저장했어요. 「모아 보기」에서 볼 수 있어요." : "저장했어요. 고치고 다시 저장해도 돼요."); }
   catch(err){ status(f, ERR[err&&err.code] || "저장하지 못했어요. 다시 눌러 주세요."); } });
 
 $("#pane-table").addEventListener("submit", async e => { e.preventDefault(); const f=e.target; const d=read(f);
@@ -343,27 +351,34 @@ const API = "https://script.google.com/macros/s/AKfycbxVwx3NPZ9m14nmSqnjER9SH58n
 const cache = { people:[], tables:[], staff:[] };
 const snap = docs => ({ docs: docs.map(x=>({ data:()=>x.data })), size: docs.length, empty: !docs.length });
 const sortBy = a => [...a].sort((x,y)=>S(x.data.updatedAt).localeCompare(S(y.data.updatedAt)));
-async function call(opts){ const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),20000);
-  try{ const r=await fetch(API,{...opts,signal:ctl.signal,redirect:"follow"}); const j=await r.json(); if(!j.ok) throw {code:j.error}; return j; }
+async function call(opts, query=""){ const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),20000);
+  try{ const r=await fetch(API+query,{...opts,signal:ctl.signal,redirect:"follow"}); const j=await r.json(); if(!j.ok) throw {code:j.error}; return j; }
   catch(e){ throw (e&&e.code) ? e : {code:"unavailable"}; } finally{ clearTimeout(t); } }
 const db = API ? {
   doc(path){ const [col,id]=path.split("/"); return {
-    set: data => call({method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({col,id,data})}).then(r=>{ refresh(); return r; }),
+    set: data => call({method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({col,id,data,key:KEY})}).then(r=>{ if(ADMIN) refresh(); return r; }),
     get: async () => { await refresh(); const hit=cache[col].find(x=>x.id===id); return { exists:!!hit, data:()=>hit?hit.data:{} }; } }; }
 } : null;
 let refreshing=null;
-function refresh(){ if(!API) return Promise.resolve(); return refreshing ||= call({method:"GET"}).then(j=>{
+function refresh(){ if(!API) return Promise.resolve();
+  // 기록자는 자기 노트 한 줄만 받아 온다
+  const meId = store.get("me-id");
+  const q = ADMIN ? "?key="+encodeURIComponent(KEY) : (meId ? "?col=people&id="+encodeURIComponent(meId) : null);
+  if(q===null) return Promise.resolve();
+  return refreshing ||= call({method:"GET"}, q).then(j=>{
     ["people","tables","staff"].forEach(c=>cache[c]=Array.isArray(j.data[c])?j.data[c]:[]);
     latest.people=snap(sortBy(cache.people)); latest.tables=snap(cache.tables); latest.staff=snap(sortBy(cache.staff));
     renderPeople(latest.people); renderTables(latest.tables); renderStaff(latest.staff); $("#offline").hidden=true; })
-  .catch(()=>{ $("#offline").hidden=false; }).finally(()=>{ refreshing=null; }); }
+  .catch(err=>{ if(err&&err.code==="forbidden" && ADMIN){ store.set("admin-key",""); location.reload(); return; } $("#offline").hidden=false; }).finally(()=>{ refreshing=null; }); }
 
 if(!db){ $("#offline").hidden=false; }
 else {
   refresh().then(async () => { const id=store.get("me-id"); if(id){ const hit=cache.people.find(x=>x.id===id); if(hit) fill($("#pane-me"), hit.data); } });
+  if(ADMIN){
   setInterval(() => { if(!document.hidden && location.hash==="#board") refresh(); }, 8000);
   addEventListener("hashchange", () => { if(location.hash==="#board") refresh(); });
   $("#dl-bar").hidden=false;
+  }
   $("#dl").addEventListener("click", () => { const day=new Date().toISOString().slice(0,10);
     const a=el("a"); a.href=URL.createObjectURL(new Blob([toCsv()],{type:"text/csv;charset=utf-8"})); a.download=`우리동네기록노트_${day}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); $("#dl-status").textContent="내려받았어요."; });
 }
