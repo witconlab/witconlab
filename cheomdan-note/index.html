@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>우리 동네 기록 노트 1회차</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Pen+Script&display=swap">
+<style>
+/* layout: 휴대폰 한 손 세로 스크롤, 탭 4개(내 노트 · 테이블 · 직원 · 모아 보기), 카드마다 굵은 테두리 */
+:root{
+  --ink:#1C1B19; --paper:#FAF7EF; --white:#FFFDF8; --yellow:#F7E9A8; --blue:#D7E7F3; --green:#DCEBD2; --sand:#F1E9DA;
+  --red:#C93A2E; --soft:#47443D; --mute:#6B675E; --line:#1C1B19; --field:#FFFFFF;
+  --sans:'Noto Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo',sans-serif; --hand:'Nanum Pen Script','Noto Sans KR',cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ink:#F1ECDF; --paper:#1D1C1A; --white:#262420; --yellow:#4A4222; --blue:#22323D; --green:#25331F; --sand:#36302A;
+  --red:#E06A5D; --soft:#CFC8B8; --mute:#A8A396; --line:#E8E2D4; --field:#2E2C28; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ink:#F1ECDF; --paper:#1D1C1A; --white:#262420; --yellow:#4A4222; --blue:#22323D; --green:#25331F; --sand:#36302A;
+  --red:#E06A5D; --soft:#CFC8B8; --mute:#A8A396; --line:#E8E2D4; --field:#2E2C28; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--mute)}
+h1{font-size:30px;font-weight:900;line-height:1.25;margin:0;text-wrap:balance}
+.hand{font-family:var(--hand);font-size:26px;line-height:1.2;color:var(--soft);margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:env(safe-area-inset-top,0px);background:var(--paper);padding-block:8px;z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--paper);z-index:10}
+nav a{font-weight:700;font-size:15px;color:var(--ink);text-decoration:none;border:2px solid var(--line);padding:6px 14px;border-radius:999px;background:var(--white)}
+nav a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+nav a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.card{border:3px solid var(--line);background:var(--white);box-shadow:6px 6px 0 var(--line);padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card.yellow{background:var(--yellow)} .card.blue{background:var(--blue)} .card.green{background:var(--green)} .card.sand{background:var(--sand)}
+.card h2{font-size:20px;font-weight:900;margin:0;line-height:1.35}
+.hint{font-size:14px;color:var(--soft);margin:0}
+label{font-weight:700;font-size:15px;display:flex;flex-direction:column;gap:4px}
+input[type=text],textarea,select{font:inherit;font-size:17px;color:var(--ink);background:var(--field);border:2px solid var(--line);border-radius:6px;padding:9px 11px;width:100%;min-width:0}
+textarea{min-height:76px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{flex-direction:row;font-weight:400;border:2px solid var(--line);border-radius:999px;padding:4px 14px;background:var(--field);cursor:pointer}
+.chips input:checked+span{font-weight:900}
+.chips label:has(input:checked){background:var(--ink);color:var(--paper)}
+.chips label:has(input:focus-visible){outline:3px solid var(--red);outline-offset:2px}
+.q3{display:grid;grid-template-columns:1fr;gap:10px}
+.photo{border:2px dashed var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--field)}
+.photo b{font-size:14px}
+.mat{border-top:2px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.mat .name{font-weight:900}
+.checks{display:flex;flex-direction:column;gap:8px}
+.checks label{flex-direction:row;align-items:center;gap:8px;font-weight:400}
+.checks input{width:22px;height:22px;accent-color:var(--red)}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+button{font:inherit;font-weight:900;font-size:17px;color:var(--paper);background:var(--red);border:3px solid var(--line);padding:10px 22px;cursor:pointer;box-shadow:4px 4px 0 var(--line)}
+button.ghost{background:var(--white);color:var(--ink)}
+button:disabled{opacity:.5;cursor:default}
+.status{font-size:14px;font-weight:700;color:var(--soft);background:var(--paper);padding:2px 6px}
+.offline{border:2px solid var(--red);padding:10px 12px;font-size:15px;background:var(--white)}
+.board{display:flex;flex-direction:column;gap:14px}
+.entry{border:2px solid var(--line);background:var(--white);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.entry .who{font-weight:900}
+.entry .k{font-size:13px;font-weight:700;color:var(--mute)}
+.entry p{margin:0}
+.tag{display:inline-block;font-size:13px;font-weight:700;background:var(--ink);color:var(--paper);padding:1px 8px;margin-right:4px}
+.count{font-variant-numeric:tabular-nums;color:var(--mute);font-size:14px}
+.empty{color:var(--mute);font-size:15px;margin:0}
+.pane[hidden]{display:none!important}
+@media (min-width:640px){.q3{grid-template-columns:1fr 1fr 1fr}.photos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}}
+@media (max-width:420px){.row{grid-template-columns:1fr}h1{font-size:26px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">첨단종합사회복지관 · 마을을 기록하는 동아리로 · 1회차</p>
+  <h1>우리 동네 기록 노트</h1>
+  <p class="hand">물음표 하나가 책 한 권의 제목이 돼요.</p>
+</header>
+
+<nav aria-label="워크시트">
+  <a href="#me" data-tab="me">내 노트</a>
+  <a href="#table" data-tab="table">테이블</a>
+  <a href="#staff" data-tab="staff">직원</a>
+  <a href="#board" data-tab="board">모아 보기</a>
+</nav>
+
+<div id="offline" class="offline" hidden>지금은 저장 공간에 연결되지 않아 적은 내용이 이 휴대폰에만 남아요. 와이파이를 확인하고 잠시 뒤 새로고침해 주세요.</div>
+
+<!-- 내 노트: 활동지 ① + 숙제 ③ -->
+<form id="pane-me" class="pane" data-col="people" novalidate>
+  <div class="card white">
+    <div class="row">
+      <label for="me-name">이름 (별명도 좋아요)<input type="text" id="me-name" name="name" autocomplete="off"></label>
+      <label for="me-club">동아리<input type="text" id="me-club" name="club" placeholder="미디어 · 그림 · 독서 …" autocomplete="off"></label>
+    </div>
+  </div>
+
+  <div class="card yellow">
+    <h2>① 우리 동네에 살면서 좋았던 순간 하나</h2>
+    <p class="hint">거창하지 않아도 돼요. 소리 · 냄새 · 풍경 무엇이든.</p>
+    <div class="chips" role="group" aria-label="어떤 순간인가요">
+      <label><input type="radio" name="kind" value="본 것"><span>본 것</span></label>
+      <label><input type="radio" name="kind" value="들은 것"><span>들은 것</span></label>
+      <label><input type="radio" name="kind" value="냄새"><span>냄새</span></label>
+      <label><input type="radio" name="kind" value="만난 사람"><span>만난 사람</span></label>
+      <label><input type="radio" name="kind" value="먹은 것"><span>먹은 것</span></label>
+    </div>
+    <label for="me-where">언제, 어디서?<input type="text" id="me-where" name="where" autocomplete="off"></label>
+    <label for="me-what">무엇이 좋았나요?<textarea id="me-what" name="what"></textarea></label>
+  </div>
+
+  <div class="card blue">
+    <h2>② 물음표(?)에서 느낌표(!)로</h2>
+    <p class="hint">요즘 눈에 띈 동네의 조각 하나. 궁금한 걸 적고, 이웃에게 “아하!”를 받아 적어요.</p>
+    <div class="q3">
+      <label for="me-piece">내 조각<input type="text" id="me-piece" name="piece" placeholder="예: 시장 입구 국밥집" autocomplete="off"></label>
+      <label for="me-q">? 왜 눈에 띄었을까<input type="text" id="me-q" name="q" placeholder="예: 왜 40년째 같은 자리에?" autocomplete="off"></label>
+      <label for="me-a">! 아하, ~구나<input type="text" id="me-a" name="a" placeholder="예: 동네가 사랑해 왔구나!" autocomplete="off"></label>
+    </div>
+    <label for="me-ahaby">“아하!”를 알려 준 이웃<input type="text" id="me-ahaby" name="ahaBy" autocomplete="off"></label>
+  </div>
+
+  <div class="card green">
+    <h2>숙제 · 나만의 책을 만든다면, 무엇을 모을까요?</h2>
+    <p class="hint">테마 하나를 고르고, 없으면 직접 적어요.</p>
+    <div class="chips" role="group" aria-label="내 테마">
+      <label><input type="radio" name="theme" value="소리"><span>소리</span></label>
+      <label><input type="radio" name="theme" value="간판"><span>간판</span></label>
+      <label><input type="radio" name="theme" value="나무 · 꽃"><span>나무 · 꽃</span></label>
+      <label><input type="radio" name="theme" value="가게"><span>가게</span></label>
+      <label><input type="radio" name="theme" value="골목"><span>골목</span></label>
+      <label><input type="radio" name="theme" value="사람"><span>사람</span></label>
+      <label><input type="radio" name="theme" value="계절"><span>계절</span></label>
+      <label><input type="radio" name="theme" value="먹을 것"><span>먹을 것</span></label>
+      <label><input type="radio" name="theme" value="오래된 물건"><span>오래된 물건</span></label>
+    </div>
+    <label for="me-themeother">직접 적기<input type="text" id="me-themeother" name="themeOther" autocomplete="off"></label>
+    <label for="me-themewhy">왜 이 테마인가요? 나에게 어떤 기억이 있나요?<textarea id="me-themewhy" name="themeWhy"></textarea></label>
+  </div>
+
+  <div class="card sand">
+    <h2>사진 3장 찍어 오기</h2>
+    <p class="hint">사진은 휴대폰에 담아 오고, 여기엔 무엇을 찍었는지만 적어요. 얼굴이 나오면 먼저 물어보기!</p>
+    <div class="photos q3">
+      <div class="photo"><b>사진 1</b>
+        <label for="me-p1w">어디서<input type="text" id="me-p1w" name="p1where" autocomplete="off"></label>
+        <label for="me-p1s">한 줄 이야기<input type="text" id="me-p1s" name="p1story" autocomplete="off"></label></div>
+      <div class="photo"><b>사진 2</b>
+        <label for="me-p2w">어디서<input type="text" id="me-p2w" name="p2where" autocomplete="off"></label>
+        <label for="me-p2s">한 줄 이야기<input type="text" id="me-p2s" name="p2story" autocomplete="off"></label></div>
+      <div class="photo"><b>사진 3</b>
+        <label for="me-p3w">어디서<input type="text" id="me-p3w" name="p3where" autocomplete="off"></label>
+        <label for="me-p3s">한 줄 이야기<input type="text" id="me-p3s" name="p3story" autocomplete="off"></label></div>
+    </div>
+  </div>
+
+  <div class="bar"><button type="submit">내 노트 저장</button><span class="status" role="status"></span></div>
+</form>
+
+<!-- 테이블: 활동지 ② -->
+<form id="pane-table" class="pane" data-col="tables" novalidate hidden>
+  <div class="card white">
+    <h2>우리 복지관 재료 지도</h2>
+    <p class="hint">테이블에서 한 사람이 대표로 적어요. 같은 테이블 번호로 저장하면 이어서 고칠 수 있어요.</p>
+    <div class="row">
+      <label for="t-no">테이블 번호
+        <select id="t-no" name="table"><option value="">고르기</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+      <label for="t-members">함께한 사람<input type="text" id="t-members" name="members" autocomplete="off"></label>
+    </div>
+  </div>
+  <div class="card blue" id="mats">
+    <h2>이미 있는 것을 기록 · 책 · 영상으로</h2>
+    <p class="hint">결과물 모양 예: 진 8쪽 · 1분 영상 · 소리 지도 · 사진 전시 · 그림책</p>
+  </div>
+  <div class="card yellow">
+    <h2>우리 테이블이 고른 하나</h2>
+    <label for="t-pick">무엇을<input type="text" id="t-pick" name="pick" autocomplete="off"></label>
+    <label for="t-pickwhy">왜 이것을 (발표 때 한 줄로)<input type="text" id="t-pickwhy" name="pickWhy" autocomplete="off"></label>
+  </div>
+  <div class="bar"><button type="submit">테이블 저장</button><button type="button" class="ghost" id="t-load">이 번호 불러오기</button><span class="status" role="status"></span></div>
+</form>
+
+<!-- 직원: 숙제 ④ -->
+<form id="pane-staff" class="pane" data-col="staff" novalidate hidden>
+  <div class="card white">
+    <h2>동아리 결과물 목록</h2>
+    <p class="hint">지금까지 동아리가 만든 것을 모아 봐요. 2회차에 주민 테마와 묶어 기획서를 쓸 때 재료가 돼요.</p>
+    <label for="s-writer">작성<input type="text" id="s-writer" name="writer" autocomplete="off"></label>
+  </div>
+  <div class="card sand" id="clubs">
+    <h2>동아리별 결과물</h2>
+  </div>
+  <div class="card blue">
+    <h2>복지관이 깔아 줄 수 있는 판</h2>
+    <div class="checks">
+      <label><input type="checkbox" name="sup_space"> 공간 (모임 장소 · 요일)</label>
+      <label><input type="checkbox" name="sup_gear"> 장비 · 도구 계정 (카메라 · 노트북 · AI 계정)</label>
+      <label><input type="checkbox" name="sup_show"> 보여 줄 자리 (12월 문화예술제 · 새 복지관 로비)</label>
+      <label><input type="checkbox" name="sup_link"> 연결 (지역 예술인 · 학교 · 시청자미디어센터)</label>
+    </div>
+    <label for="s-memo">질문 · 메모<textarea id="s-memo" name="memo"></textarea></label>
+  </div>
+  <div class="bar"><button type="submit">목록 저장</button><span class="status" role="status"></span></div>
+</form>
+
+<!-- 모아 보기 -->
+<section id="pane-board" class="pane" hidden aria-label="모아 보기">
+  <div class="card white">
+    <h2>모두의 노트 <span class="count" id="c-people"></span></h2>
+    <p class="hint">새로 저장하면 몇 초 안에 여기에 나타나요. 화면에 띄워 함께 봐요. 모인 내용은 지우기 전까지 계속 쌓여요.</p>
+    <div class="bar" style="position:static" id="dl-bar" hidden><button type="button" class="ghost" id="dl">모은 내용 CSV로 내려받기</button><span class="status" id="dl-status" role="status"></span></div>
+    <div class="board" id="b-people"><p class="empty">아직 저장된 노트가 없어요. 「내 노트」 탭에서 첫 노트를 저장해 보세요.</p></div>
+  </div>
+  <div class="card blue">
+    <h2>테이블별 재료 지도 <span class="count" id="c-tables"></span></h2>
+    <div class="board" id="b-tables"><p class="empty">아직 저장된 테이블이 없어요.</p></div>
+  </div>
+  <div class="card sand">
+    <h2>직원 · 동아리 결과물 <span class="count" id="c-staff"></span></h2>
+    <div class="board" id="b-staff"><p class="empty">아직 저장된 목록이 없어요.</p></div>
+  </div>
+</section>
+</div>
+
+<script>
+const MATS = ["미디어 동아리","그림 · 연필스케치 동아리","독서 동아리","아기 마로니에 두 그루","12월 문화예술제","새 복지관 로비 · 도서관","",""];
+const CLUBS = ["미디어","그림 · 연필스케치","독서","","",""];
+const $ = (s, r=document) => r.querySelector(s);
+const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; };
+const store = { get(k){ try{return localStorage.getItem(k)}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,v)}catch(e){} } };
+const SESSION = "첨단종합사회복지관 1회차";
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+// 재료 지도 · 동아리 표 칸 만들기
+MATS.forEach((m,i) => {
+  const box = el("div","mat");
+  if (m) box.append(el("p","name",m));
+  else { const l=el("label",null,"다른 재료"); l.htmlFor=`m${i}-item`; const inp=el("input"); inp.type="text"; inp.id=`m${i}-item`; inp.name=`m${i}_item`; inp.placeholder="예: 자전거 마을"; l.append(inp); box.append(l); }
+  [["collect","무엇을 모을까"],["shape","결과물 모양"],["who","누가 할까"]].forEach(([k,t]) => {
+    const l=el("label",null,t); l.htmlFor=`m${i}-${k}`; const inp=el("input"); inp.type="text"; inp.id=`m${i}-${k}`; inp.name=`m${i}_${k}`; inp.autocomplete="off"; l.append(inp); box.append(l);
+  });
+  $("#mats").append(box);
+});
+CLUBS.forEach((c,i) => {
+  const box = el("div","mat");
+  const fields = [["club","동아리"],["result","결과물 (그림 · 독서 기록 · 영상 · 사진)"],["when","언제"],["keep","어디 보관"]];
+  fields.forEach(([k,t]) => { const l=el("label",null,t); l.htmlFor=`c${i}-${k}`; const inp=el("input"); inp.type="text"; inp.id=`c${i}-${k}`; inp.name=`c${i}_${k}`; inp.autocomplete="off"; if(k==="club"&&c) inp.value=c; l.append(inp); box.append(l); });
+  const ok=el("label"); ok.style.flexDirection="row"; ok.style.alignItems="center"; ok.style.gap="8px"; const cb=el("input"); cb.type="checkbox"; cb.id=`c${i}-ok`; cb.name=`c${i}_ok`; cb.style.width="22px"; cb.style.height="22px"; ok.htmlFor=cb.id; ok.append(cb, document.createTextNode("책 · 영상으로 만들 수 있어요")); box.append(ok);
+  $("#clubs").append(box);
+});
+
+// 폼 ↔ 평평한 객체
+function read(form){ const o={}; for (const f of form.elements){ if(!f.name) continue;
+  if(f.type==="radio"){ if(f.checked) o[f.name]=f.value; else if(!(f.name in o)) o[f.name]=""; }
+  else if(f.type==="checkbox") o[f.name]=f.checked; else o[f.name]=f.value.trim(); } return o; }
+function fill(form,d){ for (const f of form.elements){ if(!f.name || !(f.name in d)) continue; const v=d[f.name];
+  if(f.type==="radio") f.checked = (f.value===v); else if(f.type==="checkbox") f.checked=!!v; else f.value = typeof v==="string" ? v : ""; } }
+
+// 탭
+const TABS=["me","table","staff","board"];
+function show(){ const t = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "me";
+  TABS.forEach(x => { $("#pane-"+x).hidden = (x!==t); $(`nav a[data-tab="${x}"]`).toggleAttribute("aria-current", x===t); if(x===t) $(`nav a[data-tab="${x}"]`).setAttribute("aria-current","page"); }); }
+addEventListener("hashchange", show); show();
+
+// 저장 못 할 때 이 휴대폰에 임시 보관
+["me","table","staff"].forEach(t => { const f=$("#pane-"+t); const k="draft-"+t;
+  try{ const d=JSON.parse(store.get(k)||"null"); if(d) fill(f,d); }catch(e){}
+  f.addEventListener("input", () => store.set(k, JSON.stringify(read(f)))); });
+
+const status = (form, msg) => { $(".status", form).textContent = msg; };
+const ERR = { resource_exhausted:"잠시 뒤 다시 눌러 주세요.", quota_exceeded:"저장 공간이 가득 찼어요. 진행자에게 알려 주세요.", unavailable:"연결이 끊겼어요. 잠시 뒤 다시 눌러 주세요.", invalid_argument:"적은 내용이 너무 길어요. 조금 줄여 주세요." };
+
+$("#pane-me").addEventListener("submit", async e => { e.preventDefault(); const f=e.target;
+  if(!db){ status(f,"이 휴대폰에만 임시로 남았어요."); return; }
+  let id = store.get("me-id"); if(!id){ id=newId(); store.set("me-id",id); }
+  const d = read(f); if(!d.name){ status(f,"이름을 먼저 적어 주세요."); $("#me-name").focus(); return; }
+  try{ status(f,"저장하는 중…"); await db.doc("people/"+id).set({...d, session:SESSION, updatedAt:new Date().toISOString()}); status(f,"저장했어요. 「모아 보기」에서 볼 수 있어요."); }
+  catch(err){ status(f, ERR[err&&err.code] || "저장하지 못했어요. 다시 눌러 주세요."); } });
+
+$("#pane-table").addEventListener("submit", async e => { e.preventDefault(); const f=e.target; const d=read(f);
+  if(!d.table){ status(f,"테이블 번호를 골라 주세요."); $("#t-no").focus(); return; }
+  if(!db){ status(f,"이 휴대폰에만 임시로 남았어요."); return; }
+  try{ status(f,"저장하는 중…"); await db.doc("tables/t"+d.table).set({...d, session:SESSION, updatedAt:new Date().toISOString()}); status(f,`${d.table}번 테이블을 저장했어요.`); }
+  catch(err){ status(f, ERR[err&&err.code] || "저장하지 못했어요. 다시 눌러 주세요."); } });
+
+$("#t-load").addEventListener("click", async () => { const f=$("#pane-table"); const no=$("#t-no").value;
+  if(!no){ status(f,"테이블 번호를 먼저 골라 주세요."); return; } if(!db){ status(f,"연결되지 않아 불러올 수 없어요."); return; }
+  try{ const s=await db.doc("tables/t"+no).get(); if(s.exists){ fill(f,s.data()); status(f,`${no}번 테이블을 불러왔어요.`);} else status(f,`${no}번 테이블은 아직 저장된 내용이 없어요.`); }
+  catch(err){ status(f,"불러오지 못했어요."); } });
+
+$("#pane-staff").addEventListener("submit", async e => { e.preventDefault(); const f=e.target;
+  if(!db){ status(f,"이 휴대폰에만 임시로 남았어요."); return; }
+  let id = store.get("staff-id"); if(!id){ id=newId(); store.set("staff-id",id); }
+  try{ status(f,"저장하는 중…"); await db.doc("staff/"+id).set({...read(f), session:SESSION, updatedAt:new Date().toISOString()}); status(f,"저장했어요."); }
+  catch(err){ status(f, ERR[err&&err.code] || "저장하지 못했어요. 다시 눌러 주세요."); } });
+
+// 모아 보기
+const S = v => typeof v==="string" ? v : "";
+function line(box,k,v){ if(!S(v)) return; const p=el("p"); p.append(el("span","k",k+" "), document.createTextNode(S(v))); box.append(p); }
+function renderPeople(snap){ const b=$("#b-people"); b.replaceChildren(); $("#c-people").textContent = snap.size ? `· ${snap.size}명` : "";
+  if(snap.empty){ b.append(el("p","empty","아직 저장된 노트가 없어요. 「내 노트」 탭에서 첫 노트를 저장해 보세요.")); return; }
+  snap.docs.forEach(s => { const d=s.data()||{}; const x=el("div","entry");
+    const who=el("p","who"); const theme=S(d.themeOther)||S(d.theme); if(theme) who.append(el("span","tag",theme)); who.append(document.createTextNode(S(d.name)||"이름 없음")); if(S(d.club)) who.append(el("span","count"," · "+S(d.club))); x.append(who);
+    line(x,"좋았던 순간"+(S(d.kind)?` (${S(d.kind)})`:""), [S(d.where),S(d.what)].filter(Boolean).join(" — "));
+    if(S(d.piece)||S(d.q)||S(d.a)) line(x,"조각 → ? → !", [S(d.piece),S(d.q)&&"? "+S(d.q),S(d.a)&&"! "+S(d.a)].filter(Boolean).join("  "));
+    line(x,"왜 이 테마", d.themeWhy);
+    [1,2,3].forEach(i => line(x,`사진 ${i}`, [S(d[`p${i}where`]),S(d[`p${i}story`])].filter(Boolean).join(" — ")));
+    b.append(x); }); }
+function renderTables(snap){ const b=$("#b-tables"); b.replaceChildren(); $("#c-tables").textContent = snap.size ? `· ${snap.size}개 테이블` : "";
+  if(snap.empty){ b.append(el("p","empty","아직 저장된 테이블이 없어요.")); return; }
+  [...snap.docs].sort((a,c)=>Number(S((a.data()||{}).table))-Number(S((c.data()||{}).table))).forEach(s => { const d=s.data()||{}; const x=el("div","entry");
+    const who=el("p","who"); who.append(el("span","tag",S(d.table)+"번"), document.createTextNode(S(d.pick)||"고른 하나 아직 없음")); x.append(who);
+    line(x,"왜", d.pickWhy); line(x,"함께한 사람", d.members);
+    MATS.forEach((m,i) => { const name = m || S(d[`m${i}_item`]); const v=[S(d[`m${i}_collect`]),S(d[`m${i}_shape`]),S(d[`m${i}_who`])].filter(Boolean).join(" / "); if(name && v) line(x,name,v); });
+    b.append(x); }); }
+function renderStaff(snap){ const b=$("#b-staff"); b.replaceChildren(); $("#c-staff").textContent = snap.size ? `· ${snap.size}건` : "";
+  if(snap.empty){ b.append(el("p","empty","아직 저장된 목록이 없어요.")); return; }
+  snap.docs.forEach(s => { const d=s.data()||{}; const x=el("div","entry"); x.append(el("p","who",S(d.writer)||"작성자 없음"));
+    CLUBS.forEach((c,i) => { const name=S(d[`c${i}_club`]); const v=[S(d[`c${i}_result`]),S(d[`c${i}_when`]),S(d[`c${i}_keep`]),d[`c${i}_ok`]?"책·영상 가능":""].filter(Boolean).join(" / "); if(name&&v) line(x,name,v); });
+    const sup=[d.sup_space&&"공간",d.sup_gear&&"장비·계정",d.sup_show&&"보여 줄 자리",d.sup_link&&"연결"].filter(Boolean).join(", "); line(x,"깔아 줄 판",sup); line(x,"메모",d.memo);
+    b.append(x); }); }
+
+
+// 쌓인 내용을 표 파일로
+const latest = { people:null, tables:null, staff:null };
+function toCsv(){ const rows=[["구분","세션","이름·테이블","항목","내용","저장 시각"]];
+  const add=(kind,d,who,k,v)=>{ if(v) rows.push([kind,S(d.session),who,k,String(v)]) && rows[rows.length-1].push(S(d.updatedAt)); };
+  (latest.people?.docs||[]).forEach(s=>{ const d=s.data()||{}; const who=S(d.name);
+    [["동아리",d.club],["좋았던 순간 종류",d.kind],["언제 어디서",d.where],["좋았던 점",d.what],["내 조각",d.piece],["물음표",d.q],["느낌표",d.a],["아하를 준 이웃",d.ahaBy],["테마",S(d.themeOther)||S(d.theme)],["테마 이유",d.themeWhy],
+     ["사진1",[S(d.p1where),S(d.p1story)].filter(Boolean).join(" — ")],["사진2",[S(d.p2where),S(d.p2story)].filter(Boolean).join(" — ")],["사진3",[S(d.p3where),S(d.p3story)].filter(Boolean).join(" — ")]].forEach(([k,v])=>add("내 노트",d,who,k,S(v))); });
+  (latest.tables?.docs||[]).forEach(s=>{ const d=s.data()||{}; const who=S(d.table)+"번 테이블";
+    add("테이블",d,who,"함께한 사람",S(d.members)); add("테이블",d,who,"고른 하나",S(d.pick)); add("테이블",d,who,"이유",S(d.pickWhy));
+    MATS.forEach((m,i)=>{ const name=m||S(d[`m${i}_item`]); const v=[S(d[`m${i}_collect`]),S(d[`m${i}_shape`]),S(d[`m${i}_who`])].filter(Boolean).join(" / "); if(name) add("테이블",d,who,name,v); }); });
+  (latest.staff?.docs||[]).forEach(s=>{ const d=s.data()||{}; const who=S(d.writer);
+    CLUBS.forEach((c,i)=>{ const name=S(d[`c${i}_club`]); const v=[S(d[`c${i}_result`]),S(d[`c${i}_when`]),S(d[`c${i}_keep`]),d[`c${i}_ok`]?"책·영상 가능":""].filter(Boolean).join(" / "); if(name) add("직원",d,who,name,v); });
+    add("직원",d,who,"깔아 줄 판",[d.sup_space&&"공간",d.sup_gear&&"장비·계정",d.sup_show&&"보여 줄 자리",d.sup_link&&"연결"].filter(Boolean).join(", ")); add("직원",d,who,"메모",S(d.memo)); });
+  return "\ufeff"+rows.map(r=>r.map(c=>{ let v=String(c??""); if(/^[=+\-@]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"'; }).join(",")).join("\r\n"); }
+
+// 구글 시트 저장소 (cheomdan-note/apps-script/Code.gs 를 웹 앱으로 배포한 주소)
+const API = "https://script.google.com/macros/s/AKfycbxVwx3NPZ9m14nmSqnjER9SH58nOfEXHkdAmSTalnZf15CugNKTL5UUm77EfmysK2WYGA/exec";
+const cache = { people:[], tables:[], staff:[] };
+const snap = docs => ({ docs: docs.map(x=>({ data:()=>x.data })), size: docs.length, empty: !docs.length });
+const sortBy = a => [...a].sort((x,y)=>S(x.data.updatedAt).localeCompare(S(y.data.updatedAt)));
+async function call(opts){ const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),20000);
+  try{ const r=await fetch(API,{...opts,signal:ctl.signal,redirect:"follow"}); const j=await r.json(); if(!j.ok) throw {code:j.error}; return j; }
+  catch(e){ throw (e&&e.code) ? e : {code:"unavailable"}; } finally{ clearTimeout(t); } }
+const db = API ? {
+  doc(path){ const [col,id]=path.split("/"); return {
+    set: data => call({method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({col,id,data})}).then(r=>{ refresh(); return r; }),
+    get: async () => { await refresh(); const hit=cache[col].find(x=>x.id===id); return { exists:!!hit, data:()=>hit?hit.data:{} }; } }; }
+} : null;
+let refreshing=null;
+function refresh(){ if(!API) return Promise.resolve(); return refreshing ||= call({method:"GET"}).then(j=>{
+    ["people","tables","staff"].forEach(c=>cache[c]=Array.isArray(j.data[c])?j.data[c]:[]);
+    latest.people=snap(sortBy(cache.people)); latest.tables=snap(cache.tables); latest.staff=snap(sortBy(cache.staff));
+    renderPeople(latest.people); renderTables(latest.tables); renderStaff(latest.staff); $("#offline").hidden=true; })
+  .catch(()=>{ $("#offline").hidden=false; }).finally(()=>{ refreshing=null; }); }
+
+if(!db){ $("#offline").hidden=false; }
+else {
+  refresh().then(async () => { const id=store.get("me-id"); if(id){ const hit=cache.people.find(x=>x.id===id); if(hit) fill($("#pane-me"), hit.data); } });
+  setInterval(() => { if(!document.hidden && location.hash==="#board") refresh(); }, 8000);
+  addEventListener("hashchange", () => { if(location.hash==="#board") refresh(); });
+  $("#dl-bar").hidden=false;
+  $("#dl").addEventListener("click", () => { const day=new Date().toISOString().slice(0,10);
+    const a=el("a"); a.href=URL.createObjectURL(new Blob([toCsv()],{type:"text/csv;charset=utf-8"})); a.download=`우리동네기록노트_${day}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); $("#dl-status").textContent="내려받았어요."; });
+}
+</script>
+</body></html>
