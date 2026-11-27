@@ -6,8 +6,12 @@ import { ensureFonts, buildPagesPdf, buildA3Pdf, JSPDF_URL, zineTitle } from './
 const PAGE_COUNT = 8;
 const MAX_STICKER = 3 * 1024 * 1024;
 
-export function sortStudents(list) {
-  return [...list].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+// by: 'name' = 가나다순, 'recent' = 마지막 수정이 최근인 순(수정 기록 없으면 맨 뒤)
+export function sortStudents(list, by = 'name') {
+  const byName = (a, b) => a.name.localeCompare(b.name, 'ko');
+  if (by !== 'recent') return [...list].sort(byName);
+  const t = (s) => (s.updatedAt ? Date.parse(s.updatedAt) || 0 : 0);
+  return [...list].sort((a, b) => t(b) - t(a) || byName(a, b));
 }
 export function validNewPin(s) { return /^\d{4}$/.test(String(s)); }
 export function fmtTime(ms) {
@@ -69,7 +73,7 @@ function main() {
       $('summary').textContent = '학생 목록을 불러오는 중이에요… (사람이 많으면 1분쯤 걸려요)';
       // 서버가 학생 진을 하나씩 열어 보므로 50명이면 30초를 넘는다 → 이 요청만 5분까지 기다린다.
       const res = await admin('adminList', {}, { timeoutMs: 5 * 60 * 1000 });
-      students = sortStudents(res.students || []);
+      students = sortStudents(res.students || [], $('sortBy').value);
       for (const n of [...selected]) if (!students.some((s) => s.name === n)) selected.delete(n);
       render();
     } catch (e) { $('summary').textContent = ''; fail(e); }
@@ -158,7 +162,7 @@ function main() {
   async function refreshQuiet() {
     try {
       const res = await admin('adminList');
-      students = sortStudents(res.students || []);
+      students = sortStudents(res.students || [], $('sortBy').value);
       render();
     } catch (e) { fail(e); }
   }
@@ -321,6 +325,12 @@ function main() {
     } finally { $('loginBtn').disabled = false; }
   });
   $('reload').addEventListener('click', refresh);
+  try { $('sortBy').value = localStorage.getItem('adminSort') || 'name'; } catch (e) { /* 저장소 막힘: 기본 이름순 */ }
+  $('sortBy').addEventListener('change', (e) => {
+    try { localStorage.setItem('adminSort', e.target.value); } catch (err) { /* 무시 */ }
+    students = sortStudents(students, e.target.value);
+    render();
+  });
   $('logout').addEventListener('click', () => showLogin(''));
   $('selAll').addEventListener('change', (e) => {
     selected.clear();
